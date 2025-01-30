@@ -22,10 +22,10 @@ rl.configure(100)
 rel_distance = rl.relativistic_distance(rl.g, rl.seconds_per_year)
 
 # simple distance travelled (non-relativistic)
-sim_distance = rl.simple_distance(g, seconds_per_year)
+sim_distance = rl.simple_distance(rl.g, rl.seconds_per_year)
 
 # peak velocity
-rel_velocity = rl.relativistic_velocity(g, seconds_per_year)
+rel_velocity = rl.relativistic_velocity(rl.g, rl.seconds_per_year)
 
 # simple peak velocity (non-relativistic)
 # Note this may exceed the speed of light!
@@ -38,10 +38,10 @@ print("Difference           :", rl.format_mpf(rel_distance - sim_distance, 4))
 print()
 print("Peak velocity:")
 print(
-    f"Relativistic velocity: {rl.format_mpf(rel_velocity)}, c = {rl.format_mpf_significant(rel_velocity / c, 4)}"
+    f"Relativistic velocity: {rl.format_mpf(rel_velocity)}, c = {rl.format_mpf_significant(rel_velocity / rl.c, 4)}"
 )
 print(
-    f"Simple velocity      : {rl.format_mpf(sim_velocity)}, c = {rl.format_mpf_significant(sim_velocity / c, 4)}"
+    f"Simple velocity      : {rl.format_mpf(sim_velocity)}, c = {rl.format_mpf_significant(sim_velocity / rl.c, 4)}"
 )
 
 ```

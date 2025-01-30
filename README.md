@@ -10,7 +10,7 @@ https://github.com/lookbusy1344/Relativity/tree/main/Python
 
 Python tools for Special Relativity, using `mpmath` for arbitrary precision calculations. A great place to start. Jupyter notebooks are included for playing with the tools.
 
-## Rust (uom and astofloat)
+## Rust (uom and astrofloat)
 
 These libraries are compiled and higher performance than the Python tools. Two projects are included:
 
@@ -26,10 +26,10 @@ Alternative Rust tools using the `astrofloat` crate for arbitrary precision calc
 
 https://github.com/lookbusy1344/Relativity/tree/main/CSharp
 
-This project contains both a strongly typed units of measure library (equivalent to the `rust_uom` library) and a library for arbitrary precision calculations (equivalent to the Python `mpmath` library or `rust_astrofloat`).
+This project contains both a strongly typed units of measure library (equivalent to the `rust_uom` library) and a library for arbitrary precision calculations (equivalent to the Python library or `rust_astrofloat`).
 
 However note there are no built-in `EFloat` hyperbolic trigonometry functions. These are implemented by hand and are not as accurate as the Python/Rust tools. Therefore the EFloatRelativity.cs file is the weakest library here.
 
 ## Which to use
 
-For arbitrary precision calculations, use the Python or Rust `astrofloat`. For strongly typed units of measure, use the `rust_uom` or C# uom libraries.
+For arbitrary precision calculations, use the `Python` or `rust_astrofloat`. For strongly typed units of measure, use the `rust_uom` or C# uom libraries.

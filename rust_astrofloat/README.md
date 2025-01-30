@@ -15,12 +15,12 @@ let result = a.mul(&b, &mut ctx).add(&c, &mut ctx).div(&d, &mut ctx);
 ..we can write..
 
 ```rust
-let result = expr!(a * b + c / d, &mut ctx);
+let result = expr!((a * b + c) / d, &mut ctx);
 ```
 
 ## Example usage, flip-and-burn time for 4 light years at 1g
 
-Showing how to calculate the time for a flip-and-burn maneuver to travel 4 light years at 1g acceleration. This is a common example in special relativity, and is a good test of the library.
+Showing how to calculate the time for a flip-and-burn maneuver to travel 4 light years at 1g acceleration.
 
 See the project for more examples.
 

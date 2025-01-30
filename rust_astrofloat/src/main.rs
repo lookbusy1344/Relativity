@@ -5,7 +5,7 @@ use astro_tools::{bigfloat_fmt_dp, bigfloat_fmt_sig, Relativity};
 // so the expr!() macro is used to simplify context handling in equations, eg instead of..
 // let result = a.mul(&b, &mut ctx).add(&c, &mut ctx).div(&d, &mut ctx);
 // ..we can write..
-// let result = expr!(a * b + c / d, &mut ctx);
+// let result = expr!((a * b + c) / d, &mut ctx);
 
 mod astro_tools;
 
