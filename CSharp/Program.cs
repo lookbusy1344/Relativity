@@ -16,12 +16,14 @@ internal static class Program
 	private static void Uom()
 	{
 		var oneG = Acceleration.FromStandardGravity(1.0); // 9.80665 m/s^2
-		var oneYear = Duration.FromDays(365);
+		var oneYear = Duration.FromDays(365.25);
 		var finalVelocity = Tools.RelativisticAcceleration(oneG, oneYear);
 		var check = Tools.RelativisticAccelerationAsFraction(oneG, oneYear);
 		var naively = oneG * oneYear;
 		var asFraction = new FractionOfC(finalVelocity);
 		var naiveAsFraction = new FractionOfC(naively, false);
+
+		Console.WriteLine("UOM, one year at 1g:");
 		Console.WriteLine($"Velocity after 1 year at 1G is {asFraction}");
 		Console.WriteLine($"Check {check}");
 		Console.WriteLine($"Non-relativistic naive calc would be {naiveAsFraction}");
@@ -29,22 +31,38 @@ internal static class Program
 
 	private static void BigFloats()
 	{
-		// default exponent range is from -2147483648 to 2147483647
-		//var exponentMax = EInteger.FromString("9000000000"); // -9000000000 to 9000000000
-		//var ctx = EContext.ForPrecision(300)
-		//	.WithRounding(ERounding.HalfEven)
-		//	.WithBigExponentRange(EInteger.Zero.Subtract(exponentMax), exponentMax);
-
 		var rl = new EFloatRelativity();
+		var ctx = rl.Context;
 
 		var initial = EFloat.FromString("299792457.9999999");
 		var rapidity = rl.RapidityFromVelocity(initial);
-		var doubled = rapidity.Multiply(2, rl.Context);
+		var doubled = rapidity.Multiply(2, ctx);
 		var velocity = rl.VelocityFromRapidity(doubled);
 
+		Console.WriteLine();
+		Console.WriteLine("BigFloats:");
 		Console.WriteLine($"Initial velocity {initial}");
 		Console.WriteLine($"Rapidity {rapidity}");
 		Console.WriteLine($"Doubled rapidity {doubled}");
 		Console.WriteLine($"Final velocity {velocity}");
+
+		// Lets go to Andromeda Galaxy, 2.5 million light years away at 1g
+		var year = rl.Days(365.25);
+		var distance = rl.LightYears(2_500_000.0);
+		var accel = EFloatRelativity.G;
+		var full_burn_sec = rl.RelativisticTimeForDistance(accel, distance);
+		var flip_burn_sec = rl.RelativisticTimeForDistance(accel, distance.Divide(2));
+
+		var full_burn_years = full_burn_sec.Divide(year, ctx);
+		var flip_burn_years = flip_burn_sec.Multiply(2).Divide(year, ctx);
+
+		var peak_velocity_full_burn = rl.RelativisticVelocity(accel, full_burn_sec).Divide(EFloatRelativity.C, ctx);
+		var peak_velocity_flip_burn = rl.RelativisticVelocity(accel, flip_burn_sec).Divide(EFloatRelativity.C, ctx);
+
+		Console.WriteLine($"Years at 1g, burning all the way {full_burn_years}");
+		Console.WriteLine($"Peak velocity full burn {peak_velocity_full_burn} c");
+		Console.WriteLine();
+		Console.WriteLine($"Years at 1g, flip and burn half way {flip_burn_years}");
+		Console.WriteLine($"Peak velocity flip {peak_velocity_flip_burn} c");
 	}
 }

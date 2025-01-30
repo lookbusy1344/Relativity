@@ -4,6 +4,7 @@ using System;
 namespace Relativity;
 
 // These utilities are based on the EFloat class from PeterO.Numbers, which is a high-precision arbitrary-precision decimal class
+// NOTE Because of the manually implemented hyperbolic trig functions, this class is not as precise as the others in this project!
 
 internal sealed class EFloatRelativity
 {

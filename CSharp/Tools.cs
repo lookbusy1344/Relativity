@@ -3,7 +3,7 @@
 namespace Relativity;
 
 // Strongly typed classes for special relativity calculations
-// These classes use units of measure, but are based on double (64 big float) values so lack precision for high/low values
+// These classes use units of measure, but are based on double (64-bit float) values so lack maximal precision.
 
 /// <summary>
 /// A struct representing a Lorentz factor, intentionally not convertible to a double. Implicit constructor is ok here
