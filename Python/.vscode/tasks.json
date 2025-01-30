@@ -1,0 +1,48 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "ruff check project",
+			"type": "shell",
+			"command": "ruff check .",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "ruff check file",
+			"type": "shell",
+			"command": "ruff check '${file}'",
+			"group": { },
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "ruff format file",
+			"type": "shell",
+			"command": "ruff format '${file}'",
+			"group": { },
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "ruff format project",
+			"type": "shell",
+			"command": "ruff format .",
+			"group": { },
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": []
+		}
+	]
+}
