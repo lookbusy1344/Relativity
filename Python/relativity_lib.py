@@ -381,7 +381,7 @@ def invariant_interval_simplified(event1: tuple, event2: tuple):
     return delta_t**2 - (delta_x**2) / csquared
 
 
-def invariant_interval_3d(event1, event2):
+def invariant_interval_3d(event1: tuple, event2: tuple):
     """
     Calculate the invariant interval between two events in 3D space.
 
