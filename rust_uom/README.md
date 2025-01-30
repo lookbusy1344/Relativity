@@ -4,7 +4,7 @@ This project is compiled and higher performance than the Python tools. The libra
 
 https://github.com/lookbusy1344/Relativity/blob/main/rust_uom/src/tools.rs
 
-This uses `uom` crate for strongly typed units of measure. However, `f64` is used internally so the functions will lack precision of Python and astro-float projects.
+This uses `uom` crate for strongly typed units of measure. However, `f64` is used internally so the functions will lack precision of Python and `astro-float` projects.
 
 ## Example usage, doubling velocity using rapidity
 

@@ -1,12 +1,14 @@
-# Python Special Relativity coding tools
-
-Functions for playing with Special Relativity
-
-MIT License, have fun space travelers!
+# Python Special Relativity tools
 
 Python tools for Special Relativity, using `mpmath` for arbitrary precision calculations. A great place to start. Jupyter notebooks are included for playing with the tools.
 
+This Python solution is the easiest to use of the 3 language implementations, but probably the slowest.
+
 https://github.com/lookbusy1344/Relativity/blob/main/Python/Distance_time.ipynb
+
+Library is here:
+
+https://github.com/lookbusy1344/Relativity/blob/main/Python/relativity_lib.py
 
 ## Example usage, 1 year at 1g
 
