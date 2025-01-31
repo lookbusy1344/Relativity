@@ -1,6 +1,7 @@
 ﻿namespace Relativity;
 
 using PeterO.Numbers;
+using System.Runtime.CompilerServices;
 using UnitsNet;
 
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
@@ -11,6 +12,7 @@ internal static class Program
 	{
 		Uom();
 		BigFloats();
+		EmbeddedContext();
 	}
 
 	private static void Uom()
@@ -65,4 +67,25 @@ internal static class Program
 		Console.WriteLine($"Years at 1g, flip and burn half way {flip_burn_years}");
 		Console.WriteLine($"Peak velocity flip {peak_velocity_flip_burn} c");
 	}
+
+	private static void EmbeddedContext()
+	{
+		var ctx = EFloatRelativity.BuildContext();
+		EFloatWithContext.DefaultContext = ctx;
+
+		var ten = EFloat.FromInt32(10);
+		var twenty = EFloat.FromInt32(20);
+		var thirty = EFloat.FromInt32(30);
+		var pi = EFloat.FromString("3.14159");
+
+		// is it a good idea to implicitly convert EFloat to EFloatWithContext?
+		// also consider making the wrapper a readonly struct
+		var sum = B(ten) + B(twenty) * thirty / pi;
+
+		Console.WriteLine();
+		Console.WriteLine($"Results of EFloatWithContext = {sum.Value}");
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private static EFloatWithContext B(EFloat f) => EFloatWithContext.FromEFloat(f);
 }
