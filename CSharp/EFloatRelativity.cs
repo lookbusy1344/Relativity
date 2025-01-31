@@ -1,5 +1,6 @@
 ﻿using PeterO.Numbers;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Relativity;
 
@@ -24,12 +25,20 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Create a new EFloatRelativity instance with default context
 	/// </summary>
-	public EFloatRelativity() => this.Context = BuildContext();
+	public EFloatRelativity()
+	{
+		this.Context = BuildContext();
+		BigFloat.DefaultContext = this.Context;
+	}
 
 	/// <summary>
 	/// Create a new EFloatRelativity instance with custom precision
 	/// </summary>
-	public EFloatRelativity(int precision) => this.Context = BuildContext(precision);
+	public EFloatRelativity(int precision)
+	{
+		this.Context = BuildContext(precision);
+		BigFloat.DefaultContext = this.Context;
+	}
 
 	public static EContext BuildContext(int precision = 300)
 	{
@@ -69,7 +78,8 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat RelativisticVelocity(EFloat accel, EFloat tau) =>
 		// c * tanh(a * tau / c)
-		C.Multiply(accel.Multiply(tau, this.Context).Divide(C, this.Context).Tanh(this.Context), this.Context);
+		//C.Multiply(accel.Multiply(tau, this.Context).Divide(C, this.Context).Tanh(this.Context), this.Context);
+		(B(C) * (B(accel) * B(tau) / B(C)).Tanh()).Value;
 
 	/// <summary>
 	/// Calculate distance travelled for a given acceleration and proper time
@@ -80,8 +90,9 @@ internal sealed class EFloatRelativity
 	public EFloat RelativisticDistance(EFloat accel, EFloat tau)
 	{
 		// (csquared / a) * (cosh(a * tau / c) - one)
-		var inner = accel.Multiply(tau, this.Context).Divide(C, this.Context);
-		return C_SQUARED.Divide(accel, this.Context).Multiply(inner.Cosh(this.Context).Subtract(EFloat.One, this.Context), this.Context);
+		//var inner = accel.Multiply(tau, this.Context).Divide(C, this.Context);
+		//return C_SQUARED.Divide(accel, this.Context).Multiply(inner.Cosh(this.Context).Subtract(EFloat.One, this.Context), this.Context);
+		return ((B(C_SQUARED) / B(accel)) * (B(accel) * B(tau) / B(C)).Cosh() - 1).Value;
 	}
 
 	/// <summary>
@@ -93,8 +104,9 @@ internal sealed class EFloatRelativity
 	public EFloat RelativisticTimeForDistance(EFloat accel, EFloat dist)
 	{
 		// (c / a) * acosh((dist * a) / csquared + one)
-		var inner = dist.Multiply(accel, this.Context).Divide(C_SQUARED, this.Context).Add(1);
-		return C.Divide(accel, this.Context).Multiply(inner.Acosh(this.Context), this.Context);
+		//var inner = dist.Multiply(accel, this.Context).Divide(C_SQUARED, this.Context).Add(1);
+		//return C.Divide(accel, this.Context).Multiply(inner.Acosh(this.Context), this.Context);
+		return (B(C) / B(accel) * ((B(dist) * B(accel) / B(C_SQUARED) + 1).Acosh())).Value;
 	}
 
 	/// <summary>
@@ -105,7 +117,8 @@ internal sealed class EFloatRelativity
 	/// <returns>Distance in m</returns>
 	public EFloat SimpleDistance(EFloat accel, EFloat time) =>
 		// 0.5 * a * t**2
-		Half.Multiply(accel, this.Context).Multiply(time.Pow(2), this.Context);
+		//Half.Multiply(accel, this.Context).Multiply(time.Pow(2), this.Context);
+		(B(Half) * B(accel) * B(time).Pow(2)).Value;
 
 	/// <summary>
 	/// Calculate the rapidity for a given velocity
@@ -114,7 +127,8 @@ internal sealed class EFloatRelativity
 	/// <returns>Rapidity</returns>
 	public EFloat RapidityFromVelocity(EFloat velocity) =>
 		// atanh(velocity / c)
-		CheckVelocity(velocity).Divide(C, this.Context).Atanh(this.Context);
+		//CheckVelocity(velocity).Divide(C, this.Context).Atanh(this.Context);
+		(B(CheckVelocity(velocity)) / B(C).Atanh()).Value;
 
 	/// <summary>
 	/// Calculate velocity for a given rapidity
@@ -123,7 +137,8 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat VelocityFromRapidity(EFloat rapidity) =>
 		// c * tanh(rapidity)
-		CheckVelocity(C.Multiply(rapidity.Tanh(this.Context), this.Context), "Calculated velocity at or above C, increase EContext precision");
+		//CheckVelocity(C.Multiply(rapidity.Tanh(this.Context), this.Context), "Calculated velocity at or above C, increase EContext precision");
+		CheckVelocity((B(C) * B(rapidity).Tanh()).Value, "Calculated velocity at or above C, increase EContext precision");
 
 	/// <summary>
 	/// Calculate coordinate time for a given acceleration and proper time
@@ -132,8 +147,9 @@ internal sealed class EFloatRelativity
 	/// <param name="tau">Proper time in s</param>
 	/// <returns>Coordinate time in s</returns>
 	public EFloat CoordinateTime(EFloat accel, EFloat tau) =>
-		// (c / a) * mp.sinh(a * tau / c)
-		C.Divide(accel, this.Context).Multiply(accel.Multiply(tau, this.Context).Divide(C, this.Context).Sinh(this.Context), this.Context);
+		// (c / a) * sinh(a * tau / c)
+		//C.Divide(accel, this.Context).Multiply(accel.Multiply(tau, this.Context).Divide(C, this.Context).Sinh(this.Context), this.Context);
+		((B(C) / B(accel)) * (B(accel) * B(tau) / B(C)).Sinh()).Value;
 
 	/// <summary>
 	/// Calculate Lorentz factor for a given velocity
@@ -143,7 +159,11 @@ internal sealed class EFloatRelativity
 	public EFloat LorentzFactor(EFloat velocity)
 	{
 		// 1 / sqrt(1 - (velocity / c) ** 2)
-		var inner = EFloat.One.Subtract(CheckVelocity(velocity).Divide(C, this.Context).Pow(2, this.Context), this.Context);
-		return EFloat.One.Divide(inner.Sqrt(this.Context), this.Context);
+		//var inner = EFloat.One.Subtract(CheckVelocity(velocity).Divide(C, this.Context).Pow(2, this.Context), this.Context);
+		//return EFloat.One.Divide(inner.Sqrt(this.Context), this.Context);
+		return (B(EFloat.One) / (B(EFloat.One) - (B(CheckVelocity(velocity)) / B(C)).Pow(2)).Sqrt()).Value;
 	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private static BigFloat B(EFloat f) => BigFloat.FromEFloat(f);
 }
