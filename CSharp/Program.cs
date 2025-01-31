@@ -80,8 +80,9 @@ internal static class Program
 		var pi = B(EFloat.FromString("3.14159"));
 
 		var nocontext = EFloat.FromInt32(10) + EFloat.FromInt32(20) * EFloat.FromInt32(30) / EFloat.FromString("3.14159");
-		var sum = ten + twenty * thirty / pi;
-		var check = 10.0 + 20.0 * 30.0 / 3.14159;
+		nocontext = nocontext.Sqrt(ctx);
+		var sum = (ten + twenty * thirty / pi).Sqrt();
+		var check = Math.Sqrt(10.0 + 20.0 * 30.0 / 3.14159);
 
 		Console.WriteLine();
 		Console.WriteLine($"EFloatWithContext = {sum.Value}");

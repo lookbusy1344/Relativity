@@ -13,7 +13,7 @@ namespace Relativity;
 // eg var arr = new EFloatWithContext[10]; // all structs initialised to (null, null)
 // so the Value property check and throw if nessessary
 
-public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>
+public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IEquatable<EFloat>
 {
 	/// <summary>
 	/// The EFloat value of this instance.
@@ -32,15 +32,21 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	public override readonly string ToString() => Value.ToString();
 
-	public override readonly int GetHashCode() => HashCode.Combine(Value.GetHashCode(), Context?.GetHashCode() ?? -1);
+	public override readonly int GetHashCode() => HashCode.Combine(Value.GetHashCode(), Context.GetHashCode());
 
 	public override readonly bool Equals(object? obj) => obj is BigFloat other && Equals(other);
 
 	public readonly bool Equals(BigFloat other) => Value.Equals(other.Value) && Context.Equals(other.Context);
 
+	public bool Equals(EFloat? other) => Value.Equals(other);
+
 	public static bool operator ==(BigFloat left, BigFloat right) => left.Equals(right);
 
 	public static bool operator !=(BigFloat left, BigFloat right) => !left.Equals(right);
+
+	public static bool operator ==(BigFloat left, EFloat right) => left.Equals(right);
+
+	public static bool operator !=(BigFloat left, EFloat right) => !left.Equals(right);
 
 	/// <summary>
 	/// Convert EFloat to EFloatWithContext with default context.
