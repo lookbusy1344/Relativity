@@ -33,11 +33,9 @@ internal sealed class EFloatRelativity
 
 	public static EContext BuildContext(int precision = 300)
 	{
-		// Default exponent range is from -2147483648 to 2147483647
-		// Here set them to -9000000000 to 9000000000
+		// Default exponent range is from -2147483648 to 2147483647, here set them to -9000000000 to 9000000000
 		var exponentMax = EInteger.FromString("9000000000");
-		return EContext.ForPrecision(precision)
-			.WithRounding(ERounding.HalfEven)
+		return EContext.ForPrecisionAndRounding(precision, ERounding.HalfEven)
 			.WithBigExponentRange(EInteger.Zero.Subtract(exponentMax), exponentMax);
 	}
 

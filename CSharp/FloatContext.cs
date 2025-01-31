@@ -70,6 +70,40 @@ public readonly struct EFloatWithContext(EFloat value, EContext? context) : IEqu
 	public static EFloatWithContext operator /(EFloatWithContext left, EFloatWithContext right) => Divide(left, right);
 
 	/// <summary>
+	/// Negate an EFloatWithContext instance.
+	/// </summary>
+	public static EFloatWithContext operator -(EFloatWithContext item) => Negate(item);
+
+	/// <summary>
+	/// Modulus of two EFloatWithContext instances using the context of the left operand.
+	/// </summary>
+	public static EFloatWithContext operator %(EFloatWithContext left, EFloatWithContext right) => Mod(left, right);
+
+	/// <summary>
+	/// Raise this EFloatWithContext instance to the power of another EFloatWithContext instance.
+	/// </summary>
+	public EFloatWithContext Pow(int power) =>
+		new(Value.Pow(power, Context), Context);
+
+	/// <summary>
+	/// Raise this EFloatWithContext instance to the power of another EFloatWithContext instance.
+	/// </summary>
+	public EFloatWithContext Pow(EFloatWithContext power) =>
+		new(Value.Pow(power.Value, Context), Context);
+
+	/// <summary>
+	/// Square root of this EFloatWithContext instance.
+	/// </summary>
+	/// <returns></returns>
+	public EFloatWithContext Sqrt() => new(Value.Sqrt(Context), Context);
+
+	/// <summary>
+	/// Absolute value of this EFloatWithContext instance.
+	/// </summary>
+	/// <returns></returns>
+	public EFloatWithContext Abs() => new(Value.Abs(Context), Context);
+
+	/// <summary>
 	/// Add two EFloatWithContext instances using the context of the left operand.
 	/// </summary>
 	public static EFloatWithContext Add(EFloatWithContext left, EFloatWithContext right) =>
@@ -104,6 +138,18 @@ public readonly struct EFloatWithContext(EFloat value, EContext? context) : IEqu
 			left.Value.Divide(right.Value, left.Context),
 			left.Context
 		);
+
+	/// <summary>
+	/// Negate an EFloatWithContext instance.
+	/// </summary>
+	public static EFloatWithContext Negate(EFloatWithContext item) =>
+		new(item.Value.Negate(item.Context), item.Context);
+
+	/// <summary>
+	/// Modulus of two EFloatWithContext instances using the context of the left operand.
+	/// </summary>
+	public static EFloatWithContext Mod(EFloatWithContext left, EFloatWithContext right) =>
+		new(left.Value.Remainder(right.Value, left.Context), left.Context);
 
 	public static bool operator ==(EFloatWithContext left, EFloatWithContext right) => left.Equals(right);
 
