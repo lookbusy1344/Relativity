@@ -73,14 +73,14 @@ internal static class Program
 		var ctx = EFloatRelativity.BuildContext();
 		EFloatWithContext.DefaultContext = ctx;
 
-		var ten = EFloat.FromInt32(10);
-		var twenty = EFloat.FromInt32(20);
-		var thirty = EFloat.FromInt32(30);
-		var pi = EFloat.FromString("3.14159");
+		var ten = B(EFloat.FromInt32(10));
+		var twenty = B(EFloat.FromInt32(20));
+		var thirty = B(EFloat.FromInt32(30));
+		var pi = B(EFloat.FromString("3.14159"));
 
 		// is it a good idea to implicitly convert EFloat to EFloatWithContext?
 		// also consider making the wrapper a readonly struct
-		var sum = B(ten) + B(twenty) * thirty / pi;
+		var sum = ten + twenty * thirty / pi;
 
 		Console.WriteLine();
 		Console.WriteLine($"Results of EFloatWithContext = {sum.Value}");
