@@ -72,7 +72,7 @@ internal static class Program
 	{
 		// Testing EFloatWithContext with an embedded context, to simplify math operations
 		var ctx = EFloatRelativity.BuildContext();
-		EFloatWithContext.DefaultContext = ctx;
+		BigFloat.DefaultContext = ctx;
 
 		var ten = B(EFloat.FromInt32(10));
 		var twenty = B(EFloat.FromInt32(20));
@@ -90,5 +90,5 @@ internal static class Program
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private static EFloatWithContext B(EFloat f) => EFloatWithContext.FromEFloat(f);
+	private static BigFloat B(EFloat f) => BigFloat.FromEFloat(f);
 }
