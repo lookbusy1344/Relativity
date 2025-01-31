@@ -48,8 +48,13 @@ print(
 
 ## Library functions
 
+* **Proper time/length/acceleration** = time/etc measured by an observer in the accelerating frame. Eg time on the ship.
+* **Coordinate time/length/acceleration** = time/etc measured by an observer in a stationary frame. Eg time on the Earth.
+
+`tau` is proper time, `t` is coordinate time.
+
 ### configure(dps: int) -> None
-Configure mpmath for this number of decimal places (base 10 digits). Rebuild constants like c. Typically 100 is a good number.
+Configure mpmath for this number of decimal places (base 10 digits). Rebuild constants like `c`. Typically 100 is a good number.
 
 ### relativistic_velocity(a, tau) -> mpf
 Returns velocity after constant acceleration for tau proper time
@@ -81,11 +86,11 @@ Calculate the length contraction factor for a given length and velocity.
 ### lorentz_factor(velocity) -> mpf
 Calculate the Lorentz factor from velocity.
 
-### relativistic_velocity_coord(a0, t) -> mpf
-Calculate the velocity under constant proper acceleration.
+### relativistic_velocity_coord(a, t) -> mpf
+Calculate the velocity under constant proper acceleration `a` and coordinate time `t`.
 
-### relativistic_distance_coord(a0, t) -> mpf
-Calculate the distance traveled under constant proper acceleration.
+### relativistic_distance_coord(a, t) -> mpf
+Calculate the distance traveled under constant proper acceleration `a` and coordinate time `t`.
 
 ### relativistic_momentum(mass, velocity) -> mpf
 Calculate the relativistic momentum.
@@ -103,10 +108,10 @@ Calculate the invariant (proper) mass of a system from energy and momentum.
 Calculate the four-momentum of a particle. Returns a tuple of energy and momentum.
 
 ### invariant_interval_simplified(event1: tuple, event2: tuple) -> mpf
-Calculate the invariant interval between two events in 1D space.
+Calculate the invariant interval between two events in 1D space. Input tuples are `(time, position)`.
 
 ### invariant_interval_3d(event1: tuple, event2: tuple) -> mpf
-Calculate the invariant interval between two events in 3D space.
+Calculate the invariant interval between two events in 3D space. Input tuples are `(time, x, y, z)`.
 
 ### format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str
 Format an mpmath number with commas and specified decimal places. Eg 1234567.1234567 with 2 decimal places will return `1,234,567.12`

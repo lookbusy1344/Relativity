@@ -245,36 +245,36 @@ def lorentz_factor(velocity):
     return one / mp.sqrt(one - (velocity / c) ** 2)
 
 
-def relativistic_velocity_coord(a0, t):
+def relativistic_velocity_coord(a, t):
     """
-    Calculate the velocity under constant proper acceleration using mpmath.
+    Calculate the velocity under constant proper acceleration and coordinate time using mpmath.
 
     Parameters:
-        a0: Proper acceleration (m/s^2) as an mpmath number or float
+        a: Proper acceleration (m/s^2) as an mpmath number or float
         t: Coordinate time (s) as an mpmath number or float
 
     Returns:
         The velocity (m/s) as an mpmath number
     """
-    a0 = ensure(a0)
+    a = ensure(a)
     t = ensure(t)
-    return (a0 * t) / mp.sqrt(one + (a0 * t / c) ** 2)
+    return (a * t) / mp.sqrt(one + (a * t / c) ** 2)
 
 
-def relativistic_distance_coord(a0, t):
+def relativistic_distance_coord(a, t):
     """
-    Calculate the distance traveled under constant proper acceleration using mpmath.
+    Calculate the distance traveled under constant proper acceleration and coordinate time using mpmath.
 
     Parameters:
-        a0: Proper acceleration (m/s^2) as an mpmath number or float
+        a: Proper acceleration (m/s^2) as an mpmath number or float
         t: Coordinate time (s) as an mpmath number or float
 
     Returns:
         The coordinate distance traveled (m) as an mpmath number
     """
-    a0 = ensure(a0)
+    a = ensure(a)
     t = ensure(t)
-    return (csquared / a0) * (mp.sqrt(one + (a0 * t / c) ** 2) - one)
+    return (csquared / a) * (mp.sqrt(one + (a * t / c) ** 2) - one)
 
 
 def relativistic_momentum(mass, velocity):
