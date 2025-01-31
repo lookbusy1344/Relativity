@@ -12,7 +12,7 @@ internal static class Program
 	{
 		Uom();
 		BigFloats();
-		EmbeddedContext();
+		//EmbeddedContext();
 	}
 
 	private static void Uom()
@@ -35,6 +35,7 @@ internal static class Program
 	{
 		var rl = new EFloatRelativity();
 		var ctx = rl.Context;
+		BigFloat.DefaultContext = ctx;
 
 		var initial = EFloat.FromString("299792457.9999999");
 		var rapidity = rl.RapidityFromVelocity(initial);

@@ -15,10 +15,11 @@ internal sealed class EFloatRelativity
 	public static readonly EFloat LIGHT_YR = EFloat.FromString("9460730472580800"); // metres
 	public static readonly EFloat AU = EFloat.FromString("149597870700"); // metres
 
-	private static readonly BigFloat Half = B(EFloat.FromString("0.5"));
-	private static readonly BigFloat One = B(EFloat.One);
-	private static readonly BigFloat C_B = B(C);
-	private static readonly BigFloat CSQUARED_B = B(C_SQUARED);
+	// These depend on the context, so cant be static
+	private readonly BigFloat Half;
+	private readonly BigFloat One;
+	private readonly BigFloat C_B;
+	private readonly BigFloat CSQUARED_B;
 
 	/// <summary>
 	/// The context for all calculations
@@ -31,7 +32,12 @@ internal sealed class EFloatRelativity
 	public EFloatRelativity()
 	{
 		this.Context = BuildContext();
-		BigFloat.DefaultContext = this.Context;
+
+		// Populate the BigFloats now we have a context
+		Half = B(EFloat.FromString("0.5"));
+		One = B(EFloat.One);
+		C_B = B(C);
+		CSQUARED_B = B(C_SQUARED);
 	}
 
 	/// <summary>
@@ -40,7 +46,12 @@ internal sealed class EFloatRelativity
 	public EFloatRelativity(int precision)
 	{
 		this.Context = BuildContext(precision);
-		BigFloat.DefaultContext = this.Context;
+
+		// Populate the BigFloats now we have a context
+		Half = B(EFloat.FromString("0.5"));
+		One = B(EFloat.One);
+		C_B = B(C);
+		CSQUARED_B = B(C_SQUARED);
 	}
 
 	public static EContext BuildContext(int precision = 300)
@@ -167,6 +178,9 @@ internal sealed class EFloatRelativity
 		return (One / (One - (B(CheckVelocity(velocity)) / C_B).Pow(2)).Sqrt()).Value;
 	}
 
+	/// <summary>
+	/// Helper to create a BigFloat from an EFloat, using instance context
+	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private static BigFloat B(EFloat f) => BigFloat.FromEFloat(f);
+	private BigFloat B(EFloat f) => BigFloat.Build(f, Context);
 }
