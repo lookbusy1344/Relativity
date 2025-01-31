@@ -78,8 +78,6 @@ internal static class Program
 		var thirty = B(EFloat.FromInt32(30));
 		var pi = B(EFloat.FromString("3.14159"));
 
-		// is it a good idea to implicitly convert EFloat to EFloatWithContext?
-		// also consider making the wrapper a readonly struct
 		var sum = ten + twenty * thirty / pi;
 
 		Console.WriteLine();

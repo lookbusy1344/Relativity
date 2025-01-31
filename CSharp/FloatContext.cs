@@ -9,18 +9,24 @@ namespace Relativity;
 // ..instead of..
 // A.Add(B, context).Multiply(C, context)
 
-// We don't want the inner EFloat or EContext to be null, but it's always a possibility with structs
+// We don't want the inner EFloat to be null, but it's always a possibility with structs
 // eg var arr = new EFloatWithContext[10]; // all structs initialised to (null, null)
-// so the Value and Context properties check and throw if nessessary
+// so the Value property check and throw if nessessary
 
-public readonly struct EFloatWithContext(EFloat value, EContext context) : IEquatable<EFloatWithContext>
+public readonly struct EFloatWithContext(EFloat value, EContext? context) : IEquatable<EFloatWithContext>
 {
+	/// <summary>
+	/// The EFloat value of this instance.
+	/// </summary>
 	public EFloat Value { get; } = value ?? throw new ArgumentNullException(nameof(value));
 
-	public EContext Context { get; } = context ?? throw new ArgumentNullException(nameof(context));
+	/// <summary>
+	/// Context for this EFloatWithContext instance, if null, use the default context.
+	/// </summary>
+	public EContext Context { get; } = context ?? DefaultContext;
 
 	/// <summary>
-	/// Default context for all EFloatWithContext instances
+	/// Changing this immediately affects all instances without an explicit context.
 	/// </summary>
 	public static EContext DefaultContext { get; set; } = EContext.Unlimited;
 
@@ -48,7 +54,7 @@ public readonly struct EFloatWithContext(EFloat value, EContext context) : IEqua
 	/// <summary>
 	/// Convert EFloat to EFloatWithContext with default context.
 	/// </summary>
-	public static EFloatWithContext FromEFloat(EFloat value) => new(value, DefaultContext);
+	public static EFloatWithContext FromEFloat(EFloat value) => new(value, null);
 
 	/// <summary>
 	/// Factory method from EFloat and explicit context
