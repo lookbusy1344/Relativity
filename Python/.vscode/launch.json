@@ -6,6 +6,12 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/relativity_lib.py"
+        },
+        {
+            "name": "Solar system.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/Solar system.py"
         }
     ]
 }

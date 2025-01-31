@@ -4,9 +4,15 @@ Python tools for Special Relativity, using `mpmath` for arbitrary precision calc
 
 This Python solution is the easiest to use of the 3 language implementations, but probably the slowest.
 
-https://github.com/lookbusy1344/Relativity/blob/main/Python/Distance_time.ipynb
+## Jupyter Notebooks
 
-Library is here:
+[Time dilation for interstellar travel, 1-25 million light years](https://github.com/lookbusy1344/Relativity/blob/main/Python/Distance_time.ipynb)
+
+[Solar system tour, how far can you get in 1-14 days](https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb)
+
+## Library
+
+The shared library is here:
 
 https://github.com/lookbusy1344/Relativity/blob/main/Python/relativity_lib.py
 
