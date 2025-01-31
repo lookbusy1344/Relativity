@@ -88,7 +88,7 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Turn given number of light years into metres
 	/// </summary>
-	public EFloat LightYears(double lightYears) => (B(lightYears) * B(LIGHT_YR)).Value;
+	public EFloat LightYears(double lightYears) => (B(lightYears) * LIGHT_YR).Value;
 
 	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time
@@ -98,7 +98,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat RelativisticVelocity(EFloat accel, EFloat tau) =>
 		// c * tanh(a * tau / c)
-		(C_B * (B(accel) * B(tau) / C_B).Tanh()).Value;
+		(C_B * (B(accel) * tau / C_B).Tanh()).Value;
 
 	/// <summary>
 	/// Calculate distance travelled for a given acceleration and proper time
@@ -108,7 +108,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Distance in m</returns>
 	public EFloat RelativisticDistance(EFloat accel, EFloat tau) =>
 		// (csquared / a) * (cosh(a * tau / c) - one)
-		((CSQUARED_B / B(accel)) * (B(accel) * B(tau) / C_B).Cosh() - 1).Value;
+		(CSQUARED_B / accel * (B(accel) * tau / C_B).Cosh() - 1).Value;
 
 	/// <summary>
 	/// Calculate proper time for a given acceleration and distance, how long it takes to travel that distance
@@ -118,7 +118,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Proper time in s</returns>
 	public EFloat RelativisticTimeForDistance(EFloat accel, EFloat dist) =>
 		// (c / a) * acosh((dist * a) / csquared + one)
-		(C_B / B(accel) * ((B(dist) * B(accel) / CSQUARED_B + 1).Acosh())).Value;
+		(C_B / accel * ((B(dist) * accel / CSQUARED_B + 1).Acosh())).Value;
 
 	/// <summary>
 	/// Calculate distance travelled for a given acceleration and velocity. Newtonian physics not relativistic
@@ -128,7 +128,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Distance in m</returns>
 	public EFloat SimpleDistance(EFloat accel, EFloat time) =>
 		// 0.5 * a * t**2
-		(Half * B(accel) * B(time).Pow(2)).Value;
+		(Half * accel * B(time).Pow(2)).Value;
 
 	/// <summary>
 	/// Calculate the rapidity for a given velocity
@@ -156,7 +156,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Coordinate time in s</returns>
 	public EFloat CoordinateTime(EFloat accel, EFloat tau) =>
 		// (c / a) * sinh(a * tau / c)
-		((C_B / B(accel)) * (B(accel) * B(tau) / C_B).Sinh()).Value;
+		((C_B / accel) * (B(accel) * tau / C_B).Sinh()).Value;
 
 	/// <summary>
 	/// Calculate Lorentz factor for a given velocity
