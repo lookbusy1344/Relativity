@@ -39,6 +39,10 @@ public readonly struct EFloatWithContext(EFloat value, EContext? context) : IEqu
 	public readonly bool Equals(EFloatWithContext other) => (Value?.Equals(other.Value) ?? other.Value is null)
 		&& (Context?.Equals(other.Context) ?? other.Context is null);
 
+	public static bool operator ==(EFloatWithContext left, EFloatWithContext right) => left.Equals(right);
+
+	public static bool operator !=(EFloatWithContext left, EFloatWithContext right) => !left.Equals(right);
+
 	/// <summary>
 	/// Convert EFloat to EFloatWithContext with default context.
 	/// </summary>
@@ -151,7 +155,17 @@ public readonly struct EFloatWithContext(EFloat value, EContext? context) : IEqu
 	public static EFloatWithContext Mod(EFloatWithContext left, EFloatWithContext right) =>
 		new(left.Value.Remainder(right.Value, left.Context), left.Context);
 
-	public static bool operator ==(EFloatWithContext left, EFloatWithContext right) => left.Equals(right);
+	// ====== Wrappers around hyperbolic trig functions ======
 
-	public static bool operator !=(EFloatWithContext left, EFloatWithContext right) => !left.Equals(right);
+	public EFloatWithContext Cosh() => new(Value.Cosh(Context), Context);
+
+	public EFloatWithContext Sinh() => new(Value.Sinh(Context), Context);
+
+	public EFloatWithContext Tanh() => new(Value.Tanh(Context), Context);
+
+	public EFloatWithContext Acosh() => new(Value.Acosh(Context), Context);
+
+	public EFloatWithContext Asinh() => new(Value.Asinh(Context), Context);
+
+	public EFloatWithContext Atanh() => new(Value.Atanh(Context), Context);
 }
