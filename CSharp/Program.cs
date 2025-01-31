@@ -70,6 +70,7 @@ internal static class Program
 
 	private static void EmbeddedContext()
 	{
+		// Testing EFloatWithContext with an embedded context, to simplify math operations
 		var ctx = EFloatRelativity.BuildContext();
 		EFloatWithContext.DefaultContext = ctx;
 

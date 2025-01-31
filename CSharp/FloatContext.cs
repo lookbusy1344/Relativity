@@ -32,12 +32,11 @@ public readonly struct EFloatWithContext(EFloat value, EContext? context) : IEqu
 
 	public override readonly string ToString() => Value.ToString();
 
-	public override readonly int GetHashCode() => HashCode.Combine(Value?.GetHashCode() ?? -1, Context?.GetHashCode() ?? -1);
+	public override readonly int GetHashCode() => HashCode.Combine(Value.GetHashCode(), Context?.GetHashCode() ?? -1);
 
 	public override readonly bool Equals(object? obj) => obj is EFloatWithContext other && Equals(other);
 
-	public readonly bool Equals(EFloatWithContext other) => (Value?.Equals(other.Value) ?? other.Value is null)
-		&& (Context?.Equals(other.Context) ?? other.Context is null);
+	public readonly bool Equals(EFloatWithContext other) => Value.Equals(other.Value) && Context.Equals(other.Context);
 
 	public static bool operator ==(EFloatWithContext left, EFloatWithContext right) => left.Equals(right);
 
