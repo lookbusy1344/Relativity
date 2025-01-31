@@ -48,25 +48,69 @@ print(
 
 ## Library functions
 
-### configure(dps: int)
-### relativistic_velocity(a, tau)
-### relativistic_distance(a, tau)
-### relativistic_time_for_distance(a, dist)
-### simple_distance(a, t)
-### rapidity_from_velocity(velocity)
-### velocity_from_rapidity(rapidity)
-### add_velocities(v1, v2)
-### coordinate_time(a, tau)
+### configure(dps: int) -> None
+Configure mpmath for this number of decimal places (base 10 digits). Rebuild constants like c. Typically 100 is a good number.
+
+### relativistic_velocity(a, tau) -> mpf
+Returns velocity after constant acceleration for tau proper time
+
+### relativistic_distance(a, tau) -> mpf
+Returns coord distance travelled after constant acceleration for tau proper time
+
+### relativistic_time_for_distance(a, dist) -> mpf
+Given acceleration and required distance, calculate seconds required in proper time to reach that coord distance.
+
+### simple_distance(a, t) -> mpf
+Calculate the distance travelled under constant acceleration. Not relativistic, this may exceed the speed of light! Contrast with `relativistic_distance()`.
+
+### rapidity_from_velocity(velocity) -> mpf
+Calculate the *rapidity* from velocity. Rapidity is an alternative to velocity that adds linearly.
+
+### velocity_from_rapidity(rapidity) -> mpf
+Calculate the relativistic velocity from rapidity. Checks for precision failure.
+
+### add_velocities(v1, v2) -> mpf
+Add two velocities relativistically. The velocities must be less than c.
+
+### coordinate_time(a, tau) -> mpf
+Calculate the coordinate time (observer time) elapsed for a stationary observer when accelerating at `a` for proper time `tau`.
+
 ### length_contraction_velocity(len, velocity)
-### lorentz_factor(velocity)
-### relativistic_velocity_coord(a0, t)
-### relativistic_distance_coord(a0, t)
-### relativistic_momentum(mass, velocity)
-### relativistic_energy(mass, velocity)
-### doppler_shift(frequency, velocity, source_moving_towards: bool = True)
-### invariant_mass_from_energy_momentum(energy, p)
-### four_momentum(mass, velocity) -> tuple
-### invariant_interval_simplified(event1: tuple, event2: tuple)
-### invariant_interval_3d(event1: tuple, event2: tuple)
-### format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str:
+Calculate the length contraction factor for a given length and velocity.
+
+### lorentz_factor(velocity) -> mpf
+Calculate the Lorentz factor from velocity.
+
+### relativistic_velocity_coord(a0, t) -> mpf
+Calculate the velocity under constant proper acceleration.
+
+### relativistic_distance_coord(a0, t) -> mpf
+Calculate the distance traveled under constant proper acceleration.
+
+### relativistic_momentum(mass, velocity) -> mpf
+Calculate the relativistic momentum.
+
+### relativistic_energy(mass, velocity) -> mpf
+Calculate the relativistic energy.
+
+### doppler_shift(frequency, velocity, source_moving_towards: bool = True) -> mpf
+Calculate the relativistic Doppler shift for light.
+
+### invariant_mass_from_energy_momentum(energy, p) -> mpf
+Calculate the invariant (proper) mass of a system from energy and momentum.
+
+### four_momentum(mass, velocity) -> tuple[mpf]
+Calculate the four-momentum of a particle. Returns a tuple of energy and momentum.
+
+### invariant_interval_simplified(event1: tuple, event2: tuple) -> mpf
+Calculate the invariant interval between two events in 1D space.
+
+### invariant_interval_3d(event1: tuple, event2: tuple) -> mpf
+Calculate the invariant interval between two events in 3D space.
+
+### format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str
+Format an mpmath number with commas and specified decimal places. Eg 1234567.1234567 with 2 decimal places will return `1,234,567.12`
+
 ### format_mpf_significant(number, significant_decimal_places: int = 2, ignore_char: str = "0") -> str
+Format a number with commas and specified significant decimal places. Ignore any number of leading zeros (or specified eg '9').
+Eg 1234.00001234 with 2 significant decimal places and `ignore_char='0'` will return `1,234.000012`
