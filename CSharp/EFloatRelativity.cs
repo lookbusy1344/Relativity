@@ -31,7 +31,7 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	public EFloatRelativity()
 	{
-		this.Context = BuildContext();
+		Context = BuildContext();
 
 		// Populate the BigFloats now we have a context
 		Half = B(EFloat.FromString("0.5"));
@@ -45,7 +45,7 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	public EFloatRelativity(int precision)
 	{
-		this.Context = BuildContext(precision);
+		Context = BuildContext(precision);
 
 		// Populate the BigFloats now we have a context
 		Half = B(EFloat.FromString("0.5"));
@@ -75,14 +75,20 @@ internal sealed class EFloatRelativity
 	}
 
 	/// <summary>
+	/// Check this velocity is less than C in m/s and return BigFloat
+	/// </summary>
+	private BigFloat CheckVelocityB(EFloat velocity, string msg = "Velocity must be less than C") =>
+		B(CheckVelocity(velocity, msg));
+
+	/// <summary>
 	/// Turn given number of days into seconds
 	/// </summary>
-	public EFloat Days(double days) => EFloat.FromDouble(days).Multiply(60 * 60 * 24, this.Context);
+	public EFloat Days(double days) => (B(days) * (60 * 60 * 24)).Value; //EFloat.FromDouble(days).Multiply(60 * 60 * 24, this.Context);
 
 	/// <summary>
 	/// Turn given number of light years into metres
 	/// </summary>
-	public EFloat LightYears(double lightYears) => EFloat.FromDouble(lightYears).Multiply(LIGHT_YR, this.Context);
+	public EFloat LightYears(double lightYears) => (B(lightYears) * B(LIGHT_YR)).Value; //EFloat.FromDouble(lightYears).Multiply(LIGHT_YR, this.Context);
 
 	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time
@@ -142,7 +148,7 @@ internal sealed class EFloatRelativity
 	public EFloat RapidityFromVelocity(EFloat velocity) =>
 		// atanh(velocity / c)
 		//CheckVelocity(velocity).Divide(C, this.Context).Atanh(this.Context);
-		(B(CheckVelocity(velocity)) / C_B).Atanh().Value;
+		(CheckVelocityB(velocity) / C_B).Atanh().Value;
 
 	/// <summary>
 	/// Calculate velocity for a given rapidity
@@ -175,7 +181,7 @@ internal sealed class EFloatRelativity
 		// 1 / sqrt(1 - (velocity / c) ** 2)
 		//var inner = EFloat.One.Subtract(CheckVelocity(velocity).Divide(C, this.Context).Pow(2, this.Context), this.Context);
 		//return EFloat.One.Divide(inner.Sqrt(this.Context), this.Context);
-		return (One / (One - (B(CheckVelocity(velocity)) / C_B).Pow(2)).Sqrt()).Value;
+		return (One / (One - (CheckVelocityB(velocity) / C_B).Pow(2)).Sqrt()).Value;
 	}
 
 	/// <summary>
@@ -183,4 +189,10 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private BigFloat B(EFloat f) => BigFloat.Build(f, Context);
+
+	/// <summary>
+	/// Helper to create a BigFloat from a double, using instance context
+	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private BigFloat B(double d) => BigFloat.Build(EFloat.FromDouble(d), Context);
 }
