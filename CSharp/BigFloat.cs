@@ -10,7 +10,7 @@ namespace Relativity;
 // A.Add(B, context).Multiply(C, context)
 
 // We don't want the inner EFloat to be null, but it's always a possibility with structs
-// eg var arr = new EFloatWithContext[10]; // all structs initialised to (null, null)
+// eg var arr = new BigFloat[10]; // all structs initialised to (null, null)
 // so the Value property check and throw if nessessary
 
 public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IEquatable<EFloat>
@@ -21,7 +21,7 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	public EFloat Value { get; } = value ?? throw new ArgumentNullException(nameof(value));
 
 	/// <summary>
-	/// Context for this EFloatWithContext instance, if null, use the default context.
+	/// Context for this BigFloat instance, if null, use the default context.
 	/// </summary>
 	public EContext Context => context ?? DefaultContext;
 
@@ -49,7 +49,7 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	public static bool operator !=(BigFloat left, EFloat right) => !left.Equals(right);
 
 	/// <summary>
-	/// Convert EFloat to EFloatWithContext with default context.
+	/// Convert EFloat to BigFloat with default context.
 	/// </summary>
 	public static BigFloat FromEFloat(EFloat value) => new(value, null);
 
@@ -59,61 +59,81 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	public static BigFloat Build(EFloat value, EContext context) => new(value, context);
 
 	/// <summary>
-	/// Use the left context to add two EFloatWithContext instances.
+	/// Use the left context to add
 	/// </summary>
 	public static BigFloat operator +(BigFloat left, BigFloat right) => Add(left, right);
 
 	/// <summary>
-	/// Use the left context to subtract two EFloatWithContext instances.
+	/// Use the left context to add
+	/// </summary>
+	public static BigFloat operator +(BigFloat left, int right) => Add(left, right);
+
+	/// <summary>
+	/// Use the left context to subtract
 	/// </summary>
 	public static BigFloat operator -(BigFloat left, BigFloat right) => Subtract(left, right);
 
 	/// <summary>
-	/// Use the left context to multiply two EFloatWithContext instances.
+	/// Use the left context to subtract
+	/// </summary>
+	public static BigFloat operator -(BigFloat left, int right) => Subtract(left, right);
+
+	/// <summary>
+	/// Use the left context to multiply
 	/// </summary>
 	public static BigFloat operator *(BigFloat left, BigFloat right) => Multiply(left, right);
 
 	/// <summary>
-	/// Use the left context to divide two EFloatWithContext instances.
+	/// Use the left context to multiply
+	/// </summary>
+	public static BigFloat operator *(BigFloat left, int right) => Multiply(left, right);
+
+	/// <summary>
+	/// Use the left context to divide
 	/// </summary>
 	public static BigFloat operator /(BigFloat left, BigFloat right) => Divide(left, right);
 
 	/// <summary>
-	/// Negate an EFloatWithContext instance.
+	/// Use the left context to divide
+	/// </summary>
+	public static BigFloat operator /(BigFloat left, int right) => Divide(left, right);
+
+	/// <summary>
+	/// Negate an BigFloat instance.
 	/// </summary>
 	public static BigFloat operator -(BigFloat item) => Negate(item);
 
 	/// <summary>
-	/// Modulus of two EFloatWithContext instances using the context of the left operand.
+	/// Modulus of two BigFloat instances using the context of the left operand.
 	/// </summary>
 	public static BigFloat operator %(BigFloat left, BigFloat right) => Mod(left, right);
 
 	/// <summary>
-	/// Raise this EFloatWithContext instance to the power of another EFloatWithContext instance.
+	/// Raise this BigFloat instance to the power of another BigFloat instance.
 	/// </summary>
 	public BigFloat Pow(int power) =>
 		new(Value.Pow(power, Context), Context);
 
 	/// <summary>
-	/// Raise this EFloatWithContext instance to the power of another EFloatWithContext instance.
+	/// Raise this BigFloat instance to the power of another BigFloat instance.
 	/// </summary>
 	public BigFloat Pow(BigFloat power) =>
 		new(Value.Pow(power.Value, Context), Context);
 
 	/// <summary>
-	/// Square root of this EFloatWithContext instance.
+	/// Square root of this BigFloat instance.
 	/// </summary>
 	/// <returns></returns>
 	public BigFloat Sqrt() => new(Value.Sqrt(Context), Context);
 
 	/// <summary>
-	/// Absolute value of this EFloatWithContext instance.
+	/// Absolute value of this BigFloat instance.
 	/// </summary>
 	/// <returns></returns>
 	public BigFloat Abs() => new(Value.Abs(Context), Context);
 
 	/// <summary>
-	/// Add two EFloatWithContext instances using the context of the left operand.
+	/// Add two BigFloat instances using the context of the left operand.
 	/// </summary>
 	public static BigFloat Add(BigFloat left, BigFloat right) =>
 		new(
@@ -122,7 +142,16 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		);
 
 	/// <summary>
-	/// Subtract two EFloatWithContext instances using the context of the left operand.
+	/// Add using the context of the left operand.
+	/// </summary>
+	public static BigFloat Add(BigFloat left, int right) =>
+		new(
+			left.Value.Add(right, left.Context),
+			left.Context
+		);
+
+	/// <summary>
+	/// Subtract two BigFloat instances using the context of the left operand.
 	/// </summary>
 	public static BigFloat Subtract(BigFloat left, BigFloat right) =>
 		  new(
@@ -131,7 +160,16 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		);
 
 	/// <summary>
-	/// Multiply two EFloatWithContext instances using the context of the left operand.
+	/// Subtract using the context of the left operand.
+	/// </summary>
+	public static BigFloat Subtract(BigFloat left, int right) =>
+		  new(
+			left.Value.Subtract(right, left.Context),
+			left.Context
+		);
+
+	/// <summary>
+	/// Multiply two BigFloat instances using the context of the left operand.
 	/// </summary>
 	public static BigFloat Multiply(BigFloat left, BigFloat right) =>
 		new(
@@ -140,7 +178,16 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		);
 
 	/// <summary>
-	/// Divide two EFloatWithContext instances using the context of the left operand.
+	/// Multiply using the context of the left operand.
+	/// </summary>
+	public static BigFloat Multiply(BigFloat left, int right) =>
+	new(
+		left.Value.Multiply(right, left.Context),
+		left.Context
+	);
+
+	/// <summary>
+	/// Divide two BigFloat instances using the context of the left operand.
 	/// </summary>
 	public static BigFloat Divide(BigFloat left, BigFloat right) =>
 		new(
@@ -149,13 +196,22 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		);
 
 	/// <summary>
-	/// Negate an EFloatWithContext instance.
+	/// Divide using the context of the left operand.
+	/// </summary>
+	public static BigFloat Divide(BigFloat left, int right) =>
+		new(
+			left.Value.Divide(right, left.Context),
+			left.Context
+		);
+
+	/// <summary>
+	/// Negate an BigFloat instance.
 	/// </summary>
 	public static BigFloat Negate(BigFloat item) =>
 		new(item.Value.Negate(item.Context), item.Context);
 
 	/// <summary>
-	/// Modulus of two EFloatWithContext instances using the context of the left operand.
+	/// Modulus of two BigFloat instances using the context of the left operand.
 	/// </summary>
 	public static BigFloat Mod(BigFloat left, BigFloat right) =>
 		new(left.Value.Remainder(right.Value, left.Context), left.Context);

@@ -35,11 +35,12 @@ internal static class Program
 	{
 		var rl = new EFloatRelativity();
 		var ctx = rl.Context;
+		BigFloat.DefaultContext = ctx;
 
 		var initial = EFloat.FromString("299792457.9999999");
 		var rapidity = rl.RapidityFromVelocity(initial);
-		var doubled = rapidity.Multiply(2, ctx);
-		var velocity = rl.VelocityFromRapidity(doubled);
+		var doubled = B(rapidity) * 2;
+		var velocity = rl.VelocityFromRapidity(doubled.Value);
 
 		Console.WriteLine();
 		Console.WriteLine("BigFloats:");
