@@ -9,11 +9,15 @@ namespace Relativity;
 // ..instead of..
 // A.Add(B, context).Multiply(C, context)
 
+// We don't want the inner EFloat or EContext to be null, but it's always a possibility with structs
+// eg var arr = new EFloatWithContext[10]; // all structs initialised to (null, null)
+// so the Value and Context properties check and throw if nessessary
+
 public readonly struct EFloatWithContext(EFloat value, EContext context) : IEquatable<EFloatWithContext>
 {
-	public EFloat Value { get; } = value;
+	public EFloat Value { get; } = value ?? throw new ArgumentNullException(nameof(value));
 
-	public EContext Context { get; } = context;
+	public EContext Context { get; } = context ?? throw new ArgumentNullException(nameof(context));
 
 	/// <summary>
 	/// Default context for all EFloatWithContext instances
