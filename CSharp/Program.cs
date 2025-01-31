@@ -78,10 +78,17 @@ internal static class Program
 		var thirty = B(EFloat.FromInt32(30));
 		var pi = B(EFloat.FromString("3.14159"));
 
+		// this context reassignment doesn't seem to work
+		EFloatWithContext.DefaultContext = EContext.UnlimitedHalfEven;
+
+		var nocontext = EFloat.FromInt32(10) + EFloat.FromInt32(20) * EFloat.FromInt32(30) / EFloat.FromString("3.14159");
 		var sum = ten + twenty * thirty / pi;
+		var check = 10.0 + 20.0 * 30.0 / 3.14159;
 
 		Console.WriteLine();
-		Console.WriteLine($"Results of EFloatWithContext = {sum.Value}");
+		Console.WriteLine($"EFloatWithContext = {sum.Value}");
+		Console.WriteLine($"No context = {nocontext}");
+		Console.WriteLine($"Check = {check}");
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

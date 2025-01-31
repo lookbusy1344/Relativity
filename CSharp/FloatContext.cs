@@ -30,26 +30,14 @@ public readonly struct EFloatWithContext(EFloat value, EContext? context) : IEqu
 	/// </summary>
 	public static EContext DefaultContext { get; set; } = EContext.Unlimited;
 
-	public static EFloatWithContext operator +(EFloatWithContext left, EFloatWithContext right) => Add(left, right);
-
-	public static EFloatWithContext operator -(EFloatWithContext left, EFloatWithContext right) => Subtract(left, right);
-
-	public static EFloatWithContext operator *(EFloatWithContext left, EFloatWithContext right) => Multiply(left, right);
-
-	public static EFloatWithContext operator /(EFloatWithContext left, EFloatWithContext right) => Divide(left, right);
-
 	public override readonly string ToString() => Value.ToString();
 
-	public override readonly int GetHashCode() => HashCode.Combine(Value.GetHashCode(), Context.GetHashCode());
+	public override readonly int GetHashCode() => HashCode.Combine(Value?.GetHashCode() ?? -1, Context?.GetHashCode() ?? -1);
 
 	public override readonly bool Equals(object? obj) => obj is EFloatWithContext other && Equals(other);
 
-	public readonly bool Equals(EFloatWithContext other) => Value.Equals(other.Value) && Context.Equals(other.Context);
-
-	///// <summary>
-	///// Implicitly convert an EFloatWithContext to an EFloat with default context.
-	///// </summary>
-	//public static implicit operator EFloatWithContext(EFloat value) => FromEFloat(value);
+	public readonly bool Equals(EFloatWithContext other) => (Value?.Equals(other.Value) ?? other.Value is null)
+		&& (Context?.Equals(other.Context) ?? other.Context is null);
 
 	/// <summary>
 	/// Convert EFloat to EFloatWithContext with default context.
@@ -62,48 +50,60 @@ public readonly struct EFloatWithContext(EFloat value, EContext? context) : IEqu
 	public static EFloatWithContext Build(EFloat value, EContext context) => new(value, context);
 
 	/// <summary>
+	/// Use the left context to add two EFloatWithContext instances.
+	/// </summary>
+	public static EFloatWithContext operator +(EFloatWithContext left, EFloatWithContext right) => Add(left, right);
+
+	/// <summary>
+	/// Use the left context to subtract two EFloatWithContext instances.
+	/// </summary>
+	public static EFloatWithContext operator -(EFloatWithContext left, EFloatWithContext right) => Subtract(left, right);
+
+	/// <summary>
+	/// Use the left context to multiply two EFloatWithContext instances.
+	/// </summary>
+	public static EFloatWithContext operator *(EFloatWithContext left, EFloatWithContext right) => Multiply(left, right);
+
+	/// <summary>
+	/// Use the left context to divide two EFloatWithContext instances.
+	/// </summary>
+	public static EFloatWithContext operator /(EFloatWithContext left, EFloatWithContext right) => Divide(left, right);
+
+	/// <summary>
 	/// Add two EFloatWithContext instances using the context of the left operand.
 	/// </summary>
-	public static EFloatWithContext Add(EFloatWithContext left, EFloatWithContext right)
-	{
-		return new EFloatWithContext(
+	public static EFloatWithContext Add(EFloatWithContext left, EFloatWithContext right) =>
+		new(
 			left.Value.Add(right.Value, left.Context),
 			left.Context
 		);
-	}
 
 	/// <summary>
 	/// Subtract two EFloatWithContext instances using the context of the left operand.
 	/// </summary>
-	public static EFloatWithContext Subtract(EFloatWithContext left, EFloatWithContext right)
-	{
-		return new EFloatWithContext(
+	public static EFloatWithContext Subtract(EFloatWithContext left, EFloatWithContext right) =>
+		  new(
 			left.Value.Subtract(right.Value, left.Context),
 			left.Context
 		);
-	}
 
 	/// <summary>
 	/// Multiply two EFloatWithContext instances using the context of the left operand.
 	/// </summary>
-	public static EFloatWithContext Multiply(EFloatWithContext left, EFloatWithContext right)
-	{
-		return new EFloatWithContext(
+	public static EFloatWithContext Multiply(EFloatWithContext left, EFloatWithContext right) =>
+		new(
 			left.Value.Multiply(right.Value, left.Context),
 			left.Context
 		);
-	}
 
 	/// <summary>
 	/// Divide two EFloatWithContext instances using the context of the left operand.
 	/// </summary>
-	public static EFloatWithContext Divide(EFloatWithContext left, EFloatWithContext right)
-	{
-		return new EFloatWithContext(
+	public static EFloatWithContext Divide(EFloatWithContext left, EFloatWithContext right) =>
+		new(
 			left.Value.Divide(right.Value, left.Context),
 			left.Context
 		);
-	}
 
 	public static bool operator ==(EFloatWithContext left, EFloatWithContext right) => left.Equals(right);
 
