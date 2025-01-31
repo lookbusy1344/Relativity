@@ -11,7 +11,7 @@ namespace Relativity;
 
 // We don't want the inner EFloat to be null, but it's always a possibility with structs
 // eg var arr = new BigFloat[10]; // all structs initialised to (null, null)
-// so the Value property check and throw if nessessary
+// so the Value property checks and throws if nessessary
 
 public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IEquatable<EFloat>
 {

@@ -83,12 +83,12 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Turn given number of days into seconds
 	/// </summary>
-	public EFloat Days(double days) => (B(days) * (60 * 60 * 24)).Value; //EFloat.FromDouble(days).Multiply(60 * 60 * 24, this.Context);
+	public EFloat Days(double days) => (B(days) * (60 * 60 * 24)).Value;
 
 	/// <summary>
 	/// Turn given number of light years into metres
 	/// </summary>
-	public EFloat LightYears(double lightYears) => (B(lightYears) * B(LIGHT_YR)).Value; //EFloat.FromDouble(lightYears).Multiply(LIGHT_YR, this.Context);
+	public EFloat LightYears(double lightYears) => (B(lightYears) * B(LIGHT_YR)).Value;
 
 	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time
@@ -98,7 +98,6 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat RelativisticVelocity(EFloat accel, EFloat tau) =>
 		// c * tanh(a * tau / c)
-		//C.Multiply(accel.Multiply(tau, this.Context).Divide(C, this.Context).Tanh(this.Context), this.Context);
 		(C_B * (B(accel) * B(tau) / C_B).Tanh()).Value;
 
 	/// <summary>
@@ -107,13 +106,9 @@ internal sealed class EFloatRelativity
 	/// <param name="accel">Constant acceleration in m/s^2</param>
 	/// <param name="tau">Proper time in s</param>
 	/// <returns>Distance in m</returns>
-	public EFloat RelativisticDistance(EFloat accel, EFloat tau)
-	{
+	public EFloat RelativisticDistance(EFloat accel, EFloat tau) =>
 		// (csquared / a) * (cosh(a * tau / c) - one)
-		//var inner = accel.Multiply(tau, this.Context).Divide(C, this.Context);
-		//return C_SQUARED.Divide(accel, this.Context).Multiply(inner.Cosh(this.Context).Subtract(EFloat.One, this.Context), this.Context);
-		return ((CSQUARED_B / B(accel)) * (B(accel) * B(tau) / C_B).Cosh() - 1).Value;
-	}
+		((CSQUARED_B / B(accel)) * (B(accel) * B(tau) / C_B).Cosh() - 1).Value;
 
 	/// <summary>
 	/// Calculate proper time for a given acceleration and distance, how long it takes to travel that distance
@@ -121,13 +116,9 @@ internal sealed class EFloatRelativity
 	/// <param name="accel">Constant acceleration in m/s^2</param>
 	/// <param name="dist">Distance in m</param>
 	/// <returns>Proper time in s</returns>
-	public EFloat RelativisticTimeForDistance(EFloat accel, EFloat dist)
-	{
+	public EFloat RelativisticTimeForDistance(EFloat accel, EFloat dist) =>
 		// (c / a) * acosh((dist * a) / csquared + one)
-		//var inner = dist.Multiply(accel, this.Context).Divide(C_SQUARED, this.Context).Add(1);
-		//return C.Divide(accel, this.Context).Multiply(inner.Acosh(this.Context), this.Context);
-		return (C_B / B(accel) * ((B(dist) * B(accel) / CSQUARED_B + 1).Acosh())).Value;
-	}
+		(C_B / B(accel) * ((B(dist) * B(accel) / CSQUARED_B + 1).Acosh())).Value;
 
 	/// <summary>
 	/// Calculate distance travelled for a given acceleration and velocity. Newtonian physics not relativistic
@@ -137,7 +128,6 @@ internal sealed class EFloatRelativity
 	/// <returns>Distance in m</returns>
 	public EFloat SimpleDistance(EFloat accel, EFloat time) =>
 		// 0.5 * a * t**2
-		//Half.Multiply(accel, this.Context).Multiply(time.Pow(2), this.Context);
 		(Half * B(accel) * B(time).Pow(2)).Value;
 
 	/// <summary>
@@ -147,7 +137,6 @@ internal sealed class EFloatRelativity
 	/// <returns>Rapidity</returns>
 	public EFloat RapidityFromVelocity(EFloat velocity) =>
 		// atanh(velocity / c)
-		//CheckVelocity(velocity).Divide(C, this.Context).Atanh(this.Context);
 		(CheckVelocityB(velocity) / C_B).Atanh().Value;
 
 	/// <summary>
@@ -157,7 +146,6 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat VelocityFromRapidity(EFloat rapidity) =>
 		// c * tanh(rapidity)
-		//CheckVelocity(C.Multiply(rapidity.Tanh(this.Context), this.Context), "Calculated velocity at or above C, increase EContext precision");
 		CheckVelocity((C_B * B(rapidity).Tanh()).Value, "Calculated velocity at or above C, increase EContext precision");
 
 	/// <summary>
@@ -168,7 +156,6 @@ internal sealed class EFloatRelativity
 	/// <returns>Coordinate time in s</returns>
 	public EFloat CoordinateTime(EFloat accel, EFloat tau) =>
 		// (c / a) * sinh(a * tau / c)
-		//C.Divide(accel, this.Context).Multiply(accel.Multiply(tau, this.Context).Divide(C, this.Context).Sinh(this.Context), this.Context);
 		((C_B / B(accel)) * (B(accel) * B(tau) / C_B).Sinh()).Value;
 
 	/// <summary>
@@ -176,13 +163,9 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	/// <param name="velocity">Velocity in m/s</param>
 	/// <returns>Lorentz factor</returns>
-	public EFloat LorentzFactor(EFloat velocity)
-	{
+	public EFloat LorentzFactor(EFloat velocity) =>
 		// 1 / sqrt(1 - (velocity / c) ** 2)
-		//var inner = EFloat.One.Subtract(CheckVelocity(velocity).Divide(C, this.Context).Pow(2, this.Context), this.Context);
-		//return EFloat.One.Divide(inner.Sqrt(this.Context), this.Context);
-		return (One / (One - (CheckVelocityB(velocity) / C_B).Pow(2)).Sqrt()).Value;
-	}
+		(One / (One - (CheckVelocityB(velocity) / C_B).Pow(2)).Sqrt()).Value;
 
 	/// <summary>
 	/// Helper to create a BigFloat from an EFloat, using instance context
