@@ -23,7 +23,7 @@ public readonly struct EFloatWithContext(EFloat value, EContext? context) : IEqu
 	/// <summary>
 	/// Context for this EFloatWithContext instance, if null, use the default context.
 	/// </summary>
-	public EContext Context { get; } = context ?? DefaultContext;
+	public EContext Context => context ?? DefaultContext;
 
 	/// <summary>
 	/// Changing this immediately affects all instances without an explicit context.
