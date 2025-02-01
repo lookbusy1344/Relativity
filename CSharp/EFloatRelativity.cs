@@ -100,7 +100,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Distance in m</returns>
 	public EFloat RelativisticDistance(EFloat accel, EFloat tau) =>
 		// (csquared / a) * (cosh(a * tau / c) - one)
-		CSQUARED_B / accel * (B(accel) * tau / C_B).Cosh() - 1;
+		(CSQUARED_B / accel * (B(accel) * tau / C_B).Cosh()) - 1;
 
 	/// <summary>
 	/// Calculate proper time for a given acceleration and distance, how long it takes to travel that distance
@@ -110,7 +110,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Proper time in s</returns>
 	public EFloat RelativisticTimeForDistance(EFloat accel, EFloat dist) =>
 		// (c / a) * acosh((dist * a) / csquared + one)
-		C_B / accel * ((B(dist) * accel / CSQUARED_B + 1).Acosh());
+		C_B / accel * ((B(dist) * accel / CSQUARED_B) + 1).Acosh();
 
 	/// <summary>
 	/// Calculate distance travelled for a given acceleration and velocity. Newtonian physics not relativistic

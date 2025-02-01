@@ -14,7 +14,7 @@ namespace Relativity;
 // so the Value property checks and throws if nessessary
 // Context can be null, in which case the default context is used
 
-public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IEquatable<EFloat>
+public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>
 {
 	/// <summary>
 	/// The EFloat value of this instance.
@@ -46,15 +46,9 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	public readonly bool Equals(BigFloat other) => Value.Equals(other.Value) && Context.Equals(other.Context);
 
-	public bool Equals(EFloat? other) => Value.Equals(other);
-
 	public static bool operator ==(BigFloat left, BigFloat right) => left.Equals(right);
 
 	public static bool operator !=(BigFloat left, BigFloat right) => !left.Equals(right);
-
-	public static bool operator ==(BigFloat left, EFloat right) => left.Equals(right);
-
-	public static bool operator !=(BigFloat left, EFloat right) => !left.Equals(right);
 
 	/// <summary>
 	/// Convert EFloat to BigFloat with default context.
@@ -168,7 +162,6 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 			left.Value.Subtract(right, left.Context),
 			left.Context
 		);
-
 
 	/// <summary>
 	/// Subtract using the context of the left operand.
