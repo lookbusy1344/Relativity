@@ -6,7 +6,7 @@ This Python solution is the easiest to use of the 3 language implementations, bu
 
 ## Jupyter Notebooks
 
-[Time dilation for interstellar travel, 1-25 million light years](https://github.com/lookbusy1344/Relativity/blob/main/Python/Distance_time.ipynb)
+[Universe tour, 1-25 million light years](https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb)
 
 [Solar system tour, how far can you get in 1-14 days](https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb)
 
