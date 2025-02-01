@@ -4,8 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Relativity;
 
-// These utilities are based on the EFloat class from PeterO.Numbers, which is a high-precision arbitrary-precision decimal class
-// NOTE Because of the manually implemented hyperbolic trig functions, this class is not as precise as the others in this project!
+// These utilities are based on the EFloat class from PeterO.Numbers, which is an arbitrary-precision decimal class
+// NOTE Because of the manually implemented hyperbolic trig functions, this class is not as precise as the others in this project
+// So prefer the Python of Rust versions
 
 internal sealed class EFloatRelativity
 {
@@ -29,16 +30,7 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Create a new EFloatRelativity instance with default context
 	/// </summary>
-	public EFloatRelativity()
-	{
-		Context = BuildContext();
-
-		// Populate the BigFloats now we have a context
-		Half = B(EFloat.FromString("0.5"));
-		One = B(EFloat.One);
-		C_B = B(C);
-		CSQUARED_B = B(C_SQUARED);
-	}
+	public EFloatRelativity() : this(300) { }
 
 	/// <summary>
 	/// Create a new EFloatRelativity instance with custom precision
@@ -54,7 +46,7 @@ internal sealed class EFloatRelativity
 		CSQUARED_B = B(C_SQUARED);
 	}
 
-	public static EContext BuildContext(int precision = 300)
+	public static EContext BuildContext(int precision)
 	{
 		// Default exponent range is from -2147483648 to 2147483647, here set them to -9000000000 to 9000000000
 		var exponentMax = EInteger.FromString("9000000000");

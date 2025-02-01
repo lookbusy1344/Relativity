@@ -35,7 +35,7 @@ internal static class Program
 	{
 		var rl = new EFloatRelativity();
 		var ctx = rl.Context;
-		BigFloat.DefaultContext = ctx;
+		BigFloat.DefaultContext = ctx; // using the same context for BigFloats
 
 		var initial = EFloat.FromString("299792457.9999999");
 		var rapidity = rl.RapidityFromVelocity(initial);
@@ -46,33 +46,33 @@ internal static class Program
 		Console.WriteLine("BigFloats:");
 		Console.WriteLine($"Initial velocity {initial}");
 		Console.WriteLine($"Rapidity {rapidity}");
-		Console.WriteLine($"Doubled rapidity {doubled}");
+		Console.WriteLine($"Doubled rapidity {doubled.Value}");
 		Console.WriteLine($"Final velocity {velocity}");
 
 		// Lets go to Andromeda Galaxy, 2.5 million light years away at 1g
-		var year = rl.Days(365.25);
-		var distance = rl.LightYears(2_500_000.0);
+		var year = B(rl.Days(365.25));
+		var distance = B(rl.LightYears(2_500_000.0));
 		var accel = EFloatRelativity.G;
-		var full_burn_sec = rl.RelativisticTimeForDistance(accel, distance);
-		var flip_burn_sec = rl.RelativisticTimeForDistance(accel, distance.Divide(2));
+		var full_burn_sec = B(rl.RelativisticTimeForDistance(accel, distance.Value));
+		var flip_burn_sec = B(rl.RelativisticTimeForDistance(accel, (distance / 2).Value));
 
-		var full_burn_years = full_burn_sec.Divide(year, ctx);
-		var flip_burn_years = flip_burn_sec.Multiply(2).Divide(year, ctx);
+		var full_burn_years = full_burn_sec / year;
+		var flip_burn_years = flip_burn_sec * 2 / year;
 
-		var peak_velocity_full_burn = rl.RelativisticVelocity(accel, full_burn_sec).Divide(EFloatRelativity.C, ctx);
-		var peak_velocity_flip_burn = rl.RelativisticVelocity(accel, flip_burn_sec).Divide(EFloatRelativity.C, ctx);
+		var peak_velocity_full_burn = B(rl.RelativisticVelocity(accel, full_burn_sec.Value)) / EFloatRelativity.C;
+		var peak_velocity_flip_burn = B(rl.RelativisticVelocity(accel, flip_burn_sec.Value)) / EFloatRelativity.C;
 
-		Console.WriteLine($"Years at 1g, burning all the way {full_burn_years}");
-		Console.WriteLine($"Peak velocity full burn {peak_velocity_full_burn} c");
+		Console.WriteLine($"Years at 1g, burning all the way {full_burn_years.Value}");
+		Console.WriteLine($"Peak velocity full burn {peak_velocity_full_burn.Value} c");
 		Console.WriteLine();
-		Console.WriteLine($"Years at 1g, flip and burn half way {flip_burn_years}");
-		Console.WriteLine($"Peak velocity flip {peak_velocity_flip_burn} c");
+		Console.WriteLine($"Years at 1g, flip and burn half way {flip_burn_years.Value}");
+		Console.WriteLine($"Peak velocity flip {peak_velocity_flip_burn.Value} c");
 	}
 
 	private static void EmbeddedContext()
 	{
 		// Testing EFloatWithContext with an embedded context, to simplify math operations
-		var ctx = EFloatRelativity.BuildContext();
+		var ctx = EFloatRelativity.BuildContext(300);
 		BigFloat.DefaultContext = ctx;
 
 		var ten = B(EFloat.FromInt32(10));
