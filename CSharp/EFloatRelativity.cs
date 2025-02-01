@@ -15,10 +15,13 @@ using SimplifiedInterval = (EFloat x, EFloat time);
 internal sealed class EFloatRelativity
 {
 	public static readonly EFloat C = EFloat.FromString("299792458"); // m/s
-	public static readonly EFloat C_SQUARED = C.Pow(2); // c^2
 	public static readonly EFloat G = EFloat.FromString("9.80665"); // m/s^2
 	public static readonly EFloat LIGHT_YR = EFloat.FromString("9460730472580800"); // metres
 	public static readonly EFloat AU = EFloat.FromString("149597870700"); // metres
+	public static readonly EFloat SECONDS_IN_YEAR = EFloat.FromString("31557600"); // seconds
+
+	private static readonly EFloat C_SQUARED = C.Pow(2); // c^2
+	private const string PRECISION_ERR = "Calculated velocity at or above C, increase EContext precision";
 
 	// These depend on the context, so cant be static
 	private readonly BigFloat Half;
@@ -61,9 +64,9 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Check this velocity is less than C in m/s
 	/// </summary>
-	private static EFloat CheckVelocity(EFloat velocity, string msg = "Velocity must be less than C")
+	private EFloat CheckVelocity(EFloat velocity, string msg = "Velocity must be less than C")
 	{
-		if (velocity.Abs().CompareTo(C) >= 0) {
+		if (velocity.Abs(Context).CompareTo(C) >= 0) {
 			throw new ArgumentException(msg);
 		}
 
@@ -79,12 +82,27 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Turn given number of days into seconds
 	/// </summary>
+	/// <returns>Seconds</returns>
 	public EFloat Days(double days) => B(days) * (60 * 60 * 24);
 
 	/// <summary>
 	/// Turn given number of light years into metres
 	/// </summary>
+	/// <returns>Metres</returns>
 	public EFloat LightYears(double lightYears) => B(lightYears) * LIGHT_YR;
+
+	/// <summary>
+	/// Turns fraction of C into a velocity in m/s
+	/// </summary>
+	/// <param name="fraction">Fraction of c, must be less than 1.0</param>
+	/// <returns>Velocity in m/s</returns>
+	public EFloat FractionOfC(EFloat fraction)
+	{
+		if (fraction.Abs(Context).CompareTo(One) >= 0) {
+			throw new ArgumentException("Fraction of c must be less than 1.0");
+		}
+		return CheckVelocity(C_B * fraction, PRECISION_ERR);
+	}
 
 	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time
@@ -142,7 +160,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat VelocityFromRapidity(EFloat rapidity) =>
 		// c * tanh(rapidity)
-		CheckVelocity(C_B * B(rapidity).Tanh(), "Calculated velocity at or above C, increase EContext precision");
+		CheckVelocity(C_B * B(rapidity).Tanh(), PRECISION_ERR);
 
 	/// <summary>
 	/// Add two velocities relativistically. The velocities must be less than c

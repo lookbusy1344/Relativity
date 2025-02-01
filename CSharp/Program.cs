@@ -66,6 +66,18 @@ internal static class Program
 		Console.WriteLine();
 		Console.WriteLine($"Years at 1g, flip and burn half way {flip_burn_years.Value}");
 		Console.WriteLine($"Peak velocity flip {peak_velocity_flip_burn.Value} c");
+
+		// Time dilation and length contraction
+		var veryfast = rl.FractionOfC(0.9999);
+		var lotentz = rl.LorentzFactor(veryfast);
+		var length = B(1) / lotentz;
+		var time = B(1) * lotentz;
+
+		Console.WriteLine();
+		Console.WriteLine("Time dilation and length contraction at 0.9999c:");
+		Console.WriteLine($"Lorentz factor {lotentz}");
+		Console.WriteLine($"Length contraction 1m becomes {length}m");
+		Console.WriteLine($"Time dilation 1 second becomes {time}s");
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

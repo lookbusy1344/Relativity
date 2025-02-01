@@ -41,30 +41,68 @@ Note: prefer Python or rust-astrofloat for arbitrary precision calculations. How
 https://github.com/lookbusy1344/Relativity/blob/main/CSharp/EFloatRelativity.cs
 
 ```csharp
-var rl = new EFloatRelativity();
-var ctx = rl.Context;
-
 // Lets go to Andromeda Galaxy, 2.5 million light years away at 1g
-var distance = rl.LightYears(2_500_000.0);
+
+var year = B(rl.Days(365.25));
+var distance = B(rl.LightYears(2_500_000.0));
 var accel = EFloatRelativity.G;
-var year = rl.Days(365.25);
 
-// time for full burn and flip-and-burn
-var full_burn_sec = rl.RelativisticTimeForDistance(accel, distance);
-var flip_burn_sec = rl.RelativisticTimeForDistance(accel, distance.Divide(2));
+// full and half-way burn, in seconds
+var full_burn_sec = B(rl.RelativisticTimeForDistance(accel, distance));
+var flip_burn_sec = B(rl.RelativisticTimeForDistance(accel, distance / 2));
 
-// convert to years
-var full_burn_years = full_burn_sec.Divide(year, ctx);
-var flip_burn_years = flip_burn_sec.Multiply(2).Divide(year, ctx);
+// convert to total years
+var full_burn_years = full_burn_sec / year;
+var flip_burn_years = flip_burn_sec * 2 / year;
 
-// peak velocity
-var peak_velocity_full_burn = rl.RelativisticVelocity(accel, full_burn_sec).Divide(EFloatRelativity.C, ctx);
-var peak_velocity_flip_burn = rl.RelativisticVelocity(accel, flip_burn_sec).Divide(EFloatRelativity.C, ctx);
+// peak velocity as fraction of c
+var peak_velocity_full_burn = B(rl.RelativisticVelocity(accel, full_burn_sec)) / EFloatRelativity.C;
+var peak_velocity_flip_burn = B(rl.RelativisticVelocity(accel, flip_burn_sec)) / EFloatRelativity.C;
 
 // output
-Console.WriteLine($"Years at 1g, burning all the way {full_burn_years}");
-Console.WriteLine($"Peak velocity full burn {peak_velocity_full_burn} c");
+Console.WriteLine($"Years at 1g, burning all the way {full_burn_years.Value}");
+Console.WriteLine($"Peak velocity full burn {peak_velocity_full_burn.Value} c");
 Console.WriteLine();
-Console.WriteLine($"Years at 1g, flip and burn half way {flip_burn_years}");
-Console.WriteLine($"Peak velocity flip {peak_velocity_flip_burn} c");
+Console.WriteLine($"Years at 1g, flip and burn half way {flip_burn_years.Value}");
+Console.WriteLine($"Peak velocity flip {peak_velocity_flip_burn.Value} c");
+
+// Now some time dilation and length contraction
+var veryfast = rl.FractionOfC(0.9999);
+var lotentz = rl.LorentzFactor(veryfast);
+var length = B(1) / lotentz;
+var time = B(1) * lotentz;
+
+Console.WriteLine();
+Console.WriteLine("Time dilation and length contraction at 0.9999c:");
+Console.WriteLine($"Lorentz factor {lotentz}");
+Console.WriteLine($"Length contraction 1m becomes {length}m");
+Console.WriteLine($"Time dilation 1 second becomes {time}s");
 ```
+
+To simplify casting `EFloat` into `BigFloat`, use this helper function:
+
+```csharp
+private static BigFloat B(EFloat f) => BigFloat.FromEFloat(f);
+```
+
+## BigFloat helper (EFloat + EContext)
+
+`BigFloat` is a wrapper around `EFloat` that simplifies context handling and lets us write more attractive code. Normally you need to supply a context to every operation, but BigFloat does this for you.
+
+```csharp
+// Setup
+EContext context = BuildContext();
+EFloat a = EFloat.FromString("1");
+EFloat b = EFloat.FromString("2");
+EFloat c = EFloat.FromString("3");
+
+// Normal EFloat and context usage, ugly
+var result =  a.Add(b, context).Multiply(c, context).Divide(a, context);
+
+// With BigFloats
+var result = (B(a) + b) * c / a;
+```
+
+Each BigFloat is a immutable struct containing `(EFloat, EContext)`. The left hand context is used for any operation.
+
+See `BigFloat.cs` for details.
