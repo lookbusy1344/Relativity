@@ -12,6 +12,7 @@ namespace Relativity;
 // We don't want the inner EFloat to be null, but it's always a possibility with structs
 // eg var arr = new BigFloat[10]; // all structs initialised to (null, null)
 // so the Value property checks and throws if nessessary
+// Context can be null, in which case the default context is used
 
 public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IEquatable<EFloat>
 {
@@ -29,6 +30,13 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// Changing this immediately affects all instances without an explicit context.
 	/// </summary>
 	public static EContext DefaultContext { get; set; } = EContext.Unlimited;
+
+#pragma warning disable CA2225 // Operator overloads have named alternates
+	/// <summary>
+	/// Implicit conversion from BigFloat to EFloat, helps with relativity functions that take EFloat.
+	/// </summary>
+	public static implicit operator EFloat(BigFloat bigFloat) => bigFloat.Value;
+#pragma warning restore CA2225 // Operator overloads have named alternates
 
 	public override readonly string ToString() => Value.ToString();
 
