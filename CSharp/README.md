@@ -45,7 +45,7 @@ https://github.com/lookbusy1344/Relativity/blob/main/CSharp/EFloatRelativity.cs
 
 var year = B(rl.Days(365.25));
 var distance = B(rl.LightYears(2_500_000.0));
-var accel = EFloatRelativity.G;
+var accel = rl.G;
 
 // full and half-way burn, in seconds
 var full_burn_sec = B(rl.RelativisticTimeForDistance(accel, distance));
@@ -56,8 +56,8 @@ var full_burn_years = full_burn_sec / year;
 var flip_burn_years = flip_burn_sec * 2 / year;
 
 // peak velocity as fraction of c
-var peak_velocity_full_burn = B(rl.RelativisticVelocity(accel, full_burn_sec)) / EFloatRelativity.C;
-var peak_velocity_flip_burn = B(rl.RelativisticVelocity(accel, flip_burn_sec)) / EFloatRelativity.C;
+var peak_velocity_full_burn = B(rl.RelativisticVelocity(accel, full_burn_sec)) / rl.C;
+var peak_velocity_flip_burn = B(rl.RelativisticVelocity(accel, flip_burn_sec)) / rl.C;
 
 // output
 Console.WriteLine($"Years at 1g, burning all the way {full_burn_years.Value}");
@@ -103,6 +103,6 @@ var result =  a.Add(b, context).Multiply(c, context).Divide(a, context);
 var result = (B(a) + b) * c / a;
 ```
 
-Each BigFloat is a immutable struct containing `(EFloat, EContext)`. The left hand context is used for any operation.
+Each BigFloat is an immutable struct containing `(EFloat, EContext)`. The left hand context is used for any operation.
 
 See `BigFloat.cs` for details.

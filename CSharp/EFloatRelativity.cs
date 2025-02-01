@@ -14,16 +14,14 @@ using SimplifiedInterval = (EFloat x, EFloat time);
 
 internal sealed class EFloatRelativity
 {
-	public static readonly EFloat C = EFloat.FromString("299792458"); // m/s
-	public static readonly EFloat G = EFloat.FromString("9.80665"); // m/s^2
-	public static readonly EFloat LIGHT_YR = EFloat.FromString("9460730472580800"); // metres
-	public static readonly EFloat AU = EFloat.FromString("149597870700"); // metres
-	public static readonly EFloat SECONDS_IN_YEAR = EFloat.FromString("31557600"); // seconds
+	public readonly EFloat C;
+	public readonly EFloat G;
+	public readonly EFloat LIGHT_YR;
+	public readonly EFloat AU;
+	public readonly EFloat SECONDS_IN_YEAR;
 
-	private static readonly EFloat C_SQUARED = C.Pow(2); // c^2
 	private const string PRECISION_ERR = "Calculated velocity at or above C, increase EContext precision";
-
-	// These depend on the context, so cant be static
+	private readonly EFloat C_SQUARED;
 	private readonly BigFloat Half;
 	private readonly BigFloat One;
 	private readonly BigFloat C_B;
@@ -45,6 +43,14 @@ internal sealed class EFloatRelativity
 	public EFloatRelativity(int precision)
 	{
 		Context = BuildContext(precision);
+
+		// Populate constants with required precision
+		C = EFloat.FromString("299792458", Context); // m/s
+		C_SQUARED = C.Pow(2, Context);
+		G = EFloat.FromString("9.80665", Context); // m/s^2
+		LIGHT_YR = EFloat.FromString("9460730472580800", Context); // metres
+		AU = EFloat.FromString("149597870700", Context); // metres
+		SECONDS_IN_YEAR = EFloat.FromString("31557600", Context); // seconds
 
 		// Populate the BigFloats now we have a context
 		Half = B(EFloat.FromString("0.5"));
