@@ -8,6 +8,10 @@ namespace Relativity;
 // NOTE Because of the manually implemented hyperbolic trig functions, this class is not as precise as the others in this project
 // So prefer the Python of Rust versions
 
+using FourMomentum = (EFloat energy, EFloat momentum);
+using Interval = (EFloat x, EFloat y, EFloat z, EFloat time);
+using SimplifiedInterval = (EFloat x, EFloat time);
+
 internal sealed class EFloatRelativity
 {
 	public static readonly EFloat C = EFloat.FromString("299792458"); // m/s
@@ -141,6 +145,13 @@ internal sealed class EFloatRelativity
 		CheckVelocity(C_B * B(rapidity).Tanh(), "Calculated velocity at or above C, increase EContext precision");
 
 	/// <summary>
+	/// Add two velocities relativistically. The velocities must be less than c
+	/// </summary>
+	public EFloat AddVelocities(EFloat v1, EFloat v2) =>
+		// (v1 + v2) / (one + (v1 * v2) / csquared)
+		(CheckVelocityB(v1) + CheckVelocityB(v2)) / (One + ((B(v1) * v2) / CSQUARED_B));
+
+	/// <summary>
 	/// Calculate coordinate time for a given acceleration and proper time
 	/// </summary>
 	/// <param name="accel">Constant acceleration in m/s^2</param>
@@ -151,6 +162,16 @@ internal sealed class EFloatRelativity
 		(C_B / accel) * (B(accel) * tau / C_B).Sinh();
 
 	/// <summary>
+	/// Calculate the length contraction factor for a given length and velocity
+	/// </summary>
+	/// <param name="len">Proper length in m</param>
+	/// <param name="velocity">Velocity in m/s</param>
+	/// <returns>Contracted length in m</returns>
+	public EFloat LengthContractionVelocity(EFloat len, EFloat velocity) =>
+		// len * sqrt(one - (velocity / c) ** 2)
+		B(len) / (One - (CheckVelocityB(velocity) / C_B).Pow(2)).Sqrt();
+
+	/// <summary>
 	/// Calculate Lorentz factor for a given velocity
 	/// </summary>
 	/// <param name="velocity">Velocity in m/s</param>
@@ -158,6 +179,113 @@ internal sealed class EFloatRelativity
 	public EFloat LorentzFactor(EFloat velocity) =>
 		// 1 / sqrt(1 - (velocity / c) ** 2)
 		One / (One - (CheckVelocityB(velocity) / C_B).Pow(2)).Sqrt();
+
+	/// <summary>
+	/// Calculate the velocity under constant proper acceleration and coordinate time
+	/// </summary>
+	/// <param name="accel">Proper acceleration in m/s^2</param>
+	/// <param name="t">Coordinate time in s</param>
+	/// <returns>Velocity in m/s</returns>
+	public EFloat RelativisticVelocityCoord(EFloat accel, EFloat t) =>
+		// (a * t) / sqrt(one + (a * t / c) ** 2)
+		(B(accel) * t) / (One + (B(accel) * t / C_B).Pow(2)).Sqrt();
+
+	/// <summary>
+	/// Calculate the distance traveled under constant proper acceleration and coordinate time
+	/// </summary>
+	/// <param name="accel">Proper acceleration in m/s^2</param>
+	/// <param name="t">Coordinate time in s</param>
+	/// <returns>The coordinate distance traveled in m</returns>
+	public EFloat RelativisticDistanceCoord(EFloat accel, EFloat t) =>
+		// (csquared / a) * (sqrt(one + (a * t / c) ** 2) - one)
+		(CSQUARED_B / accel) * ((One + (B(accel) * t / C_B).Pow(2)).Sqrt() - 1);
+
+	/// <summary>
+	/// Calculate the relativistic momentum
+	/// </summary>
+	/// <param name="mass">Rest mass in kg</param>
+	/// <param name="velocity">Velocity in m/s</param>
+	/// <returns>The relativistic momentum (kg m/s)</returns>
+	public EFloat RelativisticMomentum(EFloat mass, EFloat velocity) =>
+		// mass * velocity * gamma
+		B(mass) * CheckVelocityB(velocity) * LorentzFactor(velocity);
+
+	/// <summary>
+	/// Calculate the relativistic energy.
+	/// </summary>
+	/// <param name="mass">Rest mass in kg</param>
+	/// <param name="velocity">Velocity in m/s</param>
+	/// <returns>The total relativistic energy (joules)</returns>
+	public EFloat RelativisticEnergy(EFloat mass, EFloat velocity) =>
+		// mass * csquared * gamma
+		B(mass) * CSQUARED_B * LorentzFactor(velocity);
+
+	/// <summary>
+	/// Calculate the relativistic Doppler shift for light
+	/// </summary>
+	/// <param name="frequency">Emitted frequency (Hz)</param>
+	/// <param name="velocity">Velocity (m/s)</param>
+	/// <param name="source_moving_towards">Is the source approaching / retreating</param>
+	/// <returns>Observed frequency (Hz)</returns>
+	public EFloat DopplerShift(EFloat frequency, EFloat velocity, bool source_moving_towards = true)
+	{
+		var beta = CheckVelocityB(velocity) / C_B;
+		if (source_moving_towards) {
+			return B(frequency) * ((One + beta) / (One - beta)).Sqrt();
+		} else {
+			return B(frequency) * ((One - beta) / (One + beta)).Sqrt();
+		}
+	}
+
+	/// <summary>
+	/// Calculate the invariant (proper) mass of a system from energy and momentum
+	/// </summary>
+	/// <param name="energy">The total energy (J)</param>
+	/// <param name="momentum">The total momentum (kg m/s)</param>
+	/// <returns>Proper mass in kg</returns>
+	public EFloat InvariantMassFromEnergyMomentum(EFloat energy, EFloat momentum) =>
+		// sqrt((energy / csquared) ** 2 - (p / csquared) ** 2)
+		((B(energy) / CSQUARED_B).Pow(2) - (B(momentum) / CSQUARED_B).Pow(2)).Sqrt();
+
+	/// <summary>
+	/// Calculate the four-momentum of a particle
+	/// </summary>
+	/// <param name="mass">Rest mass in kg</param>
+	/// <param name="velocity">Velocity in m/s</param>
+	/// <returns>Tuple of energy (j) and momentum (kg·m/s)</returns>
+	public FourMomentum FourMomentum(EFloat mass, EFloat velocity)
+	{
+		var gamma = B(LorentzFactor(velocity)); // this checks velocity is less than C
+		var energy = B(mass) * CSQUARED_B * gamma;
+		var momentum = B(mass) * velocity * gamma;
+		return (energy, momentum);
+	}
+
+	/// <summary>
+	/// Calculate the invariant interval between two events in 1D space (x, time)
+	/// </summary>
+	/// <param name="event1">x, time for event 1</param>
+	/// <param name="event2">x, time for event 2</param>
+	/// <returns>The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)</returns>
+	public EFloat InvariantInterval(SimplifiedInterval event1, SimplifiedInterval event2) =>
+		// delta_t**2 - (delta_x**2) / csquared
+		(B(event2.time) - event1.time).Pow(2) - ((B(event2.x) - event1.x).Pow(2) / CSQUARED_B);
+
+	/// <summary>
+	/// Calculate the invariant interval between two events in 3D space (x, y, z, time)
+	/// </summary>
+	/// <param name="event1">x, y, z, time for event 1</param>
+	/// <param name="event2">x, y, z, time for event 2</param>
+	/// <returns>The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)</returns>
+	public EFloat InvariantInterval(Interval event1, Interval event2) =>
+		// delta_t**2 - (delta_x**2 + delta_y**2 + delta_z**2) / csquared
+		(B(event2.time) - event1.time).Pow(2) - ((
+			(B(event2.x) - event1.x).Pow(2) +
+			(B(event2.y) - event1.y).Pow(2) +
+			(B(event2.z) - event1.z).Pow(2)
+		) / CSQUARED_B);
+
+	// ================= Helpers to create BigFloats from EFloat or double =================
 
 	/// <summary>
 	/// Helper to create a BigFloat from an EFloat, using instance context

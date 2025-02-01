@@ -352,7 +352,7 @@ def four_momentum(mass, velocity) -> tuple:
         velocity: The velocity (m/s) as an mpmath floating point number
 
     Returns:
-        A tuple containing (energy, momentum) as mpmath floating point numbers
+        A tuple containing energy (j), momentum (kg·m/s) as mpmath floating point numbers
     """
     mass = ensure(mass)
     velocity = check_velocity(velocity)

@@ -12,7 +12,6 @@ internal static class Program
 	{
 		Uom();
 		BigFloats();
-		//EmbeddedContext();
 	}
 
 	private static void Uom()
@@ -67,28 +66,6 @@ internal static class Program
 		Console.WriteLine();
 		Console.WriteLine($"Years at 1g, flip and burn half way {flip_burn_years.Value}");
 		Console.WriteLine($"Peak velocity flip {peak_velocity_flip_burn.Value} c");
-	}
-
-	private static void EmbeddedContext()
-	{
-		// Testing EFloatWithContext with an embedded context, to simplify math operations
-		var ctx = EFloatRelativity.BuildContext(300);
-		BigFloat.DefaultContext = ctx;
-
-		var ten = B(EFloat.FromInt32(10));
-		var twenty = B(EFloat.FromInt32(20));
-		var thirty = B(EFloat.FromInt32(30));
-		var pi = B(EFloat.FromString("3.14159"));
-
-		var nocontext = EFloat.FromInt32(10) + EFloat.FromInt32(20) * EFloat.FromInt32(30) / EFloat.FromString("3.14159");
-		nocontext = nocontext.Sqrt(ctx);
-		var sum = (ten + twenty * thirty / pi).Sqrt();
-		var check = Math.Sqrt(10.0 + 20.0 * 30.0 / 3.14159);
-
-		Console.WriteLine();
-		Console.WriteLine($"EFloatWithContext = {sum.Value}");
-		Console.WriteLine($"No context = {nocontext}");
-		Console.WriteLine($"Check = {check}");
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
