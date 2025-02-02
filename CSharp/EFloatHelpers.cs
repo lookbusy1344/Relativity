@@ -14,7 +14,7 @@ internal static class EFloatHelpers
 	{
 		// [ \cosh(x) = \frac{e^x + e^{-x}}{2} ]
 		var expX = value.Exp(ctx);
-		var expNegX = value.Negate().Exp(ctx);
+		var expNegX = value.Negate(ctx).Exp(ctx);
 		return expX.Add(expNegX, ctx).Divide(Two, ctx);
 	}
 
@@ -22,7 +22,7 @@ internal static class EFloatHelpers
 	{
 		// [ \sinh(x) = \frac{e^x - e^{-x}}{2} ]
 		var expX = value.Exp(ctx);
-		var expNegX = value.Negate().Exp(ctx);
+		var expNegX = value.Negate(ctx).Exp(ctx);
 		return expX.Subtract(expNegX, ctx).Divide(Two, ctx);
 	}
 
@@ -30,7 +30,7 @@ internal static class EFloatHelpers
 	{
 		// [ \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}} ]
 		var expX = value.Exp(ctx);
-		var expNegX = value.Negate().Exp(ctx);
+		var expNegX = value.Negate(ctx).Exp(ctx);
 		var numerator = expX.Subtract(expNegX, ctx);
 		var denominator = expX.Add(expNegX, ctx);
 		return numerator.Divide(denominator, ctx);
