@@ -96,7 +96,7 @@ Calculate the Lorentz factor from velocity.
 Calculate the velocity under constant proper acceleration `a` and coordinate time `t`.
 
 ### relativistic_distance_coord(a, t) -> mpf
-Calculate the distance traveled under constant proper acceleration `a` and coordinate time `t`.
+Calculate the distance travelled under constant proper acceleration `a` and coordinate time `t`.
 
 ### relativistic_momentum(mass, velocity) -> mpf
 Calculate the relativistic momentum.

@@ -2,7 +2,7 @@
 
 Functions for playing with Special Relativity
 
-MIT License, have fun space travelers!
+MIT License, have fun space travellers!
 
 ## Python
 
