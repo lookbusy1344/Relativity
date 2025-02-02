@@ -53,7 +53,7 @@ internal sealed class EFloatRelativity
 		SECONDS_IN_YEAR = EFloat.FromString("31557600", Context); // seconds
 
 		// Populate the BigFloats now we have a context
-		Half = B(EFloat.FromString("0.5"));
+		Half = B(EFloat.FromString("0.5", Context));
 		One = B(EFloat.One);
 		C_B = B(C);
 		CSQUARED_B = B(C_SQUARED);

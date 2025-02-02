@@ -40,11 +40,11 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	public override readonly string ToString() => Value.ToString();
 
-	public override readonly int GetHashCode() => HashCode.Combine(Value.GetHashCode(), Context.GetHashCode());
+	public override readonly int GetHashCode() => Value.GetHashCode();
 
 	public override readonly bool Equals(object? obj) => obj is BigFloat other && Equals(other);
 
-	public readonly bool Equals(BigFloat other) => Value.Equals(other.Value) && Context.Equals(other.Context);
+	public readonly bool Equals(BigFloat other) => Value.Equals(other.Value); // don't include the Context in the comparison
 
 	public static bool operator ==(BigFloat left, BigFloat right) => left.Equals(right);
 
