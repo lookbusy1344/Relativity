@@ -117,7 +117,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat RelativisticVelocity(EFloat accel, EFloat tau) =>
 		// c * tanh(a * tau / c)
-		C_B * (B(accel) * tau / C_B).Tanh();
+		C_B * Tanh(B(accel) * tau / C_B);
 
 	/// <summary>
 	/// Calculate distance travelled for a given acceleration and proper time
@@ -127,7 +127,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Distance in m</returns>
 	public EFloat RelativisticDistance(EFloat accel, EFloat tau) =>
 		// (csquared / a) * (cosh(a * tau / c) - one)
-		(CSQUARED_B / accel * (B(accel) * tau / C_B).Cosh()) - 1;
+		(CSQUARED_B / accel * Cosh(B(accel) * tau / C_B)) - 1;
 
 	/// <summary>
 	/// Calculate proper time for a given acceleration and distance, how long it takes to travel that distance
@@ -137,7 +137,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Proper time in s</returns>
 	public EFloat RelativisticTimeForDistance(EFloat accel, EFloat dist) =>
 		// (c / a) * acosh((dist * a) / csquared + one)
-		C_B / accel * ((B(dist) * accel / CSQUARED_B) + 1).Acosh();
+		C_B / accel * Acosh((B(dist) * accel / CSQUARED_B) + 1);
 
 	/// <summary>
 	/// Calculate distance travelled for a given acceleration and velocity. Newtonian physics not relativistic
@@ -156,7 +156,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Rapidity</returns>
 	public EFloat RapidityFromVelocity(EFloat velocity) =>
 		// atanh(velocity / c)
-		(CheckVelocityB(velocity) / C_B).Atanh();
+		Atanh(CheckVelocityB(velocity) / C_B);
 
 	/// <summary>
 	/// Calculate velocity for a given rapidity
@@ -165,7 +165,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat VelocityFromRapidity(EFloat rapidity) =>
 		// c * tanh(rapidity)
-		CheckVelocity(C_B * B(rapidity).Tanh(), PRECISION_ERR);
+		CheckVelocity(C_B * Tanh(rapidity), PRECISION_ERR);
 
 	/// <summary>
 	/// Add two velocities relativistically. The velocities must be less than c
@@ -182,7 +182,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Coordinate time in s</returns>
 	public EFloat CoordinateTime(EFloat accel, EFloat tau) =>
 		// (c / a) * sinh(a * tau / c)
-		(C_B / accel) * (B(accel) * tau / C_B).Sinh();
+		(C_B / accel) * Sinh(B(accel) * tau / C_B);
 
 	/// <summary>
 	/// Calculate the length contraction factor for a given length and velocity
