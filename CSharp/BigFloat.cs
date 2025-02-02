@@ -1,6 +1,7 @@
 ﻿
 using PeterO.Numbers;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Relativity;
 
@@ -53,11 +54,13 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// <summary>
 	/// Convert EFloat to BigFloat with default context.
 	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static BigFloat FromEFloat(EFloat value) => new(value, null);
 
 	/// <summary>
 	/// Factory method from EFloat and explicit context
 	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static BigFloat Build(EFloat value, EContext context) => new(value, context);
 
 	public static BigFloat operator +(BigFloat left, EFloat right) => Add(left, right);
@@ -183,28 +186,34 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		);
 
 	/// <summary>
-	/// Negate an BigFloat instance.
+	/// Negate an BigFloat instance
 	/// </summary>
 	public static BigFloat Negate(BigFloat item) =>
 		new(item.Value.Negate(item.Context), item.Context);
 
 	/// <summary>
-	/// Modulus of two BigFloat instances using the context of the left operand.
+	/// Modulus of two BigFloat instances using the context of the left operand
 	/// </summary>
 	public static BigFloat Mod(BigFloat left, EFloat right) =>
 		new(left.Value.Remainder(right, left.Context), left.Context);
 
 	// ====== Wrappers around hyperbolic trig functions ======
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public BigFloat Cosh() => new(Value.Cosh(Context), Context);
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public BigFloat Sinh() => new(Value.Sinh(Context), Context);
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public BigFloat Tanh() => new(Value.Tanh(Context), Context);
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public BigFloat Acosh() => new(Value.Acosh(Context), Context);
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public BigFloat Asinh() => new(Value.Asinh(Context), Context);
 
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public BigFloat Atanh() => new(Value.Atanh(Context), Context);
 }

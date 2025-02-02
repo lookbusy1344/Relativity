@@ -1,5 +1,4 @@
 ﻿using PeterO.Numbers;
-using System;
 using System.Runtime.CompilerServices;
 
 namespace Relativity;
@@ -308,6 +307,26 @@ internal sealed class EFloatRelativity
 			(B(event2.y) - event1.y).Pow(2) +
 			(B(event2.z) - event1.z).Pow(2)
 		) / CSQUARED_B);
+
+	// ====== Wrappers around hyperbolic trig functions ======
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private BigFloat Cosh(EFloat f) => BigFloat.Build(f.Cosh(Context), Context);
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private BigFloat Sinh(EFloat f) => BigFloat.Build(f.Sinh(Context), Context);
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private BigFloat Tanh(EFloat f) => BigFloat.Build(f.Tanh(Context), Context);
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private BigFloat Atanh(EFloat f) => BigFloat.Build(f.Atanh(Context), Context);
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private BigFloat Acosh(EFloat f) => BigFloat.Build(f.Acosh(Context), Context);
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private BigFloat Asinh(EFloat f) => BigFloat.Build(f.Asinh(Context), Context);
 
 	// ================= Helpers to create BigFloats from EFloat or double =================
 
