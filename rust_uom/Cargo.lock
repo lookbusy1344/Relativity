@@ -64,7 +64,6 @@ name = "rust_uom"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "num-bigint",
  "num-rational",
  "num-traits",
  "once_cell",

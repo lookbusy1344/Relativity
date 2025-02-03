@@ -6,7 +6,8 @@
 // UNFINISHED
 // Strongly typed structs for special relativity calculations
 // based on the uom crate for type-safe units of measure
-// these all use BigRational for arbitrary precision, so are slow but accurate. Implementation is incomplete
+// these all use BigRational for arbitrary precision, implementation is incomplete
+// BigRationals seem to blow up to enormous sizes, so are not practical for this use case
 
 use num_rational::BigRational;
 use num_traits::{FromPrimitive, One, Signed, ToPrimitive, Zero};

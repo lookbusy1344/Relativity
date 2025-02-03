@@ -8,17 +8,11 @@
 // However expr!() cannot evaluate fields like self.c so we need let c = &self.c
 
 use astro_float::{expr, BigFloat, Consts, RoundingMode};
-
 use anyhow::anyhow;
 use astro_float::ctx::Context;
 use std::str::FromStr;
 
 pub const ROUNDING: RoundingMode = RoundingMode::ToEven;
-// pub const PRECISION: usize = (200.0 * 3.32) as usize; // Precision for BigFloat calculations, *3.32 is a rough estimate
-// pub static C: Lazy<BigFloat> = Lazy::new(|| BigFloat::from_u32(299_792_458, PRECISION));
-// pub static C_SQUARED: Lazy<BigFloat> = Lazy::new(|| C.powi(2, PRECISION, ROUNDING));
-// pub static ONE: Lazy<BigFloat> = Lazy::new(|| BigFloat::from_u32(1, PRECISION));
-// pub static HALF: Lazy<BigFloat> = Lazy::new(|| bigfloat_from_ratio(1, 2));
 
 pub struct Relativity {
     pub ctx: Context,
@@ -88,7 +82,7 @@ impl Relativity {
             binary_digits,
             ctx: Context::new(
                 binary_digits,
-                crate::astro_tools::ROUNDING,
+                ROUNDING,
                 constants,
                 i32::MIN,
                 i32::MAX,
