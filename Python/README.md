@@ -10,6 +10,8 @@ This Python solution is the easiest to use of the 3 language implementations, bu
 
 [Solar system tour, how far can you get in 1-14 days](https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb)
 
+[Relativistic mass and constant acceleration](https://github.com/lookbusy1344/Relativity/blob/main/Python/Relativistic%20mass.ipynb)
+
 ## Library
 
 The shared library is here:
@@ -86,7 +88,7 @@ Add two velocities relativistically. The velocities must be less than c.
 ### coordinate_time(a, tau) -> mpf
 Calculate the coordinate time (observer time) elapsed for a stationary observer when accelerating at `a` for proper time `tau`.
 
-### length_contraction_velocity(len, velocity)
+### length_contraction_velocity(len, velocity) -> mpf
 Calculate the length contraction factor for a given length and velocity.
 
 ### lorentz_factor(velocity) -> mpf
