@@ -20,17 +20,10 @@ internal static class HyperbolicTrig
 
 	public static EFloat Sinh(this EFloat value, EContext ctx)
 	{
-		// [ \sinh(x) = \frac{e^{x} - e^{-x}}{2} ]
-		if (value.Abs(ctx).CompareTo(EFloat.FromInt32(1)) > 0) {
-			// For large x
-			var expX = value.Exp(ctx);
-			var expNegX = EFloat.One.Divide(expX, ctx);
-			return expX.Divide(Two, ctx).Subtract(expNegX.Divide(Two, ctx), ctx);
-		} else {
-			// For small x, use Taylor series approximation
-			var xSquared = value.Pow(2, ctx);
-			return value.Add(value.Multiply(xSquared, ctx).Divide(EFloat.FromInt32(6), ctx), ctx);
-		}
+		// [ \sinh(x) = \frac{e^x - e^{-x}}{2} ]
+		var expX = value.Exp(ctx);
+		var expNegX = value.Negate(ctx).Exp(ctx);
+		return expX.Subtract(expNegX, ctx).Divide(Two, ctx);
 	}
 
 	public static EFloat Tanh(this EFloat value, EContext ctx)

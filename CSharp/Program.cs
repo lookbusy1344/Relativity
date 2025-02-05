@@ -89,12 +89,21 @@ internal static class Program
 
 		var value = EFloat.FromString("0.5", ctx);
 		var value2 = EFloat.FromString("1.123", ctx);
+		var value3 = EFloat.FromString("23.123", ctx);
+
 		var cosh = value.Cosh(ctx);
 		var sinh = value.Sinh(ctx);
 		var tanh = value.Tanh(ctx);
 		var acosh = value2.Acosh(ctx);
 		var asinh = value.Asinh(ctx);
 		var atanh = value.Atanh(ctx);
+
+		var cosh2 = value3.Cosh(ctx);
+		var sinh2 = value3.Sinh(ctx);
+		var tanh2 = value3.Tanh(ctx);
+		var acosh2 = value3.Acosh(ctx);
+		var asinh2 = value3.Asinh(ctx);
+
 		Console.WriteLine();
 		Console.WriteLine("Trig tests:");
 		Console.WriteLine($"Cosh(0.5) = {cosh}");
@@ -103,6 +112,12 @@ internal static class Program
 		Console.WriteLine($"Acosh(1.123) = {acosh}");
 		Console.WriteLine($"Asinh(0.5) = {asinh}");
 		Console.WriteLine($"Atanh(0.5) = {atanh}");
+
+		Console.WriteLine($"Cosh(23.123) = {cosh2}");
+		Console.WriteLine($"Sinh(23.123) = {sinh2}");
+		Console.WriteLine($"Tanh(23.123) = {tanh2}");
+		Console.WriteLine($"Acosh(23.123) = {acosh2}");
+		Console.WriteLine($"Asinh(23.123) = {asinh2}");
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
