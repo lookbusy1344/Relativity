@@ -4,9 +4,9 @@ using System;
 namespace Relativity;
 
 /// <summary>
-/// EFloat math helpers, eg Cosh, Acosh
+/// EFloat hyperbolic trigonometry functions
 /// </summary>
-internal static class EFloatHelpers
+internal static class HyperbolicTrig
 {
 	private static readonly EFloat Two = EFloat.FromInt32(2);
 
