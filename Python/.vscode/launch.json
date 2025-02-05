@@ -12,6 +12,12 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/Solar system.py"
+        },
+        {
+            "name": "TrigTests.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/TrigTests.py"
         }
     ]
 }

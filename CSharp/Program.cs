@@ -12,6 +12,7 @@ internal static class Program
 	{
 		Uom();
 		BigFloats();
+		TrigTests();
 	}
 
 	private static void Uom()
@@ -78,6 +79,30 @@ internal static class Program
 		Console.WriteLine($"Lorentz factor {lotentz}");
 		Console.WriteLine($"Length contraction 1m becomes {length}m");
 		Console.WriteLine($"Time dilation 1 second becomes {time}s");
+	}
+
+	private static void TrigTests()
+	{
+		var rl = new EFloatRelativity();
+		var ctx = rl.Context;
+		BigFloat.DefaultContext = ctx; // using the same context for BigFloats
+
+		var value = EFloat.FromString("0.5", ctx);
+		var value2 = EFloat.FromString("1.123", ctx);
+		var cosh = value.Cosh(ctx);
+		var sinh = value.Sinh(ctx);
+		var tanh = value.Tanh(ctx);
+		var acosh = value2.Acosh(ctx);
+		var asinh = value.Asinh(ctx);
+		var atanh = value.Atanh(ctx);
+		Console.WriteLine();
+		Console.WriteLine("Trig tests:");
+		Console.WriteLine($"Cosh(0.5) = {cosh}");
+		Console.WriteLine($"Sinh(0.5) = {sinh}");
+		Console.WriteLine($"Tanh(0.5) = {tanh}");
+		Console.WriteLine($"Acosh(1.123) = {acosh}");
+		Console.WriteLine($"Asinh(0.5) = {asinh}");
+		Console.WriteLine($"Atanh(0.5) = {atanh}");
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
