@@ -8,7 +8,7 @@ This Python solution is the easiest to use of the 3 language implementations, bu
 
 [Universe tour, 1-25 million light years](https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb)
 
-[Solar system tour, how far can you get in 1-14 days](https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb)
+[Solar system tour, how far can you get in 1-14 days](https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb). Also with notes on *rapidity*.
 
 [Relativistic mass and constant acceleration](https://github.com/lookbusy1344/Relativity/blob/main/Python/Relativistic%20mass.ipynb)
 
@@ -54,15 +54,19 @@ print(
 
 ```
 
-## Library functions
+# Library functions
 
 * **Proper time/length/acceleration** = time/etc measured by an observer in the accelerating frame. Eg time on the ship.
 * **Coordinate time/length/acceleration** = time/etc measured by an observer in a stationary frame. Eg time on the Earth.
 
 `tau` is proper time, `t` is coordinate time.
 
+## Setup
+
 ### configure(dps: int) -> None
 Configure mpmath for this number of decimal places (base 10 digits). Rebuild constants like `c`. Typically 100 is a good number.
+
+## Special relativity functions
 
 ### relativistic_velocity(a, tau) -> mpf
 Returns velocity after constant acceleration for tau proper time
@@ -121,9 +125,14 @@ Calculate the invariant interval between two events in 1D space. Input tuples ar
 ### invariant_interval_3d(event1: tuple, event2: tuple) -> mpf
 Calculate the invariant interval between two events in 3D space. Input tuples are `(time, x, y, z)`.
 
+## Display
+
 ### format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str
-Format an mpmath number with commas and specified decimal places. Eg 1234567.1234567 with 2 decimal places will return `1,234,567.12`
+Format an mpmath number with commas and specified decimal places.
+- 1234567.1234567 with 2 decimal places will return `1,234,567.12`
 
 ### format_mpf_significant(number, significant_decimal_places: int = 2, ignore_char: str = "0") -> str
 Format a number with commas and specified significant decimal places. Ignore any number of leading zeros (or specified eg '9').
-Eg 1234.00001234 with 2 significant decimal places and `ignore_char='0'` will return `1,234.000012`
+- 1234.00001234 with 2 significant decimal places and `ignore_char='0'` will return `1,234.000012`
+- 1234.99991234 with 2 significant decimal places and `ignore_char='9'` will return `1,234.999912`
+- 1234.1234 with 2 significant decimal places and `ignore_char='9'` will return `1,234.12`

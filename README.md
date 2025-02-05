@@ -20,16 +20,10 @@ Strongly typed and units of measure tools. These are based on `f64` (double prec
 
 https://github.com/lookbusy1344/Relativity/tree/main/rust_astrofloat
 
-Alternative Rust tools using the `astrofloat` crate for arbitrary precision calculations. Functionally equivalent to the Python tools.
+Alternative Rust tools using the `astrofloat` crate for arbitrary precision calculations. However the astrofloat hyperbolic trig functions are not as accurate as the Python `mpmath` functions.
 
 ## C# (combined project for both units of measure and arbitrary precision)
 
 https://github.com/lookbusy1344/Relativity/tree/main/CSharp
 
 This project contains both a strongly typed units of measure library (equivalent to the `rust_uom` library) and a library for arbitrary precision calculations (equivalent to the Python library or `rust_astrofloat`).
-
-However note there are no built-in `EFloat` hyperbolic trigonometry functions. These are implemented by hand and are not as accurate as the Python/Rust tools. Therefore the EFloatRelativity.cs file is the weakest library here.
-
-## Which to use
-
-For arbitrary precision calculations, use the `Python` or `rust_astrofloat`. For strongly typed units of measure, use the `rust_uom` or C# uom libraries.

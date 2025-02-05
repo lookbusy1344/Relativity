@@ -4,8 +4,7 @@ using System.Runtime.CompilerServices;
 namespace Relativity;
 
 // These utilities are based on the EFloat class from PeterO.Numbers, which is an arbitrary-precision decimal class
-// NOTE Because of the manually implemented hyperbolic trig functions, this class is not as precise as the others in this project
-// So prefer the Python of Rust versions
+// These may be inferior to the Python mpmath versions
 
 using FourMomentum = (EFloat energy, EFloat momentum);
 using Interval = (EFloat x, EFloat y, EFloat z, EFloat time);

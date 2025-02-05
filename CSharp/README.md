@@ -2,8 +2,6 @@
 
 This project contains both a strongly typed units of measure library (equivalent to the `rust_uom` library) and a library for arbitrary precision calculations (equivalent to the Python library or `rust_astrofloat`).
 
-However note there are no built-in `EFloat` hyperbolic trigonometry functions. These are implemented by hand and are not as accurate as the Python/Rust tools.
-
 The units of measure library is here:
 
 https://github.com/lookbusy1344/Relativity/blob/main/CSharp/UomTools.cs
@@ -36,7 +34,7 @@ Console.WriteLine($"Non-relativistic naive calc would be {naiveAsFraction}");
 
 ## Example, Andromeda Galaxy at 1g (arbitrary precision)
 
-Note: prefer Python or rust-astrofloat for arbitrary precision calculations. However the library is here
+The arbitrary precision library is here:
 
 https://github.com/lookbusy1344/Relativity/blob/main/CSharp/EFloatRelativity.cs
 
