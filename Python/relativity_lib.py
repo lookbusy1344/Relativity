@@ -3,6 +3,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
+    06 Feb 2025
 """
 
 c_float: float = 299792458.0  # speed of light as a float
