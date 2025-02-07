@@ -3,7 +3,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    06 Feb 2025
+    07 Feb 2025
 """
 
 c_float: float = 299792458.0  # speed of light as a float
@@ -418,9 +418,9 @@ def format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str:
     if allow_sci:
         number_str = str(ensure(number))
     else:
-        number_str = mp.nstr(
+        number_str: str = mp.nstr(
             ensure(number), configured_dp, min_fixed=-9999, max_fixed=9999
-        )
+        )  # type: ignore
 
     if shortcut_formatting or "e" in number_str:
         return number_str  # bypass any formatting
@@ -470,7 +470,9 @@ def format_mpf_significant(
         The formatted number as a string
     """
     # number_str = str(number)
-    number_str = mp.nstr(ensure(number), configured_dp, min_fixed=-9999, max_fixed=9999)
+    number_str: str = mp.nstr(
+        ensure(number), configured_dp, min_fixed=-9999, max_fixed=9999
+    )  # type: ignore
 
     if shortcut_formatting or "e" in number_str:
         return number_str  # bypass any formatting
