@@ -17,17 +17,17 @@ namespace Relativity;
 
 #pragma warning disable CA2225 // Operator overloads have named alternates
 
-public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>
+public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IComparable<BigFloat>
 {
 	/// <summary>
 	/// The EFloat value of this instance.
 	/// </summary>
-	public EFloat Value { get; } = value ?? throw new ArgumentNullException(nameof(value));
+	public readonly EFloat Value { get; } = value ?? throw new ArgumentNullException(nameof(value));
 
 	/// <summary>
 	/// Context for this BigFloat instance, if null, use the default context.
 	/// </summary>
-	public EContext Context => context ?? DefaultContext;
+	public readonly EContext Context => context ?? DefaultContext;
 
 	/// <summary>
 	/// Changing this immediately affects all instances without an explicit context.
@@ -40,11 +40,9 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	public override readonly bool Equals(object? obj) => obj is BigFloat other && Equals(other);
 
-	public readonly bool Equals(BigFloat other) => Value.Equals(other.Value); // don't include the Context in the comparison
+	public readonly bool Equals(BigFloat other) => Value.Equals(other.Value); // don't include the context
 
-	public static bool operator ==(BigFloat left, BigFloat right) => left.Equals(right);
-
-	public static bool operator !=(BigFloat left, BigFloat right) => !left.Equals(right);
+	public readonly int CompareTo(BigFloat other) => Value.CompareTo(other.Value); // don't include the context
 
 	/// <summary>
 	/// Convert EFloat to BigFloat with default context.
@@ -57,6 +55,22 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static BigFloat Build(EFloat value, EContext context) => new(value, context);
+
+	// ====== Comparison operator overloads ======
+
+	public static bool operator ==(BigFloat left, BigFloat right) => left.Equals(right);
+
+	public static bool operator !=(BigFloat left, BigFloat right) => !left.Equals(right);
+
+	public static bool operator <(BigFloat left, BigFloat right) => left.CompareTo(right) < 0;
+
+	public static bool operator >(BigFloat left, BigFloat right) => left.CompareTo(right) > 0;
+
+	public static bool operator <=(BigFloat left, BigFloat right) => left.CompareTo(right) <= 0;
+
+	public static bool operator >=(BigFloat left, BigFloat right) => left.CompareTo(right) >= 0;
+
+	// ====== Math operator overloads ======
 
 	public static BigFloat operator +(BigFloat left, BigFloat right) => new(
 		left.Value.Add(right.Value, left.Context),
@@ -117,20 +131,20 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// <summary>
 	/// Raise this BigFloat instance to the power of another BigFloat instance.
 	/// </summary>
-	public BigFloat Pow(EFloat power) =>
+	public readonly BigFloat Pow(EFloat power) =>
 		new(Value.Pow(power, Context), Context);
 
 	/// <summary>
 	/// Square root of this BigFloat instance.
 	/// </summary>
 	/// <returns></returns>
-	public BigFloat Sqrt() => new(Value.Sqrt(Context), Context);
+	public readonly BigFloat Sqrt() => new(Value.Sqrt(Context), Context);
 
 	/// <summary>
 	/// Absolute value of this BigFloat instance.
 	/// </summary>
 	/// <returns></returns>
-	public BigFloat Abs() => new(Value.Abs(Context), Context);
+	public readonly BigFloat Abs() => new(Value.Abs(Context), Context);
 
 	/// <summary>
 	/// Negate an BigFloat instance
@@ -146,21 +160,15 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	// ====== Wrappers around hyperbolic trig functions ======
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public BigFloat Cosh() => new(Value.Cosh(Context), Context);
+	//public readonly BigFloat Cosh() => new(Value.Cosh(Context), Context);
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public BigFloat Sinh() => new(Value.Sinh(Context), Context);
+	//public readonly BigFloat Sinh() => new(Value.Sinh(Context), Context);
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public BigFloat Tanh() => new(Value.Tanh(Context), Context);
+	//public readonly BigFloat Tanh() => new(Value.Tanh(Context), Context);
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public BigFloat Acosh() => new(Value.Acosh(Context), Context);
+	//public readonly BigFloat Acosh() => new(Value.Acosh(Context), Context);
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public BigFloat Asinh() => new(Value.Asinh(Context), Context);
+	//public readonly BigFloat Asinh() => new(Value.Asinh(Context), Context);
 
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public BigFloat Atanh() => new(Value.Atanh(Context), Context);
+	//public readonly BigFloat Atanh() => new(Value.Atanh(Context), Context);
 }
