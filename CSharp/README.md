@@ -46,16 +46,16 @@ var distance = B(rl.LightYears(2_500_000.0));
 var accel = rl.G;
 
 // full and half-way burn, in seconds
-var full_burn_sec = B(rl.RelativisticTimeForDistance(accel, distance));
-var flip_burn_sec = B(rl.RelativisticTimeForDistance(accel, distance / 2));
+var full_burn_sec = B(rl.RelativisticTimeForDistance(accel, distance.Value));
+var flip_burn_sec = B(rl.RelativisticTimeForDistance(accel, (distance / 2).Value));
 
 // convert to total years
 var full_burn_years = full_burn_sec / year;
 var flip_burn_years = flip_burn_sec * 2 / year;
 
 // peak velocity as fraction of c
-var peak_velocity_full_burn = B(rl.RelativisticVelocity(accel, full_burn_sec)) / rl.C;
-var peak_velocity_flip_burn = B(rl.RelativisticVelocity(accel, flip_burn_sec)) / rl.C;
+var peak_velocity_full_burn = B(rl.RelativisticVelocity(accel, full_burn_sec.Value)) / rl.C;
+var peak_velocity_flip_burn = B(rl.RelativisticVelocity(accel, flip_burn_sec.Value)) / rl.C;
 
 // output
 Console.WriteLine($"Years at 1g, burning all the way {full_burn_years.Value}");
@@ -73,8 +73,8 @@ var time = B(1) * lotentz;
 Console.WriteLine();
 Console.WriteLine("Time dilation and length contraction at 0.9999c:");
 Console.WriteLine($"Lorentz factor {lotentz}");
-Console.WriteLine($"Length contraction 1m becomes {length}m");
-Console.WriteLine($"Time dilation 1 second becomes {time}s");
+Console.WriteLine($"Length contraction 1m becomes {length.Value}m");
+Console.WriteLine($"Time dilation 1 second becomes {time.Value}s");
 ```
 
 To simplify casting `EFloat` into `BigFloat`, use this helper function:

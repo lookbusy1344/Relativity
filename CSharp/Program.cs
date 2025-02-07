@@ -40,7 +40,7 @@ internal static class Program
 		var initial = EFloat.FromString("299792457.9999999");
 		var rapidity = rl.RapidityFromVelocity(initial);
 		var doubled = B(rapidity) * 2;
-		var velocity = rl.VelocityFromRapidity(doubled);
+		var velocity = rl.VelocityFromRapidity(doubled.Value);
 
 		Console.WriteLine();
 		Console.WriteLine("BigFloats:");
@@ -53,14 +53,14 @@ internal static class Program
 		var year = B(rl.Days(365.25));
 		var distance = B(rl.LightYears(2_500_000.0));
 		var accel = rl.G;
-		var full_burn_sec = B(rl.RelativisticTimeForDistance(accel, distance));
-		var flip_burn_sec = B(rl.RelativisticTimeForDistance(accel, distance / 2));
+		var full_burn_sec = B(rl.RelativisticTimeForDistance(accel, distance.Value));
+		var flip_burn_sec = B(rl.RelativisticTimeForDistance(accel, (distance / 2).Value));
 
 		var full_burn_years = full_burn_sec / year;
 		var flip_burn_years = flip_burn_sec * 2 / year;
 
-		var peak_velocity_full_burn = B(rl.RelativisticVelocity(accel, full_burn_sec)) / rl.C;
-		var peak_velocity_flip_burn = B(rl.RelativisticVelocity(accel, flip_burn_sec)) / rl.C;
+		var peak_velocity_full_burn = B(rl.RelativisticVelocity(accel, full_burn_sec.Value)) / rl.C;
+		var peak_velocity_flip_burn = B(rl.RelativisticVelocity(accel, flip_burn_sec.Value)) / rl.C;
 
 		Console.WriteLine($"Years at 1g, burning all the way {full_burn_years.Value}");
 		Console.WriteLine($"Peak velocity full burn {peak_velocity_full_burn.Value} c");
