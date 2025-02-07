@@ -34,13 +34,6 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// </summary>
 	public static EContext DefaultContext { get; set; } = EContext.Unlimited;
 
-	//#pragma warning disable CA2225 // Operator overloads have named alternates
-	//	/// <summary>
-	//	/// Implicit conversion from BigFloat to EFloat, helps with relativity functions that take EFloat.
-	//	/// </summary>
-	//	public static implicit operator EFloat(BigFloat bigFloat) => bigFloat.Value;
-	//#pragma warning restore CA2225 // Operator overloads have named alternates
-
 	public override readonly string ToString() => Value.ToString();
 
 	public override readonly int GetHashCode() => Value.GetHashCode();
@@ -75,11 +68,6 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		left.Context
 	);
 
-	//public static BigFloat operator +(BigFloat left, int right) => new(
-	//	left.Value.Add(right, left.Context),
-	//	left.Context
-	//);
-
 	public static BigFloat operator -(BigFloat left, BigFloat right) => new(
 		left.Value.Subtract(right.Value, left.Context),
 		left.Context
@@ -89,11 +77,6 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		left.Value.Subtract(right, left.Context),
 		left.Context
 	);
-
-	//public static BigFloat operator -(BigFloat left, int right) => new(
-	//	left.Value.Subtract(right, left.Context),
-	//	left.Context
-	//);
 
 	public static BigFloat operator *(BigFloat left, BigFloat right) => new(
 		left.Value.Multiply(right.Value, left.Context),
@@ -105,11 +88,6 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		left.Context
 	);
 
-	//public static BigFloat operator *(BigFloat left, int right) => new(
-	//	left.Value.Multiply(right, left.Context),
-	//	left.Context
-	//);
-
 	public static BigFloat operator /(BigFloat left, BigFloat right) => new(
 		left.Value.Divide(right.Value, left.Context),
 		left.Context
@@ -119,8 +97,6 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		left.Value.Divide(right, left.Context),
 		left.Context
 	);
-
-	//public static BigFloat operator /(BigFloat left, int right) => Divide(left, right);
 
 	/// <summary>
 	/// Negate an BigFloat instance.

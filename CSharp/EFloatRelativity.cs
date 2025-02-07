@@ -18,6 +18,7 @@ internal sealed class EFloatRelativity
 	public readonly EFloat SECONDS_IN_YEAR;
 
 	private const string PRECISION_ERR = "Calculated velocity at or above C, increase EContext precision";
+	private const string C_ERR = "Velocity must be less than C";
 	private readonly EFloat C_SQUARED;
 	private readonly BigFloat Half;
 	private readonly BigFloat One;
@@ -67,7 +68,7 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Check this velocity is less than C in m/s
 	/// </summary>
-	private EFloat CheckVelocity(EFloat velocity, string msg = "Velocity must be less than C")
+	private EFloat CheckVelocity(EFloat velocity, string msg = C_ERR)
 	{
 		if (velocity.Abs(Context).CompareTo(C) >= 0) {
 			throw new ArgumentException(msg);
@@ -79,13 +80,12 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Check this BigFloat velocity is less than C in m/s
 	/// </summary>
-	private EFloat CheckVelocity(BigFloat velocity, string msg = "Velocity must be less than C") => CheckVelocity(velocity.Value, msg);
+	private EFloat CheckVelocity(BigFloat velocity, string msg = C_ERR) => CheckVelocity(velocity.Value, msg);
 
 	/// <summary>
 	/// Check this velocity is less than C in m/s and return BigFloat
 	/// </summary>
-	private BigFloat CheckVelocityB(EFloat velocity, string msg = "Velocity must be less than C") =>
-		B(CheckVelocity(velocity, msg));
+	private BigFloat CheckVelocityB(EFloat velocity, string msg = C_ERR) => B(CheckVelocity(velocity, msg));
 
 	/// <summary>
 	/// Turn given number of days into seconds
