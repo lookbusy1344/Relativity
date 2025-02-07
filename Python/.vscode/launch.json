@@ -18,6 +18,12 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/TrigTests.py"
+        },
+        {
+            "name": "IntervalTest.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/IntervalTest.py"
         }
     ]
 }

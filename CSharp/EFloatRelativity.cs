@@ -7,8 +7,8 @@ namespace Relativity;
 // These may be inferior to the Python mpmath versions
 
 using FourMomentum = (EFloat energy, EFloat momentum);
-using Interval = (EFloat x, EFloat y, EFloat z, EFloat time);
-using SimplifiedInterval = (EFloat x, EFloat time);
+using Interval = (EFloat time, EFloat x, EFloat y, EFloat z);
+using SimplifiedInterval = (EFloat time, EFloat x);
 
 internal sealed class EFloatRelativity
 {
@@ -284,30 +284,32 @@ internal sealed class EFloatRelativity
 	}
 
 	/// <summary>
-	/// Calculate the invariant interval between two events in 1D space (x, time)
+	/// Calculate the invariant spacetime interval between two events in 1D space (x, time)
 	/// </summary>
-	/// <param name="event1">x, time for event 1</param>
-	/// <param name="event2">x, time for event 2</param>
+	/// <param name="event1">time, x for event 1</param>
+	/// <param name="event2">time, x for event 2</param>
 	/// <returns>The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)</returns>
-	public EFloat InvariantInterval(SimplifiedInterval event1, SimplifiedInterval event2) =>
-		// delta_t**2 - (delta_x**2) / csquared
-		(B(event2.time) - event1.time).Pow(2) - ((B(event2.x) - event1.x).Pow(2) / CSQUARED_B);
+	public EFloat SpacetimeInterval1D(SimplifiedInterval event1, SimplifiedInterval event2) =>
+		// sqrt(csquared * delta_t^2 - delta_x^2)
+		Sqrt(CSQUARED_B * (B(event2.time) - event1.time).Pow(2) - (B(event2.x) - event1.x).Pow(2));
 
 	/// <summary>
-	/// Calculate the invariant interval between two events in 3D space (x, y, z, time)
+	/// Calculate the invariant spacetime interval between two events in 3D space (x, y, z, time)
 	/// </summary>
-	/// <param name="event1">x, y, z, time for event 1</param>
-	/// <param name="event2">x, y, z, time for event 2</param>
+	/// <param name="event1">time, x, y, z for event 1</param>
+	/// <param name="event2">time, x, y, z for event 2</param>
 	/// <returns>The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)</returns>
-	public EFloat InvariantInterval(Interval event1, Interval event2) =>
-		// delta_t**2 - (delta_x**2 + delta_y**2 + delta_z**2) / csquared
-		(B(event2.time) - event1.time).Pow(2) - ((
-			(B(event2.x) - event1.x).Pow(2) +
-			(B(event2.y) - event1.y).Pow(2) +
-			(B(event2.z) - event1.z).Pow(2)
-		) / CSQUARED_B);
+	public EFloat SpacetimeInterval3D(Interval event1, Interval event2) =>
+		// sqrt(csquared * delta_t^2 - delta_x^2 - delta_y^2 - delta_z^2)
+		Sqrt(CSQUARED_B * (B(event2.time) - event1.time).Pow(2)
+			- (B(event2.x) - event1.x).Pow(2)
+			- (B(event2.y) - event1.y).Pow(2)
+			- (B(event2.z) - event1.z).Pow(2));
 
 	// ====== Wrappers around hyperbolic trig functions ======
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private BigFloat Sqrt(EFloat f) => BigFloat.Build(f.Sqrt(Context), Context);
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private BigFloat Cosh(EFloat f) => BigFloat.Build(f.Cosh(Context), Context);

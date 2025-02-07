@@ -12,7 +12,7 @@ internal static class Program
 	{
 		Uom();
 		BigFloats();
-		TrigTests();
+		//TrigTests();
 	}
 
 	private static void Uom()
@@ -79,6 +79,18 @@ internal static class Program
 		Console.WriteLine($"Lorentz factor {lotentz}");
 		Console.WriteLine($"Length contraction 1m becomes {length}m");
 		Console.WriteLine($"Time dilation 1 second becomes {time}s");
+
+		// spacetime intervals
+		var interval1 = rl.SpacetimeInterval1D((1.1, 1), (10, 5));
+		var interval2 = rl.SpacetimeInterval3D((2, 1, 1, 1), (10, 5, 10, 100));
+		var interval3 = rl.SpacetimeInterval1D((1.1, 1), (1.1, 5));
+		var interval4 = rl.SpacetimeInterval1D((0, 0), (2, rl.C * 2));
+
+		Console.WriteLine();
+		Console.WriteLine($"Spacetime interval: {interval1}");
+		Console.WriteLine($"Spacetime interval: {interval2}");
+		Console.WriteLine($"Spacetime interval: {interval3}");
+		Console.WriteLine($"Spacetime interval: {interval4}");
 	}
 
 	private static void TrigTests()

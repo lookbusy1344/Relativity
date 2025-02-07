@@ -363,9 +363,9 @@ def four_momentum(mass, velocity) -> tuple:
     return (energy, momentum)
 
 
-def invariant_interval_simplified(event1: tuple, event2: tuple):
+def spacetime_interval_1d(event1: tuple, event2: tuple):
     """
-    Calculate the invariant interval between two events in 1D space.
+    Calculate the invariant spacetime interval between two events in 1D space.
 
     Parameters:
         event1: A tuple (time, position) of the first event
@@ -374,17 +374,22 @@ def invariant_interval_simplified(event1: tuple, event2: tuple):
     Returns:
         The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)
     """
+    # Δs = sqrt((cΔt)^2 - (Δx)^2)
+    # normal intervals are time-like
+    # zero is light-like
+    # imaginary is space-like, not causally connected, mp.im(res) != 0
+
     time1, x1 = event1
     time2, x2 = event2
 
-    delta_t = ensure(time2) - ensure(time1)
-    delta_x = ensure(x2) - ensure(x1)
-    return delta_t**2 - (delta_x**2) / csquared
+    delta_ts = (ensure(time2) - ensure(time1)) ** 2
+    delta_xs = (ensure(x2) - ensure(x1)) ** 2
+    return mp.sqrt(csquared * delta_ts - delta_xs)
 
 
-def invariant_interval_3d(event1: tuple, event2: tuple):
+def spacetime_interval_3d(event1: tuple, event2: tuple):
     """
-    Calculate the invariant interval between two events in 3D space.
+    Calculate the invariant spacetime interval between two events in 3D space.
 
     Parameters:
         event1: A tuple (time, x, y, z) of the first event
@@ -393,14 +398,19 @@ def invariant_interval_3d(event1: tuple, event2: tuple):
     Returns:
         The invariant interval (spacetime interval squared)
     """
+    # sqrt((cΔt)^2 - (Δx)^2 - (Δy)^2 - (Δz)^2)
+    # normal intervals are time-like
+    # zero is light-like
+    # imaginary is space-like, not causally connected, mp.im(res) != 0
+
     time1, x1, y1, z1 = event1
     time2, x2, y2, z2 = event2
 
-    delta_t = ensure(time2) - ensure(time1)
-    delta_x = ensure(x2) - ensure(x1)
-    delta_y = ensure(y2) - ensure(y1)
-    delta_z = ensure(z2) - ensure(z1)
-    return delta_t**2 - (delta_x**2 + delta_y**2 + delta_z**2) / csquared
+    delta_ts = (ensure(time2) - ensure(time1)) ** 2
+    delta_xs = (ensure(x2) - ensure(x1)) ** 2
+    delta_ys = (ensure(y2) - ensure(y1)) ** 2
+    delta_zs = (ensure(z2) - ensure(z1)) ** 2
+    return mp.sqrt(csquared * delta_ts - delta_xs - delta_ys - delta_zs)
 
 
 def format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str:
