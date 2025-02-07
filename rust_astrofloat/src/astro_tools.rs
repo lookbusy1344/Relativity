@@ -7,9 +7,9 @@
 // Note the expr!() macro is used to simplfy context handlding in equations
 // However expr!() cannot evaluate fields like self.c so we need let c = &self.c
 
-use astro_float::{expr, BigFloat, Consts, RoundingMode};
 use anyhow::anyhow;
 use astro_float::ctx::Context;
+use astro_float::{expr, BigFloat, Consts, RoundingMode};
 use std::str::FromStr;
 
 pub const ROUNDING: RoundingMode = RoundingMode::ToEven;
@@ -30,33 +30,51 @@ pub struct Relativity {
 
 /// Simplified interval with time and 1D coordinate
 /// Only contains refs so can be passed by-value (copy, clone)
-#[derive(Copy, Clone, Debug)]
-pub struct SimplifiedInterval<'a> {
-    pub time: &'a BigFloat,
-    pub x: &'a BigFloat,
+#[derive(Clone, Debug)]
+pub struct SimplifiedInterval {
+    pub time: BigFloat,
+    pub x: BigFloat,
 }
 
-impl<'a> SimplifiedInterval<'a> {
-    /// Destructure the interval into its two components
-    pub fn destructure(self) -> (&'a BigFloat, &'a BigFloat) {
-        (self.time, self.x)
+impl SimplifiedInterval {
+    /// Create a new interval from time and 1D coordinate as f64
+    pub fn from_f64(time: f64, x: f64, rel: &Relativity) -> Self {
+        Self {
+            time: rel.bigfloat_from_f64(time),
+            x: rel.bigfloat_from_f64(x),
+        }
+    }
+
+    /// Destructure the interval into its time, x components
+    pub fn destructure<'a>(&'a self) -> (&'a BigFloat, &'a BigFloat) {
+        (&self.time, &self.x)
     }
 }
 
 /// Interval with time and 3D coordinates
 /// Only contains refs so can be passed by-value (copy, clone)
-#[derive(Copy, Clone, Debug)]
-pub struct Interval<'a> {
-    pub time: &'a BigFloat,
-    pub x: &'a BigFloat,
-    pub y: &'a BigFloat,
-    pub z: &'a BigFloat,
+#[derive(Clone, Debug)]
+pub struct Interval {
+    pub time: BigFloat,
+    pub x: BigFloat,
+    pub y: BigFloat,
+    pub z: BigFloat,
 }
 
-impl<'a> Interval<'a> {
-    /// Destructure the interval into its four components
-    pub fn destructure(self) -> (&'a BigFloat, &'a BigFloat, &'a BigFloat, &'a BigFloat) {
-        (self.time, self.x, self.y, self.z)
+impl Interval {
+    /// Create a new interval from time and 3D coordinates as f64
+    pub fn from_f64(time: f64, x: f64, y: f64, z: f64, rel: &Relativity) -> Self {
+        Self {
+            time: rel.bigfloat_from_f64(time),
+            x: rel.bigfloat_from_f64(x),
+            y: rel.bigfloat_from_f64(y),
+            z: rel.bigfloat_from_f64(z),
+        }
+    }
+
+    /// Destructure the interval into its time, x, y, z components
+    pub fn destructure<'a>(&'a self) -> (&'a BigFloat, &'a BigFloat, &'a BigFloat, &'a BigFloat) {
+        (&self.time, &self.x, &self.y, &self.z)
     }
 }
 
@@ -325,37 +343,39 @@ impl Relativity {
         EnergyMomentum { energy, momentum }
     }
 
-    /// Invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)
+    /// Invariant spacetime interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)
     /// Tuples are time + 1D coordinates for two events
-    pub fn invariant_interval_simplified(
+    pub fn spacetime_interval_1d(
         &mut self,
         event1: SimplifiedInterval,
         event2: SimplifiedInterval,
     ) -> BigFloat {
-        // delta_t = time2 - time1, delta_x = x2 - x1
-        // return delta_t**2 - (delta_x**2) / csquared
+        // sqrt(csquared * delta_t^2 - delta_x^2)
         let (time1, x1) = event1.destructure();
         let (time2, x2) = event2.destructure();
 
         let c_squared = &self.c_squared;
         expr!(
-            pow(time2 - time1, 2) - pow(x2 - x1, 2) / c_squared,
+            sqrt(c_squared * pow(time2 - time1, 2) - pow(x2 - x1, 2)),
             &mut self.ctx
         )
     }
 
-    /// Invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)
+    /// Invariant spacetime interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)
     /// Tuples are time + 3D coordinates for two events
-    pub fn invariant_interval_3d(&mut self, event1: Interval, event2: Interval) -> BigFloat {
-        // delta_t = time2 - time1, delta_x = x2 - x1, delta_y = y2 - y1, delta_z = z2 - z1
-        // return delta_t**2 - (delta_x**2 + delta_y**2 + delta_z**2) / csquared
+    pub fn spacetime_interval_3d(&mut self, event1: Interval, event2: Interval) -> BigFloat {
+        // sqrt(csquared * delta_t^2 - delta_x^2 - delta_y^2 - delta_z^2)
         let (time1, x1, y1, z1) = event1.destructure();
         let (time2, x2, y2, z2) = event2.destructure();
 
         let c_squared = &self.c_squared;
         expr!(
-            pow(time2 - time1, 2)
-                - (pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2)) / c_squared,
+            sqrt(
+                c_squared * pow(time2 - time1, 2)
+                    - pow(x2 - x1, 2)
+                    - pow(y2 - y1, 2)
+                    - pow(z2 - z1, 2)
+            ),
             &mut self.ctx
         )
     }
