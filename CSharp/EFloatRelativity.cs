@@ -19,7 +19,9 @@ internal sealed class EFloatRelativity
 
 	private const string PRECISION_ERR = "Calculated velocity at or above C, increase EContext precision";
 	private const string C_ERR = "Velocity must be less than C";
-	private readonly EFloat C_SQUARED;
+	// this line generates both RCS1169 and IDE0044, "make field readonly"
+	private EFloat C_SQUARED;
+
 	private readonly BigFloat Half;
 	private readonly BigFloat One;
 	private readonly BigFloat C_B;

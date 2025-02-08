@@ -1,0 +1,76 @@
+﻿# Global Roslynator Config File
+
+is_global = true
+
+# TURNING OFF SOME ANNOYING WARNINGS
+
+dotnet_diagnostic.RCS1001.severity = none
+dotnet_diagnostic.RCS1003.severity = none
+
+# Duplicated in VS2022
+dotnet_diagnostic.rcs1213.severity = none	# same as IDE0051
+dotnet_diagnostic.rcs1163.severity = none	# same as IDE0060
+dotnet_diagnostic.rcs1169.severity = none	# same as IDE0044
+dotnet_diagnostic.rcs1021.severity = none	# same as IDE0053
+dotnet_diagnostic.rcs1085.severity = none	# same as IDE0032
+dotnet_diagnostic.rcs1046.severity = none	# same as VSTHRD200
+
+# TURNING ON SOME USEFUL MESSAGES
+
+# Put auto-accessors on a single line
+dotnet_diagnostic.rcs0042.severity = suggestion
+
+# Remove braces from if-else
+dotnet_diagnostic.rcs1004.severity = none
+
+# Asynchronous method name should end with 'Async'
+#dotnet_diagnostic.rcs1046.severity = suggestion
+
+# Remove redundant Dispose/Close call
+dotnet_diagnostic.rcs1133.severity = suggestion
+
+# Remove redundant statement
+dotnet_diagnostic.rcs1134.severity = suggestion
+
+# Remove redundant 'as' operator
+dotnet_diagnostic.rcs1145.severity = suggestion
+
+# Remove redundant cast
+dotnet_diagnostic.rcs1151.severity = suggestion
+
+# Remove redundant async/await
+dotnet_diagnostic.rcs1174.severity = suggestion
+
+# Avoid unnecessary boxing of value type
+# dotnet_diagnostic.rcs1198.severity = suggestion
+
+# Reduce 'if' nesting
+# dotnet_diagnostic.rcs1208.severity = suggestion
+
+# Normalize null check
+# roslynator_null_check_style = pattern_matching   # equality_operator
+# dotnet_diagnostic.rcs1248.severity = suggestion
+
+# Simplify argument null check
+dotnet_diagnostic.rcs1255.severity = suggestion
+
+# Remove redundant default switch section
+dotnet_diagnostic.rcs1070.severity = suggestion
+
+# Merge switch sections with equivalent content
+dotnet_diagnostic.rcs1136.severity = suggestion
+
+# Avoid nested ?: operators
+dotnet_diagnostic.rcs1238.severity = suggestion
+
+# Fix formatting of a list
+# dotnet_diagnostic.rcs0053.severity = suggestion
+
+# Fix formatting of a call chain
+dotnet_diagnostic.rcs0054.severity = suggestion
+
+# Fix formatting of a binary expression chain
+dotnet_diagnostic.rcs0055.severity = suggestion
+
+# Use method chaining
+dotnet_diagnostic.rcs1201.severity = suggestion
