@@ -479,9 +479,6 @@ dotnet_diagnostic.rcs1198.severity = suggestion
 # Remove unnecessary 'else'
 dotnet_diagnostic.rcs1211.severity = suggestion
 
-# Make parameter ref read-only
-dotnet_diagnostic.rcs1231.severity = suggestion
-
 # Implement non-generic counterpart
 dotnet_diagnostic.rcs1241.severity = suggestion
 
