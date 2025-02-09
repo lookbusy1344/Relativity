@@ -566,12 +566,8 @@ fn internal_bigfloat_fmt(
 
 /// Convert `BigFloat` to a string
 pub fn bigfloat_to_string(f: &BigFloat) -> anyhow::Result<String> {
-    let s = f.to_string();
-    inner_bigfloat_to_string(&s)
-}
+    let st = f.to_string();
 
-/// Inner helper which takes string in scientific notation eg 1.23e4 and converts to 12300.0
-fn inner_bigfloat_to_string(st: &str) -> anyhow::Result<String> {
     // check if the string is in scientific notation
     if !st.contains('e') {
         return Ok(st.to_string());
