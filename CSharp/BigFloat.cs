@@ -16,7 +16,6 @@ namespace Relativity;
 // Context can be null, in which case the default context is used
 
 #pragma warning disable CA2225 // Operator overloads have named alternates
-#pragma warning disable RCS1231 // Make parameter ref read-only
 
 public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IComparable<BigFloat>, IComparable
 {

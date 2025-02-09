@@ -5,8 +5,6 @@ namespace Relativity;
 
 // These utilities are based on the EFloat class from PeterO.Numbers, which is an arbitrary-precision decimal class
 
-#pragma warning disable RCS1231 // Make parameter ref read-only
-
 using FourMomentum = (EFloat energy, EFloat momentum);
 using Interval = (EFloat time, EFloat x, EFloat y, EFloat z);
 using SimplifiedInterval = (EFloat time, EFloat x);

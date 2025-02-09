@@ -5,8 +5,6 @@ namespace Relativity;
 // Strongly typed classes for special relativity calculations
 // These classes use units of measure, but are based on double (64-bit float) values so lack maximal precision.
 
-#pragma warning disable RCS1231 // Make parameter ref read-only
-
 /// <summary>
 /// A struct representing a Lorentz factor, intentionally not convertible to a double. Implicit constructor is ok here
 /// </summary>
