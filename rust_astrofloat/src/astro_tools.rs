@@ -13,6 +13,7 @@ use astro_float::{expr, BigFloat, Consts, RoundingMode};
 use std::str::FromStr;
 
 pub const ROUNDING: RoundingMode = RoundingMode::ToEven;
+pub const C_FLOAT: f64 = 299_792_458.0;
 
 pub struct Relativity {
     pub ctx: Context,
@@ -380,6 +381,28 @@ impl Relativity {
         )
     }
 
+    /// Helper to calculate spacetime interval with f64 values. Tuples are time, x
+    pub fn spacetime_interval_1d_f64(
+        &mut self,
+        event1: (f64, f64),
+        event2: (f64, f64),
+    ) -> BigFloat {
+        let event1 = SimplifiedInterval::from_f64(event1.0, event1.1, self);
+        let event2 = SimplifiedInterval::from_f64(event2.0, event2.1, self);
+        self.spacetime_interval_1d(event1, event2)
+    }
+
+    /// Helper to calculate spacetime interval with f64 values. Tuples are time, x, y, z
+    pub fn spacetime_interval_3d_f64(
+        &mut self,
+        event1: (f64, f64, f64, f64),
+        event2: (f64, f64, f64, f64),
+    ) -> BigFloat {
+        let event1 = Interval::from_f64(event1.0, event1.1, event1.2, event1.3, self);
+        let event2 = Interval::from_f64(event2.0, event2.1, event2.2, event2.3, self);
+        self.spacetime_interval_3d(event1, event2)
+    }
+
     // ========== Conversion and other helpers ==========
 
     #[inline]
@@ -463,6 +486,11 @@ fn internal_bigfloat_fmt(
     significant: Option<char>,
 ) -> anyhow::Result<String> {
     let s = bigfloat_to_string(f)?;
+
+    if !s.contains('.') {
+        // no decimal point, return as is
+        return Ok(s);
+    }
 
     // split the string into left and right of the decimal point
     let parts = s

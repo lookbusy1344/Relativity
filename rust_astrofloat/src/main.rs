@@ -1,4 +1,4 @@
-use crate::astro_tools::{Interval, SimplifiedInterval};
+use crate::astro_tools::C_FLOAT;
 use astro_float::expr;
 use astro_tools::{bigfloat_fmt_dp, bigfloat_fmt_sig, Relativity};
 // Note astro-float values are unweildy to work with directly (because of the required context),
@@ -91,21 +91,17 @@ fn main() {
         bigfloat_fmt_dp(&time_total_years, 2).unwrap()
     );
 
-    // calculating c * 2 for a spacetime interval
-    let c = rel.get_c().clone();
-    let c2 = expr!(c * 2, &mut rel.ctx);
-
     // spacetime intervals
-    let interval1 = rel.spacetime_interval_1d(SimplifiedInterval::from_f64(1.1, 1.0, &rel), SimplifiedInterval::from_f64(10.0, 5.0, &rel));
-    let interval2 = rel.spacetime_interval_3d(Interval::from_f64(2.0, 1.0, 1.0, 1.0, &rel), Interval::from_f64(10.0, 5.0, 10.0, 100.0, &rel));
-    let interval3 = rel.spacetime_interval_1d(SimplifiedInterval::from_f64(1.1, 1.0, &rel), SimplifiedInterval::from_f64(1.1, 5.0, &rel));
-    let interval4 = rel.spacetime_interval_1d(SimplifiedInterval::from_f64(0.0, 0.0, &rel), SimplifiedInterval { time: rel.bigfloat_from_i64(2), x: c2 });
+    let interval1 = rel.spacetime_interval_1d_f64((1.1, 1.0), (10.0, 5.0));
+    let interval2 = rel.spacetime_interval_3d_f64((2.0, 1.0, 1.0, 1.0), (10.0, 5.0, 10.0, 100.0));
+    let interval3 = rel.spacetime_interval_1d_f64((1.1, 1.0), (1.1, 5.0));
+    let interval4 = rel.spacetime_interval_1d_f64((0.0, 0.0), (2.0, C_FLOAT * 2.0));
 
     println!();
-    println!("Spacetime interval: {interval1}");
-    println!("Spacetime interval: {interval2}");
-    println!("Spacetime interval: {interval3}");
-    println!("Spacetime interval: {interval4}");
+    println!("Spacetime interval: {}", bigfloat_fmt_dp(&interval1, 4).unwrap());
+    println!("Spacetime interval: {}", bigfloat_fmt_dp(&interval2, 4).unwrap());
+    println!("Spacetime interval: {}", bigfloat_fmt_dp(&interval3, 4).unwrap());
+    println!("Spacetime interval: {}", bigfloat_fmt_dp(&interval4, 4).unwrap());
 
     //trig_tests();
 }
