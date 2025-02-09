@@ -16,8 +16,9 @@ namespace Relativity;
 // Context can be null, in which case the default context is used
 
 #pragma warning disable CA2225 // Operator overloads have named alternates
+#pragma warning disable RCS1231 // Make parameter ref read-only
 
-public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IComparable<BigFloat>
+public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IComparable<BigFloat>, IComparable
 {
 	/// <summary>
 	/// The EFloat value of this instance.
@@ -43,6 +44,19 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	public readonly bool Equals(BigFloat other) => Value.Equals(other.Value); // don't include the context
 
 	public readonly int CompareTo(BigFloat other) => Value.CompareTo(other.Value); // don't include the context
+
+	public int CompareTo(object? obj)
+	{
+		if (obj == null) {
+			return 1;
+		}
+
+		if (obj is BigFloat x) {
+			return CompareTo(x);
+		}
+
+		throw new ArgumentException("Comparison with invalid type", nameof(obj));
+	}
 
 	/// <summary>
 	/// Convert EFloat to BigFloat with default context.

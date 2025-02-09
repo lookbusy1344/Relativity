@@ -5,6 +5,8 @@ namespace Relativity;
 
 // These utilities are based on the EFloat class from PeterO.Numbers, which is an arbitrary-precision decimal class
 
+#pragma warning disable RCS1231 // Make parameter ref read-only
+
 using FourMomentum = (EFloat energy, EFloat momentum);
 using Interval = (EFloat time, EFloat x, EFloat y, EFloat z);
 using SimplifiedInterval = (EFloat time, EFloat x);
@@ -258,9 +260,9 @@ internal sealed class EFloatRelativity
 		var beta = CheckVelocityB(velocity) / C_B;
 		if (source_moving_towards) {
 			return (B(frequency) * ((One + beta) / (One - beta)).Sqrt()).Value;
-		} else {
-			return (B(frequency) * ((One - beta) / (One + beta)).Sqrt()).Value;
 		}
+
+		return (B(frequency) * ((One - beta) / (One + beta)).Sqrt()).Value;
 	}
 
 	/// <summary>
