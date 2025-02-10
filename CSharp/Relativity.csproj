@@ -23,11 +23,11 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="PeterO.Numbers" Version="1.8.2" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.12.11">
+    <PackageReference Include="Roslynator.Analyzers" Version="4.13.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="UnitsNet" Version="5.67.0" />
+    <PackageReference Include="UnitsNet" Version="5.69.0" />
   </ItemGroup>
 
 </Project>
