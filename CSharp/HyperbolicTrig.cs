@@ -1,7 +1,7 @@
-﻿using PeterO.Numbers;
-using System;
+﻿namespace Relativity;
 
-namespace Relativity;
+using System;
+using PeterO.Numbers;
 
 /// <summary>
 /// EFloat hyperbolic trigonometry functions

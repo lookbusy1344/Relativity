@@ -1,13 +1,13 @@
-﻿using PeterO.Numbers;
-using System.Runtime.CompilerServices;
+﻿namespace Relativity;
 
-namespace Relativity;
+using System.Runtime.CompilerServices;
+using PeterO.Numbers;
 
 // These utilities are based on the EFloat class from PeterO.Numbers, which is an arbitrary-precision decimal class
 
-using FourMomentum = (EFloat energy, EFloat momentum);
-using Interval = (EFloat time, EFloat x, EFloat y, EFloat z);
-using SimplifiedInterval = (EFloat time, EFloat x);
+using FourMomentum = (PeterO.Numbers.EFloat energy, PeterO.Numbers.EFloat momentum);
+using Interval = (PeterO.Numbers.EFloat time, PeterO.Numbers.EFloat x, PeterO.Numbers.EFloat y, PeterO.Numbers.EFloat z);
+using SimplifiedInterval = (PeterO.Numbers.EFloat time, PeterO.Numbers.EFloat x);
 
 internal sealed class EFloatRelativity
 {

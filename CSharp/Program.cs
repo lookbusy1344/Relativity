@@ -1,7 +1,7 @@
 ﻿namespace Relativity;
 
-using PeterO.Numbers;
 using System.Runtime.CompilerServices;
+using PeterO.Numbers;
 using UnitsNet;
 
 #pragma warning disable IDE0059 // Unnecessary assignment of a value

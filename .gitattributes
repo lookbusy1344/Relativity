@@ -1,14 +1,16 @@
+# 12 Feb 2025
 # Others, leave as-is (dont treat them as text)
 * -text
+
+# General
+*.yml text eol=lf
+*.md text eol=lf
+*.json text eol=lf
 
 # Rust
 *.rs text eol=lf
 *.toml text eol=lf
 *.lock text eol=lf
-
-# Github
-*.yml text eol=lf
-*.md text eol=lf
 
 # Python 
 *.py text eol=lf

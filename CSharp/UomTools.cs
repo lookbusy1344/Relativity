@@ -1,6 +1,6 @@
-﻿using UnitsNet;
+﻿namespace Relativity;
 
-namespace Relativity;
+using UnitsNet;
 
 // Strongly typed classes for special relativity calculations
 // These classes use units of measure, but are based on double (64-bit float) values so lack maximal precision.

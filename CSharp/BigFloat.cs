@@ -1,9 +1,8 @@
-﻿
-using PeterO.Numbers;
+﻿namespace Relativity;
+
 using System;
 using System.Runtime.CompilerServices;
-
-namespace Relativity;
+using PeterO.Numbers;
 
 // This helper class wraps an EFloat with a context for calculations, so we can do
 // (A + B) * C
