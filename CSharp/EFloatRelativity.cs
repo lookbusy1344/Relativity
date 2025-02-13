@@ -68,14 +68,8 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Check this velocity is less than C in m/s
 	/// </summary>
-	private EFloat CheckVelocity(EFloat velocity, string msg = C_ERR)
-	{
-		if (velocity.Abs(Context).CompareTo(C) >= 0) {
-			throw new ArgumentException(msg);
-		}
-
-		return velocity;
-	}
+	private EFloat CheckVelocity(EFloat velocity, string msg = C_ERR) =>
+		velocity.Abs(Context).CompareTo(C) >= 0 ? throw new ArgumentException(msg) : velocity;
 
 	/// <summary>
 	/// Check this BigFloat velocity is less than C in m/s
@@ -104,13 +98,10 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	/// <param name="fraction">Fraction of c, must be less than 1.0</param>
 	/// <returns>Velocity in m/s</returns>
-	public EFloat FractionOfC(EFloat fraction)
-	{
-		if (fraction.Abs(Context).CompareTo(One.Value) >= 0) {
-			throw new ArgumentException("Fraction of c must be less than 1.0");
-		}
-		return CheckVelocity(C_B * fraction, PRECISION_ERR);
-	}
+	public EFloat FractionOfC(EFloat fraction) =>
+		fraction.Abs(Context).CompareTo(One.Value) >= 0
+			? throw new ArgumentException("Fraction of c must be less than 1.0")
+			: CheckVelocity(C_B * fraction, PRECISION_ERR);
 
 	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time
@@ -256,11 +247,9 @@ internal sealed class EFloatRelativity
 	public EFloat DopplerShift(EFloat frequency, EFloat velocity, bool source_moving_towards = true)
 	{
 		var beta = CheckVelocityB(velocity) / C_B;
-		if (source_moving_towards) {
-			return (B(frequency) * ((One + beta) / (One - beta)).Sqrt()).Value;
-		}
-
-		return (B(frequency) * ((One - beta) / (One + beta)).Sqrt()).Value;
+		return source_moving_towards
+			? (B(frequency) * ((One + beta) / (One - beta)).Sqrt()).Value
+			: (B(frequency) * ((One - beta) / (One + beta)).Sqrt()).Value;
 	}
 
 	/// <summary>

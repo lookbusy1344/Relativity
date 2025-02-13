@@ -45,15 +45,13 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	public int CompareTo(object? obj)
 	{
+#pragma warning disable IDE0046 // Convert to conditional expression
 		if (obj == null) {
 			return 1;
 		}
+#pragma warning restore IDE0046 // Convert to conditional expression
 
-		if (obj is BigFloat x) {
-			return CompareTo(x);
-		}
-
-		throw new ArgumentException("Comparison with invalid type", nameof(obj));
+		return obj is BigFloat x ? CompareTo(x) : throw new ArgumentException("Comparison with invalid type", nameof(obj));
 	}
 
 	/// <summary>
