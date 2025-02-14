@@ -6,6 +6,8 @@ This Python solution is the easiest to use of the 3 language implementations, bu
 
 ## Jupyter Notebooks
 
+[Easy intro, adding velocities](https://github.com/lookbusy1344/Relativity/blob/main/Python/Velocity%20adding.ipynb)
+
 [Universe tour, 1-25 million light years](https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb)
 
 [Solar system tour, how far can you get in 1-14 days](https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb)
@@ -121,11 +123,11 @@ Calculate the invariant (proper) mass of a system from energy and momentum.
 ### four_momentum(mass, velocity) -> tuple[mpf]
 Calculate the four-momentum of a particle. Returns a tuple of energy and momentum.
 
-### invariant_interval_simplified(event1: tuple, event2: tuple) -> mpf
-Calculate the invariant interval between two events in 1D space. Input tuples are `(time, position)`.
+### spacetime_interval_1d(event1: tuple, event2: tuple) -> mpf
+Calculate the invariant interval between two events in 1D space. Input tuples are `(time, position)`. Returns the invariant interval (*spacetime interval squared*, or *seconds^2 - meters^2 / c^2*)
 
-### invariant_interval_3d(event1: tuple, event2: tuple) -> mpf
-Calculate the invariant interval between two events in 3D space. Input tuples are `(time, x, y, z)`.
+### spacetime_interval_3d(event1: tuple, event2: tuple) -> mpf
+Calculate the invariant interval between two events in 3D space. Input tuples are `(time, x, y, z)`. Returns the invariant interval (*spacetime interval squared*, or *seconds^2 - meters^2 / c^2*)
 
 ## Display
 
