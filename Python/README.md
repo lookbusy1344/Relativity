@@ -8,6 +8,8 @@ This Python solution is the easiest to use of the 3 language implementations, bu
 
 [Easy intro, adding velocities](https://github.com/lookbusy1344/Relativity/blob/main/Python/Velocity%20adding.ipynb)
 
+[Time dilation and length contraction](https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb)
+
 [Universe tour, 1-25 million light years](https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb)
 
 [Solar system tour, how far can you get in 1-14 days](https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb)
