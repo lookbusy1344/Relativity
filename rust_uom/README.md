@@ -1,4 +1,4 @@
-# Rust Special Relativity coding tools (uom)
+# Special Relativity with Rust (units of measure)
 
 This project is compiled and higher performance than the Python tools. The library is here
 

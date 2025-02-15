@@ -1,8 +1,6 @@
-# Python Special Relativity tools
+# Special Relativity with Python
 
-Python tools for Special Relativity, using `mpmath` for arbitrary precision calculations. A great place to start. Jupyter notebooks are included for playing with the tools.
-
-This Python solution is the easiest to use of the 3 language implementations, but probably the slowest.
+Here we have a few Jupyter notebooks exploring aspects of special relativity, using an included Python library for the more advanced calculations.
 
 ## Jupyter Notebooks
 
@@ -20,7 +18,7 @@ This Python solution is the easiest to use of the 3 language implementations, bu
 
 ## Library
 
-The shared library is here:
+The Python library uses *mpmath* for arbitrary precision calculations, allowing us to calculate velocities to hundreds of decimal places. Other folders in the repository include C# and Rust versions of the library, but they are not as easy to use.
 
 https://github.com/lookbusy1344/Relativity/blob/main/Python/relativity_lib.py
 

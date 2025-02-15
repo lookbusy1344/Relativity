@@ -1,4 +1,4 @@
-# Rust Special Relativity coding tools (astro-float)
+# Special Relativity with Rust (astro-float)
 
 This project is compiled and higher performance than the Python tools. The library is here
 

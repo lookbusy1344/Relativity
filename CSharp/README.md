@@ -1,4 +1,4 @@
-# C# Special Relativity coding tools
+# Special Relativity with C#
 
 This project contains both a strongly typed units of measure library (equivalent to the `rust_uom` library) and a library for arbitrary precision calculations (equivalent to the Python library or `rust_astrofloat`).
 
