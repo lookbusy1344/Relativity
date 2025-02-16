@@ -1,6 +1,6 @@
-# Special Relativity coding tools (Python, Rust, C#)
+# Special Relativity in Python, Rust, C#
 
-Functions for playing with Special Relativity
+This repository contains libraries for working with special relativity, implemented in Python, Rust and C#. It also contains some Jupyter notebooks demonstrating their use.
 
 MIT License, have fun space travellers!
 
@@ -8,9 +8,9 @@ MIT License, have fun space travellers!
 
 https://github.com/lookbusy1344/Relativity/tree/main/Python
 
-Python tools for Special Relativity, using `mpmath` for arbitrary precision calculations. A great place to start. Jupyter notebooks are included for playing with the tools.
+This section contains Jupyter notebooks, and a shared Python library. A great place to start.
 
-## Rust (uom and astrofloat)
+## Rust
 
 These libraries are compiled and higher performance than the Python tools. Two projects are included:
 
@@ -20,7 +20,7 @@ Strongly typed and units of measure tools. These are based on `f64` (double prec
 
 https://github.com/lookbusy1344/Relativity/tree/main/rust_astrofloat
 
-Alternative Rust tools using the `astrofloat` crate for arbitrary precision calculations. However the astrofloat hyperbolic trig functions are not as accurate as the Python `mpmath` functions.
+Alternative Rust tools using the `astrofloat` crate for arbitrary precision calculations. However the astrofloat hyperbolic trig functions are not as accurate as the Python *mpmath* functions.
 
 ## C# (combined project for both units of measure and arbitrary precision)
 
