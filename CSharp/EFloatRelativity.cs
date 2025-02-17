@@ -302,25 +302,25 @@ internal sealed class EFloatRelativity
 	// ====== Wrappers around hyperbolic trig functions ======
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private BigFloat Sqrt(BigFloat f) => BigFloat.Build(f.Value.Sqrt(Context), Context);
+	private static BigFloat Sqrt(BigFloat f) => BigFloat.Build(f.Value.Sqrt(f.Context), f.Context);
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private BigFloat Cosh(BigFloat f) => BigFloat.Build(f.Value.Cosh(Context), Context);
+	private static BigFloat Cosh(BigFloat f) => BigFloat.Build(f.Value.Cosh(f.Context), f.Context);
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private BigFloat Sinh(BigFloat f) => BigFloat.Build(f.Value.Sinh(Context), Context);
+	private static BigFloat Sinh(BigFloat f) => BigFloat.Build(f.Value.Sinh(f.Context), f.Context);
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private BigFloat Tanh(BigFloat f) => BigFloat.Build(f.Value.Tanh(Context), Context);
+	private static BigFloat Tanh(BigFloat f) => BigFloat.Build(f.Value.Tanh(f.Context), f.Context);
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private BigFloat Atanh(BigFloat f) => BigFloat.Build(f.Value.Atanh(Context), Context);
+	private static BigFloat Atanh(BigFloat f) => BigFloat.Build(f.Value.Atanh(f.Context), f.Context);
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private BigFloat Acosh(BigFloat f) => BigFloat.Build(f.Value.Acosh(Context), Context);
+	private static BigFloat Acosh(BigFloat f) => BigFloat.Build(f.Value.Acosh(f.Context), f.Context);
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private BigFloat Asinh(BigFloat f) => BigFloat.Build(f.Value.Asinh(Context), Context);
+	private static BigFloat Asinh(BigFloat f) => BigFloat.Build(f.Value.Asinh(f.Context), f.Context);
 
 	// ================= Helpers to create BigFloats from EFloat or double =================
 
