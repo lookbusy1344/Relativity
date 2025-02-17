@@ -65,21 +65,21 @@ internal sealed class EFloatRelativity
 			.WithBigExponentRange(EInteger.Zero.Subtract(exponentMax), exponentMax);
 	}
 
-	/// <summary>
-	/// Check this velocity is less than C in m/s
-	/// </summary>
-	private EFloat CheckVelocity(EFloat velocity, string msg = C_ERR) =>
-		velocity.Abs(Context).CompareTo(C) >= 0 ? throw new ArgumentException(msg) : velocity;
+	///// <summary>
+	///// Check this velocity is less than C in m/s
+	///// </summary>
+	//private EFloat CheckVelocity(EFloat velocity, string msg = C_ERR) => CheckVelocity(B(velocity), msg);
 
 	/// <summary>
 	/// Check this BigFloat velocity is less than C in m/s
 	/// </summary>
-	private EFloat CheckVelocity(BigFloat velocity, string msg = C_ERR) => CheckVelocity(velocity.Value, msg);
+	private EFloat CheckVelocity(in BigFloat velocity, string msg = C_ERR) =>
+		velocity.Value.Abs(velocity.Context).CompareTo(C) >= 0 ? throw new ArgumentException(msg) : velocity.Value;
 
 	/// <summary>
 	/// Check this velocity is less than C in m/s and return BigFloat
 	/// </summary>
-	private BigFloat CheckVelocityB(EFloat velocity, string msg = C_ERR) => B(CheckVelocity(velocity, msg));
+	private BigFloat CheckVelocityB(EFloat velocity, string msg = C_ERR) => B(CheckVelocity(B(velocity), msg));
 
 	/// <summary>
 	/// Turn given number of days into seconds

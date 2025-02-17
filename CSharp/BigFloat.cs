@@ -159,13 +159,13 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// <summary>
 	/// Negate an BigFloat instance
 	/// </summary>
-	public static BigFloat Negate(BigFloat item) =>
+	public static BigFloat Negate(in BigFloat item) =>
 		new(item.Value.Negate(item.Context), item.Context);
 
 	/// <summary>
 	/// Modulus of two BigFloat instances using the context of the left operand
 	/// </summary>
-	public static BigFloat Mod(BigFloat left, EFloat right) =>
+	public static BigFloat Mod(in BigFloat left, EFloat right) =>
 		new(left.Value.Remainder(right, left.Context), left.Context);
 
 	// ====== Wrappers around hyperbolic trig functions ======
