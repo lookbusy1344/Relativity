@@ -20,11 +20,13 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 {
 	/// <summary>
 	/// The EFloat value of this instance.
+	/// Implemented this way, there is a backing field so the null check only happens once. This is what we want, in case BigFloat is zero-initialised (eg an BigFloat[])
 	/// </summary>
 	public readonly EFloat Value { get; } = value ?? throw new ArgumentNullException(nameof(value));
 
 	/// <summary>
 	/// Context for this BigFloat instance, if null, use the default context.
+	/// Implemented this way, there is no backing field so any changes to DefaultContext are immediately reflected
 	/// </summary>
 	public readonly EContext Context => context ?? DefaultContext;
 
@@ -35,7 +37,7 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	public override readonly string ToString() => Value.ToString();
 
-	public override readonly int GetHashCode() => Value.GetHashCode();
+	public override readonly int GetHashCode() => Value.GetHashCode(); // don't include the context, because it can be indirectly changed via DefaultContext
 
 	public override readonly bool Equals(object? obj) => obj is BigFloat other && Equals(other);
 
@@ -68,56 +70,56 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	// ====== Comparison operator overloads ======
 
-	public static bool operator ==(BigFloat left, BigFloat right) => left.Equals(right);
+	public static bool operator ==(in BigFloat left, in BigFloat right) => left.Equals(right);
 
-	public static bool operator !=(BigFloat left, BigFloat right) => !left.Equals(right);
+	public static bool operator !=(in BigFloat left, in BigFloat right) => !left.Equals(right);
 
-	public static bool operator <(BigFloat left, BigFloat right) => left.CompareTo(right) < 0;
+	public static bool operator <(in BigFloat left, in BigFloat right) => left.CompareTo(right) < 0;
 
-	public static bool operator >(BigFloat left, BigFloat right) => left.CompareTo(right) > 0;
+	public static bool operator >(in BigFloat left, in BigFloat right) => left.CompareTo(right) > 0;
 
-	public static bool operator <=(BigFloat left, BigFloat right) => left.CompareTo(right) <= 0;
+	public static bool operator <=(in BigFloat left, in BigFloat right) => left.CompareTo(right) <= 0;
 
-	public static bool operator >=(BigFloat left, BigFloat right) => left.CompareTo(right) >= 0;
+	public static bool operator >=(in BigFloat left, in BigFloat right) => left.CompareTo(right) >= 0;
 
 	// ====== Math operator overloads ======
 
-	public static BigFloat operator +(BigFloat left, BigFloat right) => new(
+	public static BigFloat operator +(in BigFloat left, in BigFloat right) => new(
 		left.Value.Add(right.Value, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator +(BigFloat left, EFloat right) => new(
+	public static BigFloat operator +(in BigFloat left, EFloat right) => new(
 		left.Value.Add(right, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator -(BigFloat left, BigFloat right) => new(
+	public static BigFloat operator -(in BigFloat left, in BigFloat right) => new(
 		left.Value.Subtract(right.Value, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator -(BigFloat left, EFloat right) => new(
+	public static BigFloat operator -(in BigFloat left, EFloat right) => new(
 		left.Value.Subtract(right, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator *(BigFloat left, BigFloat right) => new(
+	public static BigFloat operator *(in BigFloat left, in BigFloat right) => new(
 		left.Value.Multiply(right.Value, left.Context),
 		left.Context
 		);
 
-	public static BigFloat operator *(BigFloat left, EFloat right) => new(
+	public static BigFloat operator *(in BigFloat left, EFloat right) => new(
 		left.Value.Multiply(right, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator /(BigFloat left, BigFloat right) => new(
+	public static BigFloat operator /(in BigFloat left, in BigFloat right) => new(
 		left.Value.Divide(right.Value, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator /(BigFloat left, EFloat right) => new(
+	public static BigFloat operator /(in BigFloat left, EFloat right) => new(
 		left.Value.Divide(right, left.Context),
 		left.Context
 	);
@@ -125,24 +127,22 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// <summary>
 	/// Negate an BigFloat instance.
 	/// </summary>
-	public static BigFloat operator -(BigFloat item) => Negate(item);
+	public static BigFloat operator -(in BigFloat item) => Negate(item);
 
 	/// <summary>
 	/// Modulus of two BigFloat instances using the context of the left operand.
 	/// </summary>
-	public static BigFloat operator %(BigFloat left, EFloat right) => Mod(left, right);
+	public static BigFloat operator %(in BigFloat left, EFloat right) => Mod(left, right);
 
 	/// <summary>
 	/// Raise this BigFloat instance to the power of another BigFloat instance.
 	/// </summary>
-	public BigFloat Pow(int power) =>
-		new(Value.Pow(power, Context), Context);
+	public BigFloat Pow(int power) => new(Value.Pow(power, Context), Context);
 
 	/// <summary>
 	/// Raise this BigFloat instance to the power of another BigFloat instance.
 	/// </summary>
-	public readonly BigFloat Pow(EFloat power) =>
-		new(Value.Pow(power, Context), Context);
+	public readonly BigFloat Pow(EFloat power) => new(Value.Pow(power, Context), Context);
 
 	/// <summary>
 	/// Square root of this BigFloat instance.
