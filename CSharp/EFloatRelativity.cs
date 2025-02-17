@@ -19,8 +19,6 @@ internal sealed class EFloatRelativity
 
 	private const string PRECISION_ERR = "Calculated velocity at or above C, increase EContext precision";
 	private const string C_ERR = "Velocity must be less than C";
-	private static readonly EInteger ExponentMax = EInteger.FromString("9000000000"); // uses for building the context, max exponent
-	private static readonly EInteger ExponentMin = EInteger.Zero.Subtract(ExponentMax); // min exponent
 	private readonly EFloat C_SQUARED;
 	private readonly BigFloat Half;
 	private readonly BigFloat One;
@@ -62,10 +60,7 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Build a new context with this number of digit precision
 	/// </summary>
-	public static EContext BuildContext(int precision) =>
-		// Default exponent range is from -2147483648 to 2147483647, here set them to -const to +const eg 9000000000
-		EContext.ForPrecisionAndRounding(precision, ERounding.HalfEven)
-		.WithBigExponentRange(ExponentMin, ExponentMax);
+	public static EContext BuildContext(int precision) => EContext.ForPrecisionAndRounding(precision, ERounding.HalfEven);
 
 	///// <summary>
 	///// Check this velocity is less than C in m/s

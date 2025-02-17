@@ -31,7 +31,7 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// <summary>
 	/// Changing this immediately affects all instances without an explicit context.
 	/// </summary>
-	public static EContext DefaultContext { get; set; } = EContext.Unlimited;
+	public static EContext DefaultContext { get; set; } = EContext.UnlimitedHalfEven;
 
 	public override readonly string ToString() => Value.ToString();
 
