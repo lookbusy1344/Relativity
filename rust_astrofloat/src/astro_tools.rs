@@ -577,7 +577,7 @@ pub fn bigfloat_to_string(f: &BigFloat) -> anyhow::Result<String> {
     let parts = st
         .split_once('e')
         .ok_or_else(|| anyhow!("Failed to split string"))?;
-    let exp = parts.1.parse::<i64>()?;
+    let exp = parts.1.parse::<i128>()?;
 
     // find position of decimal place
     let pos = parts.0.find('.').unwrap_or(0);
@@ -604,7 +604,7 @@ pub fn bigfloat_to_string(f: &BigFloat) -> anyhow::Result<String> {
         buff.insert_str(0, "0.");
     } else if exp > 0 {
         // move decimal point exp places to the right
-        if exp < buff.len() as i64 {
+        if exp < buff.len() as i128 {
             // just insert the decimal point where needed within the string, 12345 becomes 123.45
             let p = exp + 1;
             buff.insert(p as usize, '.');
@@ -615,7 +615,7 @@ pub fn bigfloat_to_string(f: &BigFloat) -> anyhow::Result<String> {
             }
         } else {
             // add extra zeros to right, 12345 becomes 1234500.0
-            let zeros = "0".repeat((exp - buff.len() as i64 + 1) as usize);
+            let zeros = "0".repeat((exp - buff.len() as i128 + 1) as usize);
             buff.push_str(&zeros);
 
             // add decimal point at end
