@@ -1,6 +1,10 @@
-use crate::astro_tools::C_FLOAT;
+//#![allow(unused_imports)]
+#![allow(dead_code)]
+//#![allow(unused_variables)]
+//#![allow(unreachable_code)]
+
 use astro_float::expr;
-use astro_tools::{bigfloat_fmt_dp, bigfloat_fmt_sig, Relativity};
+use astro_tools::{bigfloat_fmt_dp, bigfloat_fmt_sig, Relativity, C_FLOAT};
 // Note astro-float values are unweildy to work with directly (because of the required context),
 // so the expr!() macro is used to simplify context handling in equations, eg instead of..
 // let result = a.mul(&b, &mut ctx).add(&c, &mut ctx).div(&d, &mut ctx);
