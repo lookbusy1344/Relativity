@@ -70,7 +70,7 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Check this BigFloat velocity is less than C in m/s
 	/// </summary>
-	private EFloat CheckVelocity(in BigFloat velocity, string msg = C_ERR) =>
+	private EFloat CheckVelocity(BigFloat velocity, string msg = C_ERR) =>
 		velocity.Value.Abs(velocity.Context).CompareTo(C) >= 0 ? throw new ArgumentException(msg) : velocity.Value;
 
 	/// <summary>

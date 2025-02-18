@@ -70,56 +70,56 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	// ====== Comparison operator overloads ======
 
-	public static bool operator ==(in BigFloat left, in BigFloat right) => left.Equals(right);
+	public static bool operator ==(BigFloat left, BigFloat right) => left.Equals(right);
 
-	public static bool operator !=(in BigFloat left, in BigFloat right) => !left.Equals(right);
+	public static bool operator !=(BigFloat left, BigFloat right) => !left.Equals(right);
 
-	public static bool operator <(in BigFloat left, in BigFloat right) => left.CompareTo(right) < 0;
+	public static bool operator <(BigFloat left, BigFloat right) => left.CompareTo(right) < 0;
 
-	public static bool operator >(in BigFloat left, in BigFloat right) => left.CompareTo(right) > 0;
+	public static bool operator >(BigFloat left, BigFloat right) => left.CompareTo(right) > 0;
 
-	public static bool operator <=(in BigFloat left, in BigFloat right) => left.CompareTo(right) <= 0;
+	public static bool operator <=(BigFloat left, BigFloat right) => left.CompareTo(right) <= 0;
 
-	public static bool operator >=(in BigFloat left, in BigFloat right) => left.CompareTo(right) >= 0;
+	public static bool operator >=(BigFloat left, BigFloat right) => left.CompareTo(right) >= 0;
 
 	// ====== Math operator overloads ======
 
-	public static BigFloat operator +(in BigFloat left, in BigFloat right) => new(
+	public static BigFloat operator +(BigFloat left, BigFloat right) => new(
 		left.Value.Add(right.Value, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator +(in BigFloat left, EFloat right) => new(
+	public static BigFloat operator +(BigFloat left, EFloat right) => new(
 		left.Value.Add(right, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator -(in BigFloat left, in BigFloat right) => new(
+	public static BigFloat operator -(BigFloat left, BigFloat right) => new(
 		left.Value.Subtract(right.Value, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator -(in BigFloat left, EFloat right) => new(
+	public static BigFloat operator -(BigFloat left, EFloat right) => new(
 		left.Value.Subtract(right, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator *(in BigFloat left, in BigFloat right) => new(
+	public static BigFloat operator *(BigFloat left, BigFloat right) => new(
 		left.Value.Multiply(right.Value, left.Context),
 		left.Context
 		);
 
-	public static BigFloat operator *(in BigFloat left, EFloat right) => new(
+	public static BigFloat operator *(BigFloat left, EFloat right) => new(
 		left.Value.Multiply(right, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator /(in BigFloat left, in BigFloat right) => new(
+	public static BigFloat operator /(BigFloat left, BigFloat right) => new(
 		left.Value.Divide(right.Value, left.Context),
 		left.Context
 	);
 
-	public static BigFloat operator /(in BigFloat left, EFloat right) => new(
+	public static BigFloat operator /(BigFloat left, EFloat right) => new(
 		left.Value.Divide(right, left.Context),
 		left.Context
 	);
@@ -127,12 +127,12 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// <summary>
 	/// Negate an BigFloat instance.
 	/// </summary>
-	public static BigFloat operator -(in BigFloat item) => Negate(item);
+	public static BigFloat operator -(BigFloat item) => Negate(item);
 
 	/// <summary>
 	/// Modulus of two BigFloat instances using the context of the left operand.
 	/// </summary>
-	public static BigFloat operator %(in BigFloat left, EFloat right) => Mod(left, right);
+	public static BigFloat operator %(BigFloat left, EFloat right) => Mod(left, right);
 
 	/// <summary>
 	/// Raise this BigFloat instance to the power of another BigFloat instance.
@@ -159,13 +159,13 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// <summary>
 	/// Negate an BigFloat instance
 	/// </summary>
-	public static BigFloat Negate(in BigFloat item) =>
+	public static BigFloat Negate(BigFloat item) =>
 		new(item.Value.Negate(item.Context), item.Context);
 
 	/// <summary>
 	/// Modulus of two BigFloat instances using the context of the left operand
 	/// </summary>
-	public static BigFloat Mod(in BigFloat left, EFloat right) =>
+	public static BigFloat Mod(BigFloat left, EFloat right) =>
 		new(left.Value.Remainder(right, left.Context), left.Context);
 
 	// ====== Wrappers around hyperbolic trig functions ======
