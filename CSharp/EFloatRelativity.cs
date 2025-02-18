@@ -62,21 +62,16 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	public static EContext BuildContext(int precision) => EContext.ForPrecisionAndRounding(precision, ERounding.HalfEven);
 
-	///// <summary>
-	///// Check this velocity is less than C in m/s
-	///// </summary>
-	//private EFloat CheckVelocity(EFloat velocity, string msg = C_ERR) => CheckVelocity(B(velocity), msg);
-
 	/// <summary>
 	/// Check this BigFloat velocity is less than C in m/s
 	/// </summary>
-	private EFloat CheckVelocity(BigFloat velocity, string msg = C_ERR) =>
-		velocity.Value.Abs(velocity.Context).CompareTo(C) >= 0 ? throw new ArgumentException(msg) : velocity.Value;
+	private BigFloat CheckVelocity(BigFloat velocity, string msg = C_ERR) =>
+		velocity.Value.Abs(velocity.Context).CompareTo(C) >= 0 ? throw new ArgumentException(msg) : velocity;
 
 	/// <summary>
 	/// Check this velocity is less than C in m/s and return BigFloat
 	/// </summary>
-	private BigFloat CheckVelocityB(EFloat velocity, string msg = C_ERR) => B(CheckVelocity(B(velocity), msg));
+	private BigFloat CheckVelocity(EFloat velocity, string msg = C_ERR) => CheckVelocity(B(velocity), msg);
 
 	/// <summary>
 	/// Turn given number of days into seconds
@@ -98,7 +93,7 @@ internal sealed class EFloatRelativity
 	public EFloat FractionOfC(EFloat fraction) =>
 		fraction.Abs(Context).CompareTo(One.Value) >= 0
 			? throw new ArgumentException("Fraction of c must be less than 1.0")
-			: CheckVelocity(C_B * fraction, PRECISION_ERR);
+			: CheckVelocity(C_B * fraction, PRECISION_ERR).Value;
 
 	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time
@@ -147,7 +142,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Rapidity</returns>
 	public EFloat RapidityFromVelocity(EFloat velocity) =>
 		// atanh(velocity / c)
-		(Atanh(CheckVelocityB(velocity) / C_B)).Value;
+		(Atanh(CheckVelocity(velocity) / C_B)).Value;
 
 	/// <summary>
 	/// Calculate velocity for a given rapidity
@@ -156,14 +151,14 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat VelocityFromRapidity(EFloat rapidity) =>
 		// c * tanh(rapidity)
-		CheckVelocity(C_B * Tanh(B(rapidity)), PRECISION_ERR);
+		CheckVelocity(C_B * Tanh(B(rapidity)), PRECISION_ERR).Value;
 
 	/// <summary>
 	/// Add two velocities relativistically. The velocities must be less than c
 	/// </summary>
 	public EFloat AddVelocities(EFloat v1, EFloat v2) =>
 		// (v1 + v2) / (one + (v1 * v2) / csquared)
-		((CheckVelocityB(v1) + CheckVelocityB(v2)) / (One + ((B(v1) * v2) / CSQUARED_B))).Value;
+		((CheckVelocity(v1) + CheckVelocity(v2)) / (One + ((B(v1) * v2) / CSQUARED_B))).Value;
 
 	/// <summary>
 	/// Calculate coordinate time for a given acceleration and proper time
@@ -183,7 +178,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Contracted length in m</returns>
 	public EFloat LengthContractionVelocity(EFloat len, EFloat velocity) =>
 		// len * sqrt(one - (velocity / c) ** 2)
-		(B(len) / (One - (CheckVelocityB(velocity) / C_B).Pow(2)).Sqrt()).Value;
+		(B(len) / (One - (CheckVelocity(velocity) / C_B).Pow(2)).Sqrt()).Value;
 
 	/// <summary>
 	/// Calculate Lorentz factor for a given velocity
@@ -192,7 +187,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Lorentz factor</returns>
 	public EFloat LorentzFactor(EFloat velocity) =>
 		// 1 / sqrt(1 - (velocity / c) ** 2)
-		(One / (One - (CheckVelocityB(velocity) / C_B).Pow(2)).Sqrt()).Value;
+		(One / (One - (CheckVelocity(velocity) / C_B).Pow(2)).Sqrt()).Value;
 
 	/// <summary>
 	/// Calculate the velocity under constant proper acceleration and coordinate time
@@ -205,11 +200,11 @@ internal sealed class EFloatRelativity
 		((B(accel) * t) / (One + (B(accel) * t / C_B).Pow(2)).Sqrt()).Value;
 
 	/// <summary>
-	/// Calculate the distance traveled under constant proper acceleration and coordinate time
+	/// Calculate the distance travelled under constant proper acceleration and coordinate time
 	/// </summary>
 	/// <param name="accel">Proper acceleration in m/s^2</param>
 	/// <param name="t">Coordinate time in s</param>
-	/// <returns>The coordinate distance traveled in m</returns>
+	/// <returns>The coordinate distance travelled in m</returns>
 	public EFloat RelativisticDistanceCoord(EFloat accel, EFloat t) =>
 		// (csquared / a) * (sqrt(one + (a * t / c) ** 2) - one)
 		((CSQUARED_B / accel) * ((One + (B(accel) * t / C_B).Pow(2)).Sqrt() - 1)).Value;
@@ -222,7 +217,7 @@ internal sealed class EFloatRelativity
 	/// <returns>The relativistic momentum (kg m/s)</returns>
 	public EFloat RelativisticMomentum(EFloat mass, EFloat velocity) =>
 		// mass * velocity * gamma
-		(B(mass) * CheckVelocityB(velocity) * LorentzFactor(velocity)).Value;
+		(B(mass) * CheckVelocity(velocity) * LorentzFactor(velocity)).Value;
 
 	/// <summary>
 	/// Calculate the relativistic energy.
@@ -243,7 +238,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Observed frequency (Hz)</returns>
 	public EFloat DopplerShift(EFloat frequency, EFloat velocity, bool source_moving_towards = true)
 	{
-		var beta = CheckVelocityB(velocity) / C_B;
+		var beta = CheckVelocity(velocity) / C_B;
 		return source_moving_towards
 			? (B(frequency) * ((One + beta) / (One - beta)).Sqrt()).Value
 			: (B(frequency) * ((One - beta) / (One + beta)).Sqrt()).Value;

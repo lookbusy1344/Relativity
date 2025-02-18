@@ -11,8 +11,12 @@ using PeterO.Numbers;
 
 // We don't want the inner EFloat to be null, but it's always a possibility with structs
 // eg var arr = new BigFloat[10]; // all structs initialised to (null, null)
-// so the Value property checks and throws if nessessary
+// so the Value property checks and throws if necessary
 // Context can be null, in which case the default context is used
+
+// Framework design guidelines page 213, 'in' parameters "Do not pass value types by read-only reference (in)"
+// and page 91, structs should represent a single value, be immutable and less than 24 bytes (3 references).
+// BigFloat here represents a single value, is immutable and is 2 references (16 bytes on 64 bit systems)
 
 #pragma warning disable CA2225 // Operator overloads have named alternates
 
