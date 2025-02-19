@@ -1,0 +1,70 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "lint",
+            "type": "shell",
+            "command": "npm run lint",
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$eslint-stylish"
+        },
+        {
+            "label": "start-vite",
+            "type": "npm",
+            "script": "dev",
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "pattern": {
+                        "regexp": "^.*$"
+                    },
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": ".*",
+                        "endsPattern": "ready in .*"
+                    }
+                }
+            ],
+            "presentation": {
+                "reveal": "silent",
+                "clear": true
+            },
+            "options": {
+                "statusbar": {
+                    "label": "$(pulse) Vite Dev Server"
+                }
+            }
+        },
+        {
+            "label": "kill-vite",
+            "type": "shell",
+            "command": "echo ${input:terminate}",
+            "problemMatcher": []
+        },
+        {
+            "label": "build-prod",
+            "type": "npm",
+            "script": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "terminate",
+            "type": "command",
+            "command": "workbench.action.tasks.terminate",
+            "args": "start-vite"
+        }
+    ]
+}
