@@ -4,7 +4,7 @@
         {
             "label": "lint",
             "type": "shell",
-            "command": "npm run lint",
+            "command": "yarn lint",
             "group": "build",
             "presentation": {
                 "reveal": "always"
@@ -13,8 +13,8 @@
         },
         {
             "label": "start-vite",
-            "type": "npm",
-            "script": "dev",
+            "type": "shell",
+            "command": "yarn dev",
             "isBackground": true,
             "problemMatcher": [
                 {
@@ -46,8 +46,8 @@
         },
         {
             "label": "build-prod",
-            "type": "npm",
-            "script": "build",
+            "type": "shell",
+            "command": "yarn build",
             "group": {
                 "kind": "build",
                 "isDefault": true

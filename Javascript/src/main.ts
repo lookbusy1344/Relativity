@@ -1,8 +1,9 @@
 import Decimal from 'decimal.js';
 
-// npm install
-// npm run build
-// to try the production build: npm run preview
+// Setup: yarn
+// Running the dev server(yarn dev)
+// Building for production(yarn build)
+// Running the linter(yarn lint)
 
 function generateRandomDecimal(): Decimal {
     // Generate random number between 0 and 100 with up to 10 decimal places
