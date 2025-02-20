@@ -8,9 +8,9 @@ Here we have a few Jupyter notebooks exploring aspects of special relativity, us
 
 [Time dilation and length contraction](https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb)
 
-[Universe tour, 1-25 million light years](https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb)
+[Universe tour, 1-47 billion light years](https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb)
 
-[Solar system tour, how far can you get in 1-14 days](https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb)
+[Solar system tour, how far can you get in 2 weeks](https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb)
 
 [Relativistic mass and constant acceleration](https://github.com/lookbusy1344/Relativity/blob/main/Python/Relativistic%20mass.ipynb)
 
