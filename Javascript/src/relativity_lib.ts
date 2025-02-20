@@ -1,6 +1,8 @@
 import Decimal from 'decimal.js';
 
 export type NumberInput = number | string | Decimal;
+export type SimplifiedInterval = [NumberInput, NumberInput];                    // time, x
+export type Interval = [NumberInput, NumberInput, NumberInput, NumberInput];    // time, x, y, z
 
 // Physical constants
 export let c: Decimal;
@@ -196,4 +198,126 @@ export function relativisticVelocityCoord(accel: NumberInput, t: NumberInput): D
     const aD = ensure(accel);
     const tD = ensure(t);
     return aD.mul(tD).div(one.plus(aD.mul(tD).div(c).pow(2)).sqrt());
+}
+
+/**
+ * Calculate the distance traveled under constant proper acceleration and coordinate time
+ * @param accel The acceleration in m/s^2
+ * @param t The coordinate time in seconds
+ * @returns The coordinate distance traveled in meters as a Decimal
+ */
+export function relativisticDistanceCoord(accel: NumberInput, t: NumberInput): Decimal {
+    // (csquared / a) * (sqrt(one + (a * t / c) ** 2) - one)
+    const aD = ensure(accel);
+    const tD = ensure(t);
+    return cSquared.div(aD).mul(one.plus(aD.mul(tD).div(c).pow(2)).sqrt().minus(one));
+}
+
+/**
+ * Calculate the relativistic momentum
+ * @param mass The rest mass of the object in kg
+ * @param velocity The velocity of the object in m/s
+ * @returns The momentum in kg m/s as a Decimal
+ */
+export function relativisticMomentum(mass: NumberInput, velocity: NumberInput): Decimal {
+    // mass * velocity * gamma
+    const m = ensure(mass);
+    const v = checkVelocity(velocity);
+    const gamma = lorentzFactor(v)
+    return m.mul(v).mul(gamma);
+}
+
+/**
+ * Calculate the relativistic energy
+ * @param mass The rest mass of the object in kg
+ * @param velocity The velocity of the object in m/s
+ * @returns The energy in Joules as a Decimal
+ */
+export function relativisticEnergy(mass: NumberInput, velocity: NumberInput): Decimal {
+    // mass * csquared * gamma
+    const m = ensure(mass);
+    const gamma = lorentzFactor(velocity)
+    return m.mul(cSquared).mul(gamma);
+}
+
+/**
+ * Calculate the relativistic Doppler shift for light
+ * @param frequency The frequency of the light in Hz
+ * @param velocity The velocity of the source in m/s
+ * @param source_moving_towards True if the source is moving towards the observer
+ * @returns The shifted frequency in Hz as a Decimal
+ */
+export function dopplerShift(frequency: NumberInput, velocity: NumberInput, source_moving_towards: boolean = true): Decimal {
+    //  towards: frequency * sqrt((one + beta) / (one - beta))
+    //  away: frequency * sqrt((one - beta) / (one + beta))
+    const f = ensure(frequency);
+    const beta = checkVelocity(velocity).div(c);
+    if (source_moving_towards) {
+        return f.mul(one.plus(beta).div(one.minus(beta)).sqrt());
+    } else {
+        return f.mul(one.minus(beta).div(one.plus(beta)).sqrt());
+    }
+}
+
+/**
+ * Calculate the invariant (proper) mass of a system from energy and momentum
+ * @param energy The energy of the system in Joules
+ * @param p The momentum of the system in kg m/s
+ * @returns The rest mass in kg as a Decimal
+ */
+export function invariantMassFromEnergyMomentum(energy: NumberInput, p: NumberInput): Decimal {
+    // sqrt((energy / csquared) ** 2 - (p / csquared) ** 2)
+    const e = ensure(energy);
+    const pD = ensure(p);
+    return e.div(cSquared).pow(2).minus(pD.div(cSquared).pow(2)).sqrt();
+}
+
+/**
+ * Calculate the four-momentum of a particle
+ * @param mass The rest mass of the particle in kg
+ * @param velocity The velocity of the particle in m/s
+ * @returns A tuple of energy (j), momentum (kg·m/s) as Decimals
+ */
+export function fourMomentum(mass: NumberInput, velocity: NumberInput): [Decimal, Decimal] {
+    const m = ensure(mass);
+    const v = checkVelocity(velocity);
+    const gamma = lorentzFactor(v);
+    const energy = m.mul(cSquared).mul(gamma);
+    const momentum = m.mul(v).mul(gamma);
+    return [energy, momentum];
+}
+
+/**
+ * Calculate the invariant spacetime interval between two events in 1D space
+ * @param event1 The first event as a tuple of time, x
+ * @param event2 The second event as a tuple of time, x
+ * @returns The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)
+ */
+export function spacetimeInterval1d(event1: SimplifiedInterval, event2: SimplifiedInterval): Decimal {
+    // sqrt(csquared * delta_ts - delta_xs)
+    const [time1, x1] = event1;
+    const [time2, x2] = event2;
+    const delta_ts = ensure(time2).sub(ensure(time1)).pow(2);
+    const delta_xs = ensure(x2).sub(ensure(x1)).pow(2);
+    return cSquared.mul(delta_ts).minus(delta_xs).sqrt();
+}
+
+/**
+ * Calculate the invariant spacetime interval between two events in 3D space
+ * @param event1 The first event as a tuple of time, x, y, z
+ * @param event2 The second event as a tuple of time, x, y, z
+ * @returns The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)
+ */
+export function spacetimeInterval3d(event1: Interval, event2: Interval): Decimal {
+    // sqrt((cΔt) ^ 2 - (Δx) ^ 2 - (Δy) ^ 2 - (Δz) ^ 2)
+    // normal intervals are time-like
+    // zero is light-like
+    // imaginary is space-like, not causally connected
+    const [time1, x1, y1, z1] = event1;
+    const [time2, x2, y2, z2] = event2;
+    const delta_ts = ensure(time2).sub(ensure(time1)).pow(2);
+    const delta_xs = ensure(x2).sub(ensure(x1)).pow(2);
+    const delta_ys = ensure(y2).sub(ensure(y1)).pow(2);
+    const delta_zs = ensure(z2).sub(ensure(z1)).pow(2);
+    return cSquared.mul(delta_ts).minus(delta_xs).minus(delta_ys).minus(delta_zs).sqrt();
 }

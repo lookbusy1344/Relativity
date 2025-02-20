@@ -3,7 +3,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    07 Feb 2025
+    20 Feb 2025
 """
 
 c_float: float = 299792458.0  # speed of light as a float
@@ -290,6 +290,7 @@ def relativistic_momentum(mass, velocity):
         The relativistic momentum (kg m/s)
     """
     mass = ensure(mass)
+    velocity = check_velocity(velocity)
     gamma = lorentz_factor(velocity)
     return mass * velocity * gamma
 
@@ -339,7 +340,7 @@ def invariant_mass_from_energy_momentum(energy, p):
         p: The total momentum (kg m/s) as an mpmath floating point number
 
     Returns:
-        The proper mass (kg)
+        The rest mass (kg)
     """
     return mp.sqrt((energy / csquared) ** 2 - (p / csquared) ** 2)
 
