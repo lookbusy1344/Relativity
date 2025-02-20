@@ -16,9 +16,21 @@
 *.py text eol=lf
 *.ipynb text eol=lf
 
+# Web
+*.html text eol=lf
+*.htm text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.mjs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.svelte text eol=lf
+*.vue text eol=lf
+
 # Windows line endings
 *.cs text eol=crlf
-# *.csproj text eol=crlf
+# *.csproj text eol=crlf # dependabot issues with line endings?
 *.csproj.user text eol=crlf
 *.sln text eol=crlf
 *.resx text eol=crlf
