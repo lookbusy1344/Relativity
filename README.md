@@ -1,4 +1,4 @@
-# Special Relativity in Python, Rust, C#
+# Special Relativity in Python, Javascript, Rust and C#
 
 This repository contains libraries for working with special relativity, implemented in Python, Rust and C#. It also contains some Jupyter notebooks demonstrating their use.
 
@@ -9,6 +9,12 @@ MIT License, have fun space travellers!
 https://github.com/lookbusy1344/Relativity/tree/main/Python
 
 This section contains Jupyter notebooks, and a shared Python library. A great place to start.
+
+## Javascript
+
+Coming soon! Relativistic calculations in your browser.
+
+https://lookbusy1344.github.io/Relativity
 
 ## Rust
 
