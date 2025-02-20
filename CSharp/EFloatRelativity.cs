@@ -11,15 +11,17 @@ using SimplifiedInterval = (PeterO.Numbers.EFloat time, PeterO.Numbers.EFloat x)
 
 internal sealed class EFloatRelativity
 {
+	// public physical constants
 	public readonly EFloat C;
 	public readonly EFloat G;
 	public readonly EFloat LIGHT_YR;
 	public readonly EFloat AU;
 	public readonly EFloat SECONDS_IN_YEAR;
 
+	// error messages
 	private const string PRECISION_ERR = "Calculated velocity at or above C, increase EContext precision";
 	private const string C_ERR = "Velocity must be less than C";
-	private readonly EFloat C_SQUARED;
+	// BigFloat constants for internal use
 	private readonly BigFloat Half;
 	private readonly BigFloat One;
 	private readonly BigFloat C_B;
@@ -44,17 +46,16 @@ internal sealed class EFloatRelativity
 
 		// Populate constants with required precision
 		C = EFloat.FromString("299792458", Context); // m/s
-		C_SQUARED = C.Pow(2, Context);
 		G = EFloat.FromString("9.80665", Context); // m/s^2
 		LIGHT_YR = EFloat.FromString("9460730472580800", Context); // metres
 		AU = EFloat.FromString("149597870700", Context); // metres
 		SECONDS_IN_YEAR = EFloat.FromString("31557600", Context); // seconds
 
 		// Populate the BigFloats now we have a context
+		CSQUARED_B = B(C.Pow(2, Context));
 		Half = B(EFloat.FromString("0.5", Context));
 		One = B(EFloat.One);
 		C_B = B(C);
-		CSQUARED_B = B(C_SQUARED);
 	}
 
 	/// <summary>
