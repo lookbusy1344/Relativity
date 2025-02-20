@@ -1,0 +1,21 @@
+{
+    "name": "relativity-calculator",
+    "version": "1.0.0",
+    "description": "Simple TypeScript project",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "yarn type-check && vite build",
+        "preview": "vite preview",
+        "type-check": "tsc --noEmit",
+        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    },
+    "dependencies": {
+        "decimal.js": "^10.4.3"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0",
+        "vite": "^4.3.9"
+    },
+    "packageManager": "yarn@3.2.4+sha512.bb197bb586aabeca42ce9113e2235af3edaeac5797d26c99067e58d401d4eb43fbd51b644431434dd2a5f612ee65ffcd20262016c62f3608eb39fbfa6eeb1de7"
+}

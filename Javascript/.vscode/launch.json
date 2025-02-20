@@ -1,0 +1,72 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "type": "msedge",
+      "name": "Launch Microsoft Edge",
+      "request": "launch",
+      "runtimeArgs": [
+        "--remote-debugging-port=9222"
+      ],
+      "url": "http://localhost:5173"
+    },
+    {
+      "type": "msedge",
+      "name": "Launch Microsoft Edge in headless mode",
+      "request": "launch",
+      "runtimeArgs": [
+        "--headless",
+        "--remote-debugging-port=9222"
+      ],
+      "url": "http://localhost:5173"
+    },
+    {
+      "type": "vscode-edge-devtools.debug",
+      "name": "Open Edge DevTools",
+      "request": "attach",
+      "url": "http://localhost:5500",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "type": "msedge",
+      "request": "launch",
+      "name": "Launch Edge with Vite",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "start-vite",
+      "postDebugTask": "kill-vite"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch Edge Headless and attach DevTools",
+      "configurations": [
+        "Launch Microsoft Edge in headless mode",
+        "Open Edge DevTools"
+      ]
+    },
+    {
+      "name": "Launch Edge and attach DevTools",
+      "configurations": [
+        "Launch Microsoft Edge",
+        "Open Edge DevTools"
+      ]
+    }
+  ],
+  "default": {
+    "type": "msedge",
+    "request": "launch",
+    "name": "Launch Edge with Vite",
+    "url": "http://localhost:5173",
+    "webRoot": "${workspaceFolder}"
+  }
+}
