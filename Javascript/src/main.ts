@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const v = rl.checkVelocity(velocityInput.value ?? 0);
                 const l = rl.lorentzFactor(v);
-                result.textContent = `${v} m/s, lorentz factor: ${l.toString()} (clicks: ${++count})`;
+                result.textContent = `${v} m/s, lorentz factor: ${l.toPrecision(20)} (clicks: ${++count})`;
             } catch (err) {
                 const error = err as Error;
                 result.textContent = `Error: ${error.message}`;
