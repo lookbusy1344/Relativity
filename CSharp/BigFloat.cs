@@ -60,11 +60,11 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		return obj is BigFloat x ? CompareTo(x) : throw new ArgumentException("Comparison with invalid type", nameof(obj));
 	}
 
-	/// <summary>
-	/// Convert EFloat to BigFloat with default context.
-	/// </summary>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static BigFloat FromEFloat(EFloat value) => new(value, null);
+	///// <summary>
+	///// Convert EFloat to BigFloat with default context.
+	///// </summary>
+	//[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	//public static BigFloat FromEFloat(EFloat value) => new(value, null);
 
 	/// <summary>
 	/// Factory method from EFloat and explicit context

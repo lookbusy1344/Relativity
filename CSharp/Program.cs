@@ -8,6 +8,8 @@ using UnitsNet;
 
 internal static class Program
 {
+	private static EContext? ctx;
+
 	private static void Main()
 	{
 		Uom();
@@ -36,6 +38,7 @@ internal static class Program
 		var rl = new EFloatRelativity();
 		var ctx = rl.Context;
 		BigFloat.DefaultContext = ctx; // using the same context for BigFloats
+		Program.ctx = ctx;
 
 		var initial = EFloat.FromString("299792457.9999999");
 		var rapidity = rl.RapidityFromVelocity(initial);
@@ -133,5 +136,5 @@ internal static class Program
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private static BigFloat B(EFloat f) => BigFloat.FromEFloat(f);
+	private static BigFloat B(EFloat f) => BigFloat.Build(f, Program.ctx ?? throw new InvalidOperationException());
 }
