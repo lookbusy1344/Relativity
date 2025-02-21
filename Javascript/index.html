@@ -6,13 +6,22 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Relativity</title>
 	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
 </head>
 
 <body>
-	<div class="responsive-svg-container"></div>
-	<input type="number" id="velocityInput" placeholder="Enter velocity in m/s" value="299750000">
-	<button id="calculateButton">Lorentz</button>
-	<div id="result"></div>
+	<div class="control-container">
+		<div>Lorentz factor from velocity</div>
+		<input type="number" id="velocityInput" placeholder="m/s" value="299750000" class="form-control">
+		<button id="calculateButton" type="button" class="btn btn-primary">Calculate Lorentz</button>
+		<div id="resultLorentz"></div>
+	</div>
+	<div class="control-container">
+		<div>Fraction of light speed</div>
+		<input type="number" id="velocityInputC" placeholder="m/s" value="299750000" class="form-control">
+		<button id="calculateButtonC" type="button" class="btn btn-primary">Calculate c-fraction</button>
+		<div id="resultLightSpeed"></div>
+	</div>
 	<script type="module" src="/src/main.ts"></script>
 </body>
 

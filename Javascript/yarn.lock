@@ -437,6 +437,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bootstrap@npm:^5.3.3":
+  version: 5.3.3
+  resolution: "bootstrap@npm:5.3.3"
+  peerDependencies:
+    "@popperjs/core": ^2.11.8
+  checksum: 537b68db30150075614310e9ebdf1be9b4affdf89ca226d59f4352e82a368b203af13ed0ce5ccfa4e06f141ecd233f7432ca3817e9c1a39863a05fbe13c73c4b
+  languageName: node
+  linkType: hard
+
 "brace-expansion@npm:^2.0.1":
   version: 2.0.1
   resolution: "brace-expansion@npm:2.0.1"
@@ -1133,6 +1142,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "relativity-calculator@workspace:."
   dependencies:
+    bootstrap: ^5.3.3
     decimal.js: ^10.4.3
     esbuild: ^0.25.0
     typescript: ^5.0.0
