@@ -4,25 +4,37 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Relativity</title>
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<title>Special Relativity</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-	<div class="control-container">
-		<div>Lorentz factor from velocity</div>
-		<input type="number" id="velocityInput" placeholder="m/s" value="299750000" class="form-control">
-		<button id="calculateButton" type="button" class="btn btn-primary">Calculate Lorentz</button>
-		<div id="resultLorentz"></div>
+	<div class="container mt-4">
+		<h2 class="text-center mb-4">Special Relativity Calculator</h2>
+
+		<div class="row mb-2 align-items-center">
+			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Lorentz factor from velocity</div>
+			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="lorentzInput" placeholder="m/s"
+					value="299750000" class="form-control"></div>
+			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="lorentzButton">OK</button>
+			</div>
+			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultLorentz"></div>
+		</div>
+
+		<div class="row mb-2 align-items-center">
+			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Fraction of light speed</div>
+			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="velocityInput" placeholder="m/s"
+					value="299750000" class="form-control">
+			</div>
+			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="velocityButton">OK</button>
+			</div>
+			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultVelocity"></div>
+		</div>
+
+		<div class="row mb-2">
+		</div>
 	</div>
-	<div class="control-container">
-		<div>Fraction of light speed</div>
-		<input type="number" id="velocityInputC" placeholder="m/s" value="299750000" class="form-control">
-		<button id="calculateButtonC" type="button" class="btn btn-primary">Calculate c-fraction</button>
-		<div id="resultLightSpeed"></div>
-	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script type="module" src="/src/main.ts"></script>
 </body>
-
-</html>

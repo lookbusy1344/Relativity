@@ -9,40 +9,40 @@ import * as rl from './relativity_lib';
 let count = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const button = document.getElementById('calculateButton');
-    const buttonC = document.getElementById('calculateButtonC');
-    const result = document.getElementById('resultLorentz');
-    const resultC = document.getElementById('resultLightSpeed');
+    const lorentzButton = document.getElementById('lorentzButton');
+    const velocityButton = document.getElementById('velocityButton');
+    const resultLorentz = document.getElementById('resultLorentz');
+    const resultVelocity = document.getElementById('resultVelocity');
+    const lorentzInput = document.getElementById('lorentzInput') as HTMLInputElement;
     const velocityInput = document.getElementById('velocityInput') as HTMLInputElement;
-    const velocityInputC = document.getElementById('velocityInputC') as HTMLInputElement;
 
-    if (button && result && velocityInput) {
-        button.addEventListener('click', () => {
+    if (lorentzButton && resultLorentz && lorentzInput) {
+        lorentzButton.addEventListener('click', () => {
             try {
-                const v = rl.checkVelocity(velocityInput.value ?? 0);
+                const v = rl.checkVelocity(lorentzInput.value ?? 0);
                 const l = rl.lorentzFactor(v);
-                result.textContent = l.toPrecision(20); // (clicks: ${++count})`;
+                resultLorentz.textContent = l.toPrecision(30); // (clicks: ${++count})`;
             } catch (err) {
                 const error = err as Error;
-                result.textContent = error.message;
+                resultLorentz.textContent = error.message;
             }
         });
     }
 
-    if (buttonC && resultC && velocityInputC) {
-        buttonC.addEventListener('click', () => {
+    if (velocityButton && resultVelocity && velocityInput) {
+        velocityButton.addEventListener('click', () => {
             try {
-                const v = rl.ensure(velocityInputC.value ?? 0);
+                const v = rl.ensure(velocityInput.value ?? 0);
                 const fraction = new Decimal(v).dividedBy(rl.c);
-                resultC.textContent = `${fraction.toPrecision(30)}c`;
+                resultVelocity.textContent = `${fraction.toPrecision(40)}c`;
                 if (fraction.greaterThan(1)) {
-                    resultC.style.color = 'red';
+                    resultVelocity.style.color = 'red';
                 } else {
-                    resultC.style.color = 'black';
+                    resultVelocity.style.color = 'black';
                 }
             } catch (err) {
                 const error = err as Error;
-                resultC.textContent = error.message;
+                resultVelocity.textContent = error.message;
             }
         });
     }
