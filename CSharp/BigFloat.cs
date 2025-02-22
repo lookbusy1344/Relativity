@@ -20,6 +20,7 @@ using PeterO.Numbers;
 
 #pragma warning disable CA2225 // Operator overloads have named alternates
 
+[System.Diagnostics.DebuggerDisplay("{ToDebugString(),nq}")]
 public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IComparable<BigFloat>, IComparable
 {
 	/// <summary>
@@ -40,6 +41,11 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	public static EContext DefaultContext { get; set; } = EContext.UnlimitedHalfEven;
 
 	public override readonly string ToString() => Value.ToString();
+
+	/// <summary>
+	/// Debug string, highlighting any use of the default context, which may be unexpected.
+	/// </summary>
+	public readonly string ToDebugString() => Context == null ? $"default-{Value}" : Value.ToString();
 
 	public override readonly int GetHashCode() => Value.GetHashCode(); // don't include the context, because it can be indirectly changed via DefaultContext
 
