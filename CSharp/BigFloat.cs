@@ -49,7 +49,7 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	public readonly int CompareTo(BigFloat other) => Value.CompareTo(other.Value); // don't include the context
 
-	public int CompareTo(object? obj)
+	public readonly int CompareTo(object? obj)
 	{
 #pragma warning disable IDE0046 // Convert to conditional expression
 		if (obj == null) {
