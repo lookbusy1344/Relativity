@@ -10,9 +10,11 @@ https://github.com/lookbusy1344/Relativity/tree/main/Python
 
 This section contains Jupyter notebooks, and a shared Python library. A great place to start.
 
-## Javascript
+## Typescript / Javascript
 
-Coming soon! Relativistic calculations in your browser.
+https://github.com/lookbusy1344/Relativity/tree/main/Javascript
+
+Online calculator:
 
 https://lookbusy1344.github.io/Relativity
 

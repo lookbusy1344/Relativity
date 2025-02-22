@@ -34,7 +34,7 @@ export function configure(precision: number): void {
 
     cSquared = c.pow(2); // speed of light squared
     one = new Decimal(1);
-    half = new Decimal(0.5);
+    half = new Decimal("0.5");
 }
 
 /**
