@@ -116,9 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 setElement(resultA4, simpleDist.toPrecision(20), "m");
 
                 setElement(resultA1b!, relVelC.toString(), "c");
-                setElement(resultA2b!, relDistC.toString(), "ly");
+                setElement(resultA2b!, relDistC.toPrecision(20), "ly");
                 setElement(resultA3b!, simpleVelC.toString(), "c");
-                setElement(resultA4b!, simpleDistC.toString(), "ly");
+                setElement(resultA4b!, simpleDistC.toPrecision(20), "ly");
                 resultA.textContent = "";
             } catch (err) {
                 const error = err as Error;
