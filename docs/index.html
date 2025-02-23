@@ -6,17 +6,29 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Special Relativity</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script type="module" crossorigin src="assets/index-469edd6e.js"></script>
+	<style>
+		.text-box {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	</style>
+  <script type="module" crossorigin src="assets/index-ea1f1f47.js"></script>
 </head>
 
 <body>
 	<div class="container mt-4">
-		<h2 class="text-center mb-4">Special Relativity Calculator</h2>
+		<h2 class="text-center">Special Relativity Calculator</h2>
+		<div class="row mb-4">
+			<div class="col-12">
+				<h5 class="text-center">Speed of light is 299792458 m/s</h5>
+			</div>
+		</div>
 
 		<div class="row mb-2 align-items-center">
 			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Lorentz factor from velocity</div>
 			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="lorentzInput" placeholder="m/s"
-					value="299750000" class="form-control"></div>
+					value="299792457" class="form-control"></div>
 			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="lorentzButton">OK</button>
 			</div>
 			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultLorentz"></div>
@@ -25,17 +37,49 @@
 		<div class="row mb-2 align-items-center">
 			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Fraction of light speed</div>
 			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="velocityInput" placeholder="m/s"
-					value="299750000" class="form-control">
+					value="299792457" class="form-control">
 			</div>
 			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="velocityButton">OK</button>
 			</div>
 			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultVelocity"></div>
 		</div>
 
+		<div class="row mb-2 align-items-center">
+			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Acceleration / tau</div>
+			<div class="col-sm-6 col-md-3 col-lg-3"><input type="text" id="aInput"
+					placeholder="metres per second^2 / seconds" value="g/31557600" class="form-control">
+			</div>
+			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="aButton">OK</button>
+			</div>
+			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultA"></div>
+		</div>
+
 		<div class="row mb-2">
+			<div class="col-sm-6 col-lg-3">
+				<div class="fw-bold">Relativistic velocity (m/s)</div>
+				<div class="text-box" id="resultA1" title="-">-</div>
+				<div class="text-box" id="resultA1b" title="-">-</div>
+			</div>
+			<div class="col-sm-6 col-lg-3">
+				<div class="fw-bold">Relativistic distance (m)</div>
+				<div class="text-box" id="resultA2" title="-">-</div>
+				<div class="text-box" id="resultA2b" title="-">-</div>
+			</div>
+			<div class="col-sm-6 col-lg-3">
+				<div class="fw-bold">Simple velocity (m/s)</div>
+				<div class="text-box" id="resultA3" title="-">-</div>
+				<div class="text-box" id="resultA3b" title="-">-</div>
+			</div>
+			<div class="col-sm-6 col-lg-3">
+				<div class="fw-bold">Simple distance (m)</div>
+				<div class="text-box" id="resultA4" title="-">-</div>
+				<div class="text-box" id="resultA4b" title="-">-</div>
+			</div>
 		</div>
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	
 </body>
+
+</html>
