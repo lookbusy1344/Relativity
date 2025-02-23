@@ -6,6 +6,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Special Relativity</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+		.text-box {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	</style>
 </head>
 
 <body>
@@ -46,18 +53,32 @@
 			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultA"></div>
 		</div>
 
-		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Acceleration / tau</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="text" id="bInput"
-					placeholder="metres per second^2 / seconds" value="g/31557600" class="form-control">
+		<div class="row mb-2">
+			<div class="col-sm-6 col-lg-3">
+				<div class="fw-bold">Relativistic velocity (m/s)</div>
+				<div class="text-box" id="resultA1" title="-">-</div>
+				<div class="text-box" id="resultA1b" title="-">-</div>
 			</div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="bButton">OK</button>
+			<div class="col-sm-6 col-lg-3">
+				<div class="fw-bold">Relativistic distance (m)</div>
+				<div class="text-box" id="resultA2" title="-">-</div>
+				<div class="text-box" id="resultA2b" title="-">-</div>
 			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultB"></div>
+			<div class="col-sm-6 col-lg-3">
+				<div class="fw-bold">Simple velocity (m/s)</div>
+				<div class="text-box" id="resultA3" title="-">-</div>
+				<div class="text-box" id="resultA3b" title="-">-</div>
+			</div>
+			<div class="col-sm-6 col-lg-3">
+				<div class="fw-bold">Simple distance (m)</div>
+				<div class="text-box" id="resultA4" title="-">-</div>
+				<div class="text-box" id="resultA4b" title="-">-</div>
+			</div>
 		</div>
-	</div>
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script type="module" src="/src/main.ts"></script>
 </body>
+
+</html>

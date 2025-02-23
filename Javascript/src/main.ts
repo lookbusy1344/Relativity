@@ -31,21 +31,38 @@ function processElement(e: HTMLInputElement): [Decimal, Decimal] {
     return [a, b];
 }
 
+function setElement(e: HTMLElement, value: string, units: string): void {
+    if (value === "-") {
+        e.textContent = value;
+        e.setAttribute('title', "");
+    } else {
+        e.textContent = `${units}: ${value}`;
+        e.setAttribute('title', `${value} ${units}`);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const lorentzInput = document.getElementById('lorentzInput') as HTMLInputElement;
     const velocityInput = document.getElementById('velocityInput') as HTMLInputElement;
     const aInput = document.getElementById('aInput') as HTMLInputElement;
-    const bInput = document.getElementById('bInput') as HTMLInputElement;
+    //const bInput = document.getElementById('bInput') as HTMLInputElement;
 
     const lorentzButton = document.getElementById('lorentzButton');
     const velocityButton = document.getElementById('velocityButton');
     const aButton = document.getElementById('aButton');
-    const bButton = document.getElementById('bButton');
+    //const bButton = document.getElementById('bButton');
 
     const resultLorentz = document.getElementById('resultLorentz');
     const resultVelocity = document.getElementById('resultVelocity');
     const resultA = document.getElementById('resultA');
-    const resultB = document.getElementById('resultB');
+    const resultA1 = document.getElementById('resultA1');
+    const resultA2 = document.getElementById('resultA2');
+    const resultA3 = document.getElementById('resultA3');
+    const resultA4 = document.getElementById('resultA4');
+    const resultA1b = document.getElementById('resultA1b');
+    const resultA2b = document.getElementById('resultA2b');
+    const resultA3b = document.getElementById('resultA3b');
+    const resultA4b = document.getElementById('resultA4b');
 
     if (lorentzButton && resultLorentz && lorentzInput) {
         lorentzButton.addEventListener('click', () => {
@@ -78,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (aButton && resultA && aInput) {
+    if (aButton && resultA && resultA1 && resultA2 && resultA3 && resultA4 && aInput) {
         aButton.addEventListener('click', () => {
             try {
                 // relativistic velocity and distance are in m/s and meters
@@ -88,30 +105,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 const relDist = rl.relativisticDistance(parts[0], parts[1]);
                 const simpleVel = parts[0].mul(parts[1]);
                 const simpleDist = rl.simpleDistance(parts[0], parts[1]);
+                const relVelC = relVel.div(rl.c);
+                const relDistC = relDist.div(rl.lightYear);
+                const simpleVelC = simpleVel.div(rl.c);
+                const simpleDistC = simpleDist.div(rl.lightYear);
 
-                resultA.textContent = `Relativistic velocity: ${relVel.toPrecision(50)} m/s, Distance: ${relDist.toPrecision(15)} m, Simple velocity: ${simpleVel.toPrecision(15)} m/s, Distance: ${simpleDist.toPrecision(15)} m`;
+                setElement(resultA1, relVel.toString(), "m/s");
+                setElement(resultA2, relDist.toPrecision(20), "m");
+                setElement(resultA3, simpleVel.toString(), "m/s");
+                setElement(resultA4, simpleDist.toPrecision(20), "m");
+
+                setElement(resultA1b!, relVelC.toString(), "c");
+                setElement(resultA2b!, relDistC.toString(), "ly");
+                setElement(resultA3b!, simpleVelC.toString(), "c");
+                setElement(resultA4b!, simpleDistC.toString(), "ly");
+                resultA.textContent = "";
             } catch (err) {
                 const error = err as Error;
                 resultA.textContent = error.message;
-            }
-        });
-    }
-
-    if (bButton && resultB && bInput) {
-        bButton.addEventListener('click', () => {
-            try {
-                // here results are in c and light years
-                const parts = processElement(bInput);
-
-                const relVel = rl.relativisticVelocity(parts[0], parts[1]).div(rl.c);
-                const relDist = rl.relativisticDistance(parts[0], parts[1]).div(rl.lightYear);
-                const simpleVel = parts[0].mul(parts[1]).div(rl.c);
-                const simpleDist = rl.simpleDistance(parts[0], parts[1]).div(rl.lightYear);
-
-                resultB.textContent = `Relativistic velocity: ${relVel.toPrecision(40)} c, Distance: ${relDist.toPrecision(15)} ly, Simple velocity: ${simpleVel.toPrecision(15)} c, Distance: ${simpleDist.toPrecision(15)} ly`;
-            } catch (err) {
-                const error = err as Error;
-                resultB.textContent = error.message;
+                setElement(resultA1, "-", "");
+                setElement(resultA2, "-", "");
+                setElement(resultA3, "-", "");
+                setElement(resultA4, "-", "");
+                setElement(resultA1b!, "-", "");
+                setElement(resultA2b!, "-", "");
+                setElement(resultA3b!, "-", "");
+                setElement(resultA4b!, "-", "");
             }
         });
     }
