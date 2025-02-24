@@ -41,6 +41,9 @@ export function configure(precision: number): void {
  * Ensure this is a Decimal, convert numbers and strings as required
  */
 export function ensure(v: NumberInput): Decimal {
+    if (precisionConfigured === -1) {
+        throw new Error('Precision not configured');
+    }
     if (typeof v === 'number' || typeof v === 'string') {
         return new Decimal(v);  // easily convertible
     } else if (v instanceof Decimal) {
