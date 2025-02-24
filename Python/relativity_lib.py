@@ -119,6 +119,26 @@ def relativistic_time_for_distance(a, dist):
     return (c / a) * mp.acosh((dist * a) / csquared + one)
 
 
+def flip_and_burn(a, dist) -> tuple:
+    """
+    Calculate proper time and peak velocity for a flip and burn maneuver at given constant acceleration
+
+    Parameters:
+        a: Proper acceleration (m/s^2) as an mpmath number or float
+        dist: Coordinate distance required (m) as an mpmath number or float
+
+    Returns:
+        A 3-tuple of proper time (s), peak velocity (m/s), and coord time as mpmath numbers
+    """
+    a = ensure(a)
+    dist = ensure(dist)
+    half_dist = dist / 2;
+    half_proper = relativistic_time_for_distance(a, half_dist);
+    half_coord = coordinate_time(a, half_proper);
+    peak_vel = relativistic_velocity(a, half_proper);
+    return (half_proper * 2, peak_vel, half_coord * 2)
+
+
 def relativistic_distance_float(a: float, tau: float) -> float:
     """
     Just for testing, relativistic_distance using normal floats.

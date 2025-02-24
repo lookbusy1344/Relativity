@@ -20,7 +20,7 @@ let half: Decimal;
 let precisionConfigured: number = -1;
 
 // Configure the precision to 100 decimal places
-configure(100);
+configure(150);
 
 export function configure(precision: number): void {
     Decimal.set({ precision: precision, defaults: true });
@@ -96,7 +96,7 @@ export function relativisticDistance(accel: NumberInput, tau: NumberInput): Deci
 /**
  * Given acceleration and required distance, calculate seconds required in proper time to reach that coord distance.
  * @param accel The acceleration in m/s^2
- * @param tau The proper time in seconds
+ * @param dist The coord distance in meters
  * @returns The proper time elapsed (s) as a Decimal
  */
 export function relativisticTimeForDistance(accel: NumberInput, dist: NumberInput): Decimal {
@@ -104,6 +104,22 @@ export function relativisticTimeForDistance(accel: NumberInput, dist: NumberInpu
     const aD = ensure(accel);
     const distD = ensure(dist);
     return c.div(aD).mul(distD.mul(aD).div(cSquared).plus(one).acosh());
+}
+
+/**
+ * Calculate proper time and peak velocity for a flip and burn maneuver at given constant acceleration
+ * @param accel Proper acceleration in m/s^2
+ * @param dist Coord distance in meters
+ * @returns 3-tuple of proper time (s), peak velocity (m/s), and Coord time (s) as Decimals
+ */
+export function flipAndBurn(accel: NumberInput, dist: NumberInput): [Decimal, Decimal, Decimal] {
+    const accelD = ensure(accel);
+    const totalDist = ensure(dist);
+    const halfDist = totalDist.div(2);
+    const timeToHalfProper = relativisticTimeForDistance(accelD, halfDist);
+    const timeToHalfCoord = coordinateTime(accelD, timeToHalfProper);
+    const peakVelocity = relativisticVelocity(accelD, timeToHalfProper);
+    return [timeToHalfProper.mul(2), peakVelocity, timeToHalfCoord.mul(2)];
 }
 
 /**

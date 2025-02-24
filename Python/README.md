@@ -81,6 +81,9 @@ Returns coord distance travelled after constant acceleration for tau proper time
 ### relativistic_time_for_distance(a, dist) -> mpf
 Given acceleration and required distance, calculate seconds required in proper time to reach that coord distance.
 
+### flip_and_burn(a, dist) -> tuple[mpf]
+Given constant proper acceleration and coordinate distance, calculate proper time (s), peak velocity (m/s), and coordinate time (s) for a flip and burn maneuver (accelerating for half the journey, then decelerating for second half).
+
 ### simple_distance(a, t) -> mpf
 Calculate the distance travelled under constant acceleration. Not relativistic, this may exceed the speed of light! Contrast with `relativistic_distance()`.
 

@@ -46,17 +46,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const velocityInput = document.getElementById('velocityInput') as HTMLInputElement;
     const rapidityInput = document.getElementById('rapidityInput') as HTMLInputElement;
     const aInput = document.getElementById('aInput') as HTMLInputElement;
-    //const bInput = document.getElementById('bInput') as HTMLInputElement;
+    const flipInput = document.getElementById('flipInput') as HTMLInputElement;
 
     const lorentzButton = document.getElementById('lorentzButton');
     const velocityButton = document.getElementById('velocityButton');
     const rapidityButton = document.getElementById('rapidityButton');
     const aButton = document.getElementById('aButton');
-    //const bButton = document.getElementById('bButton');
+    const flipButton = document.getElementById('flipButton');
 
     const resultLorentz = document.getElementById('resultLorentz');
     const resultVelocity = document.getElementById('resultVelocity');
     const resultRapidity = document.getElementById('resultRapidity');
+    const resultFlip = document.getElementById('resultFlip');
 
     const resultA = document.getElementById('resultA');
     const resultA1 = document.getElementById('resultA1');
@@ -126,9 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 setElement(resultA4, simpleDist.toPrecision(20), "m");
 
                 setElement(resultA1b!, relVelC.toString(), "c");
-                setElement(resultA2b!, relDistC.toPrecision(20), "ly");
-                setElement(resultA3b!, simpleVelC.toString(), "c");
-                setElement(resultA4b!, simpleDistC.toPrecision(20), "ly");
+                setElement(resultA2b!, relDistC.toPrecision(15), "ly");
+                setElement(resultA3b!, simpleVelC.toPrecision(15), "c");
+                setElement(resultA4b!, simpleDistC.toPrecision(15), "ly");
                 resultA.textContent = "";
             } catch (err) {
                 const error = err as Error;
@@ -144,4 +145,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    if (flipButton && resultFlip && flipInput) {
+        flipButton.addEventListener('click', () => {
+            try {
+                const m = rl.ensure(flipInput.value ?? 0).mul(rl.lightYear); // convert light years to meters
+                let [properTime, peak, coordTime] = rl.flipAndBurn(rl.g, m);
+                properTime = properTime.div(rl.secondsPerYear); // convert to years
+                coordTime = coordTime.div(rl.secondsPerYear); // convert to years
+                peak = peak.div(rl.c); // convert to fraction of c
+
+                resultFlip.textContent = `${properTime.toPrecision(15)} proper yrs, peak vel ${peak}c, ${coordTime.toPrecision(15)} coord yrs`;
+            } catch (err) {
+                const error = err as Error;
+                resultFlip.textContent = error.message;
+            }
+        });
+    }
+
 });

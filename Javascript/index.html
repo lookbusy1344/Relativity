@@ -25,7 +25,7 @@
 		</div>
 
 		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Lorentz factor from velocity</div>
+			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Lorentz factor (m/s)</div>
 			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="lorentzInput" placeholder="m/s"
 					value="299792457" class="form-control"></div>
 			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="lorentzButton">OK</button>
@@ -34,7 +34,7 @@
 		</div>
 
 		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Velocity to rapidity</div>
+			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Velocity to rapidity (m/s)</div>
 			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="velocityInput" placeholder="m/s"
 					value="299792457" class="form-control">
 			</div>
@@ -54,7 +54,7 @@
 		</div>
 
 		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Acceleration / tau</div>
+			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Proper accel (m/s2) / tau (s)</div>
 			<div class="col-sm-6 col-md-3 col-lg-3"><input type="text" id="aInput"
 					placeholder="metres per second^2 / seconds" value="g/31557600" class="form-control">
 			</div>
@@ -86,6 +86,16 @@
 				<div class="text-box" id="resultA4" title="-">-</div>
 				<div class="text-box" id="resultA4b" title="-">-</div>
 			</div>
+		</div>
+
+		<div class="row mb-2 align-items-center">
+			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Flip-and-burn (ly to travel)</div>
+			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="flipInput" placeholder="ly" value="4.246"
+					class="form-control">
+			</div>
+			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="flipButton">OK</button>
+			</div>
+			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultFlip"></div>
 		</div>
 	</div>
 
