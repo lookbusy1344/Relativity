@@ -34,7 +34,7 @@
 		</div>
 
 		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Fraction of light speed</div>
+			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Velocity to rapidity</div>
 			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="velocityInput" placeholder="m/s"
 					value="299792457" class="form-control">
 			</div>
@@ -44,13 +44,25 @@
 		</div>
 
 		<div class="row mb-2 align-items-center">
+			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Rapidity to velocity</div>
+			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="rapidityInput" placeholder="Rapidity"
+					value="10.10587" class="form-control">
+			</div>
+			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="rapidityButton">OK</button>
+			</div>
+			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultRapidity"></div>
+		</div>
+
+		<div class="row mb-2 align-items-center">
 			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Acceleration / tau</div>
 			<div class="col-sm-6 col-md-3 col-lg-3"><input type="text" id="aInput"
 					placeholder="metres per second^2 / seconds" value="g/31557600" class="form-control">
 			</div>
 			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="aButton">OK</button>
 			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultA"></div>
+			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultA">
+				Constant proper acceleration for proper time, gives velocity and coord distance
+			</div>
 		</div>
 
 		<div class="row mb-2">
@@ -60,17 +72,17 @@
 				<div class="text-box" id="resultA1b" title="-">-</div>
 			</div>
 			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Relativistic distance</div>
+				<div class="fw-bold">Co'ord distance</div>
 				<div class="text-box" id="resultA2" title="-">-</div>
 				<div class="text-box" id="resultA2b" title="-">-</div>
 			</div>
 			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Simple velocity</div>
+				<div class="fw-bold">Newtonian velocity (wrong)</div>
 				<div class="text-box" id="resultA3" title="-">-</div>
 				<div class="text-box" id="resultA3b" title="-">-</div>
 			</div>
 			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Simple distance</div>
+				<div class="fw-bold">Newtonian distance (wrong)</div>
 				<div class="text-box" id="resultA4" title="-">-</div>
 				<div class="text-box" id="resultA4b" title="-">-</div>
 			</div>

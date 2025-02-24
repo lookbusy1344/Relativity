@@ -44,16 +44,20 @@ function setElement(e: HTMLElement, value: string, units: string): void {
 document.addEventListener('DOMContentLoaded', () => {
     const lorentzInput = document.getElementById('lorentzInput') as HTMLInputElement;
     const velocityInput = document.getElementById('velocityInput') as HTMLInputElement;
+    const rapidityInput = document.getElementById('rapidityInput') as HTMLInputElement;
     const aInput = document.getElementById('aInput') as HTMLInputElement;
     //const bInput = document.getElementById('bInput') as HTMLInputElement;
 
     const lorentzButton = document.getElementById('lorentzButton');
     const velocityButton = document.getElementById('velocityButton');
+    const rapidityButton = document.getElementById('rapidityButton');
     const aButton = document.getElementById('aButton');
     //const bButton = document.getElementById('bButton');
 
     const resultLorentz = document.getElementById('resultLorentz');
     const resultVelocity = document.getElementById('resultVelocity');
+    const resultRapidity = document.getElementById('resultRapidity');
+
     const resultA = document.getElementById('resultA');
     const resultA1 = document.getElementById('resultA1');
     const resultA2 = document.getElementById('resultA2');
@@ -69,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const v = rl.checkVelocity(lorentzInput.value ?? 0);
                 const l = rl.lorentzFactor(v);
-                resultLorentz.textContent = l.toPrecision(30); // (clicks: ${++count})`;
+                resultLorentz.textContent = l.toPrecision(30);
             } catch (err) {
                 const error = err as Error;
                 resultLorentz.textContent = error.message;
@@ -80,17 +84,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (velocityButton && resultVelocity && velocityInput) {
         velocityButton.addEventListener('click', () => {
             try {
-                const v = rl.ensure(velocityInput.value ?? 0);
-                const fraction = new Decimal(v).dividedBy(rl.c);
-                resultVelocity.textContent = `${fraction.toPrecision(40)}c`;
-                if (fraction.greaterThan(1)) {
-                    resultVelocity.style.color = 'red';
-                } else {
-                    resultVelocity.style.color = 'black';
-                }
+                const rapidity = rl.rapidityFromVelocity(velocityInput.value ?? 0);
+                resultVelocity.textContent = rapidity.toPrecision(30);
             } catch (err) {
                 const error = err as Error;
                 resultVelocity.textContent = error.message;
+            }
+        });
+    }
+
+    if (rapidityButton && resultRapidity && rapidityInput) {
+        rapidityButton.addEventListener('click', () => {
+            try {
+                const velocity = rl.velocityFromRapidity(rapidityInput.value ?? 0);
+                resultRapidity.textContent = `${velocity.toPrecision(30)} m/s`;
+            } catch (err) {
+                const error = err as Error;
+                resultRapidity.textContent = error.message;
             }
         });
     }
