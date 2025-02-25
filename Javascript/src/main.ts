@@ -57,7 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultLorentz = document.getElementById('resultLorentz');
     const resultVelocity = document.getElementById('resultVelocity');
     const resultRapidity = document.getElementById('resultRapidity');
-    const resultFlip = document.getElementById('resultFlip');
+    const resultFlip1 = document.getElementById('resultFlip1');
+    const resultFlip2 = document.getElementById('resultFlip2');
+    const resultFlip3 = document.getElementById('resultFlip3');
 
     const resultA = document.getElementById('resultA');
     const resultA1 = document.getElementById('resultA1');
@@ -146,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (flipButton && resultFlip && flipInput) {
+    if (flipButton && resultFlip1 && resultFlip2 && resultFlip3 && flipInput) {
         flipButton.addEventListener('click', () => {
             try {
                 const m = rl.ensure(flipInput.value ?? 0).mul(rl.lightYear); // convert light years to meters
@@ -155,10 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 coordTime = coordTime.div(rl.secondsPerYear); // convert to years
                 peak = peak.div(rl.c); // convert to fraction of c
 
-                resultFlip.textContent = `${properTime.toPrecision(15)} proper yrs, peak vel ${peak}c, ${coordTime.toPrecision(15)} coord yrs`;
+                setElement(resultFlip1, properTime.toPrecision(15), "Proper years")
+                setElement(resultFlip2, peak.toString(), "c")
+                setElement(resultFlip3, coordTime.toPrecision(15), "Coord years")
             } catch (err) {
                 const error = err as Error;
-                resultFlip.textContent = error.message;
+                resultFlip1.textContent = error.message;
+                setElement(resultFlip2, "-", "");
+                setElement(resultFlip3, "-", "");
             }
         });
     }
