@@ -340,3 +340,35 @@ export function spacetimeInterval3d(event1: Interval, event2: Interval): Decimal
     const delta_zs = ensure(z2).sub(ensure(z1)).pow(2);
     return cSquared.mul(delta_ts).minus(delta_xs).minus(delta_ys).minus(delta_zs).sqrt();
 }
+
+export function formatSignificant(value: Decimal, ignoreChar: string = "", significantDecimalPlaces: number = 2): string {
+    if (ignoreChar.length > 1) {
+        throw new Error('ignoreChar must be a single character or empty');
+    }
+    const str = value.toString();
+    const parts = str.split('.', 2);
+    if (str.indexOf("e") > -1 || parts.length !== 2) {
+        // scientific notation or no decimal point
+        return str;
+    }
+
+    let decOutput = ""; // output buffer
+    let sigPart = ignoreChar.length > 0; // if it's "" just used fixed number of digits;
+    // loop through the decimal part, if the digit is sig just copy it over. Otherwise include digit digits
+    for (let i = 0; i < parts[1].length; ++i) {
+        const digit = parts[1][i];
+        if (sigPart && digit === ignoreChar) {
+            // in the '9's part, just copy the digit
+            decOutput += digit;
+        } else if (significantDecimalPlaces > 0) {
+            // now include a fixed number of digits
+            sigPart = false; // we've passed the '9's
+            decOutput += digit;
+            --significantDecimalPlaces;
+        } else {
+            break;
+        }
+    }
+
+    return `${parts[0]}.${decOutput}`;
+}

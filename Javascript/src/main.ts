@@ -32,10 +32,12 @@ function processElement(e: HTMLInputElement): [Decimal, Decimal] {
 }
 
 function setElement(e: HTMLElement, value: string, units: string): void {
-    if (value === "-") {
+    if (units === "" || value === "-") {
+        // no units
         e.textContent = value;
-        e.setAttribute('title', "");
+        e.setAttribute('title', value);
     } else {
+        // units specified
         e.textContent = `${units}: ${value}`;
         e.setAttribute('title', `${value} ${units}`);
     }
@@ -74,9 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (lorentzButton && resultLorentz && lorentzInput) {
         lorentzButton.addEventListener('click', () => {
             try {
-                const v = rl.checkVelocity(lorentzInput.value ?? 0);
-                const l = rl.lorentzFactor(v);
-                resultLorentz.textContent = l.toPrecision(30);
+                const vel = rl.checkVelocity(lorentzInput.value ?? 0);
+                const lorentz = rl.lorentzFactor(vel);
+                setElement(resultLorentz, rl.formatSignificant(lorentz, "0", 3), "");
             } catch (err) {
                 const error = err as Error;
                 resultLorentz.textContent = error.message;
@@ -88,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         velocityButton.addEventListener('click', () => {
             try {
                 const rapidity = rl.rapidityFromVelocity(velocityInput.value ?? 0);
-                resultVelocity.textContent = rapidity.toPrecision(30);
+                setElement(resultVelocity, rl.formatSignificant(rapidity, "0", 3), "");
             } catch (err) {
                 const error = err as Error;
                 resultVelocity.textContent = error.message;
@@ -100,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         rapidityButton.addEventListener('click', () => {
             try {
                 const velocity = rl.velocityFromRapidity(rapidityInput.value ?? 0);
-                resultRapidity.textContent = `${velocity.toPrecision(30)} m/s`;
+                setElement(resultRapidity, rl.formatSignificant(velocity, "9", 3), "m/s");
             } catch (err) {
                 const error = err as Error;
                 resultRapidity.textContent = error.message;
@@ -123,15 +125,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const simpleVelC = simpleVel.div(rl.c);
                 const simpleDistC = simpleDist.div(rl.lightYear);
 
-                setElement(resultA1, relVel.toString(), "m/s");
+                setElement(resultA1, rl.formatSignificant(relVel, "9", 3), "m/s");
                 setElement(resultA2, relDist.toPrecision(20), "m");
                 setElement(resultA3, simpleVel.toString(), "m/s");
                 setElement(resultA4, simpleDist.toPrecision(20), "m");
 
-                setElement(resultA1b!, relVelC.toString(), "c");
-                setElement(resultA2b!, relDistC.toPrecision(15), "ly");
-                setElement(resultA3b!, simpleVelC.toPrecision(15), "c");
-                setElement(resultA4b!, simpleDistC.toPrecision(15), "ly");
+                setElement(resultA1b!, rl.formatSignificant(relVelC, "9", 3), "c");
+                setElement(resultA2b!, rl.formatSignificant(relDistC, "0", 3), "ly");
+                setElement(resultA3b!, rl.formatSignificant(simpleVelC, "0", 3), "c");
+                setElement(resultA4b!, rl.formatSignificant(simpleDistC, "0", 3), "ly");
                 resultA.textContent = "";
             } catch (err) {
                 const error = err as Error;
@@ -157,9 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 coordTime = coordTime.div(rl.secondsPerYear); // convert to years
                 peak = peak.div(rl.c); // convert to fraction of c
 
-                setElement(resultFlip1, properTime.toPrecision(15), "Proper years")
-                setElement(resultFlip2, peak.toString(), "c")
-                setElement(resultFlip3, coordTime.toPrecision(15), "Coord years")
+                setElement(resultFlip1, rl.formatSignificant(properTime, "0", 3), "Proper years")
+                setElement(resultFlip2, rl.formatSignificant(peak, "9", 3), "c")
+                setElement(resultFlip3, rl.formatSignificant(coordTime, "0", 3), "Coord years")
             } catch (err) {
                 const error = err as Error;
                 resultFlip1.textContent = error.message;
