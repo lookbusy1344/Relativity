@@ -3,7 +3,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    20 Feb 2025
+    25 Feb 2025
 """
 
 c_float: float = 299792458.0  # speed of light as a float
@@ -121,7 +121,7 @@ def relativistic_time_for_distance(a, dist):
 
 def flip_and_burn(a, dist) -> tuple:
     """
-    Calculate proper time and peak velocity for a flip and burn maneuver at given constant acceleration
+    Calculate 3-tuple of proper time (s), peak velocity (m/s), and coord time (s) for a flip and burn maneuver at given constant acceleration
 
     Parameters:
         a: Proper acceleration (m/s^2) as an mpmath number or float

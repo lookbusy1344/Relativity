@@ -209,6 +209,18 @@ impl Relativity {
         )
     }
 
+    /// Calculate 3-tuple of proper time (s), peak velocity (m/s), and coord time (s) for a flip and burn maneuver at given constant acceleration
+    pub fn flip_and_burn(&mut self, accel: &BigFloat, dist: &BigFloat) -> (BigFloat, BigFloat, BigFloat) {
+        let half_dist = expr!(dist / 2.0, &mut self.ctx);
+        let time_half_proper = self.relativistic_time_for_distance(accel, &half_dist);
+        let time_half_coord = self.coordinate_time(accel, &time_half_proper);
+
+        let peak_velocity = self.relativistic_velocity(accel, &time_half_proper);
+        let total_proper = expr!(time_half_proper * 2.0, &mut self.ctx);
+        let total_coord = expr!(time_half_coord * 2.0, &mut self.ctx);
+        (total_proper, peak_velocity, total_coord)
+    }
+
     /// Distance (m) from non-relativistic acceleration (m/s^2) and time (s)
     pub fn simple_distance(&mut self, accel: &BigFloat, t: &BigFloat) -> BigFloat {
         // 0.5 * a * t**2

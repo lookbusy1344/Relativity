@@ -5,6 +5,7 @@ using PeterO.Numbers;
 
 // These utilities are based on the EFloat class from PeterO.Numbers, which is an arbitrary-precision decimal class
 
+using FlipAndBurnResult = (PeterO.Numbers.EFloat ProperTime, PeterO.Numbers.EFloat PeakVelocity, PeterO.Numbers.EFloat CoordTime);
 using FourMomentum = (PeterO.Numbers.EFloat energy, PeterO.Numbers.EFloat momentum);
 using Interval = (PeterO.Numbers.EFloat time, PeterO.Numbers.EFloat x, PeterO.Numbers.EFloat y, PeterO.Numbers.EFloat z);
 using SimplifiedInterval = (PeterO.Numbers.EFloat time, PeterO.Numbers.EFloat x);
@@ -125,6 +126,21 @@ internal sealed class EFloatRelativity
 	public EFloat RelativisticTimeForDistance(EFloat accel, EFloat dist) =>
 		// (c / a) * acosh((dist * a) / csquared + one)
 		(C_B / accel * Acosh((B(dist) * accel / CSQUARED_B) + 1)).Value;
+
+	/// <summary>
+	/// Calculate 3-tuple of proper time (s), peak velocity (m/s), and coord time (s) for a flip and burn maneuver at given constant acceleration
+	/// </summary>
+	/// <param name="accel">Proper acceleration in m/s^2</param>
+	/// <param name="dist">Coord distance in meters</param>
+	/// <returns>3-tuple of proper time (s), peak velocity (m/s), and Coord time (s)</returns>
+	public FlipAndBurnResult FlipAndBurn(EFloat accel, EFloat dist)
+	{
+		var halfDist = B(dist) / 2;
+		var timeToHalfProper = RelativisticTimeForDistance(accel, halfDist.Value);
+		var timeToHalfCoord = CoordinateTime(accel, timeToHalfProper);
+		var peakVelocity = RelativisticVelocity(accel, timeToHalfProper);
+		return (timeToHalfProper * 2, peakVelocity, timeToHalfCoord * 2);
+	}
 
 	/// <summary>
 	/// Calculate distance travelled for a given acceleration and velocity. Newtonian physics not relativistic

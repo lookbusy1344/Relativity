@@ -107,7 +107,7 @@ export function relativisticTimeForDistance(accel: NumberInput, dist: NumberInpu
 }
 
 /**
- * Calculate proper time and peak velocity for a flip and burn maneuver at given constant acceleration
+ * Calculate 3-tuple of proper time (s), peak velocity (m/s), and coord time (s) for a flip and burn maneuver at given constant acceleration
  * @param accel Proper acceleration in m/s^2
  * @param dist Coord distance in meters
  * @returns 3-tuple of proper time (s), peak velocity (m/s), and Coord time (s) as Decimals
