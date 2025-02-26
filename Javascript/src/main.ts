@@ -154,14 +154,15 @@ document.addEventListener('DOMContentLoaded', () => {
         flipButton.addEventListener('click', () => {
             try {
                 const m = rl.ensure(flipInput.value ?? 0).mul(rl.lightYear); // convert light years to meters
-                let [properTime, peak, coordTime] = rl.flipAndBurn(rl.g, m);
-                properTime = properTime.div(rl.secondsPerYear); // convert to years
-                coordTime = coordTime.div(rl.secondsPerYear); // convert to years
-                peak = peak.div(rl.c); // convert to fraction of c
+                let res = rl.flipAndBurn(rl.g, m);
+                const properTime = res.properTime.div(rl.secondsPerYear); // convert to years
+                const coordTime = res.coordTime.div(rl.secondsPerYear); // convert to years
+                const peak = res.peakVelocity.div(rl.c); // convert to fraction of c
+                const lorentz = res.lorentzFactor;
 
-                setElement(resultFlip1, rl.formatSignificant(properTime, "0", 3), "Proper years")
-                setElement(resultFlip2, rl.formatSignificant(peak, "9", 3), "c")
-                setElement(resultFlip3, rl.formatSignificant(coordTime, "0", 3), "Coord years")
+                setElement(resultFlip1, rl.formatSignificant(properTime, "0", 3), "Proper years");
+                setElement(resultFlip2, rl.formatSignificant(peak, "9", 3), "Peak c");
+                setElement(resultFlip3, rl.formatSignificant(coordTime, "0", 3), "Coord years");
             } catch (err) {
                 const error = err as Error;
                 resultFlip1.textContent = error.message;

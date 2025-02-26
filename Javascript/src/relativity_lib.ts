@@ -4,6 +4,13 @@ export type NumberInput = number | string | Decimal;
 export type SimplifiedInterval = [NumberInput, NumberInput];                    // time, x
 export type Interval = [NumberInput, NumberInput, NumberInput, NumberInput];    // time, x, y, z
 
+export interface IFlipAndBurn {
+    properTime: Decimal;
+    peakVelocity: Decimal;
+    lorentzFactor: Decimal;
+    coordTime: Decimal;
+}
+
 // Physical constants
 export let c: Decimal;
 export let g: Decimal;
@@ -107,19 +114,21 @@ export function relativisticTimeForDistance(accel: NumberInput, dist: NumberInpu
 }
 
 /**
- * Calculate 3-tuple of proper time (s), peak velocity (m/s), and coord time (s) for a flip and burn maneuver at given constant acceleration
+ * Calculate 4-tuple of proper time (s), peak velocity (m/s), Lorentz factor, and coord time (s) for a flip and burn maneuver at given constant acceleration
  * @param accel Proper acceleration in m/s^2
  * @param dist Coord distance in meters
- * @returns 3-tuple of proper time (s), peak velocity (m/s), and Coord time (s) as Decimals
+ * @returns IFlipAndBurn containing proper time (s), peak velocity (m/s), peak Lorentz, and Coord time (s) as Decimals
  */
-export function flipAndBurn(accel: NumberInput, dist: NumberInput): [Decimal, Decimal, Decimal] {
+export function flipAndBurn(accel: NumberInput, dist: NumberInput): IFlipAndBurn {
     const accelD = ensure(accel);
     const totalDist = ensure(dist);
     const halfDist = totalDist.div(2);
+
     const timeToHalfProper = relativisticTimeForDistance(accelD, halfDist);
     const timeToHalfCoord = coordinateTime(accelD, timeToHalfProper);
     const peakVelocity = relativisticVelocity(accelD, timeToHalfProper);
-    return [timeToHalfProper.mul(2), peakVelocity, timeToHalfCoord.mul(2)];
+    const lorentz = lorentzFactor(peakVelocity);
+    return { properTime: timeToHalfProper.mul(2), peakVelocity, lorentzFactor: lorentz, coordTime: timeToHalfCoord.mul(2) };
 }
 
 /**

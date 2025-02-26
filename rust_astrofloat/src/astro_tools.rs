@@ -29,6 +29,15 @@ pub struct Relativity {
     half: BigFloat,
 }
 
+/// Result of a flip and burn maneuver
+#[derive(Clone, Debug)]
+pub struct FlipAndBurnResult {
+    pub proper_time: BigFloat,
+    pub peak_velocity: BigFloat,
+    pub peak_lorentz: BigFloat,
+    pub coord_time: BigFloat,
+}
+
 /// Simplified interval with time and 1D coordinate
 /// Only contains refs so can be passed by-value (copy, clone)
 #[derive(Clone, Debug)]
@@ -209,16 +218,17 @@ impl Relativity {
         )
     }
 
-    /// Calculate 3-tuple of proper time (s), peak velocity (m/s), and coord time (s) for a flip and burn maneuver at given constant acceleration
-    pub fn flip_and_burn(&mut self, accel: &BigFloat, dist: &BigFloat) -> (BigFloat, BigFloat, BigFloat) {
+    /// Calculate proper time (s), peak velocity (m/s), peak lorentz, and coord time (s) for a flip and burn maneuver at given constant acceleration
+    pub fn flip_and_burn(&mut self, accel: &BigFloat, dist: &BigFloat) -> FlipAndBurnResult {
         let half_dist = expr!(dist / 2.0, &mut self.ctx);
         let time_half_proper = self.relativistic_time_for_distance(accel, &half_dist);
         let time_half_coord = self.coordinate_time(accel, &time_half_proper);
 
-        let peak_velocity = self.relativistic_velocity(accel, &time_half_proper);
+        let velocity = self.relativistic_velocity(accel, &time_half_proper);
+        let lorentz = self.lorentz_factor(&velocity);
         let total_proper = expr!(time_half_proper * 2.0, &mut self.ctx);
         let total_coord = expr!(time_half_coord * 2.0, &mut self.ctx);
-        (total_proper, peak_velocity, total_coord)
+        FlipAndBurnResult { proper_time: total_proper, peak_velocity: velocity, peak_lorentz: lorentz, coord_time: total_coord }
     }
 
     /// Distance (m) from non-relativistic acceleration (m/s^2) and time (s)

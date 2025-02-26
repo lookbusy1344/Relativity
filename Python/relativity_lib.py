@@ -3,7 +3,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    25 Feb 2025
+    26 Feb 2025
 """
 
 c_float: float = 299792458.0  # speed of light as a float
@@ -121,22 +121,23 @@ def relativistic_time_for_distance(a, dist):
 
 def flip_and_burn(a, dist) -> tuple:
     """
-    Calculate 3-tuple of proper time (s), peak velocity (m/s), and coord time (s) for a flip and burn maneuver at given constant acceleration
+    Calculate 4-tuple of proper time (s), peak velocity (m/s), peak Lorentz, and coord time (s) for a flip and burn maneuver at given constant acceleration
 
     Parameters:
         a: Proper acceleration (m/s^2) as an mpmath number or float
         dist: Coordinate distance required (m) as an mpmath number or float
 
     Returns:
-        A 3-tuple of proper time (s), peak velocity (m/s), and coord time as mpmath numbers
+        A 4-tuple of proper time (s), peak velocity (m/s), peak Lorentz, and coord time as mpmath numbers
     """
     a = ensure(a)
     dist = ensure(dist)
     half_dist = dist / 2;
-    half_proper = relativistic_time_for_distance(a, half_dist);
-    half_coord = coordinate_time(a, half_proper);
-    peak_vel = relativistic_velocity(a, half_proper);
-    return (half_proper * 2, peak_vel, half_coord * 2)
+    half_proper = relativistic_time_for_distance(a, half_dist)
+    half_coord = coordinate_time(a, half_proper)
+    peak_vel = relativistic_velocity(a, half_proper)
+    lorentz = lorentz_factor(peak_vel)
+    return (half_proper * 2, peak_vel, lorentz, half_coord * 2)
 
 
 def relativistic_distance_float(a: float, tau: float) -> float:
