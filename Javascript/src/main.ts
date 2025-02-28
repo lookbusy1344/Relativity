@@ -1,35 +1,10 @@
-import Decimal from 'decimal.js';
+//import Decimal from 'decimal.js';
 import * as rl from './relativity_lib';
 
 // Setup: yarn
 // Running the dev server(yarn dev)
 // Building for production(yarn build)
 // Running the linter(yarn lint)
-
-function expandStr(s: string): Decimal {
-    s = s.toLowerCase();
-    if (s === 'c') {
-        return rl.c;
-    }
-    if (s === 'g') {
-        return rl.g;
-    }
-    if (s === 'ly') {
-        return rl.lightYear;
-    }
-    return rl.ensure(s);
-}
-
-function processElement(e: HTMLInputElement): [Decimal, Decimal] {
-    const orig = e.value ?? "0/0";
-    const parts = orig.split('/', 2);
-    if (parts.length !== 2) {
-        throw new Error('Invalid input');
-    }
-    const a = expandStr(parts[0]);
-    const b = expandStr(parts[1]);
-    return [a, b];
-}
 
 function setElement(e: HTMLElement, value: string, units: string): void {
     if (units === "" || value === "-") {
@@ -117,8 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (aButton && resultA && resultA1 && resultA2 && resultA3 && resultA4 && aInput) {
         aButton.addEventListener('click', () => {
             try {
-                const accel = rl.g;
-                const secs = rl.ensure(aInput.value ?? 0);
+                const accel = rl.g; // just assume 1g
+                const secs = rl.ensure(aInput.value ?? 0).mul(60 * 60 * 24); // days to seconds
 
                 const relVel = rl.relativisticVelocity(accel, secs);
                 const relDist = rl.relativisticDistance(accel, secs);
