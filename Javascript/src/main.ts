@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultFlip1 = document.getElementById('resultFlip1');
     const resultFlip2 = document.getElementById('resultFlip2');
     const resultFlip3 = document.getElementById('resultFlip3');
+    const resultFlip4 = document.getElementById('resultFlip4');
 
     const resultA = document.getElementById('resultA');
     const resultA1 = document.getElementById('resultA1');
@@ -150,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (flipButton && resultFlip1 && resultFlip2 && resultFlip3 && flipInput) {
+    if (flipButton && resultFlip1 && resultFlip2 && resultFlip3 && resultFlip4 && flipInput) {
         flipButton.addEventListener('click', () => {
             try {
                 const m = rl.ensure(flipInput.value ?? 0).mul(rl.lightYear); // convert light years to meters
@@ -162,12 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 setElement(resultFlip1, rl.formatSignificant(properTime, "0", 3), "Proper years");
                 setElement(resultFlip2, rl.formatSignificant(peak, "9", 3), "Peak c");
-                setElement(resultFlip3, rl.formatSignificant(coordTime, "0", 3), "Coord years");
+                setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 3), "Peak Lorentz");
+                setElement(resultFlip4, rl.formatSignificant(coordTime, "0", 3), "Coord years");
             } catch (err) {
                 const error = err as Error;
                 resultFlip1.textContent = error.message;
                 setElement(resultFlip2, "-", "");
                 setElement(resultFlip3, "-", "");
+                setElement(resultFlip4, "-", "");
             }
         });
     }
