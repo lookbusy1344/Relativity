@@ -117,13 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (aButton && resultA && resultA1 && resultA2 && resultA3 && resultA4 && aInput) {
         aButton.addEventListener('click', () => {
             try {
-                // relativistic velocity and distance are in m/s and meters
-                const parts = processElement(aInput);
+                const accel = rl.g;
+                const secs = rl.ensure(aInput.value ?? 0);
 
-                const relVel = rl.relativisticVelocity(parts[0], parts[1]);
-                const relDist = rl.relativisticDistance(parts[0], parts[1]);
-                const simpleVel = parts[0].mul(parts[1]);
-                const simpleDist = rl.simpleDistance(parts[0], parts[1]);
+                const relVel = rl.relativisticVelocity(accel, secs);
+                const relDist = rl.relativisticDistance(accel, secs);
+                const simpleVel = accel.mul(secs);
+                const simpleDist = rl.simpleDistance(accel, secs);
                 const relVelC = relVel.div(rl.c);
                 const relDistC = relDist.div(rl.lightYear);
                 const simpleVelC = simpleVel.div(rl.c);
