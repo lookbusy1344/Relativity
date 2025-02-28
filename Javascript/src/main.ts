@@ -63,6 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultFlip2 = document.getElementById('resultFlip2');
     const resultFlip3 = document.getElementById('resultFlip3');
     const resultFlip4 = document.getElementById('resultFlip4');
+    const resultFlip5 = document.getElementById('resultFlip5');
+    const resultFlip6 = document.getElementById('resultFlip6');
 
     const resultA = document.getElementById('resultA');
     const resultA1 = document.getElementById('resultA1');
@@ -111,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // relativistic velocity and distance
     if (aButton && resultA && resultA1 && resultA2 && resultA3 && resultA4 && aInput) {
         aButton.addEventListener('click', () => {
             try {
@@ -151,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // flip and burn
     if (flipButton && resultFlip1 && resultFlip2 && resultFlip3 && resultFlip4 && flipInput) {
         flipButton.addEventListener('click', () => {
             try {
@@ -160,17 +164,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const coordTime = res.coordTime.div(rl.secondsPerYear); // convert to years
                 const peak = res.peakVelocity.div(rl.c); // convert to fraction of c
                 const lorentz = res.lorentzFactor;
+                const metre = rl.formatSignificant(rl.one.div(lorentz), "0", 2);
+                const sec = rl.formatSignificant(rl.one.mul(lorentz), "0", 2);
 
-                setElement(resultFlip1, rl.formatSignificant(properTime, "0", 3), "Proper years");
-                setElement(resultFlip2, rl.formatSignificant(peak, "9", 3), "Peak c");
-                setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 3), "Peak Lorentz");
-                setElement(resultFlip4, rl.formatSignificant(coordTime, "0", 3), "Coord years");
+                setElement(resultFlip1, rl.formatSignificant(properTime, "0", 2), "yrs");
+                setElement(resultFlip2, rl.formatSignificant(peak, "9", 2), "c");
+                setElement(resultFlip4, rl.formatSignificant(coordTime, "0", 2), "yrs");
+
+                setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
+                setElement(resultFlip5!, `1m becomes ${metre}m`, "");
+                setElement(resultFlip6!, `1s becomes ${sec}s`, "");
             } catch (err) {
                 const error = err as Error;
                 resultFlip1.textContent = error.message;
                 setElement(resultFlip2, "-", "");
                 setElement(resultFlip3, "-", "");
                 setElement(resultFlip4, "-", "");
+                setElement(resultFlip5!, "-", "");
+                setElement(resultFlip6!, "-", "");
             }
         });
     }

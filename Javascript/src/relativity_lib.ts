@@ -19,8 +19,8 @@ export let au: Decimal;
 export let secondsPerYear: Decimal;
 
 // constants for calculations
+export let one: Decimal;
 let cSquared: Decimal;
-let one: Decimal;
 let half: Decimal;
 
 // previously configured precision
