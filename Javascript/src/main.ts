@@ -44,12 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultA = document.getElementById('resultA');
     const resultA1 = document.getElementById('resultA1');
     const resultA2 = document.getElementById('resultA2');
-    const resultA3 = document.getElementById('resultA3');
-    const resultA4 = document.getElementById('resultA4');
     const resultA1b = document.getElementById('resultA1b');
     const resultA2b = document.getElementById('resultA2b');
-    const resultA3b = document.getElementById('resultA3b');
-    const resultA4b = document.getElementById('resultA4b');
 
     if (lorentzButton && resultLorentz && lorentzInput) {
         lorentzButton.addEventListener('click', () => {
@@ -89,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // relativistic velocity and distance
-    if (aButton && resultA && resultA1 && resultA2 && resultA3 && resultA4 && aInput) {
+    if (aButton && resultA && resultA1 && resultA2 && aInput) {
         aButton.addEventListener('click', () => {
             try {
                 const accel = rl.g; // just assume 1g
@@ -97,34 +93,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const relVel = rl.relativisticVelocity(accel, secs);
                 const relDist = rl.relativisticDistance(accel, secs);
-                const simpleVel = accel.mul(secs);
-                const simpleDist = rl.simpleDistance(accel, secs);
+                // const simpleVel = accel.mul(secs);
+                // const simpleDist = rl.simpleDistance(accel, secs);
                 const relVelC = relVel.div(rl.c);
                 const relDistC = relDist.div(rl.lightYear);
-                const simpleVelC = simpleVel.div(rl.c);
-                const simpleDistC = simpleDist.div(rl.lightYear);
 
                 setElement(resultA1, rl.formatSignificant(relVel, "9", 3), "m/s");
                 setElement(resultA2, relDist.toPrecision(20), "m");
-                setElement(resultA3, simpleVel.toString(), "m/s");
-                setElement(resultA4, simpleDist.toPrecision(20), "m");
 
                 setElement(resultA1b!, rl.formatSignificant(relVelC, "9", 3), "c");
                 setElement(resultA2b!, rl.formatSignificant(relDistC, "0", 3), "ly");
-                setElement(resultA3b!, rl.formatSignificant(simpleVelC, "0", 3), "c");
-                setElement(resultA4b!, rl.formatSignificant(simpleDistC, "0", 3), "ly");
                 resultA.textContent = "";
             } catch (err) {
                 const error = err as Error;
                 resultA.textContent = error.message;
                 setElement(resultA1, "-", "");
                 setElement(resultA2, "-", "");
-                setElement(resultA3, "-", "");
-                setElement(resultA4, "-", "");
                 setElement(resultA1b!, "-", "");
                 setElement(resultA2b!, "-", "");
-                setElement(resultA3b!, "-", "");
-                setElement(resultA4b!, "-", "");
             }
         });
     }
