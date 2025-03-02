@@ -300,7 +300,7 @@ internal sealed class EFloatRelativity
 	/// <returns>The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)</returns>
 	public EFloat SpacetimeInterval1D(SimplifiedInterval event1, SimplifiedInterval event2) =>
 		// sqrt(csquared * delta_t^2 - delta_x^2)
-		(Sqrt(CSQUARED_B * (B(event2.time) - event1.time).Pow(2) - (B(event2.x) - event1.x).Pow(2))).Value;
+		(Sqrt((CSQUARED_B * (B(event2.time) - event1.time).Pow(2)) - (B(event2.x) - event1.x).Pow(2))).Value;
 
 	/// <summary>
 	/// Calculate the invariant spacetime interval between two events in 3D space (x, y, z, time)
@@ -310,7 +310,7 @@ internal sealed class EFloatRelativity
 	/// <returns>The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)</returns>
 	public EFloat SpacetimeInterval3D(Interval event1, Interval event2) =>
 		// sqrt(csquared * delta_t^2 - delta_x^2 - delta_y^2 - delta_z^2)
-		(Sqrt(CSQUARED_B * (B(event2.time) - event1.time).Pow(2)
+		(Sqrt((CSQUARED_B * (B(event2.time) - event1.time).Pow(2))
 			- (B(event2.x) - event1.x).Pow(2)
 			- (B(event2.y) - event1.y).Pow(2)
 			- (B(event2.z) - event1.z).Pow(2))).Value;
