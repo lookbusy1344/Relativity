@@ -61,6 +61,17 @@ export function ensure(v: NumberInput): Decimal {
 }
 
 /**
+ * Ensure this value is a Decimal and check it is a valid number
+ */
+export function check(v: NumberInput, msg: string = "Invalid number"): Decimal {
+    const v1 = ensure(v);
+    if (v1.isNaN() || !v1.isFinite()) {
+        throw new Error(msg);
+    }
+    return v1;
+}
+
+/**
  * Convert to Decimal and check velocity is less than c
  * @param velocity The velocity in m/s
  * @param msg The error message to display
@@ -177,6 +188,22 @@ export function addVelocities(v1: NumberInput, v2: NumberInput): Decimal {
     const v1D = checkVelocity(v1);
     const v2D = checkVelocity(v2);
     return v1D.plus(v2D).div(one.plus(v1D.mul(v2D).div(cSquared)));
+}
+
+/**
+ * Add two velocities relativistically. The velocities must be fractions of c
+ * @param v1 The first velocity as fraction of c
+ * @param v2 The second velocity as fraction of c
+ * @returns The combined velocity as a fraction of c
+ */
+export function addVelocitiesC(v1: NumberInput, v2: NumberInput): Decimal {
+    // (v1 + v2) / (one + v1 * v2)
+    const v1D = ensure(v1);
+    const v2D = ensure(v2);
+    if (v1D.abs().gte(one) || v2D.abs().gte(one)) {
+        throw new Error("Velocity must be less than 1.0");
+    }
+    return v1D.plus(v2D).div(one.plus(v1D.mul(v2D)));
 }
 
 /**
