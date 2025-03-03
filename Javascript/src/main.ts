@@ -24,12 +24,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const rapidityInput = document.getElementById('rapidityInput') as HTMLInputElement;
     const aInput = document.getElementById('aInput') as HTMLInputElement;
     const flipInput = document.getElementById('flipInput') as HTMLInputElement;
+    const v1Input = document.getElementById('v1Input') as HTMLInputElement;
+    const v2Input = document.getElementById('v2Input') as HTMLInputElement;
 
     const lorentzButton = document.getElementById('lorentzButton');
     const velocityButton = document.getElementById('velocityButton');
     const rapidityButton = document.getElementById('rapidityButton');
     const aButton = document.getElementById('aButton');
     const flipButton = document.getElementById('flipButton');
+    const addButton = document.getElementById('addButton');
 
     const resultLorentz = document.getElementById('resultLorentz');
     const resultVelocity = document.getElementById('resultVelocity');
@@ -46,7 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultA2 = document.getElementById('resultA2');
     const resultA1b = document.getElementById('resultA1b');
     const resultA2b = document.getElementById('resultA2b');
+    const resultAdd = document.getElementById('resultAdd');
 
+    // lorentz factor from velocity
     if (lorentzButton && resultLorentz && lorentzInput) {
         lorentzButton.addEventListener('click', () => {
             const vel = rl.checkVelocity(lorentzInput.value ?? 0);
@@ -55,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // rapidity from velocity
     if (velocityButton && resultVelocity && velocityInput) {
         velocityButton.addEventListener('click', () => {
             const rapidity = rl.rapidityFromVelocity(velocityInput.value ?? 0);
@@ -62,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // velocity from rapidity
     if (rapidityButton && resultRapidity && rapidityInput) {
         rapidityButton.addEventListener('click', () => {
             const velocity = rl.velocityFromRapidity(rapidityInput.value ?? 0);
@@ -108,6 +115,18 @@ document.addEventListener('DOMContentLoaded', () => {
             setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
             setElement(resultFlip5!, `1m becomes ${metre}m`, "");
             setElement(resultFlip6!, `1s becomes ${sec}s`, "");
+        });
+    }
+
+    // add velocities
+    if (addButton && resultAdd && v1Input && v2Input) {
+        addButton.addEventListener('click', () => {
+            const v1 = rl.ensure(v1Input.value ?? 0);
+            const v2 = rl.ensure(v2Input.value ?? 0);
+
+            const added = rl.addVelocitiesC(v1, v2);
+
+            setElement(resultAdd, rl.formatSignificant(added, "9", 3), "c");
         });
     }
 });
