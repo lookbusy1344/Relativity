@@ -12,6 +12,8 @@ export interface IFlipAndBurn {
 }
 
 // Physical constants
+export const DecimalNaN: Decimal = new Decimal(NaN);
+export const DecimalInfinity: Decimal = new Decimal(Infinity);
 export let c: Decimal;
 export let g: Decimal;
 export let lightYear: Decimal;
@@ -20,8 +22,6 @@ export let secondsPerYear: Decimal;
 
 // constants for calculations
 export let one: Decimal;
-export let DecimalNaN: Decimal;
-export let DecimalInfinity: Decimal;
 let cSquared: Decimal;
 let half: Decimal;
 
@@ -44,8 +44,6 @@ export function configure(precision: number): void {
     cSquared = c.pow(2); // speed of light squared
     one = new Decimal(1);
     half = new Decimal("0.5");
-    DecimalNaN = new Decimal(NaN);
-    DecimalInfinity = new Decimal(Infinity);
 }
 
 /**
