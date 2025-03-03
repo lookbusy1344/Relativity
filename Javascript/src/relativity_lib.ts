@@ -20,6 +20,8 @@ export let secondsPerYear: Decimal;
 
 // constants for calculations
 export let one: Decimal;
+export let DecimalNaN: Decimal;
+export let DecimalInfinity: Decimal;
 let cSquared: Decimal;
 let half: Decimal;
 
@@ -42,6 +44,8 @@ export function configure(precision: number): void {
     cSquared = c.pow(2); // speed of light squared
     one = new Decimal(1);
     half = new Decimal("0.5");
+    DecimalNaN = new Decimal(NaN);
+    DecimalInfinity = new Decimal(Infinity);
 }
 
 /**
@@ -61,7 +65,7 @@ export function ensure(v: NumberInput): Decimal {
 }
 
 /**
- * Ensure this value is a Decimal and check it is a valid number
+ * Ensure this value is a Decimal and check it is a valid number, throw if not
  */
 export function check(v: NumberInput, msg: string = "Invalid number"): Decimal {
     const v1 = ensure(v);
@@ -77,10 +81,10 @@ export function check(v: NumberInput, msg: string = "Invalid number"): Decimal {
  * @param msg The error message to display
  * @returns The velocity as a Decimal
  */
-export function checkVelocity(velocity: NumberInput, msg: string = "Velocity must be lower than c"): Decimal {
+export function checkVelocity(velocity: NumberInput): Decimal {
     const v = ensure(velocity);
     if (v.abs().gte(c)) {
-        throw new Error(msg);
+        return DecimalNaN;
     }
     return v;
 }
@@ -174,11 +178,11 @@ export function rapidityFromVelocity(velocity: NumberInput): Decimal {
 export function velocityFromRapidity(rapidity: NumberInput): Decimal {
     // velocity = c * tanh(ensure(rapidity))
     const velocity = c.mul(ensure(rapidity).tanh());
-    return checkVelocity(velocity, "Precision failure in velocityFromRapidity");
+    return checkVelocity(velocity);
 }
 
 /**
- * Add two velocities relativistically. The velocities must be less than c
+ * Add two velocities (m/s) relativistically. The velocities must be less than c
  * @param v1 The first velocity in m/s
  * @param v2 The second velocity in m/s
  * @returns The combined velocity as a Decimal
@@ -191,7 +195,7 @@ export function addVelocities(v1: NumberInput, v2: NumberInput): Decimal {
 }
 
 /**
- * Add two velocities relativistically. The velocities must be fractions of c
+ * Add two velocities (fraction of c) relativistically. The velocities must be less than 1.0
  * @param v1 The first velocity as fraction of c
  * @param v2 The second velocity as fraction of c
  * @returns The combined velocity as a fraction of c
@@ -201,7 +205,7 @@ export function addVelocitiesC(v1: NumberInput, v2: NumberInput): Decimal {
     const v1D = ensure(v1);
     const v2D = ensure(v2);
     if (v1D.abs().gte(one) || v2D.abs().gte(one)) {
-        throw new Error("Velocity must be less than 1.0");
+        return DecimalNaN;
     }
     return v1D.plus(v2D).div(one.plus(v1D.mul(v2D)));
 }
