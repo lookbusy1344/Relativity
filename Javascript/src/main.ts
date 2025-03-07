@@ -2,6 +2,7 @@
 import * as rl from './relativity_lib';
 
 // Setup: yarn
+// yarn install
 // Running the dev server(yarn dev)
 // Building for production(yarn build)
 // Running the linter(yarn lint)
