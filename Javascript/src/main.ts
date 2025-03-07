@@ -1,8 +1,12 @@
 //import Decimal from 'decimal.js';
 import * as rl from './relativity_lib';
 
-// Setup: yarn
+// yarn set version stable
+// yarn
+// yarn upgrade-interactive
+
 // yarn install
+
 // Running the dev server(yarn dev)
 // Building for production(yarn build)
 // Running the linter(yarn lint)
