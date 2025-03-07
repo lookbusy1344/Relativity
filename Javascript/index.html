@@ -25,46 +25,44 @@
 		</div>
 
 		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Lorentz factor (m/s)</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="lorentzInput" placeholder="m/s"
+			<div class="col-sm-12 col-md-2 fw-bold text-wrap">Lorentz factor (m/s)</div>
+			<div class="col-sm-4 col-md-3"><input type="number" id="lorentzInput" placeholder="metres per sec"
 					value="299792457" class="form-control"></div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="lorentzButton">OK</button>
+			<div class="col-sm-2 col-md-1"><button type="button" class="btn btn-primary" id="lorentzButton">OK</button>
 			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap text-box" id="resultLorentz"></div>
+			<div class="col-sm-6 col-md-5 text-wrap text-box" id="resultLorentz"></div>
 		</div>
 
 		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Velocity to rapidity (m/s)</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="velocityInput" placeholder="m/s"
+			<div class="col-sm-12 col-md-2 fw-bold text-wrap">Velocity to rapidity (m/s)</div>
+			<div class="col-sm-4 col-md-3"><input type="number" id="velocityInput" placeholder="metres per sec"
 					value="299792457" class="form-control">
 			</div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="velocityButton">OK</button>
+			<div class="col-sm-2 col-md-1"><button type="button" class="btn btn-primary" id="velocityButton">OK</button>
 			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap text-box" id="resultVelocity"></div>
+			<div class="col-sm-6 col-md-5 text-wrap text-box" id="resultVelocity"></div>
 		</div>
 
 		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Rapidity to velocity</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="rapidityInput" placeholder="Rapidity"
+			<div class="col-sm-12 col-md-2 fw-bold text-wrap">Rapidity to velocity</div>
+			<div class="col-sm-4 col-md-3"><input type="number" id="rapidityInput" placeholder="rapidity"
 					value="10.10587" class="form-control">
 			</div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="rapidityButton">OK</button>
+			<div class="col-sm-2 col-md-1"><button type="button" class="btn btn-primary" id="rapidityButton">OK</button>
 			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap text-box" id="resultRapidity"></div>
+			<div class="col-sm-6 col-md-5 text-wrap text-box" id="resultRapidity"></div>
 		</div>
 
 		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Days at 1g (proper time)</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="text" id="aInput" type="number" placeholder="days"
-					value="365.25" class="form-control">
+			<div class="col-sm-12 col-md-2 fw-bold text-wrap">Days at 1g (proper time)</div>
+			<div class="col-sm-4 col-md-3"><input type="text" id="aInput" type="number" placeholder="days at 1g"
+					value="365" class="form-control">
 			</div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="aButton">OK</button>
+			<div class="col-sm-2 col-md-1"><button type="button" class="btn btn-primary" id="aButton">OK</button>
 			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultA">
-				Proper acceleration at 1g for proper time (days), gives velocity and coord distance
+			<div class="col-sm-6 col-md-5 text-wrap" id="resultA">
 			</div>
 		</div>
-
 		<div class="row mb-2">
 			<div class="col-sm-6">
 				<div class="fw-bold">Relativistic velocity</div>
@@ -79,16 +77,15 @@
 		</div>
 
 		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Ly to travel (flip-and-burn @ 1g)</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="flipInput" placeholder="ly" value="4.246"
+			<div class="col-sm-12 col-md-2 fw-bold text-wrap">Ly to travel (flip-and-burn @ 1g)</div>
+			<div class="col-sm-4 col-md-3"><input type="number" id="flipInput" placeholder="light years" value="4"
 					class="form-control">
 			</div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="flipButton">OK</button>
+			<div class="col-sm-2 col-md-1"><button type="button" class="btn btn-primary" id="flipButton">OK</button>
 			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5">
+			<div class="col-sm-6 col-md-5">
 			</div>
 		</div>
-
 		<div class="row mb-2">
 			<div class="col-sm-6 col-lg-3">
 				<div class="fw-bold">Proper years</div>
@@ -111,14 +108,14 @@
 		</div>
 
 		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Add velocities (fraction of c)</div>
-			<div class="col-sm-6 col-md-3 col-lg-3">
-				<input type="number" id="v1Input" placeholder="c" value="0.9" class="form-control">
-				<input type="number" id="v2Input" placeholder="c" value="0.9" class="form-control">
+			<div class="col-sm-12 col-md-2 fw-bold text-wrap">Add velocities (fraction of c)</div>
+			<div class="col-sm-4 col-md-3">
+				<input type="number" id="v1Input" placeholder="fraction of c" value="0.9" class="form-control">
+				<input type="number" id="v2Input" placeholder="fraction of c" value="0.9" class="form-control">
 			</div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="addButton">OK</button>
+			<div class="col-sm-2 col-md-1"><button type="button" class="btn btn-primary" id="addButton">OK</button>
 			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultAdd">
+			<div class="col-sm-6 col-md-5 text-wrap" id="resultAdd">
 			</div>
 		</div>
 	</div>
