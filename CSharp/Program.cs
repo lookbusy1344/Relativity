@@ -12,6 +12,15 @@ internal static class Program
 
 	private static void Main()
 	{
+		var metre = new Quantity.Quantity<Quantity.Length>(1);
+		var second = new Quantity.Quantity<Quantity.Time>("0.5");
+		var mass = new Quantity.Quantity<Quantity.Mass>(1.0);
+
+		// implicit conversions
+		EFloat conversion1 = metre;
+		Quantity.Quantity<Quantity.Length> conversion2 = conversion1;
+		//metre = second;
+
 		Uom();
 		BigFloats();
 		//TrigTests();
