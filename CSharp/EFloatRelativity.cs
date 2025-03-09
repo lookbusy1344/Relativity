@@ -12,7 +12,7 @@ using SimplifiedInterval = (PeterO.Numbers.EFloat time, PeterO.Numbers.EFloat x)
 /// <summary>
 /// Flip and burn results
 /// </summary>
-internal record class FlipAndBurnResult(EFloat ProperTime, EFloat PeakVelocity, EFloat PeakLorentz, EFloat CoordTime);
+internal sealed record class FlipAndBurnResult(EFloat ProperTime, EFloat PeakVelocity, EFloat PeakLorentz, EFloat CoordTime);
 
 internal sealed class EFloatRelativity
 {
