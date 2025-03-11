@@ -26,6 +26,7 @@ internal sealed class EFloatRelativity
 	// error messages
 	private const string PRECISION_ERR = "Calculated velocity at or above C, increase EContext precision";
 	private const string C_ERR = "Velocity must be less than C";
+
 	// BigFloat constants for internal use
 	private readonly BigFloat Half;
 	private readonly BigFloat One;
@@ -71,8 +72,12 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Check this BigFloat velocity is less than C in m/s
 	/// </summary>
-	private BigFloat CheckVelocity(BigFloat velocity, string msg = C_ERR) =>
-		velocity.Value.Abs(velocity.Context).CompareTo(C) >= 0 ? throw new ArgumentException(msg) : velocity;
+	/// <returns>Velocity if valid, otherwise NaN</returns>
+	private BigFloat CheckVelocity(BigFloat velocity, string _ = C_ERR) =>
+		velocity.Value.Abs(velocity.Context).CompareTo(C) >= 0 ? B(EFloat.NaN) : velocity;
+
+	//private BigFloat CheckVelocity(BigFloat velocity, string msg = C_ERR) =>
+	//	velocity.Value.Abs(velocity.Context).CompareTo(C) >= 0 ? throw new ArgumentException(msg) : velocity;
 
 	/// <summary>
 	/// Check this velocity is less than C in m/s and return BigFloat
@@ -95,11 +100,15 @@ internal sealed class EFloatRelativity
 	/// Turns fraction of C into a velocity in m/s
 	/// </summary>
 	/// <param name="fraction">Fraction of c, must be less than 1.0</param>
-	/// <returns>Velocity in m/s</returns>
+	/// <returns>Velocity in m/s if valid, otherwise NaN</returns>
 	public EFloat FractionOfC(EFloat fraction) =>
 		fraction.Abs(Context).CompareTo(One.Value) >= 0
-			? throw new ArgumentException("Fraction of c must be less than 1.0")
-			: CheckVelocity(C_B * fraction, PRECISION_ERR).Value;
+			? EFloat.NaN : CheckVelocity(C_B * fraction, PRECISION_ERR).Value;
+
+	//public EFloat FractionOfC(EFloat fraction) =>
+	//fraction.Abs(Context).CompareTo(One.Value) >= 0
+	//	? throw new ArgumentException("Fraction of c must be less than 1.0")
+	//	: CheckVelocity(C_B * fraction, PRECISION_ERR).Value;
 
 	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time

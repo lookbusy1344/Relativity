@@ -10,6 +10,8 @@ namespace Relativity.Quantity;
 // sort out the context eg:
 // var x = new Quantity<Length>(EFloat.FromString("1.0", ctx));
 
+#pragma warning disable CA1812, CA1852
+
 /// <summary>
 /// Typed quantity with a EFloat value
 /// </summary>
