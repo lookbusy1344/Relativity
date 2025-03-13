@@ -3,7 +3,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    26 Feb 2025
+    13 Mar 2025
 """
 
 c_float: float = 299792458.0  # speed of light as a float
@@ -53,14 +53,13 @@ def ensure(v):
         return mp.mpf(v)
 
 
-def check_velocity(velocity, msg="Velocity must be less than c"):
+def check_velocity(velocity):
     """
-    Ensure the velocity is less than c and convert to mpf type. Throws if velocity is too high
+    Ensure the velocity is less than c and convert to mpf type. Returns NaN if velocity is c or above.
     This may indicate a precision failure for values very close to c.
 
     Parameters:
         velocity: The velocity to check
-        msg: The message to display if the velocity is invalid, optional
 
     Returns:
         The velocity as an mpmath number, if valid
@@ -68,7 +67,7 @@ def check_velocity(velocity, msg="Velocity must be less than c"):
     velocity = ensure(velocity)
     if mp.fabs(velocity) < c:
         return velocity
-    raise ValueError(msg)
+    return mp.nan
 
 
 def relativistic_velocity(a, tau):
@@ -132,7 +131,7 @@ def flip_and_burn(a, dist) -> tuple:
     """
     a = ensure(a)
     dist = ensure(dist)
-    half_dist = dist / 2;
+    half_dist = dist / 2
     half_proper = relativistic_time_for_distance(a, half_dist)
     half_coord = coordinate_time(a, half_proper)
     peak_vel = relativistic_velocity(a, half_proper)
@@ -197,8 +196,11 @@ def velocity_from_rapidity(rapidity):
     Returns:
         The velocity (m/s) as an mpmath number
     """
-    velocity = c * mp.tanh(ensure(rapidity))
-    return check_velocity(velocity, "Precision failure in velocity_from_rapidity")
+    velocity = check_velocity(c * mp.tanh(ensure(rapidity)))
+    if mp.isnan(velocity):
+        # since no finite rapidity should give velocity c or greater, this is a precision failure
+        raise ValueError("Precision failure: velocity is c or greater")
+    return velocity
 
 
 def add_velocities(v1, v2):
@@ -454,7 +456,7 @@ def format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str:
             ensure(number), configured_dp, min_fixed=-9999, max_fixed=9999
         )  # type: ignore
 
-    if shortcut_formatting or "e" in number_str:
+    if shortcut_formatting or number_str == "nan" or "e" in number_str:
         return number_str  # bypass any formatting
 
     if "." in number_str:
@@ -506,7 +508,7 @@ def format_mpf_significant(
         ensure(number), configured_dp, min_fixed=-9999, max_fixed=9999
     )  # type: ignore
 
-    if shortcut_formatting or "e" in number_str:
+    if shortcut_formatting or number_str == "nan" or "e" in number_str:
         return number_str  # bypass any formatting
 
     if len(ignore_char) != 1:
