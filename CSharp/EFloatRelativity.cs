@@ -25,7 +25,6 @@ internal sealed class EFloatRelativity
 
 	// error messages
 	private const string PRECISION_ERR = "Calculated velocity at or above C, increase EContext precision";
-	private const string C_ERR = "Velocity must be less than C";
 
 	// BigFloat constants for internal use
 	private readonly BigFloat Half;
@@ -73,13 +72,13 @@ internal sealed class EFloatRelativity
 	/// Check this BigFloat velocity is less than C in m/s
 	/// </summary>
 	/// <returns>Velocity if valid, otherwise NaN</returns>
-	private BigFloat CheckVelocity(BigFloat velocity, string _ = C_ERR) =>
+	private BigFloat CheckVelocity(BigFloat velocity) =>
 		velocity.Abs().CompareTo(C) >= 0 ? B(EFloat.NaN) : velocity;
 
 	/// <summary>
 	/// Check this velocity is less than C in m/s and return BigFloat
 	/// </summary>
-	private BigFloat CheckVelocity(EFloat velocity, string msg = C_ERR) => CheckVelocity(B(velocity), msg);
+	private BigFloat CheckVelocity(EFloat velocity) => CheckVelocity(B(velocity));
 
 	/// <summary>
 	/// Turn given number of days into seconds
@@ -98,9 +97,16 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	/// <param name="fraction">Fraction of c, must be less than 1.0</param>
 	/// <returns>Velocity in m/s if valid, otherwise NaN</returns>
-	public EFloat FractionOfC(EFloat fraction) =>
-		fraction.Abs(Context).CompareTo(One.Value) >= 0
-			? EFloat.NaN : CheckVelocity(C_B * fraction, PRECISION_ERR).Value;
+	public EFloat FractionOfC(EFloat fraction)
+	{
+		if (fraction.Abs(Context).CompareTo(One.Value) >= 0) {
+			// fraction is 1.0 or more, so this is invalid
+			return EFloat.NaN;
+		}
+
+		var v = CheckVelocity(C_B * fraction);
+		return v.Value.IsNaN() ? throw new ArgumentException(PRECISION_ERR) : v.Value;
+	}
 
 	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time
@@ -174,9 +180,14 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	/// <param name="rapidity">Rapidity</param>
 	/// <returns>Velocity in m/s</returns>
-	public EFloat VelocityFromRapidity(EFloat rapidity) =>
+	public EFloat VelocityFromRapidity(EFloat rapidity)
+	{
 		// c * tanh(rapidity)
-		CheckVelocity(C_B * Tanh(B(rapidity)), PRECISION_ERR).Value;
+		var v = CheckVelocity(C_B * Tanh(B(rapidity)));
+
+		// no rapidity should give a velocity of c or higher, so this would indicate a precision error
+		return v.Value.IsNaN() ? throw new ArgumentException(PRECISION_ERR) : v.Value;
+	}
 
 	/// <summary>
 	/// Add two velocities relativistically. The velocities must be less than c
