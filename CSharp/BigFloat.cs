@@ -51,9 +51,11 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 
 	public override readonly bool Equals(object? obj) => obj is BigFloat other && Equals(other);
 
-	public readonly bool Equals(BigFloat other) => Value.Equals(other.Value); // don't include the context
+	public readonly bool Equals(BigFloat other) => Value.Equals(other.Value); // don't check the context
 
-	public readonly int CompareTo(BigFloat other) => Value.CompareTo(other.Value); // don't include the context
+	public readonly int CompareTo(BigFloat other) => Value.CompareTo(other.Value); // don't compare the context
+
+	public readonly int CompareTo(EFloat other) => Value.CompareTo(other);
 
 	public readonly int CompareTo(object? obj)
 	{

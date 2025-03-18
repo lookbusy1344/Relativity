@@ -74,10 +74,7 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	/// <returns>Velocity if valid, otherwise NaN</returns>
 	private BigFloat CheckVelocity(BigFloat velocity, string _ = C_ERR) =>
-		velocity.Value.Abs(velocity.Context).CompareTo(C) >= 0 ? B(EFloat.NaN) : velocity;
-
-	//private BigFloat CheckVelocity(BigFloat velocity, string msg = C_ERR) =>
-	//	velocity.Value.Abs(velocity.Context).CompareTo(C) >= 0 ? throw new ArgumentException(msg) : velocity;
+		velocity.Abs().CompareTo(C) >= 0 ? B(EFloat.NaN) : velocity;
 
 	/// <summary>
 	/// Check this velocity is less than C in m/s and return BigFloat
@@ -104,11 +101,6 @@ internal sealed class EFloatRelativity
 	public EFloat FractionOfC(EFloat fraction) =>
 		fraction.Abs(Context).CompareTo(One.Value) >= 0
 			? EFloat.NaN : CheckVelocity(C_B * fraction, PRECISION_ERR).Value;
-
-	//public EFloat FractionOfC(EFloat fraction) =>
-	//fraction.Abs(Context).CompareTo(One.Value) >= 0
-	//	? throw new ArgumentException("Fraction of c must be less than 1.0")
-	//	: CheckVelocity(C_B * fraction, PRECISION_ERR).Value;
 
 	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time
