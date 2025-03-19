@@ -40,7 +40,8 @@ internal static class HyperbolicTrig
 	{
 		// [ \text{acosh}(x) = \ln\left(x + \sqrt{x^2 - 1}\right) ]
 		if (value.CompareTo(EFloat.One) < 0) {
-			throw new ArgumentOutOfRangeException(nameof(value), "Input must be greater than or equal to 1.");
+			return EFloat.NaN;
+			//throw new ArgumentOutOfRangeException(nameof(value), "Input must be greater than or equal to 1.");
 		}
 		var squareMinusOne = value.Pow(2, ctx).Subtract(EFloat.One, ctx);
 		var sqrt = squareMinusOne.Sqrt(ctx);
@@ -61,7 +62,8 @@ internal static class HyperbolicTrig
 	{
 		// Domain: -1 < x < 1
 		if (value.CompareTo(EFloat.One) >= 0 || value.CompareTo(EFloat.One.Negate(ctx)) <= 0) {
-			throw new ArgumentOutOfRangeException(nameof(value), "Input must be between -1 and 1 (exclusive).");
+			return EFloat.NaN;
+			//throw new ArgumentOutOfRangeException(nameof(value), "Input must be between -1 and 1 (exclusive).");
 		}
 		var numerator = value.Add(EFloat.One, ctx);
 		var denominator = EFloat.One.Subtract(value, ctx);
