@@ -27,7 +27,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="UnitsNet" Version="5.70.0" />
+    <PackageReference Include="UnitsNet" Version="5.73.0" />
   </ItemGroup>
 
 </Project>
