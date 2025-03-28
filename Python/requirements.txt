@@ -23,12 +23,12 @@ packaging==24.2
 parso==0.8.4
 pillow==11.1.0
 platformdirs==4.3.7
-prettytable==3.15.1
+prettytable==3.16.0
 prompt_toolkit==3.0.50
 psutil==7.0.0
 pure_eval==0.2.3
 Pygments==2.19.1
-pyparsing==3.2.1
+pyparsing==3.2.3
 python-dateutil==2.9.0.post0
 pywin32==310
 pyzmq==26.3.0
