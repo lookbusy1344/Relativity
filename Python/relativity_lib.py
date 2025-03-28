@@ -53,6 +53,21 @@ def ensure(v):
         return mp.mpf(v)
 
 
+def ensure_abs(v):
+    """
+    Convert to mpf if v is not mpf, otherwise return v unchanged.
+    Return the absolute value of v.
+
+    Parameters:
+        v: The value to check
+
+    Returns:
+        The value as an mpmath number
+    """
+    v = ensure(v)
+    return mp.fabs(v)
+
+
 def check_velocity(velocity):
     """
     Ensure the velocity is less than c and convert to mpf type. Returns NaN if velocity is c or above.
@@ -81,8 +96,8 @@ def relativistic_velocity(a, tau):
     Returns:
         The velocity (m/s) as an mpmath number
     """
-    a = ensure(a)
-    tau = ensure(tau)
+    a = ensure_abs(a)
+    tau = ensure_abs(tau)
     return c * mp.tanh(a * tau / c)
 
 
@@ -97,8 +112,8 @@ def relativistic_distance(a, tau):
     Returns:
         The coordinate distance travelled (m) as an mpmath number
     """
-    a = ensure(a)
-    tau = ensure(tau)
+    a = ensure_abs(a)
+    tau = ensure_abs(tau)
     return (csquared / a) * (mp.cosh(a * tau / c) - one)
 
 
@@ -113,8 +128,8 @@ def relativistic_time_for_distance(a, dist):
     Returns:
         The proper time elapsed (s) as an mpmath number
     """
-    a = ensure(a)
-    dist = ensure(dist)
+    a = ensure_abs(a)
+    dist = ensure_abs(dist)
     return (c / a) * mp.acosh((dist * a) / csquared + one)
 
 
@@ -129,8 +144,8 @@ def flip_and_burn(a, dist) -> tuple:
     Returns:
         A 4-tuple of proper time (s), peak velocity (m/s), peak Lorentz, and coord time as mpmath numbers
     """
-    a = ensure(a)
-    dist = ensure(dist)
+    a = ensure_abs(a)
+    dist = ensure_abs(dist)
     half_dist = dist / 2
     half_proper = relativistic_time_for_distance(a, half_dist)
     half_coord = coordinate_time(a, half_proper)
