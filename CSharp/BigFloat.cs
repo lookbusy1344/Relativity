@@ -149,7 +149,7 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// <summary>
 	/// Raise this BigFloat instance to the power of another BigFloat instance.
 	/// </summary>
-	public BigFloat Pow(int power) => new(Value.Pow(power, Context), Context);
+	public readonly BigFloat Pow(int power) => new(Value.Pow(power, Context), Context);
 
 	/// <summary>
 	/// Raise this BigFloat instance to the power of another BigFloat instance.
