@@ -1,4 +1,4 @@
-# 12 Feb 2025
+# 01 Apr 2025
 # Others, leave as-is (dont treat them as text)
 * -text
 
@@ -11,6 +11,10 @@
 *.rs text eol=lf
 *.toml text eol=lf
 *.lock text eol=lf
+
+# Go
+*.go text eol=lf
+*.mod text eol=lf
 
 # Python 
 *.py text eol=lf
@@ -31,7 +35,7 @@
 # Windows line endings
 *.cs text eol=crlf
 # *.csproj text eol=crlf # dependabot issues with line endings?
-*.csproj.user text eol=crlf
+# *.csproj.user text eol=crlf
 *.sln text eol=crlf
 *.resx text eol=crlf
 *.cmd text eol=crlf
@@ -40,3 +44,8 @@
 # Binary
 *.png binary
 *.jpg binary
+*.jpeg binary
+*.docx binary
+*.xlsx binary
+*.zip binary
+*.cr2 binary
