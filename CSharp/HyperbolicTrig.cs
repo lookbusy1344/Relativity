@@ -1,6 +1,5 @@
 ﻿namespace Relativity;
 
-using System;
 using PeterO.Numbers;
 
 /// <summary>
@@ -10,6 +9,9 @@ internal static class HyperbolicTrig
 {
 	private static readonly EFloat Two = EFloat.FromInt32(2);
 
+	/// <summary>
+	/// Calculates the hyperbolic cosine of an EFloat value.
+	/// </summary>
 	public static EFloat Cosh(this EFloat value, EContext ctx)
 	{
 		// [ \cosh(x) = \frac{e^{x} + e^{-x}}{2} ]
@@ -18,6 +20,9 @@ internal static class HyperbolicTrig
 		return expX.Add(expNegX, ctx).Divide(Two, ctx);
 	}
 
+	/// <summary>
+	/// Calculates the hyperbolic sine of an EFloat value.
+	/// </summary>
 	public static EFloat Sinh(this EFloat value, EContext ctx)
 	{
 		// [ \sinh(x) = \frac{e^x - e^{-x}}{2} ]
@@ -26,6 +31,9 @@ internal static class HyperbolicTrig
 		return expX.Subtract(expNegX, ctx).Divide(Two, ctx);
 	}
 
+	/// <summary>
+	/// Calculates the hyperbolic tangent of an EFloat value.
+	/// </summary>
 	public static EFloat Tanh(this EFloat value, EContext ctx)
 	{
 		// [ \tanh(x) = 1 - \frac{2}{e^{2x} + 1} ]
@@ -36,12 +44,14 @@ internal static class HyperbolicTrig
 		return EFloat.One.Subtract(fraction, ctx);
 	}
 
+	/// <summary>
+	/// Calculates the inverse hyperbolic cosine of an EFloat value.
+	/// </summary>
 	public static EFloat Acosh(this EFloat value, EContext ctx)
 	{
 		// [ \text{acosh}(x) = \ln\left(x + \sqrt{x^2 - 1}\right) ]
 		if (value.CompareTo(EFloat.One) < 0) {
 			return EFloat.NaN;
-			//throw new ArgumentOutOfRangeException(nameof(value), "Input must be greater than or equal to 1.");
 		}
 		var squareMinusOne = value.Pow(2, ctx).Subtract(EFloat.One, ctx);
 		var sqrt = squareMinusOne.Sqrt(ctx);
@@ -49,6 +59,9 @@ internal static class HyperbolicTrig
 		return sum.Log(ctx);
 	}
 
+	/// <summary>
+	/// Calculates the inverse hyperbolic sine of an EFloat value.
+	/// </summary>
 	public static EFloat Asinh(this EFloat value, EContext ctx)
 	{
 		// [ \text{asinh}(x) = \ln\left(x + \sqrt{x^{2} + 1}\right) ]
@@ -58,12 +71,14 @@ internal static class HyperbolicTrig
 		return sum.Log(ctx);
 	}
 
+	/// <summary>
+	/// Calculates the inverse hyperbolic tangent of an EFloat value.
+	/// </summary>
 	public static EFloat Atanh(this EFloat value, EContext ctx)
 	{
 		// Domain: -1 < x < 1
 		if (value.CompareTo(EFloat.One) >= 0 || value.CompareTo(EFloat.One.Negate(ctx)) <= 0) {
 			return EFloat.NaN;
-			//throw new ArgumentOutOfRangeException(nameof(value), "Input must be between -1 and 1 (exclusive).");
 		}
 		var numerator = value.Add(EFloat.One, ctx);
 		var denominator = EFloat.One.Subtract(value, ctx);
