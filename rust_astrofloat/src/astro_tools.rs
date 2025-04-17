@@ -56,7 +56,7 @@ impl SimplifiedInterval {
     }
 
     /// Destructure the interval into its time, x components
-    pub fn destructure<'a>(&'a self) -> (&'a BigFloat, &'a BigFloat) {
+    pub fn destructure(&self) -> (&BigFloat, &BigFloat) {
         (&self.time, &self.x)
     }
 }
@@ -83,7 +83,7 @@ impl Interval {
     }
 
     /// Destructure the interval into its time, x, y, z components
-    pub fn destructure<'a>(&'a self) -> (&'a BigFloat, &'a BigFloat, &'a BigFloat, &'a BigFloat) {
+    pub fn destructure(&self) -> (&BigFloat, &BigFloat, &BigFloat, &BigFloat) {
         (&self.time, &self.x, &self.y, &self.z)
     }
 }
