@@ -144,6 +144,11 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// <summary>
 	/// Modulus of two BigFloat instances using the context of the left operand.
 	/// </summary>
+	public static BigFloat operator %(BigFloat left, BigFloat right) => Mod(left, right.Value);
+
+	/// <summary>
+	/// Modulus of BigFloat and EFloat using the context of the left operand.
+	/// </summary>
 	public static BigFloat operator %(BigFloat left, EFloat right) => Mod(left, right);
 
 	/// <summary>
