@@ -12,6 +12,18 @@ internal static class Program
 
 	private static void Main()
 	{
+		var timetofall = TimeToFall(100, 9.81);
+		var velocity = VelocityAfterFalling(100, 9.81);
+
+		var oneg = Acceleration.FromMetersPerSecondSquared(9.81);
+		var distance = Length.FromMeters(100);
+
+		var timeTemp = Duration.FromSeconds(timetofall); // when RelativisticTimeForDistance is implemented, we dont need to use timetofall
+		var xx = Tools.RelativisticAcceleration(oneg, timeTemp);
+
+		// impplement UOM version of EFloatRelativity.RelativisticTimeForDistance
+		// (c / a) * acosh((dist * a) / csquared + one)
+
 		var metre = new Quantity.Quantity<Quantity.Length>(1);
 		var second = new Quantity.Quantity<Quantity.Time>("0.5");
 		var mass = new Quantity.Quantity<Quantity.Mass>(1.0);
@@ -146,4 +158,51 @@ internal static class Program
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private static BigFloat B(EFloat f) => BigFloat.Build(f, Program.ctx ?? throw new InvalidOperationException());
+
+	/// <summary>
+	/// Calculate the time to fall a given height under gravity, using the formula t = sqrt(2h/g).
+	/// Non-relativistic
+	/// </summary>
+	/// <param name="height">Height to fall (metres)</param>
+	/// <param name="g">Acceleration due to gravity (m/s^2)</param>
+	/// <returns>Seconds to fall</returns>
+	private static double TimeToFall(double height, double g = 9.80665)
+	{
+		// this is just proper time for an object moving at `g` acceletation for `height` coordinate distance
+		// but not relativistic
+
+#pragma warning disable IDE0046 // Convert to conditional expression
+		if (height < 0) {
+			throw new ArgumentOutOfRangeException(nameof(height), "Height must be positive");
+		}
+		if (g <= 0) {
+			throw new ArgumentOutOfRangeException(nameof(g), "Gravity must be positive");
+		}
+#pragma warning restore IDE0046 // Convert to conditional expression
+
+		return Math.Sqrt(2 * height / g);
+	}
+
+	/// <summary>
+	/// Calculate the velocity after falling a given height under gravity, using the formula v = sqrt(2gh).
+	/// </summary>
+	/// <param name="height">Height to fall (metres)</param>
+	/// <param name="g">Acceleration due to gravity (m/s^2)</param>
+	/// <returns>Velocity (m/s)</returns>
+	private static double VelocityAfterFalling(double height, double g = 9.80665)
+	{
+		// this is just velocity for an object moving at `g` acceletation for `height` coordinate distance
+		// but not relativistic
+
+#pragma warning disable IDE0046 // Convert to conditional expression
+		if (height < 0) {
+			throw new ArgumentOutOfRangeException(nameof(height), "Height must be positive");
+		}
+		if (g <= 0) {
+			throw new ArgumentOutOfRangeException(nameof(g), "Gravity must be positive");
+		}
+#pragma warning restore IDE0046 // Convert to conditional expression
+
+		return Math.Sqrt(2 * g * height);
+	}
 }
