@@ -1,4 +1,3 @@
-from mpmath import mp
 import relativity_lib as rl
 from prettytable import PrettyTable
 

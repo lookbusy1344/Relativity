@@ -73,7 +73,6 @@ Rust Asinh(23.123) is very weak (20dp)
 """
 
 from mpmath import mp
-from pyparsing import C
 
 mp.dps = 300
 value = mp.mpf("0.5")
