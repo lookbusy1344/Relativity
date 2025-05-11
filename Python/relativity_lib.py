@@ -166,9 +166,10 @@ def fall(a, dist) -> tuple:
     Returns:
         A 3-tuple of proper time (s), coordinate time (s), and peak velocity (m/s) as mpmath numbers
     """
-    tau = relativistic_time_for_distance(a, dist)
-    coord = coordinate_time(a, tau)
-    velocity = relativistic_velocity(a, tau)
+    a = ensure_abs(a)
+    tau = relativistic_time_for_distance(a, dist)  # proper time
+    coord = coordinate_time(a, tau)  # coordinate time
+    velocity = relativistic_velocity(a, tau)  # peak velocity
     return (tau, coord, velocity)
 
 

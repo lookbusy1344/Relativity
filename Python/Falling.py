@@ -2,8 +2,8 @@ from mpmath import mp
 import relativity_lib as rl
 
 rl.configure(15)
-a = rl.g  # mp.mpf(9.81)
-dist = mp.mpf(1200 * 1000)
+a = mp.mpf(9.81) # rl.g
+dist = mp.mpf(1200 * 1000) # 1200 km
 
 # VELOCITY AND TIME AFTER FALLING UNDER 1g FOR GIVEN DISTANCE
 
