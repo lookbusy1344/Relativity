@@ -2,28 +2,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "relativity_lib.py",
+            "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/relativity_lib.py"
+            "program": "${file}",
+            "console": "integratedTerminal"
         },
         {
-            "name": "Solar system.py",
+            "name": "Python Debugger: Current File with Arguments",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/Solar system.py"
-        },
-        {
-            "name": "TrigTests.py",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/TrigTests.py"
-        },
-        {
-            "name": "IntervalTest.py",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/IntervalTest.py"
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": "${command:pickArgs}"
         }
     ]
 }
