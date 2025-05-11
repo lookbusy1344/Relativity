@@ -3,7 +3,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    13 Mar 2025
+    11 May 2025
 """
 
 c_float: float = 299792458.0  # speed of light as a float
@@ -152,6 +152,24 @@ def flip_and_burn(a, dist) -> tuple:
     peak_vel = relativistic_velocity(a, half_proper)
     lorentz = lorentz_factor(peak_vel)
     return (half_proper * 2, peak_vel, lorentz, half_coord * 2)
+
+
+def fall(a, dist) -> tuple:
+    """
+    Calculate the time to fall a given distance under constant acceleration. Returns proper time, coordinate time, and peak velocity (when hitting the ground).
+    Does not take into account reduced gravity at altitude, or air resistance.
+
+    Parameters:
+        a: Proper acceleration (m/s^2) as an mpmath number or float
+        dist: Coord distance (m) as an mpmath number or float
+
+    Returns:
+        A 3-tuple of proper time (s), coordinate time (s), and peak velocity (m/s) as mpmath numbers
+    """
+    tau = relativistic_time_for_distance(a, dist)
+    coord = coordinate_time(a, tau)
+    velocity = relativistic_velocity(a, tau)
+    return (tau, coord, velocity)
 
 
 def relativistic_distance_float(a: float, tau: float) -> float:

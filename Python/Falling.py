@@ -12,9 +12,7 @@ dist = mp.mpf(1200 * 1000)
 # 3. use the proper time to calculate coordinate time, for an observer.
 
 # basic relativistic calculation
-tau = rl.relativistic_time_for_distance(a, dist)
-velocity = rl.relativistic_velocity(a, tau)
-coord = rl.coordinate_time(a, tau)
+tau, coord, velocity = rl.fall(a, dist)
 
 # extras, different units
 diff = coord - tau
