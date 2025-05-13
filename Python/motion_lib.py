@@ -4,6 +4,7 @@ from scipy.integrate import quad, solve_ivp
 earth_radius: float = 6_375_325.0  # radius of Earth (adjusted to ensure g = 9.80665) Equatorial radius is actual 6,378,137
 earth_mass: float = 5.972e24  # mass of Earth in kg
 G: float = 6.674_30e-11  # gravitational constant in m³/kg/s²
+c: float = 299_792_458.0  # speed of light in m/s
 
 
 def gravity_acceleration_for_radius(mass: float, radius: float) -> float:
@@ -75,7 +76,7 @@ def fall_time_and_velocity(
     return time, velocity
 
 
-def atmospheric_density(altitude: float):
+def atmospheric_density(altitude: float) -> float:
     """Approximate Earth atmospheric density as a function of altitude (in meters)."""
     rho0 = 1.225  # kg/m³ at sea level
     H = 8500.0  # scale height (m)
@@ -127,6 +128,58 @@ def fall_time_with_drag(
     return fall_time, impact_velocity
 
 
+def relativistic_fall_time_and_velocity(
+    mass: float, radius: float, altitude: float
+) -> tuple[float, float, float]:
+    """
+    Calculate fall time with special relativity effects from a given altitude to Earth's surface,
+    including proper time, coordinate time, and impact velocity.
+
+    Parameters:
+    - mass: Mass of Earth in kg
+    - radius: Radius of Earth in meters
+    - altitude: Altitude above Earth's surface in meters
+
+    Returns:
+    - 3-Tuple (tau / proper time in seconds, coordinate time in seconds, impact velocity in m/s)
+    """
+    global G, c
+    R = radius
+    r0 = R + altitude
+
+    def velocity_at_radius(r: float) -> float:
+        """Calculate velocity at a given radius using conservation of energy."""
+        global G
+        return (
+            math.sqrt(2.0 * G * mass * (1.0 / R - 1.0 / r0))
+            if r == R
+            else math.sqrt(2.0 * G * mass * (1.0 / r - 1.0 / r0))
+        )
+
+    def dt_dr(r: float) -> float:
+        """Coordinate time differential."""
+        global G
+        return 1.0 / math.sqrt(2.0 * G * mass * (1.0 / r - 1.0 / r0))
+
+    def d_tau_dr(r: float) -> float:
+        """Proper time differential with relativistic correction."""
+        global c
+        v = velocity_at_radius(r)
+        gamma = 1.0 / math.sqrt(1.0 - v**2 / c**2)
+        return dt_dr(r) / gamma
+
+    # Coordinate time
+    coord, _ = quad(dt_dr, R, r0)
+
+    # Proper time
+    tau, _ = quad(d_tau_dr, R, r0)
+
+    # Impact velocity
+    vel = velocity_at_radius(R)
+
+    return tau, coord, vel
+
+
 # Sample calculations if we run this file directly
 if __name__ == "__main__":
     # ================= Gravitational acceleration at various altitudes =================
@@ -142,14 +195,15 @@ if __name__ == "__main__":
     print(f"Gravitational acceleration at 250km: {mid_level:.5f} m/s²")
 
     # ================= Falling from given altitude, no drag =================
-    altitude = 10_000  # 10 km
+    altitude = 10_000.0  # 10 km
+    print()
     print("Falling from 10 km altitude:")
     time_to_fall, vel = fall_time_and_velocity(earth_mass, earth_radius, altitude)
     print(f"Time to fall: {time_to_fall:.2f} seconds")
     print(f"Impact velocity: {vel:.2f} m/s")
 
     # ================= Falling from given altitude, with drag =================
-    altitude = 10_000  # 10 km
+    altitude = 10_000.0  # 10 km
     # Parameters for a 1-meter radius sphere
     mass = 80.0  # kg
     area = math.pi * 0.5**2  # m² (1m diameter sphere)
@@ -159,6 +213,16 @@ if __name__ == "__main__":
         mass=mass, radius=6.371e6, altitude=altitude, area_m2=area, drag_coefficient=Cd
     )
 
+    print()
     print(f"Falling from {altitude} m with drag for 80kg sphere:")
     print(f"Fall time: {time:.2f} s")
     print(f"Impact velocity: {velocity:.2f} m/s")
+
+    # ================= Falling from given altitude, taking into account special relativity =================
+    altitude = 1_000_000.0  # 1000 km
+    tau, t, v = relativistic_fall_time_and_velocity(earth_mass, earth_radius, altitude)
+    print()
+    print("Falling from 1000 km altitude with special relativity:")
+    print(f"Proper time: {tau:.8f} s")
+    print(f"Coordinate time: {t:.8f} s")
+    print(f"Impact velocity: {v:.2f} m/s")
