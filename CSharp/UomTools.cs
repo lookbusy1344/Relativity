@@ -195,8 +195,8 @@ internal static class Tools
 	/// Calculate the time to fall from a given altitude to Earth's surface, and the velocity at impact, accounting for varying gravity with distance.
 	/// </summary>
 	/// <param name="altitude">Altitude of the object from which it falls.</param>
-	/// <returns>Velocity when it hits the groups, and time it takes</returns>
-	public static (Speed velocity, Duration time) FallFromAltitude(Length altitude)
+	/// <returns>Time it takes to fall, and velocity when it hits the ground</returns>
+	public static (Duration time, Speed velocity) FallFromAltitude(Length altitude)
 	{
 		// Initial and final positions
 		var r0 = (EarthRadius + altitude).Meters;
@@ -211,6 +211,6 @@ internal static class Tools
 		// v = sqrt(2GM * (1/rf - 1/r0))
 		var v = Math.Sqrt(2 * G * EarthMass.Kilograms * ((1.0 / rf) - (1.0 / r0)));
 
-		return (Speed.FromMetersPerSecond(v), Duration.FromSeconds(t));
+		return (Duration.FromSeconds(t), Speed.FromMetersPerSecond(v));
 	}
 }
