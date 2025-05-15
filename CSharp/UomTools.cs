@@ -187,26 +187,29 @@ internal static class Tools
 		return Speed.FromMetersPerSecond(resultingVelocity);
 	}
 
-	public const double EarthRadius = 6_375_325.0;
-	public const double EarthMass = 5.972e24;
+	public static readonly Length EarthRadius = Length.FromMeters(6_375_325.0);
+	public static readonly Mass EarthMass = Mass.FromKilograms(5.972e24);
 	public const double G = 6.674_30e-11;
 
+	/// <summary>
+	/// Calculate the time to fall from a given altitude to Earth's surface, and the velocity at impact, accounting for varying gravity with distance.
+	/// </summary>
+	/// <param name="altitude">Altitude of the object from which it falls.</param>
+	/// <returns>Velocity when it hits the groups, and time it takes</returns>
 	public static (Speed velocity, Duration time) FallFromAltitude(Length altitude)
 	{
 		// Initial and final positions
-		var h0 = altitude.Meters;
-		var r0 = EarthRadius + h0;
-		const double rf = EarthRadius;
+		var r0 = (EarthRadius + altitude).Meters;
+		var rf = EarthRadius.Meters;
 
 		// Analytical solution for time to fall from rest from r0 to rf under Newtonian gravity:
 		// t = sqrt(r0^3 / (2GM)) * [arccos(sqrt(rf/r0)) + sqrt((rf/r0)*(1 - rf/r0))]
 		var ratio = rf / r0;
-		var t = Math.Sqrt(r0 * r0 * r0 / (2 * G * EarthMass)) *
-				(Math.Acos(Math.Sqrt(ratio)) + Math.Sqrt(ratio * (1 - ratio)));
+		var t = Math.Sqrt(r0 * r0 * r0 / (2 * G * EarthMass.Kilograms)) * (Math.Acos(Math.Sqrt(ratio)) + Math.Sqrt(ratio * (1 - ratio)));
 
 		// Final velocity at impact using energy conservation:
 		// v = sqrt(2GM * (1/rf - 1/r0))
-		var v = Math.Sqrt(2 * G * EarthMass * ((1.0 / rf) - (1.0 / r0)));
+		var v = Math.Sqrt(2 * G * EarthMass.Kilograms * ((1.0 / rf) - (1.0 / r0)));
 
 		return (Speed.FromMetersPerSecond(v), Duration.FromSeconds(t));
 	}
