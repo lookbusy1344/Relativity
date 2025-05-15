@@ -27,8 +27,8 @@ internal sealed class EFloatRelativity
 	private const string PRECISION_ERR = "Calculated velocity at or above C, increase EContext precision";
 
 	// BigFloat constants for internal use
-	private readonly BigFloat Half;
-	private readonly BigFloat One;
+	private readonly BigFloat Half_B;
+	private readonly BigFloat One_B;
 	private readonly BigFloat C_B;
 	private readonly BigFloat CSQUARED_B;
 
@@ -58,8 +58,8 @@ internal sealed class EFloatRelativity
 
 		// Populate the BigFloats now we have a context
 		CSQUARED_B = B(C.Pow(2, Context));
-		Half = B(EFloat.FromString("0.5", Context));
-		One = B(EFloat.One);
+		Half_B = B(EFloat.FromString("0.5", Context));
+		One_B = B(EFloat.One);
 		C_B = B(C);
 	}
 
@@ -99,7 +99,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s if valid, otherwise NaN</returns>
 	public EFloat FractionOfC(EFloat fraction)
 	{
-		if (fraction.Abs(Context).CompareTo(One.Value) >= 0) {
+		if (fraction.Abs(Context).CompareTo(One_B.Value) >= 0) {
 			// fraction is 1.0 or more, so this is invalid
 			return EFloat.NaN;
 		}
@@ -164,7 +164,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Distance in m</returns>
 	public EFloat SimpleDistance(EFloat accel, EFloat time) =>
 		// 0.5 * a * t**2
-		(Half * accel * B(time).Pow(2)).Value;
+		(Half_B * accel * B(time).Pow(2)).Value;
 
 	/// <summary>
 	/// Calculate the rapidity for a given velocity
@@ -194,7 +194,7 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	public EFloat AddVelocities(EFloat v1, EFloat v2) =>
 		// (v1 + v2) / (one + (v1 * v2) / csquared)
-		((CheckVelocity(v1) + CheckVelocity(v2)) / (One + ((B(v1) * v2) / CSQUARED_B))).Value;
+		((CheckVelocity(v1) + CheckVelocity(v2)) / (One_B + ((B(v1) * v2) / CSQUARED_B))).Value;
 
 	/// <summary>
 	/// Calculate coordinate time for a given acceleration and proper time
@@ -214,7 +214,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Contracted length in m</returns>
 	public EFloat LengthContractionVelocity(EFloat len, EFloat velocity) =>
 		// len * sqrt(one - (velocity / c) ** 2)
-		(B(len) / (One - (CheckVelocity(velocity) / C_B).Pow(2)).Sqrt()).Value;
+		(B(len) / (One_B - (CheckVelocity(velocity) / C_B).Pow(2)).Sqrt()).Value;
 
 	/// <summary>
 	/// Calculate Lorentz factor for a given velocity
@@ -223,7 +223,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Lorentz factor</returns>
 	public EFloat LorentzFactor(EFloat velocity) =>
 		// 1 / sqrt(1 - (velocity / c) ** 2)
-		(One / (One - (CheckVelocity(velocity) / C_B).Pow(2)).Sqrt()).Value;
+		(One_B / (One_B - (CheckVelocity(velocity) / C_B).Pow(2)).Sqrt()).Value;
 
 	/// <summary>
 	/// Calculate the velocity under constant proper acceleration and coordinate time
@@ -233,7 +233,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat RelativisticVelocityCoord(EFloat accel, EFloat t) =>
 		// (a * t) / sqrt(one + (a * t / c) ** 2)
-		((B(accel) * t) / (One + (B(accel) * t / C_B).Pow(2)).Sqrt()).Value;
+		((B(accel) * t) / (One_B + (B(accel) * t / C_B).Pow(2)).Sqrt()).Value;
 
 	/// <summary>
 	/// Calculate the distance travelled under constant proper acceleration and coordinate time
@@ -243,7 +243,7 @@ internal sealed class EFloatRelativity
 	/// <returns>The coordinate distance travelled in m</returns>
 	public EFloat RelativisticDistanceCoord(EFloat accel, EFloat t) =>
 		// (csquared / a) * (sqrt(one + (a * t / c) ** 2) - one)
-		((CSQUARED_B / accel) * ((One + (B(accel) * t / C_B).Pow(2)).Sqrt() - 1)).Value;
+		((CSQUARED_B / accel) * ((One_B + (B(accel) * t / C_B).Pow(2)).Sqrt() - 1)).Value;
 
 	/// <summary>
 	/// Calculate the relativistic momentum
@@ -276,8 +276,8 @@ internal sealed class EFloatRelativity
 	{
 		var beta = CheckVelocity(velocity) / C_B;
 		return source_moving_towards
-			? (B(frequency) * ((One + beta) / (One - beta)).Sqrt()).Value
-			: (B(frequency) * ((One - beta) / (One + beta)).Sqrt()).Value;
+			? (B(frequency) * ((One_B + beta) / (One_B - beta)).Sqrt()).Value
+			: (B(frequency) * ((One_B - beta) / (One_B + beta)).Sqrt()).Value;
 	}
 
 	/// <summary>
