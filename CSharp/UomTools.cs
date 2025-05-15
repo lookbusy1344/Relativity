@@ -186,4 +186,34 @@ internal static class Tools
 		var resultingVelocity = (u + v) / (1 + (u * v / C_SQUARED));
 		return Speed.FromMetersPerSecond(resultingVelocity);
 	}
+
+	public static (Speed velocity, Duration time) FallFromAltitude(Length altitude)
+	{
+		// Constants
+		const double EarthRadiusMeters = 6_371_000.0;
+		const double G0 = 9.80665; // m/s², standard gravity at sea level
+
+		// Initial and final positions
+		var h0 = altitude.Meters;
+		var r0 = EarthRadiusMeters + h0;
+		var rf = EarthRadiusMeters;
+
+		// Effective gravity as a function of radius: g(r) = G0 * (EarthRadius / r)^2
+		// Integrate dt = dr / sqrt(2 * ∫g(r) dr) from r0 to rf
+
+		// Analytical solution for time to fall from rest from r0 to rf:
+		// t = sqrt(r0^3 / (2 * G0 * EarthRadius^2)) * [arccos(sqrt(rf/r0)) + sqrt((rf/r0)*(1 - rf/r0))]
+		var ratio = rf / r0;
+		var sqrt_r0 = Math.Sqrt(r0);
+		var sqrt_rf = Math.Sqrt(rf);
+
+		var t = Math.Sqrt(r0 * r0 * r0 / (2 * G0 * EarthRadiusMeters * EarthRadiusMeters)) *
+				   (Math.Acos(Math.Sqrt(ratio)) + Math.Sqrt(ratio * (1 - ratio)));
+
+		// Final velocity at impact using energy conservation:
+		// v = sqrt(2 * G0 * EarthRadius^2 * (1/rf - 1/r0))
+		var v = Math.Sqrt(2 * G0 * EarthRadiusMeters * EarthRadiusMeters * (1.0 / rf - 1.0 / r0));
+
+		return (Speed.FromMetersPerSecond(v), Duration.FromSeconds(t));
+	}
 }
