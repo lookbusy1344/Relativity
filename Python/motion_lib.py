@@ -84,30 +84,36 @@ def atmospheric_density(altitude: float) -> float:
 
 
 def fall_time_with_drag(
-    mass: float, radius: float, altitude: float, area_m2: float, drag_coefficient: float
+    altitude: float, obj_mass: float, obj_area_m2: float, obj_drag_coefficient: float
 ) -> tuple[float, float]:
     """
     Compute fall time and impact velocity from given altitude, including atmospheric drag.
 
     Parameters:
-    - mass: Mass of the object in kg
-    - radius: Radius of Earth in meters
     - altitude: Initial altitude in meters
-    - area_m2: Cross-sectional area of the object (m²)
-    - drag_coefficient: Drag coefficient (dimensionless)
+    - obj_mass: Mass of the object in kg
+    - obj_area_m2: Cross-sectional area of the object (m²)
+    - obj_drag_coefficient: Drag coefficient (dimensionless)
 
     Returns:
     - 2-Tuple (fall time in seconds, impact velocity in m/s)
     """
-    global G
+    global G, earth_radius
+
+    # Some examples of drag coefficients:
+    # A smooth sphere: Cd ≈ 0.47
+    # A flat plate perpendicular to flow: Cd ≈ 1.28
+    # A streamlined body: Cd ≈ 0.04
+    # Person head first: Cd ≈ 0.7
+    # Person belly first: Cd ≈ 1.2
 
     def deriv(_, y) -> list[float]:
         global G
         h, v = y
-        r = radius + h
+        r = earth_radius + h
         g = G * 5.972e24 / r**2
         rho = atmospheric_density(h)
-        drag = 0.5 * drag_coefficient * rho * area_m2 * v**2 / mass
+        drag = 0.5 * obj_drag_coefficient * rho * obj_area_m2 * v**2 / obj_mass
         drag *= -1 if v > 0 else 1  # Opposes motion
         dvdt = -g + drag
         return [v, dvdt]
@@ -206,20 +212,19 @@ def get_results(altitude_km: float) -> None:
     print(f"Impact velocity: {v:.2f} m/s")
 
     # Time & velocity to fall from given altitude, with drag
-    # Parameters for a 1-meter radius sphere
-    mass_obj = 80.0  # kg
-    area = math.pi * 0.5**2  # m² (1m diameter sphere)
-    Cd = 0.47  # drag coefficient of a sphere
+    # Parameters for skydiver, head first
+    mass_obj = 70.0  # kg
+    area = 0.2  # math.pi * 0.5**2  # m² (1m diameter sphere)
+    Cd = 0.7  # drag coefficient of person head first
 
     time, velocity = fall_time_with_drag(
-        mass=mass_obj,
-        radius=earth_radius,
         altitude=altitude,
-        area_m2=area,
-        drag_coefficient=Cd,
+        obj_mass=mass_obj,
+        obj_area_m2=area,
+        obj_drag_coefficient=Cd,
     )
     print()
-    print(f"Falling with drag for 80kg sphere:")
+    print("Falling with drag for skydiver:")
     print(f"Fall time: {time:.2f} s")
     print(f"Impact velocity: {velocity:.2f} m/s")
 
@@ -228,4 +233,6 @@ def get_results(altitude_km: float) -> None:
 if __name__ == "__main__":
     get_results(1000)
     get_results(10)
+    get_results(1.5)
+    get_results(1)
     get_results(0.5)  # 500m
