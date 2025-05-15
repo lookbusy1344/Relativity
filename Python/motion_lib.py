@@ -180,11 +180,12 @@ def relativistic_fall_time_and_velocity(
     return tau, coord, vel
 
 
-def get_results(altitude: float) -> None:
+def get_results(altitude_km: float) -> None:
     global earth_mass, earth_radius
 
-    print(f"Falling from {altitude} km altitude:")
-    altitude *= 1000.0  # Convert km to m
+    print("================================================")
+    print(f"Falling from {altitude_km} km altitude:")
+    altitude = altitude_km * 1000.0  # Convert km to m
 
     # Gravitational acceleration at given altitude
     accel = gravity_acceleration_for_radius(earth_mass, earth_radius + altitude)
@@ -195,6 +196,14 @@ def get_results(altitude: float) -> None:
     print()
     print(f"Time to fall: {time_to_fall:.2f} s")
     print(f"Impact velocity: {vel:.2f} m/s")
+
+    # Falling from given altitude, taking into account special relativity
+    tau, t, v = relativistic_fall_time_and_velocity(earth_mass, earth_radius, altitude)
+    print()
+    print("Falling from altitude with special relativity, no drag:")
+    print(f"Proper time: {tau:.8f} s")
+    print(f"Coordinate time: {t:.8f} s")
+    print(f"Impact velocity: {v:.2f} m/s")
 
     # Time & velocity to fall from given altitude, with drag
     # Parameters for a 1-meter radius sphere
@@ -214,61 +223,9 @@ def get_results(altitude: float) -> None:
     print(f"Fall time: {time:.2f} s")
     print(f"Impact velocity: {velocity:.2f} m/s")
 
-    # ================= Falling from given altitude, taking into account special relativity =================
-    tau, t, v = relativistic_fall_time_and_velocity(earth_mass, earth_radius, altitude)
-    print()
-    print("Falling from altitude with special relativity, no drag:")
-    print(f"Proper time: {tau:.8f} s")
-    print(f"Coordinate time: {t:.8f} s")
-    print(f"Impact velocity: {v:.2f} m/s")
-
 
 # Sample calculations if we run this file directly
 if __name__ == "__main__":
-    # ================= Gravitational acceleration at various altitudes =================
-    ground_level = gravity_acceleration_for_radius(earth_mass, earth_radius)
-    print(f"Gravitational acceleration at ground level: {ground_level:.5f} m/s²")
-    low_level = gravity_acceleration_for_radius(
-        earth_mass, earth_radius + 100 * 1000
-    )  # 100km above ground
-    print(f"Gravitational acceleration at 100km: {low_level:.5f} m/s²")
-    mid_level = gravity_acceleration_for_radius(
-        earth_mass, earth_radius + 250 * 1000
-    )  # 250km above ground
-    print(f"Gravitational acceleration at 250km: {mid_level:.5f} m/s²")
-
-    # ================= Falling from given altitude, no drag =================
-    altitude = 10_000.0  # 10 km
-    print()
-    print("Falling from 10 km altitude:")
-    time_to_fall, vel = fall_time_and_velocity(earth_mass, earth_radius, altitude)
-    print(f"Time to fall: {time_to_fall:.2f} seconds")
-    print(f"Impact velocity: {vel:.2f} m/s")
-
-    # ================= Falling from given altitude, with drag =================
-    altitude = 10_000.0  # 10 km
-    # Parameters for a 1-meter radius sphere
-    mass = 80.0  # kg
-    area = math.pi * 0.5**2  # m² (1m diameter sphere)
-    Cd = 0.47  # drag coefficient of a sphere
-
-    time, velocity = fall_time_with_drag(
-        mass=mass, radius=6.371e6, altitude=altitude, area_m2=area, drag_coefficient=Cd
-    )
-
-    print()
-    print(f"Falling from {altitude} m with drag for 80kg sphere:")
-    print(f"Fall time: {time:.2f} s")
-    print(f"Impact velocity: {velocity:.2f} m/s")
-
-    # ================= Falling from given altitude, taking into account special relativity =================
-    altitude = 1_000_000.0  # 1000 km
-    tau, t, v = relativistic_fall_time_and_velocity(earth_mass, earth_radius, altitude)
-    print()
-    print("Falling from 1000 km altitude with special relativity:")
-    print(f"Proper time: {tau:.8f} s")
-    print(f"Coordinate time: {t:.8f} s")
-    print(f"Impact velocity: {v:.2f} m/s")
-    print()
     get_results(1000)
     get_results(10)
+    get_results(0.5)  # 500m
