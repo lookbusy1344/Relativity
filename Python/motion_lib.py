@@ -108,10 +108,10 @@ def fall_time_with_drag(
     # Person belly first: Cd ≈ 1.2
 
     def deriv(_, y) -> list[float]:
-        global G
+        global G, earth_radius
         h, v = y
         r = earth_radius + h
-        g = G * 5.972e24 / r**2
+        g = G * earth_mass / r**2
         rho = atmospheric_density(h)
         drag = 0.5 * obj_drag_coefficient * rho * obj_area_m2 * v**2 / obj_mass
         drag *= -1 if v > 0 else 1  # Opposes motion
