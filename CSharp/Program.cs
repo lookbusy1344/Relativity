@@ -36,6 +36,16 @@ internal static class Program
 		var asFraction = new FractionOfC(finalVelocity);
 		var naiveAsFraction = new FractionOfC(naively, false);
 
+		var height = Length.FromMeters(1000);
+		var (time, vel) = Tools.FallTimeAndVelocity(Tools.EarthMass, Tools.EarthRadius, height);
+		Console.WriteLine($"From {height.Meters}m, time: {time.Seconds}, vel: {vel.MetersPerSecond}");
+		height = Length.FromMeters(100);
+		(time, vel) = Tools.FallTimeAndVelocity(Tools.EarthMass, Tools.EarthRadius, height);
+		Console.WriteLine($"From {height.Meters}m, time: {time.Seconds}, vel: {vel.MetersPerSecond}");
+		height = Length.FromMeters(20);
+		(time, vel) = Tools.FallTimeAndVelocity(Tools.EarthMass, Tools.EarthRadius, height);
+		Console.WriteLine($"From {height.Meters}m, time: {time.Seconds}, vel: {vel.MetersPerSecond}");
+
 		Console.WriteLine("UOM, one year at 1g:");
 		Console.WriteLine($"Velocity after 1 year at 1G is {asFraction}");
 		Console.WriteLine($"Check {check}");

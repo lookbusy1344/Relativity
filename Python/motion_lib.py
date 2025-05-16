@@ -231,8 +231,18 @@ def get_results(altitude_km: float) -> None:
 
 # Sample calculations if we run this file directly
 if __name__ == "__main__":
-    get_results(1000)
-    get_results(10)
-    get_results(1.5)
-    get_results(1)
-    get_results(0.5)  # 500m
+    # get_results(1000)
+    # get_results(10)
+    # get_results(1.5)
+    # get_results(1)
+    # get_results(0.5)  # 500m
+
+    altitude = 1000.0
+    time, vel = fall_time_and_velocity(earth_mass, earth_radius, altitude)
+    print(f"Time to fall from {altitude} m: {time:.8f} s, velocity: {vel:.8f} m/s")
+    altitude = 100.0
+    time, vel = fall_time_and_velocity(earth_mass, earth_radius, altitude)
+    print(f"Time to fall from {altitude} m: {time:.8f} s, velocity: {vel:.8f} m/s")
+    altitude = 20.0
+    time, vel = fall_time_and_velocity(earth_mass, earth_radius, altitude)
+    print(f"Time to fall from {altitude} m: {time:.8f} s, velocity: {vel:.8f} m/s")
