@@ -1,4 +1,4 @@
-# 01 Apr 2025
+# 17 May 2025
 # Others, leave as-is (dont treat them as text)
 * -text
 
@@ -19,6 +19,7 @@
 # Python 
 *.py text eol=lf
 *.ipynb text eol=lf
+requirements.txt text eol=lf
 
 # Web
 *.html text eol=lf
