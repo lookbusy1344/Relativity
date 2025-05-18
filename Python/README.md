@@ -58,6 +58,15 @@ print(
 
 ```
 
+# UV virtual environment
+
+Run scripts using uv, eg:
+
+```
+uv sync
+uv run "Solar system.py"
+```
+
 # Library functions
 
 * **Proper time/length/acceleration** = time/etc measured by an observer in the accelerating frame. Eg time on the ship.
