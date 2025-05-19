@@ -22,6 +22,13 @@ def gravity_acceleration_for_radius(mass: float, radius: float) -> float:
     return G * mass / (radius**2.0)
 
 
+def calculate_gravitational_constant(
+    mass: float, radius: float, gravity: float
+) -> float:
+    """EXAMPLE: Calculate G from mass, radius, and surface gravity."""
+    return gravity * radius**2 / mass
+
+
 def fall_time_from_altitude(mass: float, radius: float, altitude: float) -> float:
     """
     Numerical integration for time to fall from given altitude to ground level.
