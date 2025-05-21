@@ -201,7 +201,7 @@ def ballistic_trajectory_with_drag(
     obj_mass: float,
     obj_area_m2: float,
     obj_drag_coefficient: float,
-    y0: float = 0.0,
+    initial_height: float = 0.0,
 ) -> tuple[float, float, float]:
     """
     Simulate a 2D ballistic trajectory with atmospheric drag.
@@ -213,7 +213,7 @@ def ballistic_trajectory_with_drag(
     - obj_mass: Mass of the object (kg)
     - obj_area_m2: Cross-sectional area (m²)
     - obj_drag_coefficient: Drag coefficient (dimensionless)
-    - y0: Initial height (m, default 0)
+    - initial_height: Initial height (m, default 0)
 
     Returns:
     - (max_altitude, total_time, impact_velocity)
@@ -238,7 +238,7 @@ def ballistic_trajectory_with_drag(
     hit_ground.terminal = True
     hit_ground.direction = -1
 
-    y_init = [0.0, y0, vx0, vy0]
+    y_init = [0.0, initial_height, vx0, vy0]
     t_span = (0, 10000)
     sol = solve_ivp(
         deriv, t_span, y_init, events=hit_ground, max_step=0.1, rtol=1e-6, atol=1e-9
@@ -249,63 +249,6 @@ def ballistic_trajectory_with_drag(
     total_time = sol.t[-1]
     impact_velocity = math.hypot(vx_traj[-1], vy_traj[-1])
     return max_altitude, total_time, impact_velocity
-
-
-def ballistic_trajectory_with_drag2(
-    distance: float,    # horizontal distance to target (m)
-    launch_angle_deg: float,  # launch angle in degrees
-    obj_mass: float,  # kg
-    obj_area_m2: float,  # m^2
-    obj_drag_coefficient: float,  # drag coefficient
-) -> tuple[float, float, float]:
-    rho = 1.225  # kg/m^3 (air density at sea level)
-    g = 9.81  # m/s^2 (gravity)
-
-    # Convert inputs
-    theta = np.radians(launch_angle_deg)
-
-    # Estimate initial velocity using vacuum formula
-    v0 = np.sqrt(distance * g)
-    vx0 = v0 * np.cos(theta)
-    vy0 = v0 * np.sin(theta)
-
-    def derivatives(t, state):
-        x, y, vx, vy = state
-        v = np.hypot(vx, vy)
-        Fd = 0.5 * obj_drag_coefficient * rho * obj_area_m2 * v**2
-        ax = -Fd * vx / (v * obj_mass)
-        ay = -g - Fd * vy / (v * obj_mass)
-        return [vx, vy, ax, ay]
-
-    def hit_ground(t, state):
-        return state[1]  # y = 0
-
-    hit_ground.terminal = True
-    hit_ground.direction = -1
-
-    # Initial state: x, y, vx, vy
-    state0 = [0, 0, vx0, vy0]
-
-    sol = solve_ivp(
-        fun=derivatives,
-        t_span=(0, 500),
-        y0=state0,
-        method="RK45",
-        events=hit_ground,
-        max_step=0.1,
-        rtol=1e-6,
-        atol=1e-9,
-    )
-
-    # Extract solution
-    x, y, vx, vy = sol.y
-    v = np.hypot(vx, vy)
-    max_height: float = np.max(y)
-    max_velocity: float = np.max(v)
-    flight_time: float = sol.t_events[0][0] if sol.t_events[0].size > 0 else sol.t[-1]
-
-    # return (altitude, time, velocity)
-    return max_height, flight_time, max_velocity
 
 
 def get_results(altitude_km: float) -> None:
@@ -383,24 +326,9 @@ if __name__ == "__main__":
         obj_mass=100.0,
         obj_area_m2=0.1,
         obj_drag_coefficient=0.2,
-        y0=0.0,
+        initial_height=0.0,
     )
     print("Ballistic trajectory for 100kg rocket, 70km range:")
-    print(f"Max altitude: {max_alt:.2f} m")
-    print(f"Total flight time: {total_time:.2f} s")
-    print(f"Impact velocity: {impact_v:.2f} m/s")
-    print()
-
-    max_alt, total_time, impact_v = ballistic_trajectory_with_drag2(
-        distance=70_000,
-        launch_angle_deg=45.0,
-        #initial_speed=1500.0,
-        obj_mass=100.0,
-        obj_area_m2=0.1,
-        obj_drag_coefficient=0.2,
-        #y0=0.0,
-    )
-    print("2ND FUNCTION - Ballistic trajectory for 100kg rocket, 70km range:")
     print(f"Max altitude: {max_alt:.2f} m")
     print(f"Total flight time: {total_time:.2f} s")
     print(f"Impact velocity: {impact_v:.2f} m/s")
