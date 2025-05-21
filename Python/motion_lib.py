@@ -208,7 +208,7 @@ def ballistic_trajectory_with_drag(
     Parameters:
     - distance: Horizontal distance to target (m)
     - launch_angle_deg: Launch angle above horizontal (degrees)
-    - initial_speed: Initial speed (m/s)
+    - initial_speed: Initial speed (m/s). Object is instantaneously launched at this speed with no further acceleration
     - obj_mass: Mass of the object (kg)
     - obj_area_m2: Cross-sectional area (m²)
     - obj_drag_coefficient: Drag coefficient (dimensionless)
@@ -217,8 +217,6 @@ def ballistic_trajectory_with_drag(
     Returns:
     - (max_altitude, total_time, impact_velocity)
     """
-    from scipy.integrate import solve_ivp
-
     angle = math.radians(launch_angle_deg)
     vx0 = initial_speed * math.cos(angle)
     vy0 = initial_speed * math.sin(angle)
