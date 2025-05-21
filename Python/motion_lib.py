@@ -1,4 +1,5 @@
 import math
+import numpy as np
 from scipy.integrate import quad, solve_ivp
 
 earth_radius: float = 6_375_325.0  # radius of Earth (adjusted to ensure g = 9.80665) Equatorial radius is actual 6,378,137
@@ -250,6 +251,63 @@ def ballistic_trajectory_with_drag(
     return max_altitude, total_time, impact_velocity
 
 
+def ballistic_trajectory_with_drag2(
+    distance: float,    # horizontal distance to target (m)
+    launch_angle_deg: float,  # launch angle in degrees
+    obj_mass: float,  # kg
+    obj_area_m2: float,  # m^2
+    obj_drag_coefficient: float,  # drag coefficient
+) -> tuple[float, float, float]:
+    rho = 1.225  # kg/m^3 (air density at sea level)
+    g = 9.81  # m/s^2 (gravity)
+
+    # Convert inputs
+    theta = np.radians(launch_angle_deg)
+
+    # Estimate initial velocity using vacuum formula
+    v0 = np.sqrt(distance * g)
+    vx0 = v0 * np.cos(theta)
+    vy0 = v0 * np.sin(theta)
+
+    def derivatives(t, state):
+        x, y, vx, vy = state
+        v = np.hypot(vx, vy)
+        Fd = 0.5 * obj_drag_coefficient * rho * obj_area_m2 * v**2
+        ax = -Fd * vx / (v * obj_mass)
+        ay = -g - Fd * vy / (v * obj_mass)
+        return [vx, vy, ax, ay]
+
+    def hit_ground(t, state):
+        return state[1]  # y = 0
+
+    hit_ground.terminal = True
+    hit_ground.direction = -1
+
+    # Initial state: x, y, vx, vy
+    state0 = [0, 0, vx0, vy0]
+
+    sol = solve_ivp(
+        fun=derivatives,
+        t_span=(0, 500),
+        y0=state0,
+        method="RK45",
+        events=hit_ground,
+        max_step=0.1,
+        rtol=1e-6,
+        atol=1e-9,
+    )
+
+    # Extract solution
+    x, y, vx, vy = sol.y
+    v = np.hypot(vx, vy)
+    max_height: float = np.max(y)
+    max_velocity: float = np.max(v)
+    flight_time: float = sol.t_events[0][0] if sol.t_events[0].size > 0 else sol.t[-1]
+
+    # return (altitude, time, velocity)
+    return max_height, flight_time, max_velocity
+
+
 def get_results(altitude_km: float) -> None:
     global earth_mass, earth_radius
 
@@ -302,20 +360,20 @@ if __name__ == "__main__":
     # get_results(0.5)  # 500m
 
     # Example: 30 kg rocket, 1 km range, 0.1 m² cross-section, Cd=0.2, launch angle 45°, initial speed 1500 m/s
-    max_alt, total_time, impact_v = ballistic_trajectory_with_drag(
-        distance=1_000,
-        launch_angle_deg=45.0,
-        initial_speed=1500.0,
-        obj_mass=30.0,
-        obj_area_m2=0.1,
-        obj_drag_coefficient=0.2,
-        y0=0.0,
-    )
-    print("Ballistic trajectory for 30kg rocket, 1km range:")
-    print(f"Max altitude: {max_alt:.2f} m")
-    print(f"Total flight time: {total_time:.2f} s")
-    print(f"Impact velocity: {impact_v:.2f} m/s")
-    print()
+    # max_alt, total_time, impact_v = ballistic_trajectory_with_drag(
+    #     distance=1_000,
+    #     launch_angle_deg=45.0,
+    #     initial_speed=1500.0,
+    #     obj_mass=30.0,
+    #     obj_area_m2=0.1,
+    #     obj_drag_coefficient=0.2,
+    #     y0=0.0,
+    # )
+    # print("Ballistic trajectory for 30kg rocket, 1km range:")
+    # print(f"Max altitude: {max_alt:.2f} m")
+    # print(f"Total flight time: {total_time:.2f} s")
+    # print(f"Impact velocity: {impact_v:.2f} m/s")
+    # print()
 
     # Example: 100 kg rocket, 70 km range, 0.1 m² cross-section, Cd=0.2, launch angle 45°, initial speed 1500 m/s
     max_alt, total_time, impact_v = ballistic_trajectory_with_drag(
@@ -333,18 +391,33 @@ if __name__ == "__main__":
     print(f"Impact velocity: {impact_v:.2f} m/s")
     print()
 
-    # Example: 30,000 kg rocket, 8000 km range, 2.2 m² cross-section, Cd=0.2, launch angle 45°, initial speed 1500 m/s
-    max_alt, total_time, impact_v = ballistic_trajectory_with_drag(
-        distance=8_000_000,
+    max_alt, total_time, impact_v = ballistic_trajectory_with_drag2(
+        distance=70_000,
         launch_angle_deg=45.0,
-        initial_speed=1500.0,
-        obj_mass=30_000.0,
-        obj_area_m2=2.2,
+        #initial_speed=1500.0,
+        obj_mass=100.0,
+        obj_area_m2=0.1,
         obj_drag_coefficient=0.2,
-        y0=0.0,
+        #y0=0.0,
     )
-    print("Ballistic trajectory for 30,000 kg rocket, 8000 km range:")
+    print("2ND FUNCTION - Ballistic trajectory for 100kg rocket, 70km range:")
     print(f"Max altitude: {max_alt:.2f} m")
     print(f"Total flight time: {total_time:.2f} s")
     print(f"Impact velocity: {impact_v:.2f} m/s")
     print()
+
+    # Example: 30,000 kg rocket, 8000 km range, 2.2 m² cross-section, Cd=0.2, launch angle 45°, initial speed 1500 m/s
+    # max_alt, total_time, impact_v = ballistic_trajectory_with_drag(
+    #     distance=8_000_000,
+    #     launch_angle_deg=45.0,
+    #     initial_speed=1500.0,
+    #     obj_mass=30_000.0,
+    #     obj_area_m2=2.2,
+    #     obj_drag_coefficient=0.2,
+    #     y0=0.0,
+    # )
+    # print("Ballistic trajectory for 30,000 kg rocket, 8000 km range:")
+    # print(f"Max altitude: {max_alt:.2f} m")
+    # print(f"Total flight time: {total_time:.2f} s")
+    # print(f"Impact velocity: {impact_v:.2f} m/s")
+    # print()
