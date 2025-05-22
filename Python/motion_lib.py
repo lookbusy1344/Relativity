@@ -299,7 +299,7 @@ def ballistic_trajectory_with_drag_opt_angle(
     - (max_altitude, total_time, impact_velocity, launch_angle_deg)
     """
 
-    def simulate_trajectory(angle_deg: float) -> tuple[float, float, float, bool]:
+    def simulate_trajectory(angle_deg: float) -> tuple[float, float, float, float]:
         angle = math.radians(angle_deg)
         vx0 = initial_speed * math.cos(angle)
         vy0 = initial_speed * math.sin(angle)
@@ -320,13 +320,8 @@ def ballistic_trajectory_with_drag_opt_angle(
         def hit_ground(_, y):
             return y[1]
 
-        def reach_distance(_, y):
-            return y[0] - distance
-
         hit_ground.terminal = True
         hit_ground.direction = -1
-        reach_distance.terminal = True
-        reach_distance.direction = 1
 
         y_init = [0.0, initial_height, vx0, vy0]
         t_span = (0, 10000)
@@ -334,61 +329,61 @@ def ballistic_trajectory_with_drag_opt_angle(
             deriv,
             t_span,
             y_init,
-            events=[hit_ground, reach_distance],
+            events=hit_ground,
             max_step=0.1,
             rtol=1e-6,
             atol=1e-9,
         )
 
         x_traj, y_traj, vx_traj, vy_traj = sol.y
-
-        # Did we reach the target distance?
-        target_reached = len(sol.t_events[1]) > 0
         max_altitude = np.max(y_traj)
         total_time = sol.t[-1]
         impact_velocity = math.hypot(vx_traj[-1], vy_traj[-1])
+        final_x = x_traj[-1]
+        return max_altitude, total_time, impact_velocity, final_x
 
-        return max_altitude, total_time, impact_velocity, target_reached
-
-    # If launch angle is provided, just use it
     if launch_angle_deg is not None:
-        max_altitude, total_time, impact_velocity, _ = simulate_trajectory(
-            launch_angle_deg
-        )
+        max_altitude, total_time, impact_velocity, _ = simulate_trajectory(launch_angle_deg)
         return max_altitude, total_time, impact_velocity, launch_angle_deg
 
-    # Otherwise, find the optimal angle
-    # Use a practical upper bound (e.g., 75°) instead of 90° for reachability
-    angle_low, angle_high = 0.0, 75.0
-    optimal_angle = None
-    best_results = None
-
-    # First check if any angle works
-    _, _, _, low_reaches = simulate_trajectory(angle_low)
-    _, _, _, high_reaches = simulate_trajectory(angle_high)
-
-    if not low_reaches and not high_reaches:
-        # Target is too far for given speed
-        max_altitude, total_time, impact_velocity, _ = simulate_trajectory(45.0)
-        return max_altitude, total_time, impact_velocity, -1.0  # No valid angle found
-
-    # Binary search for optimal angle
-    for _ in range(12):  # Increase iterations for better precision
+    # Scan angles to find max range and bracket the target
+    angle_samples = np.linspace(0, 75, 30)
+    results = [simulate_trajectory(a) for a in angle_samples]
+    x_vals = [r[3] for r in results]
+    max_x = max(x_vals)
+    min_x = min(x_vals)
+    if distance > max_x:
+        # Target is unreachable
+        idx = int(np.argmax(x_vals))
+        max_altitude, total_time, impact_velocity, _ = results[idx]
+        return max_altitude, total_time, impact_velocity, -1.0
+    # Bracket the target
+    for i in range(1, len(angle_samples)):
+        if (x_vals[i-1] - distance) * (x_vals[i] - distance) <= 0:
+            angle_low, angle_high = angle_samples[i-1], angle_samples[i]
+            break
+    else:
+        # Should not happen, but fallback
+        idx = int(np.argmin(np.abs(np.array(x_vals) - distance)))
+        max_altitude, total_time, impact_velocity, _ = results[idx]
+        return max_altitude, total_time, impact_velocity, angle_samples[idx]
+    # Binary search between angle_low and angle_high
+    for _ in range(16):
         mid_angle = (angle_low + angle_high) / 2
-        max_alt, time, velocity, reaches = simulate_trajectory(mid_angle)
-
-        if reaches:
-            optimal_angle = mid_angle
-            best_results = (max_alt, time, velocity)
-            angle_high = mid_angle  # Try to find a lower angle
+        max_alt, time, velocity, x_mid = simulate_trajectory(mid_angle)
+        if abs(x_mid - distance) < 1.0:
+            return max_alt, time, velocity, mid_angle
+        if (x_mid - distance) * (x_vals[0] - distance) < 0:
+            angle_high = mid_angle
         else:
-            angle_low = mid_angle  # Angle too low, need higher
-
-    if optimal_angle is None:
-        max_altitude, total_time, impact_velocity, _ = simulate_trajectory(angle_high)
-        return max_altitude, total_time, impact_velocity, angle_high
-
-    return *best_results, optimal_angle  # type: ignore
+            angle_low = mid_angle
+    # Return closest found
+    max_alt, time, velocity, x_low = simulate_trajectory(angle_low)
+    max_alt2, time2, velocity2, x_high = simulate_trajectory(angle_high)
+    if abs(x_low - distance) < abs(x_high - distance):
+        return max_alt, time, velocity, angle_low
+    else:
+        return max_alt2, time2, velocity2, angle_high
 
 
 def get_results(altitude_km: float) -> None:
