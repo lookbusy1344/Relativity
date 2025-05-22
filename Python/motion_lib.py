@@ -357,8 +357,8 @@ def ballistic_trajectory_with_drag_opt_angle(
         return max_altitude, total_time, impact_velocity, launch_angle_deg
 
     # Otherwise, find the optimal angle
-    # Using binary search to find the angle that reaches the target
-    angle_low, angle_high = 0.0, 90.0
+    # Use a practical upper bound (e.g., 75°) instead of 90° for reachability
+    angle_low, angle_high = 0.0, 75.0
     optimal_angle = None
     best_results = None
 
@@ -366,15 +366,13 @@ def ballistic_trajectory_with_drag_opt_angle(
     _, _, _, low_reaches = simulate_trajectory(angle_low)
     _, _, _, high_reaches = simulate_trajectory(angle_high)
 
-    if not high_reaches:
+    if not low_reaches and not high_reaches:
         # Target is too far for given speed
-        max_altitude, total_time, impact_velocity, _ = simulate_trajectory(
-            45.0
-        )  # Use 45° as fallback
+        max_altitude, total_time, impact_velocity, _ = simulate_trajectory(45.0)
         return max_altitude, total_time, impact_velocity, -1.0  # No valid angle found
 
     # Binary search for optimal angle
-    for _ in range(10):  # 10 iterations should be enough precision
+    for _ in range(12):  # Increase iterations for better precision
         mid_angle = (angle_low + angle_high) / 2
         max_alt, time, velocity, reaches = simulate_trajectory(mid_angle)
 
@@ -385,7 +383,6 @@ def ballistic_trajectory_with_drag_opt_angle(
         else:
             angle_low = mid_angle  # Angle too low, need higher
 
-    # If we didn't find a solution, use the highest angle that works
     if optimal_angle is None:
         max_altitude, total_time, impact_velocity, _ = simulate_trajectory(angle_high)
         return max_altitude, total_time, impact_velocity, angle_high
@@ -444,11 +441,11 @@ if __name__ == "__main__":
     # get_results(1)
     # get_results(0.5)  # 500m
 
-    # Example: 100 kg rocket, 5 km range, 0.1 m² cross-section, Cd=0.2, launch angle 30°, initial speed 1500 m/s
+    # Example: 100 kg rocket, 5 km range, 0.1 m² cross-section, Cd=0.2, launch angle 30°, initial speed 500 m/s
     max_alt, total_time, impact_v = ballistic_trajectory_with_drag(
         distance=5_000.0,
-        launch_angle_deg=30.0,
-        initial_speed=1500.0,
+        launch_angle_deg=9.0,
+        initial_speed=500.0,
         obj_mass=100.0,
         obj_area_m2=0.1,
         obj_drag_coefficient=0.2,
@@ -460,11 +457,9 @@ if __name__ == "__main__":
     print(f"Impact velocity: {impact_v:.2f} m/s")
     print()
 
-    # this seems to be failing to find the right angle
-
     max_alt, total_time, impact_v, angle = ballistic_trajectory_with_drag_opt_angle(
         distance=5_000.0,
-        initial_speed=1_500.0,
+        initial_speed=500.0,
         obj_mass=100.0,
         obj_area_m2=0.1,
         obj_drag_coefficient=0.2,
