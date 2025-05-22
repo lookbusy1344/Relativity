@@ -437,12 +437,12 @@ if __name__ == "__main__":
     # get_results(1)
     # get_results(0.5)  # 500m
 
-    distance = 15_000.0  # m
-    initial_speed = 1_000.0  # m/s
-    # launch_angle_deg = 9.0  # degrees
+    distance = 75_000.0  # m
+    initial_speed = 1_590.0  # m/s
+
     obj_mass = 100.0  # kg
     obj_area_m2 = 0.1
-    obj_drag_coefficient = 0.2
+    obj_drag_coefficient = 0.1
 
     print(
         f"Ballistic trajectory for {obj_mass:.0f}kg rocket, {distance / 1000.0}km range, initial speed: {initial_speed:.0f} m/s"
