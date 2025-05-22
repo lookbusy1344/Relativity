@@ -442,12 +442,38 @@ if __name__ == "__main__":
     # get_results(1)
     # get_results(0.5)  # 500m
 
-    distance = 5_000.0  # 5 km
-    initial_speed = 500.0  # m/s
-    launch_angle_deg = 9.0  # degrees
-    obj_mass=100.0 # kg
-    obj_area_m2=0.1
-    obj_drag_coefficient=0.2
+    distance = 15_000.0  # m
+    initial_speed = 1_000.0  # m/s
+    # launch_angle_deg = 9.0  # degrees
+    obj_mass = 100.0  # kg
+    obj_area_m2 = 0.1
+    obj_drag_coefficient = 0.2
+
+    print(
+        f"Ballistic trajectory for {obj_mass:.0f}kg rocket, {distance / 1000.0}km range, initial speed: {initial_speed:.0f} m/s"
+    )
+
+    # Calculate the optimal angle to hit the target distance, along with max altitude, total time, and impact velocity
+    max_alt, total_time, impact_v, calc_angle = (
+        ballistic_trajectory_with_drag_opt_angle(
+            distance=distance,
+            initial_speed=initial_speed,
+            obj_mass=obj_mass,
+            obj_area_m2=obj_area_m2,
+            obj_drag_coefficient=obj_drag_coefficient,
+            initial_height=0.0,
+        )
+    )
+    print("CALCULATING ANGLE:")
+    print(f"Max altitude: {max_alt:.2f} m")
+    print(f"Total flight time: {total_time:.2f} s")
+    print(f"Impact velocity: {impact_v:.2f} m/s")
+    print(f"Optimal launch angle: {calc_angle:.2f}°")
+    print()
+
+    if calc_angle < 0.0:
+        print("No valid angle found for the given parameters.")
+        exit(1)
 
     max_alt, total_time, impact_v = ballistic_trajectory_with_drag(
         distance=distance,
@@ -456,26 +482,11 @@ if __name__ == "__main__":
         obj_area_m2=obj_area_m2,
         obj_drag_coefficient=obj_drag_coefficient,
         initial_height=0.0,
-        launch_angle_deg=launch_angle_deg,
+        launch_angle_deg=calc_angle,
     )
-    print(f"Ballistic trajectory for {obj_mass:.0f}kg rocket, {distance / 1000.0}km range:")
-    print(f"Launch angle: {launch_angle_deg:.1f}°")
+    print("CHECKING:")
+    print(f"Launch angle: {calc_angle:.1f}°")
     print(f"Max altitude: {max_alt:.2f} m")
     print(f"Total flight time: {total_time:.2f} s")
     print(f"Impact velocity: {impact_v:.2f} m/s")
-    print()
-
-    max_alt, total_time, impact_v, angle = ballistic_trajectory_with_drag_opt_angle(
-        distance=distance,
-        initial_speed=initial_speed,
-        obj_mass=obj_mass,
-        obj_area_m2=obj_area_m2,
-        obj_drag_coefficient=obj_drag_coefficient,
-        initial_height=0.0,
-    )
-    print("CALC ANGLE")
-    print(f"Max altitude: {max_alt:.2f} m")
-    print(f"Total flight time: {total_time:.2f} s")
-    print(f"Impact velocity: {impact_v:.2f} m/s")
-    print(f"Optimal launch angle: {angle:.2f}°")
     print()
