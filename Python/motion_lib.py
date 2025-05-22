@@ -1,3 +1,4 @@
+import dis
 import math
 import numpy as np
 from scipy.integrate import quad, solve_ivp
@@ -441,31 +442,38 @@ if __name__ == "__main__":
     # get_results(1)
     # get_results(0.5)  # 500m
 
-    # Example: 100 kg rocket, 5 km range, 0.1 m² cross-section, Cd=0.2, launch angle 30°, initial speed 500 m/s
+    distance = 5_000.0  # 5 km
+    initial_speed = 500.0  # m/s
+    launch_angle_deg = 9.0  # degrees
+    obj_mass=100.0 # kg
+    obj_area_m2=0.1
+    obj_drag_coefficient=0.2
+
     max_alt, total_time, impact_v = ballistic_trajectory_with_drag(
-        distance=5_000.0,
-        launch_angle_deg=9.0,
-        initial_speed=500.0,
-        obj_mass=100.0,
-        obj_area_m2=0.1,
-        obj_drag_coefficient=0.2,
+        distance=distance,
+        initial_speed=initial_speed,
+        obj_mass=obj_mass,
+        obj_area_m2=obj_area_m2,
+        obj_drag_coefficient=obj_drag_coefficient,
         initial_height=0.0,
+        launch_angle_deg=launch_angle_deg,
     )
-    print("Ballistic trajectory for 100kg rocket, 5km range:")
+    print(f"Ballistic trajectory for {obj_mass:.0f}kg rocket, {distance / 1000.0}km range:")
+    print(f"Launch angle: {launch_angle_deg:.1f}°")
     print(f"Max altitude: {max_alt:.2f} m")
     print(f"Total flight time: {total_time:.2f} s")
     print(f"Impact velocity: {impact_v:.2f} m/s")
     print()
 
     max_alt, total_time, impact_v, angle = ballistic_trajectory_with_drag_opt_angle(
-        distance=5_000.0,
-        initial_speed=500.0,
-        obj_mass=100.0,
-        obj_area_m2=0.1,
-        obj_drag_coefficient=0.2,
+        distance=distance,
+        initial_speed=initial_speed,
+        obj_mass=obj_mass,
+        obj_area_m2=obj_area_m2,
+        obj_drag_coefficient=obj_drag_coefficient,
         initial_height=0.0,
     )
-    print("CALC ANGLE - Ballistic trajectory for 100kg rocket, 5km range:")
+    print("CALC ANGLE")
     print(f"Max altitude: {max_alt:.2f} m")
     print(f"Total flight time: {total_time:.2f} s")
     print(f"Impact velocity: {impact_v:.2f} m/s")
