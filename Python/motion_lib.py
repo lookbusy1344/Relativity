@@ -343,7 +343,9 @@ def ballistic_trajectory_with_drag_opt_angle(
         return max_altitude, total_time, impact_velocity, final_x
 
     if launch_angle_deg is not None:
-        max_altitude, total_time, impact_velocity, _ = simulate_trajectory(launch_angle_deg)
+        max_altitude, total_time, impact_velocity, _ = simulate_trajectory(
+            launch_angle_deg
+        )
         return max_altitude, total_time, impact_velocity, launch_angle_deg
 
     # Scan angles to find max range and bracket the target
@@ -359,8 +361,8 @@ def ballistic_trajectory_with_drag_opt_angle(
         return max_altitude, total_time, impact_velocity, -1.0
     # Bracket the target
     for i in range(1, len(angle_samples)):
-        if (x_vals[i-1] - distance) * (x_vals[i] - distance) <= 0:
-            angle_low, angle_high = angle_samples[i-1], angle_samples[i]
+        if (x_vals[i - 1] - distance) * (x_vals[i] - distance) <= 0:
+            angle_low, angle_high = angle_samples[i - 1], angle_samples[i]
             break
     else:
         # Should not happen, but fallback
