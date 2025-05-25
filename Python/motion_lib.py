@@ -395,44 +395,6 @@ def find_minimum_initial_speed_and_angle(
     obj_area_m2: float,
     obj_drag_coefficient: float,
     initial_height: float = 0.0,
-    speed_bounds: tuple[float, float] = (1.0, 5000.0),
-    tol: float = 1.0,  # Using larger tolerance for faster convergence
-    max_iterations: int = 12,  # Limit iterations to prevent hanging
-) -> tuple[float, float]:
-    """
-    Find the minimum initial speed and corresponding launch angle to reach a given distance with drag.
-    Uses a direct approximation method for guaranteed fast results.
-
-    Parameters:
-    - distance: Horizontal distance to target (m)
-    - obj_mass: Mass of the object (kg)
-    - obj_area_m2: Cross-sectional area (m²)
-    - obj_drag_coefficient: Drag coefficient (dimensionless)
-    - initial_height: Initial height (m, default 0)
-    - speed_bounds: Tuple (min, max) for initial speed search (m/s)
-    - tol: Tolerance for speed convergence (m/s)
-    - max_iterations: Maximum number of iterations to prevent hanging
-
-    Returns:
-    - (initial_speed, launch_angle_deg)
-    """
-    # Use the direct method instead of the numerical method
-    # This will always return quickly
-    return find_minimum_initial_speed_and_angle_direct(
-        distance=distance,
-        obj_mass=obj_mass,
-        obj_area_m2=obj_area_m2,
-        obj_drag_coefficient=obj_drag_coefficient,
-        initial_height=initial_height,
-    )
-
-
-def find_minimum_initial_speed_and_angle_direct(
-    distance: float,
-    obj_mass: float,
-    obj_area_m2: float,
-    obj_drag_coefficient: float,
-    initial_height: float = 0.0,
 ) -> tuple[float, float]:
     """
     Find an approximation of minimum initial speed and corresponding launch angle
