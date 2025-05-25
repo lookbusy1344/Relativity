@@ -389,64 +389,6 @@ def ballistic_trajectory_with_drag_opt_angle(
         return max_alt2, time2, velocity2, angle_high
 
 
-def find_minimum_initial_speed_and_angle_direct2(
-    distance: float,
-    obj_mass: float,
-    obj_area_m2: float,
-    obj_drag_coefficient: float,
-    initial_height: float = 0.0,
-) -> tuple[float, float]:
-    """
-    Find an approximation of minimum initial speed and corresponding launch angle
-    using analytical approximations instead of numerical simulation.
-    
-    This is a fallback function that will ALWAYS return a result quickly.
-    
-    Parameters:
-    - distance: Horizontal distance to target (m)
-    - obj_mass: Mass of the object (kg)
-    - obj_area_m2: Cross-sectional area (m²)
-    - obj_drag_coefficient: Drag coefficient (dimensionless)
-    - initial_height: Initial height (m, default 0)
-    
-    Returns:
-    - (initial_speed, launch_angle_deg)
-    """
-    # Without drag, optimal angle would be 45 degrees
-    # With drag, optimal angle is lower, typically 30-40 degrees
-    base_angle = 35.0  # degrees
-    
-    # For vacuum, we can use the ballistic range equation:
-    # range = v²·sin(2θ)/g
-    # Solving for v:
-    # v = √(range·g/sin(2θ))
-    
-    g = gravity_acceleration_for_radius(earth_mass, earth_radius + initial_height)
-    
-    # Start with vacuum calculation
-    vacuum_speed = math.sqrt(distance * g / math.sin(math.radians(2 * base_angle)))
-    
-    # Add a factor for drag (approximately)
-    # Simple drag adjustment - increased speed needed to overcome drag
-    # This is very approximate but ensures we get a reasonable answer quickly
-    drag_factor = 1.0 + (0.2 * obj_drag_coefficient * obj_area_m2 / obj_mass)
-    
-    # Adjust for long distances - drag has more effect over longer trajectories
-    distance_factor = 1.0 + 0.00001 * distance  # slight increase for longer ranges
-    
-    # Calculate final speed estimate
-    estimated_speed = vacuum_speed * drag_factor * distance_factor
-    
-    # Adjust angle based on drag - higher drag means lower optimal angle
-    drag_angle_adjustment = -5.0 * obj_drag_coefficient * obj_area_m2 / obj_mass
-    adjusted_angle = base_angle + drag_angle_adjustment
-    
-    # Ensure reasonable bounds
-    adjusted_angle = max(20.0, min(45.0, adjusted_angle))
-    
-    return estimated_speed, adjusted_angle
-
-
 def find_minimum_initial_speed_and_angle(
     distance: float,
     obj_mass: float,
@@ -460,7 +402,7 @@ def find_minimum_initial_speed_and_angle(
     """
     Find the minimum initial speed and corresponding launch angle to reach a given distance with drag.
     Uses a direct approximation method for guaranteed fast results.
-    
+
     Parameters:
     - distance: Horizontal distance to target (m)
     - obj_mass: Mass of the object (kg)
@@ -481,7 +423,7 @@ def find_minimum_initial_speed_and_angle(
         obj_mass=obj_mass,
         obj_area_m2=obj_area_m2,
         obj_drag_coefficient=obj_drag_coefficient,
-        initial_height=initial_height
+        initial_height=initial_height,
     )
 
 
@@ -495,51 +437,51 @@ def find_minimum_initial_speed_and_angle_direct(
     """
     Find an approximation of minimum initial speed and corresponding launch angle
     using analytical approximations instead of numerical simulation.
-    
+
     This is a fallback function that will ALWAYS return a result quickly.
-    
+
     Parameters:
     - distance: Horizontal distance to target (m)
     - obj_mass: Mass of the object (kg)
     - obj_area_m2: Cross-sectional area (m²)
     - obj_drag_coefficient: Drag coefficient (dimensionless)
     - initial_height: Initial height (m, default 0)
-    
+
     Returns:
     - (initial_speed, launch_angle_deg)
     """
     # Without drag, optimal angle would be 45 degrees
     # With drag, optimal angle is lower, typically 30-40 degrees
     base_angle = 35.0  # degrees
-    
+
     # For vacuum, we can use the ballistic range equation:
     # range = v²·sin(2θ)/g
     # Solving for v:
     # v = √(range·g/sin(2θ))
-    
+
     g = gravity_acceleration_for_radius(earth_mass, earth_radius + initial_height)
-    
+
     # Start with vacuum calculation
     vacuum_speed = math.sqrt(distance * g / math.sin(math.radians(2 * base_angle)))
-    
+
     # Add a factor for drag (approximately)
     # Simple drag adjustment - increased speed needed to overcome drag
     # This is very approximate but ensures we get a reasonable answer quickly
     drag_factor = 1.0 + (0.2 * obj_drag_coefficient * obj_area_m2 / obj_mass)
-    
+
     # Adjust for long distances - drag has more effect over longer trajectories
     distance_factor = 1.0 + 0.00001 * distance  # slight increase for longer ranges
-    
+
     # Calculate final speed estimate
     estimated_speed = vacuum_speed * drag_factor * distance_factor
-    
+
     # Adjust angle based on drag - higher drag means lower optimal angle
     drag_angle_adjustment = -5.0 * obj_drag_coefficient * obj_area_m2 / obj_mass
     adjusted_angle = base_angle + drag_angle_adjustment
-    
+
     # Ensure reasonable bounds
     adjusted_angle = max(20.0, min(45.0, adjusted_angle))
-    
+
     return estimated_speed, adjusted_angle
 
 
@@ -622,7 +564,7 @@ if __name__ == "__main__":
         obj_area_m2=obj_area_m2,
         obj_drag_coefficient=obj_drag_coefficient,
         initial_height=0.0,
-        launch_angle_deg= launch_angle,
+        launch_angle_deg=launch_angle,
     )
     print("CHECKING:")
     print(f"Launch angle: {launch_angle:.1f}°")
