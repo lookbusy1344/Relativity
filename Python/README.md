@@ -4,6 +4,12 @@ Here we have a few Jupyter notebooks exploring aspects of special relativity, us
 
 ## Jupyter Notebooks
 
+Below are some [Jupyter notebooks](https://en.wikipedia.org/wiki/Project_Jupyter), a type of document that can contain text, images and runnable Python code. You can view them in your web browser, or transfer a copy to Google Colab with one click and edit it from your device. They can also be downloaded to your PC for more advanced editing. Everything is open source.
+
+Don't worry about any Python code if you're not a programmer. You can skip over it and just read the results, which are usually tables or graphs. The code is there to help you understand the maths, and to make it easier to experiment with different values.
+
+The maths needed for special relativity is not difficult, there's nothing more complicated than high school algebra.
+
 [Easy intro, adding velocities](https://github.com/lookbusy1344/Relativity/blob/main/Python/Velocity%20adding.ipynb)
 
 [Time dilation and length contraction](https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb)
