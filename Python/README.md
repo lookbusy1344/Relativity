@@ -1,10 +1,6 @@
 # Special Relativity with Python
 
-Here we have a few Jupyter notebooks exploring aspects of special relativity, using an included Python library for the more advanced calculations.
-
-## Jupyter Notebooks
-
-Below are some [Jupyter notebooks](https://en.wikipedia.org/wiki/Project_Jupyter), a type of document that can contain text, images and runnable Python code. You can view them in your web browser, or transfer a copy to Google Colab with one click and edit it from your device. They can also be downloaded to your PC for more advanced editing. Everything is open source.
+Here we explore relativity with some [Jupyter notebooks](https://en.wikipedia.org/wiki/Project_Jupyter), a type of document that can contain text, images and runnable Python code. You can view them in your web browser, or transfer a copy to *Google Colab* with one click and edit it from your device. They can also be downloaded to your PC for more advanced editing. Everything is open source.
 
 Don't worry about any Python code if you're not a programmer. You can skip over it and just read the results, which are usually tables or graphs. The code is there to help you understand the maths, and to make it easier to experiment with different values.
 
@@ -27,6 +23,12 @@ The maths needed for special relativity is not difficult, there's nothing more c
 The Python library uses *mpmath* for arbitrary precision calculations, allowing us to calculate velocities to hundreds of decimal places. Other folders in the repository include C# and Rust versions of the library, but they are not as easy to use.
 
 https://github.com/lookbusy1344/Relativity/blob/main/Python/relativity_lib.py
+
+You will need to install the *mpmath* to use this library:
+
+```bash
+pip install mpmath
+```
 
 ## Example usage, 1 year at 1g
 
