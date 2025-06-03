@@ -3,7 +3,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    11 May 2025
+    03 Jun 2025
 """
 
 c_float: float = 299792458.0  # speed of light as a float
@@ -469,6 +469,31 @@ def spacetime_interval_3d(event1: tuple, event2: tuple):
     delta_ys = (ensure(y2) - ensure(y1)) ** 2
     delta_zs = (ensure(z2) - ensure(z1)) ** 2
     return mp.sqrt(csquared * delta_ts - delta_xs - delta_ys - delta_zs)
+
+
+def lorentz_transform_1d(t, x, v) -> tuple:
+    """
+    Apply the Lorentz transformation for 1+1D spacetime.
+    This transforms coordinates from a rest frame to a moving frame with relative velocity v.
+
+    Parameters:
+    t (float): Time in rest frame, in seconds
+    x (float): Position in rest frame, in meters
+    v (float): Velocity of moving frame, fraction of c
+
+    Returns:
+    tuple: (t', x') in the moving frame
+    """
+    t = ensure(t)
+    x = ensure(x)
+    v = ensure(v)
+    if v >= one:
+        raise ValueError("Velocity must be less than the speed of light (c).")
+
+    gamma = one / mp.sqrt(one - v**2)
+    t_prime = gamma * (t - v * x)
+    x_prime = gamma * (x - v * t)
+    return t_prime, x_prime
 
 
 def format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str:

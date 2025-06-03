@@ -18,7 +18,7 @@ The maths needed for special relativity is not difficult, there's nothing more c
 
 [Notes on rapidity](https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb)
 
-[Spacetime intervals, invariant intervals between events](https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20Interval.ipynb)
+[Spacetime intervals, invariant intervals between events](https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb)
 
 ## Library
 
