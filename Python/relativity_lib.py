@@ -1,3 +1,4 @@
+from typing import Any
 from mpmath import mp
 import math
 
@@ -133,7 +134,7 @@ def relativistic_time_for_distance(a, dist):
     return (c / a) * mp.acosh((dist * a) / csquared + one)
 
 
-def flip_and_burn(a, dist) -> tuple:
+def flip_and_burn(a, dist) -> tuple[Any, Any, Any, Any]:
     """
     Calculate 4-tuple of proper time (s), peak velocity (m/s), peak Lorentz, and coord time (s) for a flip and burn maneuver at given constant acceleration
 
@@ -154,7 +155,7 @@ def flip_and_burn(a, dist) -> tuple:
     return (half_proper * 2, peak_vel, lorentz, half_coord * 2)
 
 
-def fall(a, dist) -> tuple:
+def fall(a, dist) -> tuple[Any, Any, Any]:
     """
     Calculate the time to fall a given distance under constant acceleration. Returns proper time, coordinate time, and peak velocity (when hitting the ground).
     Does not take into account reduced gravity at altitude, or air resistance.
@@ -402,7 +403,7 @@ def invariant_mass_from_energy_momentum(energy, p):
     return mp.sqrt((energy / csquared) ** 2 - (p / csquared) ** 2)
 
 
-def four_momentum(mass, velocity) -> tuple:
+def four_momentum(mass, velocity) -> tuple[Any, Any]:
     """
     Calculate the four-momentum of a particle.
 
@@ -471,7 +472,7 @@ def spacetime_interval_3d(event1: tuple, event2: tuple):
     return mp.sqrt(csquared * delta_ts - delta_xs - delta_ys - delta_zs)
 
 
-def lorentz_transform_1d(t, x, v) -> tuple:
+def lorentz_transform_1d(t, x, v) -> tuple[Any, Any]:
     """
     Apply the Lorentz transformation for 1+1D spacetime.
     This transforms coordinates from a rest frame to a moving frame with relative velocity v.
