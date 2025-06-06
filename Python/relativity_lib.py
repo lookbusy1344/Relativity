@@ -564,8 +564,8 @@ def format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str:
             decimal_part = decimal_part[:decimal_places]
             if len(decimal_part) < decimal_places:
                 extra = decimal_places - len(decimal_part)
-                extrastr = "0" * extra
-                decimal_part += extrastr
+                extra_str = "0" * extra
+                decimal_part += extra_str
     else:
         # no decimal part
         integer_part = number_str
@@ -736,13 +736,11 @@ if __name__ == "__main__":
     print(format_mpf_significant(mp.mpf("0.99999999999999999991"), 4, "9"))
     print(format_mpf_significant(mp.mpf("0.9999999999999999999"), 4, "9"))
 
-    daystoneptune = relativistic_time_for_distance(g, "4600000000000") / 60 / 60 / 24
-    print(f"Days to Neptune full burn {format_mpf(daystoneptune, 4)}")
-    # daystoneptune2 = relativistic_time_for_distance2(g, "4600000000000") / 60 / 60 / 24
-    # print(f"Days to Neptune flip and burn {format_mpf(daystoneptune2, 4)}")
+    days_to_neptune = relativistic_time_for_distance(g, "4600000000000") / 60 / 60 / 24
+    print(f"Days to Neptune full burn {format_mpf(days_to_neptune, 4)}")
 
     # distant halved, gives days to half way. Them * 2 for total days
-    halfwaydays = (
+    half_way_days = (
         relativistic_time_for_distance(g, mp.mpf("4600000000000") / 2) / 60 / 60 / 24
     )
-    print(f"Days to Neptune flip half way {format_mpf(halfwaydays * 2, 4)}")
+    print(f"Days to Neptune flip half way {format_mpf(half_way_days * 2, 4)}")
