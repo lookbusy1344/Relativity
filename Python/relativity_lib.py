@@ -478,23 +478,59 @@ def lorentz_transform_1d(t, x, v) -> tuple[Any, Any]:
     This transforms coordinates from a rest frame to a moving frame with relative velocity v.
 
     Parameters:
-    t (float): Time in rest frame, in seconds
-    x (float): Position in rest frame, in meters
-    v (float): Velocity of moving frame, fraction of c
+    t: Time in rest frame, in seconds
+    x: Position in rest frame, in metres
+    v: Velocity of moving frame, in m/s
 
     Returns:
-    tuple: (t', x') in the moving frame
+    tuple: (t', x') in the moving frame, all as mpmath numbers
     """
     t = ensure(t)
     x = ensure(x)
     v = ensure(v)
-    if v >= one:
-        raise ValueError("Velocity must be less than the speed of light (c).")
+    if mp.fabs(v) >= c:
+        raise ValueError("Velocity must be less than the c")
 
-    gamma = one / mp.sqrt(one - v**2)
-    t_prime = gamma * (t - v * x)
-    x_prime = gamma * (x - v * t)
+    beta = v / c
+    gamma = one / mp.sqrt(one - beta**2)
+    t_prime = gamma * (t - beta * x / c)
+    x_prime = gamma * (x - beta * c * t)
     return t_prime, x_prime
+
+
+def lorentz_transform_3d(t, x, y, z, v) -> tuple[Any, Any, Any, Any]:
+    """
+    Apply the Lorentz transformation for 3+1D spacetime.
+    This transforms coordinates from a rest frame to a moving frame with relative velocity v along x-axis.
+
+    Parameters:
+    t: Time in rest frame, in seconds
+    x: X position in rest frame, in metres
+    y: Y position in rest frame, in metres
+    z: Z position in rest frame, in metres
+    v: Velocity of moving frame along x-axis, in m/s
+
+    Returns:
+    tuple: (t', x', y', z') in the moving frame, all as mpmath numbers
+    """
+    t = ensure(t)
+    x = ensure(x)
+    y = ensure(y)
+    z = ensure(z)
+    v = ensure(v)
+
+    if mp.fabs(v) >= c:
+        raise ValueError("Velocity must be less than c")
+
+    beta = v / c
+    gamma = one / mp.sqrt(one - beta**2)
+
+    t_prime = gamma * (t - beta * x / c)
+    x_prime = gamma * (x - beta * c * t)
+    y_prime = y  # y and z coordinates remain unchanged for motion along x-axis
+    z_prime = z
+
+    return t_prime, x_prime, y_prime, z_prime
 
 
 def format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str:
