@@ -431,19 +431,20 @@ def spacetime_interval_1d(event1: tuple, event2: tuple):
         event2: A tuple (time, position) of the second event
 
     Returns:
-        The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)
+        The invariant interval squared (spacetime interval squared, or seconds^2 - meters^2 / c^2)
     """
-    # Δs = sqrt((cΔt)^2 - (Δx)^2)
+    # Δs^2 = (cΔt)^2 - (Δx)^2
     # normal intervals are time-like
     # zero is light-like
     # imaginary is space-like, not causally connected, mp.im(res) != 0
 
+    global csquared
     time1, x1 = event1
     time2, x2 = event2
 
     delta_ts = (ensure(time2) - ensure(time1)) ** 2
     delta_xs = (ensure(x2) - ensure(x1)) ** 2
-    return mp.sqrt(csquared * delta_ts - delta_xs)
+    return csquared * delta_ts - delta_xs
 
 
 def spacetime_interval_3d(event1: tuple, event2: tuple):
@@ -455,13 +456,14 @@ def spacetime_interval_3d(event1: tuple, event2: tuple):
         event2: A tuple (time, x, y, z) of the second event
 
     Returns:
-        The invariant interval (spacetime interval squared)
+        The invariant interval squared (spacetime interval squared)
     """
-    # sqrt((cΔt)^2 - (Δx)^2 - (Δy)^2 - (Δz)^2)
+    # (cΔt)^2 - (Δx)^2 - (Δy)^2 - (Δz)^2
     # normal intervals are time-like
     # zero is light-like
     # imaginary is space-like, not causally connected, mp.im(res) != 0
 
+    global csquared
     time1, x1, y1, z1 = event1
     time2, x2, y2, z2 = event2
 
@@ -469,7 +471,7 @@ def spacetime_interval_3d(event1: tuple, event2: tuple):
     delta_xs = (ensure(x2) - ensure(x1)) ** 2
     delta_ys = (ensure(y2) - ensure(y1)) ** 2
     delta_zs = (ensure(z2) - ensure(z1)) ** 2
-    return mp.sqrt(csquared * delta_ts - delta_xs - delta_ys - delta_zs)
+    return csquared * delta_ts - delta_xs - delta_ys - delta_zs
 
 
 def lorentz_transform_1d(t, x, v) -> tuple[Any, Any]:
@@ -485,10 +487,12 @@ def lorentz_transform_1d(t, x, v) -> tuple[Any, Any]:
     Returns:
     tuple: (t', x') in the moving frame, all as mpmath numbers
     """
+    global c, one
     t = ensure(t)
     x = ensure(x)
-    v = ensure(v)
-    if mp.fabs(v) >= c:
+    v = check_velocity(v)
+
+    if mp.isnan(v):
         raise ValueError("Velocity must be less than the c")
 
     beta = v / c
@@ -513,13 +517,14 @@ def lorentz_transform_3d(t, x, y, z, v) -> tuple[Any, Any, Any, Any]:
     Returns:
     tuple: (t', x', y', z') in the moving frame, all as mpmath numbers
     """
+    global c, one
     t = ensure(t)
     x = ensure(x)
     y = ensure(y)
     z = ensure(z)
-    v = ensure(v)
+    v = check_velocity(v)
 
-    if mp.fabs(v) >= c:
+    if mp.isnan(v):
         raise ValueError("Velocity must be less than c")
 
     beta = v / c
