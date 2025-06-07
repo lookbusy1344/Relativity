@@ -69,7 +69,7 @@ def ensure_abs(v):
     return mp.fabs(v)
 
 
-def check_velocity(velocity):
+def check_velocity(velocity, throw_on_error: bool = False):
     """
     Ensure the velocity is less than c and convert to mpf type. Returns NaN if velocity is c or above.
     This may indicate a precision failure for values very close to c.
@@ -83,6 +83,8 @@ def check_velocity(velocity):
     velocity = ensure(velocity)
     if mp.fabs(velocity) < c:
         return velocity
+    if throw_on_error:
+        raise ValueError("Velocity must be less than c")
     return mp.nan
 
 
@@ -382,7 +384,7 @@ def doppler_shift(frequency, velocity, source_moving_towards: bool = True):
         The observed frequency (Hz)
     """
     frequency = ensure(frequency)
-    beta = check_velocity(velocity) / c
+    beta = check_velocity(velocity, throw_on_error=True) / c
     if source_moving_towards:
         return frequency * mp.sqrt((one + beta) / (one - beta))
     else:
@@ -415,7 +417,7 @@ def four_momentum(mass, velocity) -> tuple[Any, Any]:
         A tuple containing energy (j), momentum (kg·m/s) as mpmath floating point numbers
     """
     mass = ensure(mass)
-    velocity = check_velocity(velocity)
+    velocity = check_velocity(velocity, throw_on_error=True)
     gamma = lorentz_factor(velocity)
     energy = mass * csquared * gamma
     momentum = mass * velocity * gamma
@@ -490,10 +492,7 @@ def lorentz_transform_1d(t, x, v) -> tuple[Any, Any]:
     global c, one
     t = ensure(t)
     x = ensure(x)
-    v = check_velocity(v)
-
-    if mp.isnan(v):
-        raise ValueError("Velocity must be less than the c")
+    v = check_velocity(v, throw_on_error=True)
 
     beta = v / c
     gamma = one / mp.sqrt(one - beta**2)
@@ -522,10 +521,7 @@ def lorentz_transform_3d(t, x, y, z, v) -> tuple[Any, Any, Any, Any]:
     x = ensure(x)
     y = ensure(y)
     z = ensure(z)
-    v = check_velocity(v)
-
-    if mp.isnan(v):
-        raise ValueError("Velocity must be less than c")
+    v = check_velocity(v, throw_on_error=True)
 
     beta = v / c
     gamma = one / mp.sqrt(one - beta**2)
