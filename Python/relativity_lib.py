@@ -4,7 +4,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    03 Jun 2025
+    07 Jun 2025
 """
 
 c_float: float = 299792458.0  # speed of light as a float
@@ -433,7 +433,7 @@ def spacetime_interval_1d(event1: tuple, event2: tuple):
         event2: A tuple (time, position) of the second event
 
     Returns:
-        The invariant interval squared (spacetime interval squared, or seconds^2 - meters^2 / c^2)
+        The invariant interval squared (spacetime interval squared, in meters^2)
     """
     # Δs^2 = (cΔt)^2 - (Δx)^2
     # normal intervals are time-like
@@ -458,7 +458,7 @@ def spacetime_interval_3d(event1: tuple, event2: tuple):
         event2: A tuple (time, x, y, z) of the second event
 
     Returns:
-        The invariant interval squared (spacetime interval squared)
+        The invariant interval squared (spacetime interval squared, in meters^2)
     """
     # (cΔt)^2 - (Δx)^2 - (Δy)^2 - (Δz)^2
     # normal intervals are time-like
