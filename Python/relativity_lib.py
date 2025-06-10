@@ -19,7 +19,17 @@ def configure(dps: int) -> None:
     Parameters:
         dps: The number of decimal places to use for mpmath calculations
     """
-    global g, c, light_year, au, half, one, csquared, seconds_per_year, configured_dp
+    global \
+        g, \
+        c, \
+        light_year, \
+        au, \
+        half, \
+        one, \
+        zero, \
+        csquared, \
+        seconds_per_year, \
+        configured_dp
     mp.dps = dps
     g = mp.mpf("9.80665")  # acceleration due to standard gravity
     c = mp.mpf("299792458")  # speed of light
@@ -28,6 +38,7 @@ def configure(dps: int) -> None:
 
     half = mp.mpf("0.5")  # constant 0.5
     one = mp.mpf("1")  # constant 1
+    zero = mp.mpf("0")  # constant 0
     csquared = c**2  # speed of light squared
     seconds_per_year = mp.mpf(60 * 60 * 24) * mp.mpf("365.25")  # seconds in a year
     configured_dp = dps  # record dps used for constants
@@ -474,6 +485,35 @@ def spacetime_interval_3d(event1: tuple, event2: tuple):
     delta_ys = (ensure(y2) - ensure(y1)) ** 2
     delta_zs = (ensure(z2) - ensure(z1)) ** 2
     return csquared * delta_ts - delta_xs - delta_ys - delta_zs
+
+
+def min_separation(interval) -> tuple[str, Any, Any]:
+    """
+    Calculate the minimum separation for a given squared spacetime interval.
+
+    Parameters:
+        interval: The squared spacetime interval (m^2) as an mpmath number or float
+
+    Returns:
+        A 3-tuple containing:
+        - A string indicating the type of interval ("time-like", "space-like", or "light-like")
+        - The time in seconds (if time-like) or zero (if space-like)
+        - The distance in metres (if space-like) or zero (if time-like)
+    """
+    global zero, one, c
+    interval = ensure(interval)
+    if interval > zero:
+        # Time-like interval
+        return (
+            "time-like",
+            mp.sqrt(interval) / c,
+            None,
+        )  # time in seconds, distance is zero
+    if interval < zero:
+        # Space-like interval
+        return ("space-like", None, mp.sqrt(zero - interval))
+    # Light-like interval
+    return ("light-like", None, None)  # both time and distance are zero
 
 
 def lorentz_transform_1d(t, x, v) -> tuple[Any, Any]:
