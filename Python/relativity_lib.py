@@ -495,25 +495,39 @@ def min_separation(interval) -> tuple[str, Any, Any]:
         interval: The squared spacetime interval (m^2) as an mpmath number or float
 
     Returns:
-        A 3-tuple containing:
+        A 3-tuple containing (type, time, distance):
         - A string indicating the type of interval ("time-like", "space-like", or "light-like")
         - The time in seconds (if time-like) or zero (if space-like)
         - The distance in metres (if space-like) or zero (if time-like)
     """
     global zero, one, c
     interval = ensure(interval)
-    if interval > zero:
-        # Time-like interval
-        return (
-            "time-like",
-            mp.sqrt(interval) / c,
-            None,
-        )  # time in seconds, distance is zero
-    if interval < zero:
-        # Space-like interval
+    # Use a tolerance based on machine epsilon for the current precision
+    tol = mp.eps * max(mp.fabs(interval), one)
+
+    if interval > tol:
+        return ("time-like", mp.sqrt(interval) / c, None)
+    if interval < -tol:
         return ("space-like", None, mp.sqrt(zero - interval))
-    # Light-like interval
-    return ("light-like", None, None)  # both time and distance are zero
+    return ("light-like", None, None)
+
+
+def min_separation_str(interval) -> str:
+    """
+    Convert the minimum separation tuple to a string representation.
+
+    Parameters:
+        interval: space-time interval
+
+    Returns:
+        A string representation of the minimum separation
+    """
+    result = min_separation(interval)
+    if result[0] == "time-like":
+        return f"time-like {result[1]} s"
+    elif result[0] == "space-like":
+        return f"space-like {format_mpf(result[2], 2)} m"
+    return result[0]
 
 
 def lorentz_transform_1d(t, x, v) -> tuple[Any, Any]:
@@ -586,6 +600,8 @@ def format_mpf(number, decimal_places: int = 2, allow_sci: bool = False) -> str:
     Returns:
         The formatted number as a string
     """
+    if number is None:
+        return "None"
     if allow_sci:
         number_str = str(ensure(number))
     else:
@@ -640,7 +656,8 @@ def format_mpf_significant(
     Returns:
         The formatted number as a string
     """
-    # number_str = str(number)
+    if number is None:
+        return "None"
     number_str: str = mp.nstr(
         ensure(number), configured_dp, min_fixed=-9999, max_fixed=9999
     )  # type: ignore
