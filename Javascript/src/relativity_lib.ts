@@ -88,6 +88,19 @@ export function checkVelocity(velocity: NumberInput): Decimal {
 }
 
 /**
+ * Calculate proper time (sec) to reach a given velocity under constant proper acceleration
+ * @param accel The acceleration in m/s^2
+ * @param velocity The required velocity in m/s
+ * @returns Proper time tau in seconds as a Decimal
+ */
+export function tauToVelocity(accel: NumberInput, velocity: NumberInput): Decimal {
+    // (c / a) * atanh(velocity / c)
+    const aD = ensure(accel);
+    const vD = checkVelocity(velocity);
+    return c.div(aD).mul(vD.div(c).atanh());
+}
+
+/**
  * Calculate the relativistic velocity as a function of proper time tau
  * @param accel The acceleration in m/s^2
  * @param tau The proper time in seconds

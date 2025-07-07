@@ -109,6 +109,16 @@ internal sealed class EFloatRelativity
 	}
 
 	/// <summary>
+	/// Calculate proper time (sec) to reach a given velocity under constant proper acceleration
+	/// </summary>
+	/// <param name="accel">Proper acceleration (m/s^2)</param>
+	/// <param name="velocity">Velocity to reach (m/s)</param>
+	/// <returns>Proper time (seconds) to reach that velocity</returns>
+	public EFloat TauToVelocity(EFloat accel, EFloat velocity) =>
+		// (c / a) * mp.atanh(velocity / c)
+		((C_B / B(accel)) * Atanh(CheckVelocity(velocity) / C_B)).Value;
+
+	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time
 	/// </summary>
 	/// <param name="accel">Constant acceleration in m/s^2</param>

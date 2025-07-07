@@ -103,6 +103,9 @@ Given acceleration and required distance, calculate seconds required in proper t
 ### flip_and_burn(a, dist) -> tuple[mpf]
 Given constant proper acceleration and coordinate distance, calculate proper time (s), peak velocity (m/s), and coordinate time (s) for a flip and burn maneuver (accelerating for half the journey, then decelerating for second half).
 
+### tau_to_velocity(a, velocity) -> mpf
+Calculate proper time (sec) to reach a given velocity under constant proper acceleration.
+
 ### simple_distance(a, t) -> mpf
 Calculate the distance travelled under constant acceleration. Not relativistic, this may exceed the speed of light! Contrast with `relativistic_distance()`.
 

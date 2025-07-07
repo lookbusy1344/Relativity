@@ -4,7 +4,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    07 Jun 2025
+    07 Jul 2025
 """
 
 c_float: float = 299792458.0  # speed of light as a float
@@ -97,6 +97,22 @@ def check_velocity(velocity, throw_on_error: bool = False):
     if throw_on_error:
         raise ValueError("Velocity must be less than c")
     return mp.nan
+
+
+def tau_to_velocity(a, velocity):
+    """
+    Calculate proper time (sec) to reach a given velocity under constant proper acceleration.
+
+    Parameters:
+        a: Proper acceleration (m/s^2) as an mpmath number or float
+        velocity: The velocity to reach (m/s) as an mpmath number or float
+
+    Returns:
+        The proper time (sec) as an mpmath number, if valid
+    """
+    a = ensure(a)
+    velocity = check_velocity(velocity)
+    return (c / a) * mp.atanh(velocity / c)
 
 
 def relativistic_velocity(a, tau):
@@ -802,3 +818,7 @@ if __name__ == "__main__":
         relativistic_time_for_distance(g, mp.mpf("4600000000000") / 2) / 60 / 60 / 24
     )
     print(f"Days to Neptune flip half way {format_mpf(half_way_days * 2, 4)}")
+
+    time_to_velocity = tau_to_velocity(g, c * mp.mpf("0.9"))
+    days = time_to_velocity / 60 / 60 / 24
+    print(f"Time to reach 90% c at 1g: {format_mpf(days, 4)} days")

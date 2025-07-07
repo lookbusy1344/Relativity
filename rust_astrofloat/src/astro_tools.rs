@@ -183,6 +183,13 @@ impl Relativity {
 
     // ============= Special relativity functions =================
 
+    /// Calculate proper time (sec) to reach a given velocity under constant proper acceleration
+    pub fn tau_to_velocity(&mut self, accel: &BigFloat, velocity: &BigFloat) -> BigFloat {
+        // (c / a) * atanh(velocity / c)
+        let c = &self.c;
+        expr!((c / accel) * atanh(velocity / c), &mut self.ctx)
+    }
+
     /// Relativistic velocity (m/s) from acceleration (m/s^2) and proper time (s)
     pub fn relativistic_velocity(&mut self, accel: &BigFloat, tau: &BigFloat) -> BigFloat {
         // c * tanh(a * tau / c)
