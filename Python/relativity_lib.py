@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from mpmath import mp
 import math
 
@@ -7,16 +7,19 @@ import math
     26 Jul 2025
 """
 
+# Define a type alias for mp.mpf
+MPF = Union[mp.mpf, Any]
+
 # Assign global variables, these will be configured later in configure() function
-g: Optional[mp.mpf] = None
-c: Optional[mp.mpf] = None
-light_year: Optional[mp.mpf] = None
-au: Optional[mp.mpf] = None
-half: Optional[mp.mpf] = None
-one: Optional[mp.mpf] = None
-zero: Optional[mp.mpf] = None
-csquared: Optional[mp.mpf] = None
-seconds_per_year: Optional[mp.mpf] = None
+g: MPF = None
+c: MPF = None
+light_year: MPF = None
+au: MPF = None
+half: MPF = None
+one: MPF = None
+zero: MPF = None
+csquared: MPF = None
+seconds_per_year: MPF = None
 c_float: float = 299792458.0  # speed of light as a float
 shortcut_formatting: bool = False
 configured_dp = -1  # not yet configured
