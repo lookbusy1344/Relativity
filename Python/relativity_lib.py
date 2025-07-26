@@ -1,12 +1,22 @@
-from typing import Any
+from typing import Any, Optional
 from mpmath import mp
 import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    07 Jul 2025
+    26 Jul 2025
 """
 
+# Assign global variables, these will be configured later in configure() function
+g: Optional[mp.mpf] = None
+c: Optional[mp.mpf] = None
+light_year: Optional[mp.mpf] = None
+au: Optional[mp.mpf] = None
+half: Optional[mp.mpf] = None
+one: Optional[mp.mpf] = None
+zero: Optional[mp.mpf] = None
+csquared: Optional[mp.mpf] = None
+seconds_per_year: Optional[mp.mpf] = None
 c_float: float = 299792458.0  # speed of light as a float
 shortcut_formatting: bool = False
 configured_dp = -1  # not yet configured
