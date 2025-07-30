@@ -11,12 +11,12 @@
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
     },
     "dependencies": {
-        "decimal.js": "^10.5.0"
+        "decimal.js": "^10.6.0"
     },
     "devDependencies": {
-        "esbuild": "^0.25.5",
+        "esbuild": "^0.25.8",
         "typescript": "^5.8.3",
-        "vite": "^6.3.5"
+        "vite": "^7.0.6"
     },
     "packageManager": "yarn@4.9.2"
 }
