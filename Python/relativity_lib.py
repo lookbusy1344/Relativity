@@ -171,7 +171,10 @@ def relativistic_time_for_distance(a, dist):
     """
     a = ensure_abs(a)
     dist = ensure_abs(dist)
-    return (c / a) * mp.acosh((dist * a) / csquared + one)
+    # return (c / a) * mp.acosh((dist * a) / csquared + one)
+    return (c / a) * mp.acosh(
+        one + (dist * a) / csquared
+    )  # better for mathematical stability
 
 
 def flip_and_burn(a, dist) -> tuple[Any, Any, Any, Any]:
