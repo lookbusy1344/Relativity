@@ -4,7 +4,7 @@ import math
 
 """
     Library providing mpmath functions for special relativity calculations
-    26 Jul 2025
+    11 Aug 2025
 """
 
 # Assign global variables, these will be configured later in configure() function
@@ -228,8 +228,6 @@ def relativistic_distance_float(a: float, tau: float) -> float:
     Returns:
         The coordinate distance travelled (m) as a float
     """
-    if not isinstance(a, float) or not isinstance(tau, float):
-        raise TypeError("Both 'a' and 'tau' must be of type float")
     x = a * tau / c_float
     return 2 * (c_float**2 / a) * math.sinh(x / 2) ** 2
 
