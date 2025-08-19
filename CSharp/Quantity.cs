@@ -9,7 +9,6 @@ namespace Relativity.Quantity;
 // BUT WHERE TO WE KEEP THE CONTEXT? Perhaps it makes more sense to just take EFloat param, and let the caller
 // sort out the context eg:
 // var x = new Quantity<Length>(EFloat.FromString("1.0", ctx));
-
 #pragma warning disable CA1812, CA1852
 
 /// <summary>

@@ -4,7 +4,6 @@ using PeterO.Numbers;
 namespace Relativity;
 
 // These utilities are based on the EFloat class from PeterO.Numbers, which is an arbitrary-precision decimal class
-
 using FourMomentum = (EFloat energy, EFloat momentum);
 using Interval = (EFloat time, EFloat x, EFloat y, EFloat z);
 using SimplifiedInterval = (EFloat time, EFloat x);
@@ -12,7 +11,11 @@ using SimplifiedInterval = (EFloat time, EFloat x);
 /// <summary>
 /// Flip and burn results
 /// </summary>
-internal sealed record class FlipAndBurnResult(EFloat ProperTime, EFloat PeakVelocity, EFloat PeakLorentz, EFloat CoordTime);
+internal sealed record class FlipAndBurnResult(
+	EFloat ProperTime,
+	EFloat PeakVelocity,
+	EFloat PeakLorentz,
+	EFloat CoordTime);
 
 internal sealed class EFloatRelativity
 {
@@ -66,7 +69,8 @@ internal sealed class EFloatRelativity
 	/// <summary>
 	/// Build a new context with this number of digit precision
 	/// </summary>
-	public static EContext BuildContext(int precision) => EContext.ForPrecisionAndRounding(precision, ERounding.HalfEven);
+	public static EContext BuildContext(int precision) =>
+		EContext.ForPrecisionAndRounding(precision, ERounding.HalfEven);
 
 	/// <summary>
 	/// Check this BigFloat velocity is less than C in m/s
@@ -116,7 +120,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Proper time (seconds) to reach that velocity</returns>
 	public EFloat TauToVelocity(EFloat accel, EFloat velocity) =>
 		// (c / a) * mp.atanh(velocity / c)
-		((C_B / B(accel)) * Atanh(CheckVelocity(velocity) / C_B)).Value;
+		(C_B / B(accel) * Atanh(CheckVelocity(velocity) / C_B)).Value;
 
 	/// <summary>
 	/// Calculate relativistic velocity for a given acceleration and proper time
@@ -183,7 +187,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Rapidity</returns>
 	public EFloat RapidityFromVelocity(EFloat velocity) =>
 		// atanh(velocity / c)
-		(Atanh(CheckVelocity(velocity) / C_B)).Value;
+		Atanh(CheckVelocity(velocity) / C_B).Value;
 
 	/// <summary>
 	/// Calculate velocity for a given rapidity
@@ -204,7 +208,7 @@ internal sealed class EFloatRelativity
 	/// </summary>
 	public EFloat AddVelocities(EFloat v1, EFloat v2) =>
 		// (v1 + v2) / (one + (v1 * v2) / csquared)
-		((CheckVelocity(v1) + CheckVelocity(v2)) / (One_B + ((B(v1) * v2) / CSQUARED_B))).Value;
+		((CheckVelocity(v1) + CheckVelocity(v2)) / (One_B + (B(v1) * v2 / CSQUARED_B))).Value;
 
 	/// <summary>
 	/// Calculate coordinate time for a given acceleration and proper time
@@ -214,7 +218,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Coordinate time in s</returns>
 	public EFloat CoordinateTime(EFloat accel, EFloat tau) =>
 		// (c / a) * sinh(a * tau / c)
-		((C_B / accel) * Sinh(B(accel) * tau / C_B)).Value;
+		(C_B / accel * Sinh(B(accel) * tau / C_B)).Value;
 
 	/// <summary>
 	/// Calculate the length contraction factor for a given length and velocity
@@ -243,7 +247,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Velocity in m/s</returns>
 	public EFloat RelativisticVelocityCoord(EFloat accel, EFloat t) =>
 		// (a * t) / sqrt(one + (a * t / c) ** 2)
-		((B(accel) * t) / (One_B + (B(accel) * t / C_B).Pow(2)).Sqrt()).Value;
+		(B(accel) * t / (One_B + (B(accel) * t / C_B).Pow(2)).Sqrt()).Value;
 
 	/// <summary>
 	/// Calculate the distance travelled under constant proper acceleration and coordinate time
@@ -253,7 +257,7 @@ internal sealed class EFloatRelativity
 	/// <returns>The coordinate distance travelled in m</returns>
 	public EFloat RelativisticDistanceCoord(EFloat accel, EFloat t) =>
 		// (csquared / a) * (sqrt(one + (a * t / c) ** 2) - one)
-		((CSQUARED_B / accel) * ((One_B + (B(accel) * t / C_B).Pow(2)).Sqrt() - 1)).Value;
+		(CSQUARED_B / accel * ((One_B + (B(accel) * t / C_B).Pow(2)).Sqrt() - 1)).Value;
 
 	/// <summary>
 	/// Calculate the relativistic momentum
@@ -298,7 +302,7 @@ internal sealed class EFloatRelativity
 	/// <returns>Proper mass in kg</returns>
 	public EFloat InvariantMassFromEnergyMomentum(EFloat energy, EFloat momentum) =>
 		// sqrt((energy / csquared) ** 2 - (p / csquared) ** 2)
-		(((B(energy) / CSQUARED_B).Pow(2) - (B(momentum) / CSQUARED_B).Pow(2)).Sqrt()).Value;
+		((B(energy) / CSQUARED_B).Pow(2) - (B(momentum) / CSQUARED_B).Pow(2)).Sqrt().Value;
 
 	/// <summary>
 	/// Calculate the four-momentum of a particle
@@ -322,7 +326,7 @@ internal sealed class EFloatRelativity
 	/// <returns>The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)</returns>
 	public EFloat SpacetimeInterval1D(SimplifiedInterval event1, SimplifiedInterval event2) =>
 		// sqrt(csquared * delta_t^2 - delta_x^2)
-		(Sqrt((CSQUARED_B * (B(event2.time) - event1.time).Pow(2)) - (B(event2.x) - event1.x).Pow(2))).Value;
+		Sqrt((CSQUARED_B * (B(event2.time) - event1.time).Pow(2)) - (B(event2.x) - event1.x).Pow(2)).Value;
 
 	/// <summary>
 	/// Calculate the invariant spacetime interval between two events in 3D space (x, y, z, time)
@@ -332,10 +336,10 @@ internal sealed class EFloatRelativity
 	/// <returns>The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)</returns>
 	public EFloat SpacetimeInterval3D(Interval event1, Interval event2) =>
 		// sqrt(csquared * delta_t^2 - delta_x^2 - delta_y^2 - delta_z^2)
-		(Sqrt((CSQUARED_B * (B(event2.time) - event1.time).Pow(2))
-			- (B(event2.x) - event1.x).Pow(2)
-			- (B(event2.y) - event1.y).Pow(2)
-			- (B(event2.z) - event1.z).Pow(2))).Value;
+		Sqrt((CSQUARED_B * (B(event2.time) - event1.time).Pow(2))
+		     - (B(event2.x) - event1.x).Pow(2)
+		     - (B(event2.y) - event1.y).Pow(2)
+		     - (B(event2.z) - event1.z).Pow(2)).Value;
 
 	// ====== Wrappers around hyperbolic trig functions ======
 

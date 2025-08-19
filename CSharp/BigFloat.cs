@@ -17,11 +17,11 @@ using PeterO.Numbers;
 // Framework design guidelines page 213, 'in' parameters "Do not pass value types by read-only reference (in)"
 // and page 91, structs should represent a single value, be immutable and less than 24 bytes (3 references).
 // BigFloat here represents a single value, is immutable and is 2 references (16 bytes on 64 bit systems)
-
 #pragma warning disable CA2225 // Operator overloads have named alternates
 
 [System.Diagnostics.DebuggerDisplay("{ToDebugString(),nq}")]
-public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<BigFloat>, IComparable<BigFloat>, IComparable
+public readonly struct BigFloat(EFloat value, EContext? context)
+	: IEquatable<BigFloat>, IComparable<BigFloat>, IComparable
 {
 	/// <summary>
 	/// The EFloat value of this instance.
@@ -47,7 +47,8 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	/// </summary>
 	public readonly string ToDebugString() => Context == null ? $"default-{Value}" : Value.ToString();
 
-	public override readonly int GetHashCode() => Value.GetHashCode(); // don't include the context, because it can be indirectly changed via DefaultContext
+	public override readonly int GetHashCode() =>
+		Value.GetHashCode(); // don't include the context, because it can be indirectly changed via DefaultContext
 
 	public override readonly bool Equals(object? obj) => obj is BigFloat other && Equals(other);
 
@@ -65,7 +66,9 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 		}
 #pragma warning restore IDE0046 // Convert to conditional expression
 
-		return obj is BigFloat x ? CompareTo(x) : throw new ArgumentException("Comparison with invalid type", nameof(obj));
+		return obj is BigFloat x
+			? CompareTo(x)
+			: throw new ArgumentException("Comparison with invalid type", nameof(obj));
 	}
 
 	///// <summary>
@@ -119,7 +122,7 @@ public readonly struct BigFloat(EFloat value, EContext? context) : IEquatable<Bi
 	public static BigFloat operator *(BigFloat left, BigFloat right) => new(
 		left.Value.Multiply(right.Value, left.Context),
 		left.Context
-		);
+	);
 
 	public static BigFloat operator *(BigFloat left, EFloat right) => new(
 		left.Value.Multiply(right, left.Context),

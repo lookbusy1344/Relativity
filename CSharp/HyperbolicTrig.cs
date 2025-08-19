@@ -53,6 +53,7 @@ internal static class HyperbolicTrig
 		if (value.CompareTo(EFloat.One) < 0) {
 			return EFloat.NaN;
 		}
+
 		var squareMinusOne = value.Pow(2, ctx).Subtract(EFloat.One, ctx);
 		var sqrt = squareMinusOne.Sqrt(ctx);
 		var sum = value.Add(sqrt, ctx);
@@ -80,6 +81,7 @@ internal static class HyperbolicTrig
 		if (value.CompareTo(EFloat.One) >= 0 || value.CompareTo(EFloat.One.Negate(ctx)) <= 0) {
 			return EFloat.NaN;
 		}
+
 		var numerator = value.Add(EFloat.One, ctx);
 		var denominator = EFloat.One.Subtract(value, ctx);
 		var fraction = numerator.Divide(denominator, ctx);

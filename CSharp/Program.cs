@@ -155,5 +155,5 @@ internal static class Program
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private static BigFloat B(EFloat f) => BigFloat.Build(f, Program.ctx ?? throw new InvalidOperationException());
+	private static BigFloat B(EFloat f) => BigFloat.Build(f, ctx ?? throw new InvalidOperationException());
 }
