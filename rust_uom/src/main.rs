@@ -11,15 +11,15 @@ mod tools;
 mod tools_rational;
 
 use tools::{
-    add_velocities2, add_velocities3, add_velocities_using_rapidity, non_relativistic_acceleration,
-    relativistic_acceleration, FractionOfC, LorentzFactor, Rapidity, STANDARD_GRAVITY,
+    FractionOfC, LorentzFactor, Rapidity, STANDARD_GRAVITY, add_velocities_using_rapidity,
+    add_velocities2, add_velocities3, non_relativistic_acceleration, relativistic_acceleration,
 };
-use uom::si::acceleration::{meter_per_second_squared, Acceleration};
+use uom::si::SI;
+use uom::si::acceleration::{Acceleration, meter_per_second_squared};
 use uom::si::f64::{Length, Velocity};
 use uom::si::length::meter;
-use uom::si::time::{day, second, Time};
+use uom::si::time::{Time, day, second};
 use uom::si::velocity::{meter_per_second, mile_per_hour};
-use uom::si::SI;
 
 fn main() {
     // its sometimes necessary to specify the type of the unit, eg Time<Un, _>

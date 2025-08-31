@@ -9,7 +9,7 @@
 
 use anyhow::anyhow;
 use astro_float::ctx::Context;
-use astro_float::{expr, BigFloat, Consts, RoundingMode};
+use astro_float::{BigFloat, Consts, RoundingMode, expr};
 use std::str::FromStr;
 
 pub const ROUNDING: RoundingMode = RoundingMode::ToEven;
@@ -108,13 +108,7 @@ impl Relativity {
 
         Self {
             binary_digits,
-            ctx: Context::new(
-                binary_digits,
-                ROUNDING,
-                constants,
-                i32::MIN,
-                i32::MAX,
-            ),
+            ctx: Context::new(binary_digits, ROUNDING, constants, i32::MIN, i32::MAX),
             c_squared: c.powi(2, binary_digits, ROUNDING),
             half: one.div(
                 &BigFloat::from_i32(2, binary_digits),
@@ -235,7 +229,12 @@ impl Relativity {
         let lorentz = self.lorentz_factor(&velocity);
         let total_proper = expr!(time_half_proper * 2.0, &mut self.ctx);
         let total_coord = expr!(time_half_coord * 2.0, &mut self.ctx);
-        FlipAndBurnResult { proper_time: total_proper, peak_velocity: velocity, peak_lorentz: lorentz, coord_time: total_coord }
+        FlipAndBurnResult {
+            proper_time: total_proper,
+            peak_velocity: velocity,
+            peak_lorentz: lorentz,
+            coord_time: total_coord,
+        }
     }
 
     /// Distance (m) from non-relativistic acceleration (m/s^2) and time (s)
@@ -606,28 +605,32 @@ pub fn bigfloat_to_string(f: &BigFloat) -> anyhow::Result<String> {
     let parts = st
         .split_once('e')
         .ok_or_else(|| anyhow!("Failed to split scientific notation"))?;
-    
+
     let mantissa = parts.0;
     let exp = parts.1.parse::<i128>()?;
 
     // Handle the mantissa: it could be "1.23", "-1.23", "5.", "-5.", etc.
     let is_negative = mantissa.starts_with('-');
-    let abs_mantissa = if is_negative { &mantissa[1..] } else { mantissa };
-    
+    let abs_mantissa = if is_negative {
+        &mantissa[1..]
+    } else {
+        mantissa
+    };
+
     // Find decimal point position in the absolute mantissa
     let decimal_pos = abs_mantissa.find('.').unwrap_or(abs_mantissa.len());
-    
+
     // Extract all digits (without decimal point)
     let mut digits: String = abs_mantissa.chars().filter(|&c| c != '.').collect();
-    
+
     // If mantissa ended with '.', we have an implicit zero
     if abs_mantissa.ends_with('.') {
         digits.push('0');
     }
-    
+
     // Calculate new decimal position after applying exponent
     let new_decimal_pos = decimal_pos as i128 + exp;
-    
+
     let result = if new_decimal_pos <= 0 {
         // Decimal goes to the left of all digits: 0.000...digits
         let zeros_needed = (-new_decimal_pos) as usize;
@@ -648,7 +651,11 @@ pub fn bigfloat_to_string(f: &BigFloat) -> anyhow::Result<String> {
         }
     };
 
-    Ok(if is_negative { format!("-{}", result) } else { result })
+    Ok(if is_negative {
+        format!("-{}", result)
+    } else {
+        result
+    })
 }
 
 #[cfg(test)]
@@ -671,20 +678,20 @@ mod tests {
         // Test negative decimal - now handled correctly by refactored function
         let f = BigFloat::from_f64(-0.5, 100);
         let result = bigfloat_to_string(&f).unwrap();
-        assert_eq!(result, "-0.50");  // The refactored function correctly converts -5.e-1 to -0.50
+        assert_eq!(result, "-0.50"); // The refactored function correctly converts -5.e-1 to -0.50
     }
 
     #[test]
     fn test_bigfloat_to_string_scientific_notation() {
         // Test scientific notation conversion
         let _rel = Relativity::new(100);
-        
+
         // Very large number
         let f = Relativity::bigfloat_from_str("1.23456e10");
         let result = bigfloat_to_string(&f).unwrap();
         assert_eq!(result, "12345600000.0");
 
-        // Very small number  
+        // Very small number
         let f = Relativity::bigfloat_from_str("1.23456e-5");
         let result = bigfloat_to_string(&f).unwrap();
         assert_eq!(result, "0.0000123456");
@@ -692,13 +699,13 @@ mod tests {
         // Exponent 0
         let f = Relativity::bigfloat_from_str("1.23456e0");
         let result = bigfloat_to_string(&f).unwrap();
-        assert_eq!(result, "1.2345600000000000001");  // Adjusted for actual precision
+        assert_eq!(result, "1.2345600000000000001"); // Adjusted for actual precision
     }
 
     #[test]
     fn test_bigfloat_to_string_edge_cases() {
         let _rel = Relativity::new(100);
-        
+
         // Exponent -1
         let f = Relativity::bigfloat_from_str("1.23456e-1");
         let result = bigfloat_to_string(&f).unwrap();
@@ -723,35 +730,35 @@ mod tests {
     #[test]
     fn test_bigfloat_to_string_precision_cases() {
         let _rel = Relativity::new(200);
-        
+
         // Test with many decimal places
         let f = Relativity::bigfloat_from_str("1.234567890123456789e-10");
         let result = bigfloat_to_string(&f).unwrap();
         assert!(result.starts_with("0.0000000001234567890123456789"));
 
         // Test large number with decimal
-        let f = Relativity::bigfloat_from_str("9.87654321e15");  
+        let f = Relativity::bigfloat_from_str("9.87654321e15");
         let result = bigfloat_to_string(&f).unwrap();
         assert!(result.starts_with("9876543210000000.0"));
     }
 
-    #[test]  
+    #[test]
     fn test_bigfloat_fmt_functions() {
         let rel = Relativity::new(100);
         let f = rel.bigfloat_from_f64(1234567.89);
-        
+
         // Test default 2 decimal places - based on actual behavior
         let result = bigfloat_fmt(&f).unwrap();
         assert_eq!(result, "1,234,567.88");
-        
+
         // Test specific decimal places
         let result = bigfloat_fmt_dp(&f, 3).unwrap();
         assert_eq!(result, "1,234,567.889");
-        
+
         // Test with no decimal places
         let result = bigfloat_fmt_dp(&f, 0).unwrap();
         assert_eq!(result, "1,234,567");
-        
+
         // Test significant formatting - let's see what this produces
         let f2 = Relativity::bigfloat_from_str("0.0001234");
         let result = bigfloat_fmt_sig(&f2, 3, '0').unwrap();
@@ -762,12 +769,12 @@ mod tests {
     #[test]
     fn test_internal_bigfloat_fmt_commas() {
         let rel = Relativity::new(100);
-        
+
         // Test comma formatting for large numbers - based on actual floating point precision
         let f = rel.bigfloat_from_f64(1234567890.123);
         let result = bigfloat_fmt_dp(&f, 3).unwrap();
-        assert_eq!(result, "1,234,567,890.122");  // Adjusted for actual precision
-        
+        assert_eq!(result, "1,234,567,890.122"); // Adjusted for actual precision
+
         // Test no commas for smaller numbers - use more reliable input
         let f = rel.bigfloat_from_f64(123.456);
         let result = bigfloat_fmt_dp(&f, 6).unwrap();
@@ -777,7 +784,7 @@ mod tests {
     #[test]
     fn test_edge_cases_and_error_handling() {
         let rel = Relativity::new(100);
-        
+
         // Test zero
         let f = rel.bigfloat_from_f64(0.0);
         let result = bigfloat_to_string(&f).unwrap();
@@ -793,25 +800,33 @@ mod tests {
     fn test_negative_scientific_notation_bug_fix() {
         // This test specifically validates the bug fix for negative scientific notation
         let rel = Relativity::new(100);
-        
+
         // These cases used to crash the original function due to decimal position assumption
         // Now we just test that they don't crash and produce some reasonable output
         let test_inputs = [-0.5_f64, -0.1_f64, -1.5_f64, -123.0_f64];
-        
+
         for input in test_inputs {
             let f = rel.bigfloat_from_f64(input);
             let result = bigfloat_to_string(&f);
-            
+
             // Should not error (this would have crashed in the original implementation)
             assert!(result.is_ok(), "Failed to convert input {}", input);
-            
+
             let result_str = result.unwrap();
             // Should be negative and start with "-"
-            assert!(result_str.starts_with('-'), "Result should be negative for input {}", input);
+            assert!(
+                result_str.starts_with('-'),
+                "Result should be negative for input {}",
+                input
+            );
             // Should contain a decimal point
-            assert!(result_str.contains('.'), "Result should contain decimal for input {}", input);
+            assert!(
+                result_str.contains('.'),
+                "Result should contain decimal for input {}",
+                input
+            );
         }
-        
+
         // Test a specific case we know the exact behavior for
         let f = rel.bigfloat_from_f64(-0.5);
         let result = bigfloat_to_string(&f).unwrap();
