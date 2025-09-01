@@ -378,7 +378,7 @@ class TestRelativityLib(unittest.TestCase):
     def test_relativistic_distance_float(self):
         """Test float version of relativistic distance"""
         # Compare with mpmath version for small values
-        a_float = 9.8
+        a_float = float(rl.g)
         tau_float = 1000.0
         
         result_float = rl.relativistic_distance_float(a_float, tau_float)
