@@ -180,7 +180,7 @@ class TestRelativityLib(unittest.TestCase):
         self.assertTrue(velocity > rl.zero)
 
         # For small distances, should approximate classical physics
-        # v = sqrt(2*g*h) = sqrt(2*9.8*1000) ≈ 140 m/s
+        # v = sqrt(2*g*h) = sqrt(2*rl.g*1000) ≈ sqrt(2*{:.4f}*1000) ≈ {:.0f} m/s
         classical_v = mp.sqrt(2 * rl.g * height)
         self.assertAlmostEqual(float(velocity), float(classical_v), places=0)
 
