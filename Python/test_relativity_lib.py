@@ -55,8 +55,8 @@ class TestRelativityLib(unittest.TestCase):
         """Test ensure raises error if constants precision is lower than current"""
         # Configure at lower precision
         rl.configure(10)
-        # Set higher precision
-        mp.dps = 50
+        # Set higher precision using module's configuration system
+        rl.configure(50)
         # Should raise ValueError
         with self.assertRaises(ValueError):
             rl.ensure(1.0)
