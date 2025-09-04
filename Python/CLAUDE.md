@@ -80,12 +80,30 @@ uv sync
 # Run any Python script
 uv run "script_name.py"
 
-# Format code with ruff (ALWAYS run after making changes)
+# Format code with ruff (MANDATORY after any changes)
 uv run ruff format
+
+# Run tests
+uv run python -m unittest test_relativity_lib.py
+uv run python -m unittest discover  # Run all tests
+uv run IntervalTest.py
+uv run TrigTests.py
 
 # Start Jupyter notebook server (if needed)
 uv run jupyter notebook
 ```
+
+## Code Standards and Formatting
+
+### **MANDATORY**: Always run `uv run ruff format` after making any code changes
+- This command MUST be executed after every modification to Python files
+- Ensures consistent code formatting across the entire project
+- Never skip this step - it's required for all code contributions
+
+### Line Endings
+- **ALL .md and .py files MUST use LF (Unix) line endings**
+- Ensure consistent line endings across the codebase
+- This prevents git diff issues and maintains cross-platform compatibility
 
 ## Important Notes
 
@@ -93,4 +111,4 @@ uv run jupyter notebook
 - The project focuses on educational special relativity content
 - mpmath enables calculations to hundreds of decimal places for demonstration purposes
 - Test files demonstrate library functionality and verify calculations against other implementations
-- **CRITICAL**: Always run `uv run ruff format` after making any code changes to maintain consistent formatting
+- **CRITICAL WORKFLOW**: After any code changes → run `uv run ruff format` → verify LF line endings
