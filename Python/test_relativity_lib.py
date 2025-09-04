@@ -124,7 +124,7 @@ class TestRelativityLib(unittest.TestCase):
         """Test classical distance calculation"""
         # Test known formula: d = 0.5 * a * t^2
         a = rl.ensure(10)  # 10 m/s²
-        t = rl.ensure(5)   # 5 seconds
+        t = rl.ensure(5)  # 5 seconds
         expected = mp.mpf("125")  # 0.5 * 10 * 25
         result = rl.simple_distance(a, t)
         self.assertEqual(result, expected)
@@ -237,24 +237,24 @@ class TestRelativityLib(unittest.TestCase):
         """Test relativistic momentum calculation"""
         mass = rl.ensure(1.0)  # 1 kg
         velocity = rl.c * mp.mpf("0.5")
-        
+
         momentum = rl.relativistic_momentum(mass, velocity)
         gamma = rl.lorentz_factor(velocity)
         expected = mass * velocity * gamma
-        
+
         self.assertAlmostEqual(float(momentum), float(expected), places=10)
 
     def test_relativistic_energy(self):
         """Test relativistic energy calculation"""
         mass = rl.ensure(1.0)  # 1 kg
         velocity = rl.c * mp.mpf("0.5")
-        
+
         energy = rl.relativistic_energy(mass, velocity)
         gamma = rl.lorentz_factor(velocity)
         expected = mass * rl.csquared * gamma
-        
+
         self.assertAlmostEqual(float(energy), float(expected), places=10)
-        
+
         # Test rest energy (v=0)
         rest_energy = rl.relativistic_energy(mass, 0)
         self.assertAlmostEqual(float(rest_energy), float(mass * rl.csquared), places=10)
@@ -263,13 +263,13 @@ class TestRelativityLib(unittest.TestCase):
         """Test four-momentum calculation"""
         mass = rl.ensure(1.0)
         velocity = rl.c * mp.mpf("0.3")
-        
+
         energy, momentum = rl.four_momentum(mass, velocity)
-        
+
         # Check energy-momentum relation: E² - (pc)² = (mc²)²
-        invariant = energy**2 - (momentum * rl.c)**2
-        rest_energy_sq = (mass * rl.csquared)**2
-        
+        invariant = energy**2 - (momentum * rl.c) ** 2
+        rest_energy_sq = (mass * rl.csquared) ** 2
+
         self.assertAlmostEqual(float(invariant), float(rest_energy_sq), places=8)
 
     def test_spacetime_interval_1d(self):
@@ -294,7 +294,7 @@ class TestRelativityLib(unittest.TestCase):
         """Test 3D spacetime interval calculation"""
         # Light-like interval in 3D
         event1 = (0, 0, 0, 0)
-        event2 = (1, rl.c/mp.sqrt(3), rl.c/mp.sqrt(3), rl.c/mp.sqrt(3))
+        event2 = (1, rl.c / mp.sqrt(3), rl.c / mp.sqrt(3), rl.c / mp.sqrt(3))
         interval = rl.spacetime_interval_3d(event1, event2)
         self.assertAlmostEqual(float(interval), 0, places=5)
 
@@ -310,7 +310,7 @@ class TestRelativityLib(unittest.TestCase):
         v = rl.c * mp.mpf("0.5")
         t_prime, x_prime = rl.lorentz_transform_1d(t, x, v)
         t_back, x_back = rl.lorentz_transform_1d(t_prime, x_prime, -v)
-        
+
         self.assertAlmostEqual(float(t_back), t, places=10)
         self.assertAlmostEqual(float(x_back), x, places=10)
 
@@ -319,9 +319,9 @@ class TestRelativityLib(unittest.TestCase):
         # Test that y and z coordinates are unchanged
         t, x, y, z = 1, 1000, 500, 200
         v = rl.c * mp.mpf("0.3")
-        
+
         t_prime, x_prime, y_prime, z_prime = rl.lorentz_transform_3d(t, x, y, z, v)
-        
+
         self.assertEqual(float(y_prime), y)
         self.assertEqual(float(z_prime), z)
         self.assertNotEqual(float(t_prime), t)
@@ -331,11 +331,11 @@ class TestRelativityLib(unittest.TestCase):
         """Test relativistic Doppler shift"""
         frequency = rl.ensure(1e9)  # 1 GHz
         velocity = rl.c * mp.mpf("0.1")  # 10% of c
-        
+
         # Moving towards observer (blue shift)
         freq_blue = rl.doppler_shift(frequency, velocity, source_moving_towards=True)
         self.assertTrue(freq_blue > frequency)
-        
+
         # Moving away from observer (red shift)
         freq_red = rl.doppler_shift(frequency, velocity, source_moving_towards=False)
         self.assertTrue(freq_red < frequency)
@@ -344,10 +344,10 @@ class TestRelativityLib(unittest.TestCase):
         """Test length contraction calculation"""
         proper_length = rl.ensure(100)  # 100 meters
         velocity = rl.c * mp.mpf("0.6")  # 60% of c
-        
+
         contracted = rl.length_contraction_velocity(proper_length, velocity)
         self.assertTrue(contracted < proper_length)
-        
+
         # Test zero velocity (no contraction)
         no_contraction = rl.length_contraction_velocity(proper_length, 0)
         self.assertEqual(no_contraction, proper_length)
@@ -380,10 +380,12 @@ class TestRelativityLib(unittest.TestCase):
         # Compare with mpmath version for small values
         a_float = 9.8
         tau_float = 1000.0
-        
+
         result_float = rl.relativistic_distance_float(a_float, tau_float)
-        result_mpmath = rl.relativistic_distance(rl.ensure(a_float), rl.ensure(tau_float))
-        
+        result_mpmath = rl.relativistic_distance(
+            rl.ensure(a_float), rl.ensure(tau_float)
+        )
+
         # Should be approximately equal for reasonable values
         self.assertAlmostEqual(result_float, float(result_mpmath), places=3)
 
@@ -391,12 +393,12 @@ class TestRelativityLib(unittest.TestCase):
         """Test coordinate time-based functions"""
         a = rl.g
         coord_time = rl.ensure(1000)  # 1000 seconds coordinate time
-        
+
         # Test relativistic velocity from coordinate time
         velocity = rl.relativistic_velocity_coord(a, coord_time)
         self.assertTrue(velocity > rl.zero)
         self.assertTrue(velocity < rl.c)
-        
+
         # Test relativistic distance from coordinate time
         distance = rl.relativistic_distance_coord(a, coord_time)
         self.assertTrue(distance > rl.zero)
@@ -404,11 +406,11 @@ class TestRelativityLib(unittest.TestCase):
     def test_formatting_functions(self):
         """Test number formatting functions"""
         number = rl.ensure("123456.789123")
-        
+
         # Test basic formatting
         formatted = rl.format_mpf(number, 2)
         self.assertIn("123,456.78", formatted)
-        
+
         # Test significant figures
         small_number = rl.ensure("0.000012345")
         sig_formatted = rl.format_mpf_significant(small_number, 3)
@@ -419,13 +421,15 @@ class TestRelativityLib(unittest.TestCase):
         # Test that tau_to_velocity and relativistic_velocity are inverse operations
         a = rl.g
         target_velocity = rl.c * mp.mpf("0.5")
-        
+
         # Calculate time needed to reach velocity
         tau_needed = rl.tau_to_velocity(a, target_velocity)
         # Calculate velocity at that time
         velocity_achieved = rl.relativistic_velocity(a, tau_needed)
-        
-        self.assertAlmostEqual(float(target_velocity), float(velocity_achieved), places=8)
+
+        self.assertAlmostEqual(
+            float(target_velocity), float(velocity_achieved), places=8
+        )
 
     def test_edge_cases(self):
         """Test edge cases and boundary conditions"""
@@ -433,7 +437,7 @@ class TestRelativityLib(unittest.TestCase):
         tiny_a = rl.ensure("1e-10")
         result = rl.relativistic_velocity(tiny_a, rl.ensure(1))
         self.assertTrue(result > rl.zero)
-        
+
         # Test with very small times
         tiny_tau = rl.ensure("1e-10")
         result = rl.relativistic_distance(rl.g, tiny_tau)
