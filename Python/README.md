@@ -35,7 +35,7 @@ pip install mpmath
 ## Example usage, 1 year at 1g
 
 ```python
-from relativity import rl
+import relativity_lib as rl
 
 # configure for 100 decimal places
 rl.configure(100)
