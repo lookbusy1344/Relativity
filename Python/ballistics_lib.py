@@ -226,6 +226,8 @@ def projectile_distance3(
     altitude_model=False,
     rtol=1e-6,
     shape="sphere",
+    return_trajectory=False,
+    n_points=1000,
 ):
     """
     Calculate projectile distance with air resistance using numerical integration.
@@ -241,9 +243,19 @@ def projectile_distance3(
         altitude_model (bool): Include altitude-dependent air density
         rtol (float): Relative tolerance for integration
         shape (str): Predefined shape for automatic Cd selection
+        return_trajectory (bool): If True, return full trajectory data for plotting
+        n_points (int): Number of trajectory points to return (if return_trajectory=True)
 
     Returns:
-        float: Horizontal distance traveled (m)
+        float or dict: If return_trajectory=False, returns horizontal distance (m).
+                      If return_trajectory=True, returns dict with:
+                      - 'distance': horizontal distance (m)
+                      - 't': time array (s)
+                      - 'x': x position array (m)
+                      - 'y': y position array (m)
+                      - 'vx': x velocity array (m/s)
+                      - 'vy': y velocity array (m/s)
+                      - 'speed': speed array (m/s)
 
     Raises:
         ValueError: If input parameters are invalid
@@ -350,10 +362,34 @@ def projectile_distance3(
         # Get final state when projectile hits ground
         t_final = sol.t_events[0][0]
         final_state = sol.sol(t_final)
-        return final_state[0]  # x coordinate (distance)
+        distance = final_state[0]  # x coordinate (distance)
     else:
         # Fallback: return distance at end of integration
-        return sol.y[0][-1]
+        distance = sol.y[0][-1]
+        t_final = sol.t[-1]
+
+    if not return_trajectory:
+        return distance
+
+    # Generate trajectory data for plotting
+    t_trajectory = np.linspace(0, t_final, n_points)
+    trajectory_states = sol.sol(t_trajectory)
+
+    x_traj = trajectory_states[0]
+    y_traj = trajectory_states[1]
+    vx_traj = trajectory_states[2]
+    vy_traj = trajectory_states[3]
+    speed_traj = np.sqrt(vx_traj**2 + vy_traj**2)
+
+    return {
+        "distance": distance,
+        "t": t_trajectory,
+        "x": x_traj,
+        "y": y_traj,
+        "vx": vx_traj,
+        "vy": vy_traj,
+        "speed": speed_traj,
+    }
 
 
 # =============================================================================
@@ -433,3 +469,30 @@ if __name__ == "__main__":
 
     print(f"Human (70kg, 100 m/s):     {human_dist:.1f} m")
     print(f"Cannonball (5kg, {cannon_speed:.1f} m/s): {cannon_dist:.1f} m")
+
+    print("\n" + "=" * 50)
+    print("Trajectory data example:")
+
+    # Get trajectory data for plotting
+    trajectory = projectile_distance3(
+        100, 45, 5, 0.05, shape="sphere", return_trajectory=True, n_points=50
+    )
+
+    print(f"Distance: {trajectory['distance']:.1f} m")
+    print(f"Flight time: {trajectory['t'][-1]:.2f} s")
+    print(f"Max height: {max(trajectory['y']):.1f} m")
+    print(f"Initial speed: {trajectory['speed'][0]:.1f} m/s")
+    print(f"Final speed: {trajectory['speed'][-1]:.1f} m/s")
+    print(f"Trajectory points: {len(trajectory['t'])}")
+
+    # Show first few trajectory points
+    print("\nFirst few trajectory points:")
+    print("Time(s)  X(m)    Y(m)    Vx(m/s) Vy(m/s) Speed(m/s)")
+    for i in range(0, min(10, len(trajectory["t"]))):
+        t = trajectory["t"][i]
+        x = trajectory["x"][i]
+        y = trajectory["y"][i]
+        vx = trajectory["vx"][i]
+        vy = trajectory["vy"][i]
+        speed = trajectory["speed"][i]
+        print(f"{t:6.2f}  {x:6.1f}  {y:6.1f}  {vx:7.1f} {vy:7.1f} {speed:9.1f}")
