@@ -84,10 +84,11 @@ uv run "script_name.py"
 uv run ruff format
 
 # Run tests
-uv run python -m unittest test_relativity_lib.py
-uv run python -m unittest discover  # Run all tests
-uv run IntervalTest.py
-uv run TrigTests.py
+uv run python -m unittest test_relativity_lib.py    # Test special relativity functions
+uv run python -m unittest test_motion_lib.py        # Test ballistic/orbital mechanics
+uv run python -m unittest discover                  # Run all unit tests
+uv run IntervalTest.py                              # Legacy interval tests
+uv run TrigTests.py                                 # Legacy trigonometry tests
 
 # Start Jupyter notebook server (if needed)
 uv run jupyter notebook
