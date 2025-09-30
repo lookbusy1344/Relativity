@@ -2,6 +2,114 @@ import numpy as np
 from scipy.integrate import solve_ivp
 import math
 
+# Physical constants
+EARTH_MASS = 5.972e24  # kg
+EARTH_RADIUS = 6.371e6  # m
+G = 6.67430e-11  # m³/(kg·s²) - Gravitational constant
+STANDARD_GRAVITY = 9.80665  # m/s² - Standard gravity at sea level
+
+
+def get_temperature_at_altitude(altitude):
+    """
+    Calculate temperature at given altitude using International Standard Atmosphere (ISA) model.
+    Simplified model covering troposphere and lower stratosphere.
+
+    Args:
+        altitude (float): Altitude above sea level (m)
+
+    Returns:
+        float: Temperature (K)
+    """
+    if altitude < 0:
+        altitude = 0
+
+    # Sea level standard temperature
+    T0 = 288.15  # K (15°C)
+
+    if altitude <= 11000:
+        # Troposphere: temperature decreases linearly
+        lapse_rate = -0.0065  # K/m
+        return T0 + lapse_rate * altitude
+    elif altitude <= 20000:
+        # Lower stratosphere: temperature is constant
+        return 216.65  # K
+    else:
+        # Above 20km, continue with constant temperature (simplified)
+        return 216.65
+
+
+def get_air_density_isa(altitude, temperature=None):
+    """
+    Calculate air density using International Standard Atmosphere model.
+
+    Args:
+        altitude (float): Altitude above sea level (m)
+        temperature (float, optional): Temperature in K. If None, uses ISA temperature model.
+
+    Returns:
+        float: Air density (kg/m³)
+    """
+    if altitude < 0:
+        altitude = 0
+
+    # Sea level standard conditions
+    rho0 = 1.225  # kg/m³
+    T0 = 288.15  # K
+    p0 = 101325  # Pa
+    R = 287.05  # J/(kg·K) - specific gas constant for dry air
+
+    if temperature is None:
+        T = get_temperature_at_altitude(altitude)
+    else:
+        T = temperature
+
+    if altitude <= 11000:
+        # Troposphere
+        lapse_rate = -0.0065  # K/m
+        exponent = (STANDARD_GRAVITY / (R * lapse_rate)) + 1
+        return rho0 * (T / T0) ** (-exponent)
+    else:
+        # Lower stratosphere (constant temperature)
+        # Use exponential model
+        T_tropopause = 216.65
+        rho_tropopause = rho0 * (T_tropopause / T0) ** (
+            -(STANDARD_GRAVITY / (R * -0.0065) + 1)
+        )
+        scale_height = R * T_tropopause / STANDARD_GRAVITY
+        return rho_tropopause * math.exp(-(altitude - 11000) / scale_height)
+
+
+def get_dynamic_viscosity(temperature):
+    """
+    Calculate dynamic viscosity of air using Sutherland's formula.
+
+    Args:
+        temperature (float): Temperature (K)
+
+    Returns:
+        float: Dynamic viscosity (Pa·s)
+    """
+    # Sutherland's formula constants for air
+    T0 = 273.15  # K (reference temperature)
+    mu0 = 1.716e-5  # Pa·s (reference viscosity)
+    S = 110.4  # K (Sutherland's constant)
+
+    return mu0 * (temperature / T0) ** 1.5 * (T0 + S) / (temperature + S)
+
+
+def gravity_at_altitude(altitude):
+    """
+    Calculate gravitational acceleration at given altitude.
+
+    Args:
+        altitude (float): Altitude above sea level (m)
+
+    Returns:
+        float: Gravitational acceleration (m/s²)
+    """
+    r = EARTH_RADIUS + altitude
+    return G * EARTH_MASS / (r**2)
+
 
 def calculate_reynolds_number(
     velocity, characteristic_length, air_density=1.225, dynamic_viscosity=1.81e-5
@@ -212,6 +320,7 @@ def projectile_distance1(
         dense_output=True,
         rtol=1e-8,
         atol=1e-10,
+        max_step=0.1,
     )
 
     if sol.t_events[0].size > 0:
@@ -338,6 +447,7 @@ def projectile_distance2(
         rtol=rtol,
         atol=1e-10,
         method="DOP853",
+        max_step=0.1,
     )
 
     if sol.t_events[0].size > 0:
@@ -436,12 +546,11 @@ def projectile_distance3(
     characteristic_length = 2.0 * math.sqrt(surface_area / math.pi)
 
     def get_air_density(altitude):
-        """Calculate air density at given altitude using exponential model"""
+        """Calculate air density at given altitude"""
         if not altitude_model:
             return air_density
-        # Exponential atmosphere model
-        scale_height = 8400  # meters
-        return air_density * math.exp(-altitude / scale_height)
+        # Use ISA model with temperature-dependent properties
+        return get_air_density_isa(altitude)
 
     def equations_of_motion(t, state):
         """
@@ -453,13 +562,27 @@ def projectile_distance3(
         # Handle near-zero velocity to avoid numerical issues
         v = math.sqrt(vx**2 + vy**2)
         if v < 1e-10:
-            return [0, 0, 0, -gravity]
+            # Use variable gravity even at zero velocity
+            h = max(0, y)
+            g = gravity_at_altitude(h) if altitude_model else gravity
+            return [0, 0, 0, -g]
 
-        # Air density at current altitude
-        rho = get_air_density(max(0, y))
+        # Current altitude (clamped to non-negative)
+        h = max(0, y)
 
-        # Calculate Reynolds number at current velocity
-        Re = calculate_reynolds_number(v, characteristic_length, rho)
+        # Get temperature, air density, and viscosity at current altitude
+        if altitude_model:
+            T = get_temperature_at_altitude(h)
+            rho = get_air_density_isa(h)
+            mu = get_dynamic_viscosity(T)
+            g = gravity_at_altitude(h)
+        else:
+            rho = air_density
+            mu = 1.81e-5  # Pa·s at 15°C
+            g = gravity
+
+        # Calculate Reynolds number at current velocity with temperature-dependent viscosity
+        Re = calculate_reynolds_number(v, characteristic_length, rho, mu)
 
         # Get Reynolds-dependent drag coefficient
         Cd = drag_coefficient_shape(shape, Re)
@@ -471,9 +594,9 @@ def projectile_distance3(
         ax_drag = -k * v * vx
         ay_drag = -k * v * vy
 
-        # Total accelerations
+        # Total accelerations (now with variable gravity)
         ax = ax_drag
-        ay = ay_drag - gravity
+        ay = ay_drag - g
 
         return [vx, vy, ax, ay]
 
@@ -504,6 +627,7 @@ def projectile_distance3(
         rtol=rtol,
         atol=1e-10,
         method="DOP853",
+        max_step=0.1,
     )
 
     if sol.t_events[0].size > 0:

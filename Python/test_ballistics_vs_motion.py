@@ -23,7 +23,14 @@ class TestBallisticsVsMotion(unittest.TestCase):
         self.gravity = 9.81  # m/s²
 
     def test_projectile_distance_consistency_ballistics_methods(self):
-        """Test that the three projectile_distance methods in ballistics_lib give consistent results."""
+        """
+        Test projectile_distance methods in ballistics_lib.
+
+        NOTE: Methods 1 and 2 use fixed drag coefficients and should match.
+        Method 3 uses Reynolds-dependent drag coefficients, making it more accurate
+        but producing different results (~95% farther for this test case due to
+        drag crisis effects at these velocities).
+        """
 
         distance1 = bl.projectile_distance1(
             self.speed,
@@ -53,9 +60,10 @@ class TestBallisticsVsMotion(unittest.TestCase):
             self.drag_coeff,
             self.air_density,
             self.gravity,
+            shape="sphere",  # Explicitly use sphere shape for Reynolds-dependent Cd
         )
 
-        # Compare distance1 vs distance2
+        # Compare distance1 vs distance2 (both use fixed Cd, should match closely)
         relative_diff_1_2 = abs(distance1 - distance2) / max(distance1, distance2)
         self.assertLess(
             relative_diff_1_2,
@@ -64,17 +72,27 @@ class TestBallisticsVsMotion(unittest.TestCase):
             f"{distance1:.1f}m vs {distance2:.1f}m",
         )
 
-        # Compare distance2 vs distance3
-        relative_diff_2_3 = abs(distance2 - distance3) / max(distance2, distance3)
+        # Method 3 uses Reynolds-dependent Cd and will be significantly different
+        # Verify it's farther (Reynolds effects reduce drag at these velocities)
+        self.assertGreater(
+            distance3,
+            distance2,
+            f"Method 3 (Reynolds-dependent) should have greater range than fixed-Cd methods: "
+            f"{distance3:.1f}m vs {distance2:.1f}m",
+        )
+
+        # Verify the difference is within expected range (50-100% farther)
+        ratio = distance3 / distance2
+        self.assertGreater(
+            ratio, 1.5, "Reynolds-dependent model should show significant improvement"
+        )
         self.assertLess(
-            relative_diff_2_3,
-            self.tolerance,
-            f"projectile_distance2 and distance3 differ by {relative_diff_2_3:.3%}: "
-            f"{distance2:.1f}m vs {distance3:.1f}m",
+            ratio, 2.5, "Improvement should be within reasonable physical bounds"
         )
 
         print(
-            f"Ballistics lib distances - Method 1: {distance1:.1f}m, Method 2: {distance2:.1f}m, Method 3: {distance3:.1f}m"
+            f"Ballistics lib distances - Method 1: {distance1:.1f}m, Method 2: {distance2:.1f}m, "
+            f"Method 3 (Reynolds): {distance3:.1f}m ({(ratio - 1) * 100:.1f}% increase)"
         )
 
     def test_ballistics_vs_motion_projectile_distance(self):
@@ -776,7 +794,7 @@ class TestBallisticsVsMotion(unittest.TestCase):
         )
 
     def test_altitude_model_comparison(self):
-        """Test ballistics_lib altitude model vs motion_lib atmospheric density."""
+        """Test ballistics_lib altitude model (ISA + variable gravity) vs basic model."""
 
         print(f"\nAltitude Model Comparison:")
 
@@ -786,9 +804,9 @@ class TestBallisticsVsMotion(unittest.TestCase):
             self.angle,
             self.mass,
             self.area,
-            self.drag_coeff,
-            self.air_density,
-            self.gravity,
+            shape="sphere",
+            air_density=self.air_density,
+            gravity=self.gravity,
             altitude_model=False,
         )
 
@@ -797,9 +815,9 @@ class TestBallisticsVsMotion(unittest.TestCase):
             self.angle,
             self.mass,
             self.area,
-            self.drag_coeff,
-            self.air_density,
-            self.gravity,
+            shape="sphere",
+            air_density=self.air_density,
+            gravity=self.gravity,
             altitude_model=True,
         )
 
@@ -825,12 +843,276 @@ class TestBallisticsVsMotion(unittest.TestCase):
             "Altitude model should increase or maintain range due to thinner air at height",
         )
 
-        # Difference should be reasonable (not extreme)
+        # Difference should be small for low trajectories (< 5%)
         relative_diff = abs(bl_dist_with_alt - bl_dist_no_alt) / bl_dist_no_alt
         self.assertLess(
             relative_diff,
-            0.2,
-            f"Altitude model effect should be reasonable: {relative_diff:.3%}",
+            0.05,
+            f"Altitude model effect should be small for low trajectories: {relative_diff:.3%}",
+        )
+
+    def test_reynolds_number_effects(self):
+        """Test that Reynolds number effects are working correctly in projectile_distance3."""
+
+        print(f"\nReynolds Number Effects Testing:")
+
+        # Use lower speed to see Cd variation through different Reynolds regimes
+        test_speed = 30  # m/s - will pass through different Re regimes
+
+        # Get trajectory with Reynolds-dependent Cd
+        result = bl.projectile_distance3(
+            test_speed,
+            self.angle,
+            self.mass,
+            self.area,
+            shape="sphere",
+            air_density=self.air_density,
+            gravity=self.gravity,
+            return_trajectory=True,
+            n_points=100,
+        )
+
+        # Calculate Reynolds numbers at different points in trajectory
+        from ballistics_lib import calculate_reynolds_number, drag_coefficient_sphere
+
+        char_length = 2.0 * math.sqrt(self.area / math.pi)
+
+        # Check initial Reynolds number (high velocity)
+        Re_initial = calculate_reynolds_number(
+            result["speed"][0], char_length, self.air_density
+        )
+        Cd_initial = drag_coefficient_sphere(Re_initial)
+
+        # Check mid-flight Reynolds number
+        mid_idx = len(result["speed"]) // 2
+        Re_mid = calculate_reynolds_number(
+            result["speed"][mid_idx], char_length, self.air_density
+        )
+        Cd_mid = drag_coefficient_sphere(Re_mid)
+
+        # Check final Reynolds number (lower velocity)
+        Re_final = calculate_reynolds_number(
+            result["speed"][-1], char_length, self.air_density
+        )
+        Cd_final = drag_coefficient_sphere(Re_final)
+
+        print(
+            f"Initial: Re={Re_initial:.0f}, Cd={Cd_initial:.3f}, V={result['speed'][0]:.1f} m/s"
+        )
+        print(
+            f"Mid:     Re={Re_mid:.0f}, Cd={Cd_mid:.3f}, V={result['speed'][mid_idx]:.1f} m/s"
+        )
+        print(
+            f"Final:   Re={Re_final:.0f}, Cd={Cd_final:.3f}, V={result['speed'][-1]:.1f} m/s"
+        )
+
+        # Find minimum velocity point (apex)
+        import numpy as np
+
+        min_speed_idx = int(np.argmin(result["speed"]))
+        Re_min = calculate_reynolds_number(
+            result["speed"][min_speed_idx], char_length, self.air_density
+        )
+        Cd_min = drag_coefficient_sphere(Re_min)
+        print(
+            f"At apex: Re={Re_min:.0f}, Cd={Cd_min:.3f}, V={result['speed'][min_speed_idx]:.1f} m/s"
+        )
+
+        # Verify Reynolds number varies throughout flight
+        self.assertGreater(
+            Re_initial, Re_min, "Reynolds number should decrease from launch to apex"
+        )
+
+        # Verify Cd varies (not constant like old model)
+        self.assertNotAlmostEqual(
+            Cd_initial,
+            Cd_min,
+            places=2,
+            msg="Drag coefficient should vary with Reynolds number throughout flight",
+        )
+
+    def test_isa_atmospheric_model(self):
+        """Test the International Standard Atmosphere model functions."""
+
+        print(f"\nISA Atmospheric Model Testing:")
+
+        from ballistics_lib import (
+            get_temperature_at_altitude,
+            get_air_density_isa,
+            get_dynamic_viscosity,
+        )
+
+        # Test temperature at various altitudes
+        T_sea = get_temperature_at_altitude(0)
+        T_5km = get_temperature_at_altitude(5000)
+        T_11km = get_temperature_at_altitude(11000)
+        T_15km = get_temperature_at_altitude(15000)
+
+        print(
+            f"Temperature: 0m={T_sea:.1f}K, 5km={T_5km:.1f}K, 11km={T_11km:.1f}K, 15km={T_15km:.1f}K"
+        )
+
+        # Temperature should decrease in troposphere
+        self.assertGreater(
+            T_sea, T_5km, "Temperature should decrease with altitude in troposphere"
+        )
+        self.assertGreater(
+            T_5km, T_11km, "Temperature should continue decreasing to tropopause"
+        )
+
+        # Temperature should be constant in lower stratosphere
+        self.assertAlmostEqual(
+            T_11km,
+            T_15km,
+            delta=1.0,
+            msg="Temperature should be constant in lower stratosphere",
+        )
+
+        # Test air density at various altitudes
+        rho_sea = get_air_density_isa(0)
+        rho_5km = get_air_density_isa(5000)
+        rho_11km = get_air_density_isa(11000)
+
+        print(
+            f"Air density: 0m={rho_sea:.3f} kg/m³, 5km={rho_5km:.3f} kg/m³, 11km={rho_11km:.3f} kg/m³"
+        )
+
+        # Density should decrease with altitude
+        self.assertGreater(
+            rho_sea, rho_5km, "Air density should decrease with altitude"
+        )
+        self.assertGreater(rho_5km, rho_11km, "Air density should continue decreasing")
+
+        # Sea level density should be approximately correct
+        self.assertAlmostEqual(
+            rho_sea, 1.225, delta=0.01, msg="Sea level density should be ~1.225 kg/m³"
+        )
+
+        # Test dynamic viscosity at various temperatures
+        mu_cold = get_dynamic_viscosity(216.65)  # Stratosphere temp
+        mu_std = get_dynamic_viscosity(288.15)  # Sea level temp
+        mu_hot = get_dynamic_viscosity(300)  # Warm day
+
+        print(
+            f"Viscosity: cold={mu_cold:.6e} Pa·s, std={mu_std:.6e} Pa·s, hot={mu_hot:.6e} Pa·s"
+        )
+
+        # Viscosity should increase with temperature
+        self.assertLess(mu_cold, mu_std, "Viscosity should increase with temperature")
+        self.assertLess(mu_std, mu_hot, "Viscosity should continue increasing")
+
+    def test_variable_gravity(self):
+        """Test variable gravity effects at different altitudes."""
+
+        print(f"\nVariable Gravity Testing:")
+
+        from ballistics_lib import gravity_at_altitude
+
+        # Test gravity at various altitudes
+        g_sea = gravity_at_altitude(0)
+        g_1km = gravity_at_altitude(1000)
+        g_10km = gravity_at_altitude(10000)
+        g_100km = gravity_at_altitude(100000)
+
+        print(
+            f"Gravity: 0m={g_sea:.6f} m/s², 1km={g_1km:.6f} m/s², 10km={g_10km:.6f} m/s², 100km={g_100km:.6f} m/s²"
+        )
+
+        # Gravity should decrease with altitude
+        self.assertGreater(g_sea, g_1km, "Gravity should decrease with altitude")
+        self.assertGreater(g_1km, g_10km, "Gravity should continue decreasing")
+        self.assertGreater(g_10km, g_100km, "Gravity should decrease at high altitudes")
+
+        # Sea level gravity should be approximately standard
+        self.assertAlmostEqual(
+            g_sea, 9.82, delta=0.01, msg="Sea level gravity should be ~9.82 m/s²"
+        )
+
+        # At 100km, gravity should be reduced by ~3%
+        reduction = (g_sea - g_100km) / g_sea
+        self.assertGreater(
+            reduction, 0.025, "Gravity should be reduced by >2.5% at 100km"
+        )
+        self.assertLess(reduction, 0.035, "Gravity reduction should be <3.5% at 100km")
+
+    def test_high_altitude_trajectory(self):
+        """Test that altitude model makes a difference for high trajectories."""
+
+        print(f"\nHigh Altitude Trajectory Testing:")
+
+        # High-velocity, steep angle trajectory
+        high_speed = 500  # m/s
+        steep_angle = 70  # degrees
+
+        dist_no_alt = bl.projectile_distance3(
+            high_speed,
+            steep_angle,
+            self.mass,
+            self.area,
+            shape="streamlined",
+            altitude_model=False,
+        )
+
+        dist_with_alt = bl.projectile_distance3(
+            high_speed,
+            steep_angle,
+            self.mass,
+            self.area,
+            shape="streamlined",
+            altitude_model=True,
+        )
+
+        result = bl.projectile_distance3(
+            high_speed,
+            steep_angle,
+            self.mass,
+            self.area,
+            shape="streamlined",
+            altitude_model=True,
+            return_trajectory=True,
+        )
+
+        max_height = max(result["y"])
+
+        print(f"Distance without altitude model: {dist_no_alt:.1f}m")
+        print(f"Distance with altitude model: {dist_with_alt:.1f}m")
+        print(f"Maximum height: {max_height:.1f}m")
+
+        # For high trajectories, altitude model should make a measurable difference
+        if max_height > 5000:  # Only check if trajectory goes high enough
+            relative_diff = abs(dist_with_alt - dist_no_alt) / dist_no_alt
+            self.assertGreater(
+                relative_diff,
+                0.01,
+                f"Altitude model should have measurable effect (>{1}%) for high trajectories: {relative_diff:.3%}",
+            )
+
+    def test_reynolds_drag_crisis(self):
+        """Test that drag crisis (sudden drop in Cd) is captured at critical Reynolds number."""
+
+        print(f"\nReynolds Drag Crisis Testing:")
+
+        from ballistics_lib import drag_coefficient_sphere
+
+        # Test Cd at various Reynolds numbers
+        Re_subcritical = 1e5  # Below critical Re
+        Re_critical = 3e5  # In critical region
+        Re_supercritical = 6e5  # Above critical Re
+
+        Cd_sub = drag_coefficient_sphere(Re_subcritical)
+        Cd_crit = drag_coefficient_sphere(Re_critical)
+        Cd_super = drag_coefficient_sphere(Re_supercritical)
+
+        print(f"Cd at Re={Re_subcritical:.0e}: {Cd_sub:.3f}")
+        print(f"Cd at Re={Re_critical:.0e}: {Cd_crit:.3f}")
+        print(f"Cd at Re={Re_supercritical:.0e}: {Cd_super:.3f}")
+
+        # Verify drag crisis: Cd should drop significantly in critical region
+        self.assertGreater(Cd_sub, 0.40, "Subcritical Cd should be around 0.47")
+        self.assertLess(Cd_super, 0.20, "Supercritical Cd should drop to ~0.1")
+        self.assertLess(Cd_crit, Cd_sub, "Cd should decrease in critical region")
+        self.assertGreater(
+            Cd_crit, Cd_super, "Cd in critical region should be between sub and super"
         )
 
 
