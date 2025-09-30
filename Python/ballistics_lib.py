@@ -3,6 +3,141 @@ from scipy.integrate import solve_ivp
 import math
 
 
+def calculate_reynolds_number(
+    velocity, characteristic_length, air_density=1.225, dynamic_viscosity=1.81e-5
+):
+    """
+    Calculate Reynolds number for a projectile in air.
+
+    Args:
+        velocity (float): Velocity of object relative to air (m/s)
+        characteristic_length (float): Characteristic length (m), typically diameter for spheres
+        air_density (float): Air density (kg/m³, default 1.225 for sea level)
+        dynamic_viscosity (float): Dynamic viscosity of air (Pa·s, default 1.81e-5 at 15°C)
+
+    Returns:
+        float: Reynolds number (dimensionless)
+    """
+    if velocity < 1e-10:
+        return 0.0
+    return air_density * velocity * characteristic_length / dynamic_viscosity
+
+
+def drag_coefficient_sphere(reynolds_number):
+    """
+    Calculate drag coefficient for a smooth sphere based on Reynolds number.
+    Uses empirical approximations for different flow regimes.
+
+    Reynolds number regimes:
+        Re < 1: Stokes flow (creeping flow)
+        1 < Re < 1000: Intermediate regime
+        1000 < Re < 200000: Subcritical regime
+        200000 < Re < 500000: Critical regime (drag crisis)
+        Re > 500000: Supercritical regime
+
+    Args:
+        reynolds_number (float): Reynolds number
+
+    Returns:
+        float: Drag coefficient
+    """
+    Re = reynolds_number
+
+    if Re < 1e-6:
+        return 0.0  # No flow
+    elif Re < 1:
+        # Stokes flow: Cd = 24/Re
+        return 24.0 / Re
+    elif Re < 1000:
+        # Intermediate regime: polynomial approximation
+        return 24.0 / Re * (1 + 0.15 * Re**0.687)
+    elif Re < 2e5:
+        # Subcritical regime: approximately constant
+        return 0.47
+    elif Re < 5e5:
+        # Critical regime: drag crisis (sharp drop)
+        # Linear interpolation through critical region
+        return 0.47 - (0.47 - 0.1) * (Re - 2e5) / (5e5 - 2e5)
+    else:
+        # Supercritical regime
+        return 0.1
+
+
+def drag_coefficient_shape(shape, reynolds_number):
+    """
+    Calculate drag coefficient for various shapes based on Reynolds number.
+    For most shapes, Cd is relatively constant at high Re, but varies at low Re.
+
+    Args:
+        shape (str): Shape identifier
+        reynolds_number (float): Reynolds number
+
+    Returns:
+        float: Drag coefficient
+    """
+    Re = reynolds_number
+
+    # For sphere, use detailed Reynolds-dependent model
+    if shape == "sphere":
+        return drag_coefficient_sphere(Re)
+
+    # For other shapes, use simplified models
+    # At very low Reynolds numbers, use Stokes-like behavior
+    if Re < 1:
+        # Most shapes approach infinite drag as Re -> 0
+        base_cd = {
+            "human_standing": 1.2,
+            "human_prone": 0.7,
+            "cylinder_side": 1.0,
+            "cylinder_end": 0.8,
+            "flat_plate": 1.28,
+            "streamlined": 0.04,
+            "cube": 1.05,
+            "disk": 1.17,
+            "cone_base": 0.5,
+            "parachute": 1.3,
+        }.get(shape, 1.0)
+        # Scale up at very low Re (simplified)
+        return base_cd * (1 + 20.0 / max(Re, 0.1))
+
+    # At moderate to high Reynolds numbers (Re > 1000), use standard values
+    # These are relatively constant for bluff bodies
+    if Re >= 1000:
+        return {
+            "human_standing": 1.2,
+            "human_prone": 0.7,
+            "cylinder_side": 1.0,
+            "cylinder_end": 0.8,
+            "flat_plate": 1.28,
+            "streamlined": 0.04,
+            "cube": 1.05,
+            "disk": 1.17,
+            "cone_base": 0.5,
+            "parachute": 1.3,
+        }.get(shape, 1.0)
+
+    # Transition region 1 < Re < 1000: interpolate
+    high_re_cd = {
+        "human_standing": 1.2,
+        "human_prone": 0.7,
+        "cylinder_side": 1.0,
+        "cylinder_end": 0.8,
+        "flat_plate": 1.28,
+        "streamlined": 0.04,
+        "cube": 1.05,
+        "disk": 1.17,
+        "cone_base": 0.5,
+        "parachute": 1.3,
+    }.get(shape, 1.0)
+
+    low_re_cd = high_re_cd * (1 + 20.0 / 1.0)  # Value at Re=1
+
+    # Log interpolation
+    log_re = math.log10(Re)
+    factor = (log_re - 0) / (3 - 0)  # Interpolate from Re=1 (log=0) to Re=1000 (log=3)
+    return low_re_cd + factor * (high_re_cd - low_re_cd)
+
+
 def projectile_distance1(
     speed,
     angle_deg,
@@ -296,8 +431,9 @@ def projectile_distance3(
     # Initial conditions: [x, y, vx, vy]
     y0 = [0, 0, speed * math.cos(angle_rad), speed * math.sin(angle_rad)]
 
-    # Base drag coefficient factor
-    k_base = 0.5 * drag_coeff * surface_area / mass
+    # Calculate characteristic length from surface area (assume circular cross-section)
+    # For a circle: A = π*r² → r = sqrt(A/π) → diameter = 2*sqrt(A/π)
+    characteristic_length = 2.0 * math.sqrt(surface_area / math.pi)
 
     def get_air_density(altitude):
         """Calculate air density at given altitude using exponential model"""
@@ -321,7 +457,15 @@ def projectile_distance3(
 
         # Air density at current altitude
         rho = get_air_density(max(0, y))
-        k = k_base * rho
+
+        # Calculate Reynolds number at current velocity
+        Re = calculate_reynolds_number(v, characteristic_length, rho)
+
+        # Get Reynolds-dependent drag coefficient
+        Cd = drag_coefficient_shape(shape, Re)
+
+        # Calculate drag force coefficient with Reynolds-dependent Cd
+        k = 0.5 * Cd * surface_area / mass * rho
 
         # Air resistance accelerations (opposing velocity)
         ax_drag = -k * v * vx
@@ -342,7 +486,11 @@ def projectile_distance3(
 
     # Adaptive time span estimation
     # Start with vacuum estimate, then scale by drag factor
+    # Use initial drag coefficient estimate for time span calculation
     t_vacuum = 2 * speed * math.sin(angle_rad) / gravity
+    Re_initial = calculate_reynolds_number(speed, characteristic_length, air_density)
+    Cd_initial = drag_coefficient_shape(shape, Re_initial)
+    k_base = 0.5 * Cd_initial * surface_area / mass
     drag_factor = k_base * air_density * speed
     t_estimate = t_vacuum * (1 + 2 * drag_factor)  # Heuristic scaling
     t_span = (0, min(t_estimate, 1000))  # Cap at reasonable maximum
