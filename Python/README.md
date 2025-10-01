@@ -32,54 +32,6 @@ You will need to install the *mpmath* to use this library:
 pip install mpmath
 ```
 
-### Ballistics Library
-
-A high-quality ballistics simulation library is also included for modeling projectile trajectories with realistic physics:
-
-https://github.com/lookbusy1344/Relativity/blob/main/Python/ballistics_lib.py
-
-**Features:**
-- International Standard Atmosphere (ISA) model
-- Reynolds number-dependent drag coefficients (including drag crisis)
-- Variable gravity with altitude
-- Temperature-dependent air viscosity
-- Multiple projectile shapes supported
-- High-order numerical integration
-
-**Quality Assessment: Excellent (9/10)**
-
-See [BALLISTICS_QUALITY_ASSESSMENT.md](BALLISTICS_QUALITY_ASSESSMENT.md) for detailed analysis.
-
-**Requirements:**
-```bash
-pip install numpy scipy matplotlib
-```
-
-**Example usage:**
-```python
-import ballistics_lib as bl
-
-# Calculate range of a cannonball
-distance = bl.projectile_distance3(
-    speed=100,           # m/s
-    angle_deg=45,        # degrees
-    mass=5,              # kg
-    surface_area=0.05,   # m² (cross-sectional area)
-    shape="sphere",
-    altitude_model=True  # include altitude effects
-)
-print(f"Range: {distance:.1f} m")
-
-# Get full trajectory
-trajectory = bl.projectile_distance3(
-    speed=100, angle_deg=45, mass=5, surface_area=0.05,
-    shape="sphere", return_trajectory=True, n_points=100
-)
-# Access: trajectory['x'], trajectory['y'], trajectory['speed'], etc.
-```
-
-**Supported shapes:** sphere, human_standing, human_prone, streamlined, flat_plate, cylinder_side, cylinder_end, cube, disk, cone_base, parachute
-
 ## Example usage, 1 year at 1g
 
 ```python
@@ -213,3 +165,48 @@ Format a number with commas and specified significant decimal places. Ignore any
 - 1234.00001234 with 2 significant decimal places and `ignore_char='0'` will return `1,234.000012`
 - 1234.99991234 with 2 significant decimal places and `ignore_char='9'` will return `1,234.999912`
 - 1234.1234 with 2 significant decimal places and `ignore_char='9'` will return `1,234.12`
+
+# Bonus - Ballistics Library
+
+A ballistics simulation library is also included for modeling projectile trajectories with realistic physics:
+
+https://github.com/lookbusy1344/Relativity/blob/main/Python/ballistics_lib.py
+
+and demonstrated in this notebook:
+
+https://github.com/lookbusy1344/Relativity/blob/main/Python/Projectile%20Trajectories.ipynb
+
+**Features:**
+- International Standard Atmosphere (ISA) model
+- Reynolds number-dependent drag coefficients (including drag crisis)
+- Variable gravity with altitude
+- Temperature-dependent air viscosity
+- Multiple projectile shapes supported
+- High-order numerical integration
+
+See [BALLISTICS_QUALITY_ASSESSMENT.md](BALLISTICS_QUALITY_ASSESSMENT.md) for detailed analysis.
+
+**Example usage:**
+```python
+import ballistics_lib as bl
+
+# Calculate range of a cannonball
+distance = bl.projectile_distance3(
+    speed=100,           # m/s
+    angle_deg=45,        # degrees
+    mass=5,              # kg
+    surface_area=0.05,   # m² (cross-sectional area)
+    shape="sphere",
+    altitude_model=True  # include altitude effects
+)
+print(f"Range: {distance:.1f} m")
+
+# Get full trajectory
+trajectory = bl.projectile_distance3(
+    speed=100, angle_deg=45, mass=5, surface_area=0.05,
+    shape="sphere", return_trajectory=True, n_points=100
+)
+# Access: trajectory['x'], trajectory['y'], trajectory['speed'], etc.
+```
+
+**Supported shapes:** sphere, human_standing, human_prone, streamlined, flat_plate, cylinder_side, cylinder_end, cube, disk, cone_base, parachute
