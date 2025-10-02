@@ -1149,8 +1149,16 @@ if __name__ == "__main__":
     print("Subsonic vs Supersonic comparison (same projectile):")
 
     # 100 m/s cannonball
-    dist_sub = projectile_distance3(100, 45, 5, 0.05, shape="sphere")
-    dist_super = projectile_distance_supersonic(100, 45, 5, 0.05, shape="sphere")
+    dist_sub = projectile_distance3(
+        100, 45, 5, 0.05, shape="sphere", return_trajectory=False
+    )
+    dist_super = projectile_distance_supersonic(
+        100, 45, 5, 0.05, shape="sphere", return_trajectory=False
+    )
+
+    # Type assertions for type checker
+    assert isinstance(dist_sub, (int, float))
+    assert isinstance(dist_super, (int, float))
 
     print(f"Subsonic model (100 m/s): {dist_sub:.1f} m")
     print(f"Supersonic model (100 m/s): {dist_super:.1f} m")
