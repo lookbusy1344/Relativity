@@ -19,11 +19,10 @@ LIMITATIONS:
 1. Coriolis effect not included (negligible for <10km range, ~0.1-0.5% for >50km)
 2. Wind effects not modeled (assumes still air)
 3. Magnus effect not included (no spin/rotation modeling)
-4. Subsonic/transonic drag models only (limited accuracy for Mach > 1.5)
-5. Characteristic length assumes circular cross-section
+4. Characteristic length assumes circular cross-section
 
 USAGE:
-For most applications, use projectile_distance3() with shape parameter:
+For subsonic velocities (< Mach 0.8), use projectile_distance3():
     distance = projectile_distance3(
         speed=100,           # m/s
         angle_deg=45,        # degrees
@@ -31,6 +30,16 @@ For most applications, use projectile_distance3() with shape parameter:
         surface_area=0.05,   # m²
         shape="sphere",      # or "human_standing", "streamlined", etc.
         altitude_model=True  # for high-altitude trajectories
+    )
+
+For transonic/supersonic velocities (> Mach 0.8), use projectile_distance_supersonic():
+    distance = projectile_distance_supersonic(
+        speed=940,           # m/s (e.g., rifle bullet)
+        angle_deg=45,
+        mass=0.004,          # kg
+        surface_area=0.000025,  # m²
+        shape="bullet",      # or "sphere", "streamlined", etc.
+        altitude_model=True  # accounts for speed of sound variation
     )
 
 PHYSICAL ACCURACY:
@@ -506,6 +515,269 @@ def projectile_distance2(
         return sol.y[0][-1]
 
 
+def drag_coefficient_mach(mach, shape="sphere"):
+    """
+    Calculate drag coefficient as a function of Mach number for various shapes.
+    Handles subsonic, transonic, and supersonic regimes.
+
+    Mach regimes:
+        M < 0.8: Subsonic (incompressible flow assumptions valid)
+        0.8 < M < 1.2: Transonic (shock wave formation, drag rise)
+        M > 1.2: Supersonic (detached shock waves, wave drag dominates)
+
+    Args:
+        mach (float): Mach number (velocity / speed of sound)
+        shape (str): Shape identifier
+
+    Returns:
+        float: Drag coefficient
+
+    References:
+        - Anderson, J.D. "Fundamentals of Aerodynamics" (2017)
+        - Hoerner, S.F. "Fluid-Dynamic Drag" (1965)
+    """
+    # Sphere drag coefficient vs Mach (based on experimental data)
+    # Sources: Hoerner (1965), Bailey & Hiatt (1972)
+    if shape == "sphere":
+        if mach < 0.6:
+            # Subsonic: relatively constant
+            return 0.47
+        elif mach < 0.8:
+            # High subsonic: slight increase
+            return 0.47 + 0.05 * (mach - 0.6) / 0.2
+        elif mach < 1.0:
+            # Transonic: dramatic drag rise
+            return 0.52 + 0.48 * (mach - 0.8) / 0.2
+        elif mach < 1.2:
+            # Near sonic peak
+            return 1.0 - 0.05 * (mach - 1.0) / 0.2
+        elif mach < 3.0:
+            # Supersonic: gradual decrease
+            return 0.95 - 0.45 * (mach - 1.2) / 1.8
+        else:
+            # High supersonic: asymptotic to ~0.5
+            return 0.50
+
+    # Streamlined/pointed projectile (bullet-like)
+    elif shape in ["streamlined", "bullet"]:
+        if mach < 0.8:
+            return 0.04
+        elif mach < 1.0:
+            # Transonic rise
+            return 0.04 + 0.16 * (mach - 0.8) / 0.2
+        elif mach < 1.2:
+            # Peak around M=1
+            return 0.20 + 0.05 * (mach - 1.0) / 0.2
+        elif mach < 3.0:
+            # Supersonic: decrease
+            return 0.25 - 0.10 * (mach - 1.2) / 1.8
+        else:
+            return 0.15
+
+    # Blunt/flat shapes (higher supersonic drag)
+    elif shape in ["flat_plate", "disk", "cube"]:
+        subsonic_cd = {"flat_plate": 1.28, "disk": 1.17, "cube": 1.05}.get(shape, 1.2)
+
+        if mach < 0.8:
+            return subsonic_cd
+        elif mach < 1.0:
+            # Transonic rise
+            return subsonic_cd + 0.2 * (mach - 0.8) / 0.2
+        elif mach < 1.5:
+            # Supersonic peak
+            return subsonic_cd + 0.2 - 0.1 * (mach - 1.0) / 0.5
+        else:
+            # High supersonic
+            return subsonic_cd + 0.1
+
+    # Default: use sphere model
+    else:
+        return drag_coefficient_mach(mach, "sphere")
+
+
+def projectile_distance_supersonic(
+    speed,
+    angle_deg,
+    mass,
+    surface_area,
+    shape="sphere",
+    altitude_model=True,
+    rtol=1e-6,
+    return_trajectory=False,
+    n_points=1000,
+):
+    """
+    Calculate projectile distance with Mach-dependent drag for supersonic velocities.
+    Properly handles transonic and supersonic flow regimes.
+
+    This function uses Mach-dependent drag coefficients that account for:
+    - Shock wave formation in transonic regime (M > 0.8)
+    - Wave drag in supersonic regime (M > 1.0)
+    - Temperature-dependent speed of sound at altitude
+
+    Args:
+        speed (float): Initial velocity (m/s)
+        angle_deg (float): Launch angle (degrees)
+        mass (float): Projectile mass (kg)
+        surface_area (float): Cross-sectional area (m²)
+        shape (str): Shape for Mach-dependent drag ("sphere", "streamlined", "bullet", etc.)
+        altitude_model (bool): Include altitude-dependent atmosphere (recommended for supersonic)
+        rtol (float): Relative tolerance for integration
+        return_trajectory (bool): If True, return full trajectory data
+        n_points (int): Number of trajectory points (if return_trajectory=True)
+
+    Returns:
+        float or dict: Distance (m) or trajectory dict with 'distance', 't', 'x', 'y', 'vx', 'vy', 'speed', 'mach'
+
+    Raises:
+        ValueError: If input parameters are invalid
+
+    Note:
+        Accurate for M < 5. For hypersonic velocities (M > 5), additional heating
+        and real-gas effects become significant.
+    """
+    # Input validation
+    if speed <= 0:
+        raise ValueError("Speed must be positive")
+    if not 0 <= angle_deg <= 90:
+        raise ValueError("Angle must be between 0 and 90 degrees")
+    if mass <= 0:
+        raise ValueError("Mass must be positive")
+    if surface_area <= 0:
+        raise ValueError("Surface area must be positive")
+
+    # Convert angle to radians
+    angle_rad = math.radians(angle_deg)
+
+    # Initial conditions: [x, y, vx, vy]
+    y0 = [0, 0, speed * math.cos(angle_rad), speed * math.sin(angle_rad)]
+
+    # Standard sea-level speed of sound (15°C)
+    SPEED_OF_SOUND_SEA_LEVEL = 340.3  # m/s
+
+    def get_speed_of_sound(altitude):
+        """Calculate speed of sound at given altitude (temperature-dependent)"""
+        T = get_temperature_at_altitude(altitude)
+        # Speed of sound: a = sqrt(gamma * R * T)
+        # For air: gamma = 1.4, R = 287.05 J/(kg·K)
+        gamma = 1.4
+        R = 287.05
+        return math.sqrt(gamma * R * T)
+
+    def equations_of_motion(t, state):
+        """
+        Equations of motion with Mach-dependent drag.
+        state = [x, y, vx, vy]
+        """
+        x, y, vx, vy = state
+
+        # Handle near-zero velocity
+        v = math.sqrt(vx**2 + vy**2)
+        if v < 1e-10:
+            h = max(0, y)
+            g = gravity_at_altitude(h) if altitude_model else STANDARD_GRAVITY
+            return [0, 0, 0, -g]
+
+        # Current altitude
+        h = max(0, y)
+
+        # Get atmospheric properties at current altitude
+        if altitude_model:
+            T = get_temperature_at_altitude(h)
+            rho = get_air_density_isa(h)
+            a = get_speed_of_sound(h)
+            g = gravity_at_altitude(h)
+        else:
+            rho = 1.225  # Sea level density
+            a = SPEED_OF_SOUND_SEA_LEVEL
+            g = STANDARD_GRAVITY
+
+        # Calculate Mach number
+        mach = v / a
+
+        # Get Mach-dependent drag coefficient
+        Cd = drag_coefficient_mach(mach, shape)
+
+        # Calculate drag force coefficient
+        k = 0.5 * Cd * surface_area / mass * rho
+
+        # Air resistance accelerations (opposing velocity)
+        ax_drag = -k * v * vx
+        ay_drag = -k * v * vy
+
+        # Total accelerations
+        ax = ax_drag
+        ay = ay_drag - g
+
+        return [vx, vy, ax, ay]
+
+    def hit_ground(t, state):
+        """Event function to detect ground impact"""
+        return state[1]  # y coordinate
+
+    hit_ground.terminal = True
+    hit_ground.direction = -1
+
+    # Time span estimation
+    t_vacuum = 2 * speed * math.sin(angle_rad) / STANDARD_GRAVITY
+    # For supersonic, drag is high but not as extreme as subsonic at same speed
+    t_span = (0, min(t_vacuum * 2, 1000))
+
+    sol = solve_ivp(
+        equations_of_motion,
+        t_span,
+        y0,
+        events=hit_ground,
+        dense_output=True,
+        rtol=rtol,
+        atol=1e-10,
+        method="DOP853",
+        max_step=0.01,  # Smaller step for supersonic (rapid changes)
+    )
+
+    if sol.t_events[0].size > 0:
+        t_final = sol.t_events[0][0]
+        final_state = sol.sol(t_final)
+        distance = final_state[0]
+    else:
+        distance = sol.y[0][-1]
+        t_final = sol.t[-1]
+
+    if not return_trajectory:
+        return distance
+
+    # Generate trajectory data
+    t_trajectory = np.linspace(0, t_final, n_points)
+    trajectory_states = sol.sol(t_trajectory)
+
+    x_traj = trajectory_states[0]
+    y_traj = trajectory_states[1]
+    vx_traj = trajectory_states[2]
+    vy_traj = trajectory_states[3]
+    speed_traj = np.sqrt(vx_traj**2 + vy_traj**2)
+
+    # Calculate Mach numbers along trajectory
+    mach_traj = np.zeros_like(speed_traj)
+    for i in range(len(t_trajectory)):
+        h = max(0, y_traj[i])
+        if altitude_model:
+            a = get_speed_of_sound(h)
+        else:
+            a = SPEED_OF_SOUND_SEA_LEVEL
+        mach_traj[i] = speed_traj[i] / a
+
+    return {
+        "distance": distance,
+        "t": t_trajectory,
+        "x": x_traj,
+        "y": y_traj,
+        "vx": vx_traj,
+        "vy": vy_traj,
+        "speed": speed_traj,
+        "mach": mach_traj,
+    }
+
+
 def projectile_distance3(
     speed,
     angle_deg,
@@ -580,6 +852,21 @@ def projectile_distance3(
         raise ValueError("Mass must be positive")
     if surface_area <= 0:
         raise ValueError("Surface area must be positive")
+
+    # Speed of sound check (sea level, 15°C: ~340 m/s)
+    # Warn if approaching transonic regime where drag model breaks down
+    SPEED_OF_SOUND = 340.3  # m/s at sea level, 15°C
+    if speed > 0.8 * SPEED_OF_SOUND:
+        mach = speed / SPEED_OF_SOUND
+        import warnings
+
+        warnings.warn(
+            f"Velocity ({speed:.1f} m/s = Mach {mach:.2f}) is in transonic/supersonic regime. "
+            f"Drag model is only valid for subsonic flow (< Mach 0.8). "
+            f"Results may be significantly inaccurate due to shock wave formation and compressibility effects.",
+            UserWarning,
+            stacklevel=2,
+        )
 
     # Convert angle to radians
     angle_rad = math.radians(angle_deg)
@@ -814,3 +1101,59 @@ if __name__ == "__main__":
         vy = trajectory["vy"][i]
         speed = trajectory["speed"][i]
         print(f"{t:6.2f}  {x:6.1f}  {y:6.1f}  {vx:7.1f} {vy:7.1f} {speed:9.1f}")
+
+    print("\n" + "=" * 50)
+    print("Supersonic ballistics test:")
+
+    # Test supersonic projectile (e.g., rifle bullet)
+    # 5.56 NATO: ~940 m/s muzzle velocity, 4g, ~5mm diameter
+    bullet_speed = 940  # m/s (Mach 2.76)
+    bullet_mass = 0.004  # kg
+    bullet_diameter = 0.0056  # m
+    bullet_area = math.pi * (bullet_diameter / 2) ** 2
+
+    print(f"\nBullet: {bullet_speed} m/s (Mach {bullet_speed / 340.3:.2f})")
+    print(f"Mass: {bullet_mass * 1000:.1f}g, Diameter: {bullet_diameter * 1000:.1f}mm")
+
+    # Compare streamlined vs sphere drag (use small angle for realistic trajectory)
+    dist_bullet = projectile_distance_supersonic(
+        bullet_speed, 1, bullet_mass, bullet_area, shape="bullet"
+    )
+    dist_sphere = projectile_distance_supersonic(
+        bullet_speed, 1, bullet_mass, bullet_area, shape="sphere"
+    )
+
+    print(f"\nNearly flat trajectory (1° angle):")
+    print(f"  Streamlined/bullet shape: {dist_bullet:.1f} m")
+    print(f"  Sphere shape:             {dist_sphere:.1f} m")
+
+    # Get trajectory with Mach numbers
+    traj_super = projectile_distance_supersonic(
+        bullet_speed,
+        45,
+        bullet_mass,
+        bullet_area,
+        shape="bullet",
+        return_trajectory=True,
+        n_points=100,
+    )
+
+    print(f"\n45° angle trajectory:")
+    print(f"  Distance: {traj_super['distance']:.1f} m")
+    print(f"  Max height: {max(traj_super['y']):.1f} m")
+    print(f"  Flight time: {traj_super['t'][-1]:.2f} s")
+    print(f"  Initial Mach: {traj_super['mach'][0]:.2f}")
+    print(f"  Final Mach: {traj_super['mach'][-1]:.2f}")
+
+    print("\n" + "=" * 50)
+    print("Subsonic vs Supersonic comparison (same projectile):")
+
+    # 100 m/s cannonball
+    dist_sub = projectile_distance3(100, 45, 5, 0.05, shape="sphere")
+    dist_super = projectile_distance_supersonic(100, 45, 5, 0.05, shape="sphere")
+
+    print(f"Subsonic model (100 m/s): {dist_sub:.1f} m")
+    print(f"Supersonic model (100 m/s): {dist_super:.1f} m")
+    print(
+        f"Difference: {abs(dist_sub - dist_super):.1f} m ({abs(dist_sub - dist_super) / dist_sub * 100:.1f}%)"
+    )

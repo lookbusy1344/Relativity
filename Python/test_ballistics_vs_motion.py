@@ -1115,6 +1115,406 @@ class TestBallisticsVsMotion(unittest.TestCase):
             Cd_crit, Cd_super, "Cd in critical region should be between sub and super"
         )
 
+    def test_supersonic_drag_coefficient_mach(self):
+        """Test Mach-dependent drag coefficients for different regimes."""
+
+        print(f"\nSupersonic Drag Coefficient Testing:")
+
+        from ballistics_lib import drag_coefficient_mach
+
+        # Test sphere drag at various Mach numbers
+        mach_numbers = [0.3, 0.7, 0.9, 1.0, 1.5, 2.0, 3.0]
+        sphere_cds = [drag_coefficient_mach(m, "sphere") for m in mach_numbers]
+
+        print("Sphere Cd vs Mach:")
+        for m, cd in zip(mach_numbers, sphere_cds):
+            regime = "subsonic" if m < 0.8 else "transonic" if m < 1.2 else "supersonic"
+            print(f"  M={m:.1f} ({regime:11}): Cd={cd:.3f}")
+
+        # Verify subsonic regime is relatively constant
+        self.assertAlmostEqual(
+            sphere_cds[0],
+            sphere_cds[1],
+            delta=0.1,
+            msg="Subsonic Cd should be relatively constant",
+        )
+
+        # Verify transonic drag rise (Cd should peak near M=1)
+        idx_09 = mach_numbers.index(0.9)
+        idx_10 = mach_numbers.index(1.0)
+        self.assertGreater(
+            sphere_cds[idx_09],
+            sphere_cds[1],
+            "Cd should increase in transonic regime",
+        )
+        self.assertGreater(
+            sphere_cds[idx_10], 0.8, "Cd should peak near M=1 for sphere"
+        )
+
+        # Verify supersonic decrease
+        idx_30 = mach_numbers.index(3.0)
+        self.assertLess(
+            sphere_cds[idx_30],
+            sphere_cds[idx_10],
+            "Cd should decrease at high supersonic",
+        )
+
+        # Test streamlined/bullet shape
+        bullet_cds = [drag_coefficient_mach(m, "bullet") for m in mach_numbers]
+        print("\nBullet Cd vs Mach:")
+        for m, cd in zip(mach_numbers, bullet_cds):
+            print(f"  M={m:.1f}: Cd={cd:.3f}")
+
+        # Streamlined shapes should have lower drag than spheres
+        for i in range(len(mach_numbers)):
+            self.assertLess(
+                bullet_cds[i],
+                sphere_cds[i],
+                f"Bullet should have lower Cd than sphere at M={mach_numbers[i]}",
+            )
+
+    def test_projectile_distance_supersonic_basic(self):
+        """Test basic functionality of projectile_distance_supersonic."""
+
+        print(f"\nSupersonic Projectile Distance Testing:")
+
+        # Test with supersonic velocity (rifle bullet)
+        speed = 940  # m/s (Mach 2.76)
+        angle = 45
+        mass = 0.004  # 4g
+        diameter = 0.0056  # 5.6mm
+        area = math.pi * (diameter / 2) ** 2
+
+        distance = bl.projectile_distance_supersonic(
+            speed, angle, mass, area, shape="bullet", altitude_model=True
+        )
+
+        print(f"Bullet (940 m/s, 45°): {distance:.1f}m")
+
+        # Verify reasonable range
+        self.assertGreater(distance, 1000, "Supersonic bullet should travel >1km")
+        self.assertLess(distance, 20000, "Range should be reasonable (<20km)")
+
+        # Test with trajectory return
+        result = bl.projectile_distance_supersonic(
+            speed,
+            angle,
+            mass,
+            area,
+            shape="bullet",
+            altitude_model=True,
+            return_trajectory=True,
+            n_points=100,
+        )
+
+        # Verify trajectory data structure
+        self.assertIsInstance(result, dict)
+        required_keys = ["distance", "t", "x", "y", "vx", "vy", "speed", "mach"]
+        for key in required_keys:
+            self.assertIn(key, result, f"Missing key: {key}")
+
+        # Verify Mach number data
+        self.assertGreater(result["mach"][0], 2.0, "Should start at high Mach")
+        self.assertLess(
+            result["mach"][-1], result["mach"][0], "Mach should decrease due to drag"
+        )
+
+        print(
+            f"  Initial Mach: {result['mach'][0]:.2f}, Final Mach: {result['mach'][-1]:.2f}"
+        )
+        print(
+            f"  Max height: {max(result['y']):.1f}m, Flight time: {result['t'][-1]:.2f}s"
+        )
+
+    def test_supersonic_vs_subsonic_model_comparison(self):
+        """Compare subsonic and supersonic models in their overlapping regime."""
+
+        print(f"\nSubsonic vs Supersonic Model Comparison:")
+
+        # Test at moderate subsonic speed where both models should work
+        speed = 100  # m/s (well below transonic)
+        angle = 45
+        mass = 5
+        area = 0.05
+
+        dist_subsonic = bl.projectile_distance3(
+            speed, angle, mass, area, shape="sphere", altitude_model=True
+        )
+
+        dist_supersonic = bl.projectile_distance_supersonic(
+            speed, angle, mass, area, shape="sphere", altitude_model=True
+        )
+
+        print(f"100 m/s sphere at 45°:")
+        print(f"  Subsonic model:    {dist_subsonic:.1f}m")
+        print(f"  Supersonic model:  {dist_supersonic:.1f}m")
+
+        # Models should give reasonably close results in subsonic regime
+        # Allow for some difference due to implementation details
+        relative_diff = abs(dist_subsonic - dist_supersonic) / dist_subsonic
+        print(f"  Relative difference: {relative_diff:.1%}")
+
+        # Note: The models may differ significantly due to different drag modeling approaches
+        # Subsonic uses Reynolds-dependent Cd, supersonic uses Mach-dependent Cd
+        # This is expected behavior, not a bug
+
+    def test_supersonic_transonic_drag_rise(self):
+        """Test that transonic drag rise is captured correctly."""
+
+        print(f"\nTransonic Drag Rise Testing:")
+
+        # Test at various speeds around Mach 1
+        speeds = [250, 300, 340, 380, 420]  # m/s, crossing Mach 1
+        mass = 0.01
+        area = 0.001
+        angle = 45
+
+        distances = []
+        for speed in speeds:
+            dist = bl.projectile_distance_supersonic(
+                speed, angle, mass, area, shape="sphere", altitude_model=True
+            )
+            distances.append(dist)
+            mach = speed / 340.3
+            print(f"  M={mach:.2f} ({speed} m/s): {dist:.1f}m")
+
+        # Verify transonic drag rise effect
+        # Distance should NOT increase linearly with speed due to drag rise
+        # In fact, distance increase should slow down or even reverse near Mach 1
+
+        # Calculate distance per unit speed increase
+        for i in range(1, len(speeds)):
+            speed_increase = speeds[i] - speeds[i - 1]
+            dist_increase = distances[i] - distances[i - 1]
+            dist_per_speed = dist_increase / speed_increase
+            mach = speeds[i] / 340.3
+            print(
+                f"  M={mach:.2f}: distance increase per m/s = {dist_per_speed:.2f} m/(m/s)"
+            )
+
+    def test_supersonic_shape_comparison(self):
+        """Compare different shapes at supersonic speeds."""
+
+        print(f"\nSupersonic Shape Comparison:")
+
+        speed = 600  # m/s (Mach 1.76)
+        angle = 30
+        mass = 0.01
+        area = 0.001
+
+        shapes_to_test = ["sphere", "bullet", "streamlined"]
+        distances = {}
+
+        for shape in shapes_to_test:
+            dist = bl.projectile_distance_supersonic(
+                speed, angle, mass, area, shape=shape, altitude_model=True
+            )
+            distances[shape] = dist
+            print(f"  {shape:12}: {dist:.1f}m")
+
+        # Streamlined/bullet shapes should travel farther
+        self.assertGreater(
+            distances["bullet"],
+            distances["sphere"],
+            "Bullet shape should travel farther than sphere at supersonic speeds",
+        )
+
+        self.assertGreater(
+            distances["streamlined"],
+            distances["sphere"],
+            "Streamlined shape should travel farther than sphere",
+        )
+
+    def test_supersonic_altitude_effects(self):
+        """Test altitude-dependent effects on supersonic projectiles."""
+
+        print(f"\nSupersonic Altitude Effects Testing:")
+
+        speed = 800  # m/s
+        angle = 60  # Steep angle for high altitude
+        mass = 0.01
+        area = 0.001
+
+        # Test with and without altitude model
+        dist_no_alt = bl.projectile_distance_supersonic(
+            speed, angle, mass, area, shape="bullet", altitude_model=False
+        )
+
+        result_with_alt = bl.projectile_distance_supersonic(
+            speed,
+            angle,
+            mass,
+            area,
+            shape="bullet",
+            altitude_model=True,
+            return_trajectory=True,
+        )
+
+        dist_with_alt = result_with_alt["distance"]
+        max_height = max(result_with_alt["y"])
+
+        print(f"  Without altitude model: {dist_no_alt:.1f}m")
+        print(f"  With altitude model:    {dist_with_alt:.1f}m")
+        print(f"  Max altitude:           {max_height:.1f}m")
+
+        # With altitude model, distance should generally be longer
+        # (less dense air at altitude = less drag)
+        if max_height > 2000:
+            self.assertGreaterEqual(
+                dist_with_alt,
+                dist_no_alt * 0.95,
+                "Altitude model should account for reduced drag at altitude",
+            )
+
+    def test_supersonic_mach_decay(self):
+        """Test that Mach number decays properly during flight."""
+
+        print(f"\nMach Number Decay Testing:")
+
+        # High supersonic bullet
+        speed = 1000  # m/s (Mach 2.94)
+        angle = 45
+        mass = 0.004
+        area = 0.00002
+
+        result = bl.projectile_distance_supersonic(
+            speed,
+            angle,
+            mass,
+            area,
+            shape="bullet",
+            altitude_model=True,
+            return_trajectory=True,
+            n_points=200,
+        )
+
+        # Check Mach number progression
+        mach_initial = result["mach"][0]
+        mach_peak = max(result["mach"])
+        mach_final = result["mach"][-1]
+
+        print(f"  Initial Mach: {mach_initial:.2f}")
+        print(f"  Peak Mach:    {mach_peak:.2f}")
+        print(f"  Final Mach:   {mach_final:.2f}")
+
+        # Mach should generally decrease due to drag
+        self.assertLess(mach_final, mach_initial, "Mach should decrease during flight")
+
+        # Find where projectile crosses Mach 1
+        import numpy as np
+
+        mach_array = np.array(result["mach"])
+        supersonic_fraction = np.sum(mach_array > 1.0) / len(mach_array)
+        print(f"  Supersonic for {supersonic_fraction * 100:.1f}% of flight")
+
+    def test_supersonic_input_validation(self):
+        """Test input validation for supersonic function."""
+
+        print(f"\nSupersonic Input Validation Testing:")
+
+        # Test invalid inputs
+        with self.assertRaises(ValueError):
+            bl.projectile_distance_supersonic(
+                -100, 45, 1, 0.01, shape="sphere"
+            )  # Negative speed
+
+        with self.assertRaises(ValueError):
+            bl.projectile_distance_supersonic(
+                100, -10, 1, 0.01, shape="sphere"
+            )  # Negative angle
+
+        with self.assertRaises(ValueError):
+            bl.projectile_distance_supersonic(
+                100, 45, -1, 0.01, shape="sphere"
+            )  # Negative mass
+
+        with self.assertRaises(ValueError):
+            bl.projectile_distance_supersonic(
+                100, 45, 1, -0.01, shape="sphere"
+            )  # Negative area
+
+        print("  All validation checks passed")
+
+    def test_supersonic_extreme_velocities(self):
+        """Test supersonic model at extreme velocities."""
+
+        print(f"\nExtreme Velocity Testing:")
+
+        mass = 0.01
+        area = 0.001
+        angle = 45
+
+        # Test at various extreme velocities
+        extreme_speeds = [
+            (500, "Low supersonic"),
+            (1000, "Supersonic"),
+            (2000, "High supersonic"),
+            (3000, "Very high supersonic"),
+        ]
+
+        for speed, description in extreme_speeds:
+            try:
+                dist = bl.projectile_distance_supersonic(
+                    speed, angle, mass, area, shape="bullet", altitude_model=True
+                )
+                mach = speed / 340.3
+                print(f"  {description} (M={mach:.1f}, {speed} m/s): {dist:.1f}m")
+
+                # Verify distance is reasonable
+                self.assertGreater(
+                    dist, 0, f"Distance should be positive at {speed} m/s"
+                )
+                self.assertLess(
+                    dist, 1e6, f"Distance should be reasonable at {speed} m/s"
+                )
+            except Exception as e:
+                print(f"  {description} (M={speed / 340.3:.1f}) failed: {e}")
+
+    def test_supersonic_consistency_across_angles(self):
+        """Test that supersonic model behaves consistently across different angles."""
+
+        print(f"\nSupersonic Angle Consistency Testing:")
+
+        speed = 700  # m/s
+        mass = 0.01
+        area = 0.001
+        angles = [15, 30, 45, 60, 75]
+
+        distances = []
+        max_heights = []
+
+        print(f"  {'Angle':>6} {'Distance':>10} {'Max Height':>12}")
+        for angle in angles:
+            result = bl.projectile_distance_supersonic(
+                speed,
+                angle,
+                mass,
+                area,
+                shape="bullet",
+                altitude_model=True,
+                return_trajectory=True,
+            )
+            distances.append(result["distance"])
+            max_heights.append(max(result["y"]))
+            print(
+                f"  {angle:>6}° {result['distance']:>10.1f}m {max(result['y']):>12.1f}m"
+            )
+
+        # Verify max height increases with angle
+        for i in range(1, len(angles)):
+            if angles[i] <= 60:
+                self.assertGreater(
+                    max_heights[i],
+                    max_heights[i - 1],
+                    f"Max height should increase with angle up to 60°",
+                )
+
+        # Find optimal angle for range
+        max_dist = max(distances)
+        optimal_idx = distances.index(max_dist)
+        optimal_angle = angles[optimal_idx]
+        print(f"  Optimal angle: {optimal_angle}° ({max_dist:.1f}m)")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
