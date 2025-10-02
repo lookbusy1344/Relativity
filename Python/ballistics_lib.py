@@ -559,20 +559,27 @@ def drag_coefficient_mach(mach, shape="sphere"):
             return 0.50
 
     # Streamlined/pointed projectile (bullet-like)
+    # Based on G7 ballistic standard and empirical data
+    # G7 BC indicates Cd around 0.24 for boat-tail bullets
     elif shape in ["streamlined", "bullet"]:
         if mach < 0.8:
-            return 0.04
+            # Subsonic: very low drag for streamlined shape
+            return 0.05
         elif mach < 1.0:
-            # Transonic rise
-            return 0.04 + 0.16 * (mach - 0.8) / 0.2
+            # Transonic rise (sharper than before)
+            return 0.05 + 0.25 * (mach - 0.8) / 0.2
         elif mach < 1.2:
-            # Peak around M=1
-            return 0.20 + 0.05 * (mach - 1.0) / 0.2
+            # Peak around M=1 (higher peak, more realistic)
+            return 0.30 + 0.05 * (mach - 1.0) / 0.2
+        elif mach < 2.0:
+            # Supersonic: gradual decrease
+            return 0.35 - 0.10 * (mach - 1.2) / 0.8
         elif mach < 3.0:
-            # Supersonic: decrease
-            return 0.25 - 0.10 * (mach - 1.2) / 1.8
+            # High supersonic: approaches asymptotic value
+            return 0.25 - 0.05 * (mach - 2.0) / 1.0
         else:
-            return 0.15
+            # Very high supersonic
+            return 0.20
 
     # Blunt/flat shapes (higher supersonic drag)
     elif shape in ["flat_plate", "disk", "cube"]:
