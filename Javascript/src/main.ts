@@ -17,8 +17,8 @@ function setElement(e: HTMLElement, value: string, units: string): void {
         e.textContent = value;
         e.setAttribute('title', value);
     } else {
-        // units specified
-        e.textContent = `${units}: ${value}`;
+        // units specified - display value with units
+        e.textContent = `${value} ${units}`;
         e.setAttribute('title', `${value} ${units}`);
     }
 }
@@ -93,11 +93,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const relDistC = relDist.div(rl.lightYear);
 
             setElement(resultA1, rl.formatSignificant(relVel, "9", 3), "m/s");
-            setElement(resultA2, relDist.toPrecision(20), "m");
+            setElement(resultA2, rl.formatSignificant(relDist, "9", 3), "m");
 
             setElement(resultA1b!, rl.formatSignificant(relVelC, "9", 3), "c");
             setElement(resultA2b!, rl.formatSignificant(relDistC, "0", 3), "ly");
-            resultA.textContent = "";
         });
     }
 
