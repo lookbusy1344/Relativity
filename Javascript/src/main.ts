@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // relativistic velocity and distance
-    if (aButton && resultA && resultA1 && resultA2 && aInput) {
+    if (aButton && resultA1 && resultA2 && aInput) {
         aButton.addEventListener('click', () => {
             const accel = rl.g; // just assume 1g
             const secs = rl.ensure(aInput.value ?? 0).mul(60 * 60 * 24); // days to seconds
