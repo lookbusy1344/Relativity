@@ -52,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultFlip5 = document.getElementById('resultFlip5');
     const resultFlip6 = document.getElementById('resultFlip6');
 
-    const resultA = document.getElementById('resultA');
     const resultA1 = document.getElementById('resultA1');
     const resultA2 = document.getElementById('resultA2');
     const resultA1b = document.getElementById('resultA1b');
