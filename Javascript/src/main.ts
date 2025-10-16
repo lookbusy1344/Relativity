@@ -1,5 +1,8 @@
-//import Decimal from 'decimal.js';
 import * as rl from './relativity_lib';
+import { Chart, registerables } from 'chart.js';
+
+// Register Chart.js components
+Chart.register(...registerables);
 
 // yarn set version stable
 // yarn
@@ -132,5 +135,212 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setElement(resultAdd, rl.formatSignificant(added, "9", 3), "c");
         });
+    }
+
+    // Visualization charts
+    let velocityChart: Chart | null = null;
+    let distanceChart: Chart | null = null;
+    let rapidityChart: Chart | null = null;
+    let lorentzChart: Chart | null = null;
+
+    const graphAccelInput = document.getElementById('graphAccelInput') as HTMLInputElement;
+    const graphDurationInput = document.getElementById('graphDurationInput') as HTMLInputElement;
+    const graphUpdateButton = document.getElementById('graphUpdateButton');
+
+    function updateGraphs() {
+        const accelG = parseFloat(graphAccelInput?.value ?? '1');
+        const accel = rl.g.mul(accelG); // convert to m/s^2
+        const durationDays = parseFloat(graphDurationInput?.value ?? '365');
+        const durationSeconds = durationDays * 60 * 60 * 24;
+
+        // Generate data points (100 points for smooth curves)
+        const numPoints = 100;
+        const timePoints: number[] = [];
+        const velocityPoints: number[] = [];
+        const velocityCPoints: number[] = [];
+        const distancePoints: number[] = [];
+        const distanceLyPoints: number[] = [];
+        const rapidityPoints: number[] = [];
+        const lorentzPoints: number[] = [];
+
+        for (let i = 0; i <= numPoints; i++) {
+            const tau = (i / numPoints) * durationSeconds;
+            const timeDays = tau / (60 * 60 * 24);
+
+            const velocity = rl.relativisticVelocity(accel, tau);
+            const velocityC = velocity.div(rl.c);
+            const distance = rl.relativisticDistance(accel, tau);
+            const distanceLy = distance.div(rl.lightYear);
+            const rapidity = rl.rapidityFromVelocity(velocity);
+            const lorentz = rl.lorentzFactor(velocity);
+
+            timePoints.push(timeDays);
+            velocityPoints.push(parseFloat(velocity.toString()));
+            velocityCPoints.push(parseFloat(velocityC.toString()));
+            distancePoints.push(parseFloat(distance.toString()));
+            distanceLyPoints.push(parseFloat(distanceLy.toString()));
+            rapidityPoints.push(parseFloat(rapidity.toString()));
+            lorentzPoints.push(parseFloat(lorentz.toString()));
+        }
+
+        // Velocity Chart
+        const velocityCtx = (document.getElementById('velocityChart') as HTMLCanvasElement)?.getContext('2d');
+        if (velocityCtx) {
+            if (velocityChart) velocityChart.destroy();
+            velocityChart = new Chart(velocityCtx, {
+                type: 'line',
+                data: {
+                    labels: timePoints,
+                    datasets: [{
+                        label: 'Velocity (fraction of c)',
+                        data: velocityCPoints,
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Proper Time (days)' },
+                            ticks: { maxTicksLimit: 10 }
+                        },
+                        y: {
+                            title: { display: true, text: 'Velocity (c)' },
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        // Distance Chart
+        const distanceCtx = (document.getElementById('distanceChart') as HTMLCanvasElement)?.getContext('2d');
+        if (distanceCtx) {
+            if (distanceChart) distanceChart.destroy();
+            distanceChart = new Chart(distanceCtx, {
+                type: 'line',
+                data: {
+                    labels: timePoints,
+                    datasets: [{
+                        label: 'Distance (light years)',
+                        data: distanceLyPoints,
+                        borderColor: 'rgb(139, 92, 246)',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Proper Time (days)' },
+                            ticks: { maxTicksLimit: 10 }
+                        },
+                        y: {
+                            title: { display: true, text: 'Distance (ly)' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Rapidity Chart
+        const rapidityCtx = (document.getElementById('rapidityChart') as HTMLCanvasElement)?.getContext('2d');
+        if (rapidityCtx) {
+            if (rapidityChart) rapidityChart.destroy();
+            rapidityChart = new Chart(rapidityCtx, {
+                type: 'line',
+                data: {
+                    labels: timePoints,
+                    datasets: [{
+                        label: 'Rapidity',
+                        data: rapidityPoints,
+                        borderColor: 'rgb(236, 72, 153)',
+                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Proper Time (days)' },
+                            ticks: { maxTicksLimit: 10 }
+                        },
+                        y: {
+                            title: { display: true, text: 'Rapidity' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Lorentz Factor Chart
+        const lorentzCtx = (document.getElementById('lorentzChart') as HTMLCanvasElement)?.getContext('2d');
+        if (lorentzCtx) {
+            if (lorentzChart) lorentzChart.destroy();
+            lorentzChart = new Chart(lorentzCtx, {
+                type: 'line',
+                data: {
+                    labels: timePoints,
+                    datasets: [{
+                        label: 'Lorentz Factor (γ)',
+                        data: lorentzPoints,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Proper Time (days)' },
+                            ticks: { maxTicksLimit: 10 }
+                        },
+                        y: {
+                            title: { display: true, text: 'γ' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    if (graphUpdateButton) {
+        graphUpdateButton.addEventListener('click', updateGraphs);
+
+        // Initialize graphs on page load
+        setTimeout(updateGraphs, 100);
     }
 });

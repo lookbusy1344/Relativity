@@ -270,6 +270,10 @@
 					<button class="nav-link" id="velocity-tab" data-bs-toggle="tab" data-bs-target="#velocity"
 						type="button" role="tab">Velocity Addition</button>
 				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="graphs-tab" data-bs-toggle="tab" data-bs-target="#graphs"
+						type="button" role="tab">Visualizations</button>
+				</li>
 			</ul>
 
 			<div class="tab-content" id="calculatorTabContent">
@@ -409,6 +413,55 @@
 						<div style="margin-top: 1rem;">
 							<div class="result-item-label">Combined Velocity</div>
 							<div class="result-box" id="resultAdd">-</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Visualizations Tab -->
+				<div class="tab-pane fade" id="graphs" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">Journey Parameters</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Acceleration (g)</div>
+								<input type="number" id="graphAccelInput" placeholder="e.g., 1" value="1"
+									class="form-control" step="0.1" min="0.1">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Journey Duration (days)</div>
+								<input type="number" id="graphDurationInput" placeholder="e.g., 365" value="365"
+									class="form-control" step="1" min="1">
+							</div>
+							<button type="button" class="btn-calculate" id="graphUpdateButton"
+								style="margin-top: 1.5rem;">Update Graphs</button>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">Velocity vs Time</div>
+						<div style="background: white; padding: 1rem; border-radius: 12px;">
+							<canvas id="velocityChart"></canvas>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">Distance vs Time</div>
+						<div style="background: white; padding: 1rem; border-radius: 12px;">
+							<canvas id="distanceChart"></canvas>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">Rapidity vs Time</div>
+						<div style="background: white; padding: 1rem; border-radius: 12px;">
+							<canvas id="rapidityChart"></canvas>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">Lorentz Factor vs Time</div>
+						<div style="background: white; padding: 1rem; border-radius: 12px;">
+							<canvas id="lorentzChart"></canvas>
 						</div>
 					</div>
 				</div>
