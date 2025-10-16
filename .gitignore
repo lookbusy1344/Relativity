@@ -1,2 +1,7 @@
 target/
 *.bak
+.DS_Store
+copilotDiffState.xml
+copilot.data.*.xml
+workspace.xml
+projectSettingsUpdater.xml
