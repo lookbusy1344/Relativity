@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const distancePoints: number[] = [];
         const distanceLyPoints: number[] = [];
         const rapidityPoints: number[] = [];
-        const lorentzPoints: number[] = [];
+        const timeDilationPoints: number[] = [];
 
         for (let i = 0; i <= numPoints; i++) {
             const tau = (i / numPoints) * durationSeconds;
@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const distanceLy = distance.div(rl.lightYear);
             const rapidity = rl.rapidityFromVelocity(velocity);
             const lorentz = rl.lorentzFactor(velocity);
+            const timeDilation = rl.one.div(lorentz); // 1/γ - how much proper time slows down
 
             timePoints.push(timeDays);
             velocityPoints.push(parseFloat(velocity.toString()));
@@ -180,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
             distancePoints.push(parseFloat(distance.toString()));
             distanceLyPoints.push(parseFloat(distanceLy.toString()));
             rapidityPoints.push(parseFloat(rapidity.toString()));
-            lorentzPoints.push(parseFloat(lorentz.toString()));
+            timeDilationPoints.push(parseFloat(timeDilation.toString()));
         }
 
         // Velocity Chart
@@ -298,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Lorentz Factor Chart
+        // Time Dilation Chart
         const lorentzCtx = (document.getElementById('lorentzChart') as HTMLCanvasElement)?.getContext('2d');
         if (lorentzCtx) {
             if (lorentzChart) lorentzChart.destroy();
@@ -307,8 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 data: {
                     labels: timePoints,
                     datasets: [{
-                        label: 'Lorentz Factor (γ)',
-                        data: lorentzPoints,
+                        label: 'Time Dilation Factor (1/γ)',
+                        data: timeDilationPoints,
                         borderColor: 'rgb(34, 197, 94)',
                         backgroundColor: 'rgba(34, 197, 94, 0.1)',
                         borderWidth: 2,
@@ -328,8 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             ticks: { maxTicksLimit: 10 }
                         },
                         y: {
-                            title: { display: true, text: 'γ' },
-                            beginAtZero: true
+                            title: { display: true, text: 'Proper Time Rate (1 = no dilation)' },
+                            beginAtZero: true,
+                            max: 1
                         }
                     }
                 }
