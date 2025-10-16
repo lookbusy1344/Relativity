@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Time Dilation Chart
+        // Time Dilation & Length Contraction Chart
         const lorentzCtx = (document.getElementById('lorentzChart') as HTMLCanvasElement)?.getContext('2d');
         if (lorentzCtx) {
             if (lorentzChart) lorentzChart.destroy();
@@ -308,17 +308,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 data: {
                     labels: timePoints,
                     datasets: [{
-                        label: 'Time Dilation Factor (1/γ)',
+                        label: 'Time Dilation (1/γ)',
                         data: timeDilationPoints,
                         borderColor: 'rgb(34, 197, 94)',
                         backgroundColor: 'rgba(34, 197, 94, 0.1)',
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Length Contraction (1/γ)',
+                        data: timeDilationPoints, // Same as time dilation since both are 1/γ
+                        borderColor: 'rgb(251, 146, 60)',
+                        backgroundColor: 'rgba(251, 146, 60, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        borderDash: [5, 5],
+                        yAxisID: 'y1'
                     }]
                 },
                 options: {
                     responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
                     plugins: {
                         legend: { display: true },
                         title: { display: false }
@@ -329,9 +344,23 @@ document.addEventListener('DOMContentLoaded', () => {
                             ticks: { maxTicksLimit: 10 }
                         },
                         y: {
-                            title: { display: true, text: 'Proper Time Rate (1 = no dilation)' },
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Time Rate (1 = normal)' },
                             beginAtZero: true,
                             max: 1
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Length (1 = no contraction)' },
+                            beginAtZero: true,
+                            max: 1,
+                            grid: {
+                                drawOnChartArea: false
+                            }
                         }
                     }
                 }
