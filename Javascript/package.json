@@ -15,9 +15,9 @@
         "decimal.js": "^10.6.0"
     },
     "devDependencies": {
-        "esbuild": "^0.25.10",
+        "esbuild": "^0.25.11",
         "typescript": "^5.9.3",
-        "vite": "^7.1.9"
+        "vite": "^7.1.10"
     },
     "packageManager": "yarn@4.10.3"
 }
