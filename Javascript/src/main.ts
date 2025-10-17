@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const m = rl.ensure(distanceLightYears).mul(rl.lightYear); // convert light years to meters
         let res = rl.flipAndBurn(rl.g, m);
         const halfProperTimeSeconds = res.properTime.div(2); // Half journey (acceleration phase)
-        const halfCoordTimeSeconds = res.coordTime.div(2); // Half journey coordinate time
 
         // Generate data points (50 points for acceleration, 50 for deceleration)
         const numPointsPerPhase = 50;
