@@ -102,10 +102,131 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Flip-and-burn charts
+    let flipProperTimeChart: Chart | null = null;
+    let flipCoordTimeChart: Chart | null = null;
+
+    function updateFlipBurnCharts(distanceLightYears: number) {
+        const m = rl.ensure(distanceLightYears).mul(rl.lightYear); // convert light years to meters
+        let res = rl.flipAndBurn(rl.g, m);
+        const properTimeSeconds = res.properTime.div(2); // Half journey (acceleration phase)
+
+        // Generate data points (100 points for smooth curves)
+        const numPoints = 100;
+        const properTimePoints: number[] = [];
+        const coordTimePoints: number[] = [];
+        const velocityProperPoints: number[] = [];
+        const velocityCoordPoints: number[] = [];
+
+        // Acceleration phase (0 to half proper time)
+        for (let i = 0; i <= numPoints; i++) {
+            const tau = properTimeSeconds.mul(i / numPoints);
+            const tauDays = tau.div(60 * 60 * 24);
+
+            // Velocity during acceleration
+            const velocity = rl.relativisticVelocity(rl.g, tau);
+            const velocityC = velocity.div(rl.c);
+
+            properTimePoints.push(parseFloat(tauDays.toString()));
+            velocityProperPoints.push(parseFloat(velocityC.toString()));
+        }
+
+        // For coordinate time, we need to calculate coordinate time at each proper time step
+        for (let i = 0; i <= numPoints; i++) {
+            const tau = properTimeSeconds.mul(i / numPoints);
+            const t = rl.coordinateTime(rl.g, tau);
+            const tDays = t.div(60 * 60 * 24);
+
+            // Velocity at this proper time
+            const velocity = rl.relativisticVelocity(rl.g, tau);
+            const velocityC = velocity.div(rl.c);
+
+            coordTimePoints.push(parseFloat(tDays.toString()));
+            velocityCoordPoints.push(parseFloat(velocityC.toString()));
+        }
+
+        // Velocity vs Proper Time Chart
+        const flipProperCtx = (document.getElementById('flipProperTimeChart') as HTMLCanvasElement)?.getContext('2d');
+        if (flipProperCtx) {
+            if (flipProperTimeChart) flipProperTimeChart.destroy();
+            flipProperTimeChart = new Chart(flipProperCtx, {
+                type: 'line',
+                data: {
+                    labels: properTimePoints,
+                    datasets: [{
+                        label: 'Velocity (fraction of c)',
+                        data: velocityProperPoints,
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Proper Time (days)' },
+                            ticks: { maxTicksLimit: 10 }
+                        },
+                        y: {
+                            title: { display: true, text: 'Velocity (c)' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Velocity vs Coordinate Time Chart
+        const flipCoordCtx = (document.getElementById('flipCoordTimeChart') as HTMLCanvasElement)?.getContext('2d');
+        if (flipCoordCtx) {
+            if (flipCoordTimeChart) flipCoordTimeChart.destroy();
+            flipCoordTimeChart = new Chart(flipCoordCtx, {
+                type: 'line',
+                data: {
+                    labels: coordTimePoints,
+                    datasets: [{
+                        label: 'Velocity (fraction of c)',
+                        data: velocityCoordPoints,
+                        borderColor: 'rgb(139, 92, 246)',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Coordinate Time (days)' },
+                            ticks: { maxTicksLimit: 10 }
+                        },
+                        y: {
+                            title: { display: true, text: 'Velocity (c)' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    }
+
     // flip and burn
     if (flipButton && resultFlip1 && resultFlip2 && resultFlip3 && resultFlip4 && flipInput) {
         flipButton.addEventListener('click', () => {
-            const m = rl.ensure(flipInput.value ?? 0).mul(rl.lightYear); // convert light years to meters
+            const distanceLightYears = parseFloat(flipInput.value ?? '0');
+            const m = rl.ensure(distanceLightYears).mul(rl.lightYear); // convert light years to meters
             let res = rl.flipAndBurn(rl.g, m);
             const properTime = res.properTime.div(rl.secondsPerYear); // convert to years
             const coordTime = res.coordTime.div(rl.secondsPerYear); // convert to years
@@ -121,6 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
             setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
             setElement(resultFlip5!, `1m becomes ${metre}m`, "");
             setElement(resultFlip6!, `1s becomes ${sec}s`, "");
+
+            // Update charts
+            updateFlipBurnCharts(distanceLightYears);
         });
     }
 
