@@ -108,16 +108,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateFlipBurnCharts(distanceLightYears: number) {
         const m = rl.ensure(distanceLightYears).mul(rl.lightYear); // convert light years to meters
         let res = rl.flipAndBurn(rl.g, m);
-        const properTimeSeconds = res.properTime.div(2); // Half journey (acceleration phase)
+        const halfProperTimeSeconds = res.properTime.div(2); // Half journey (acceleration phase)
+        const halfCoordTimeSeconds = res.coordTime.div(2); // Half journey coordinate time
 
-        // Generate data points (100 points for smooth curves)
-        const numPoints = 100;
+        // Generate data points (50 points for acceleration, 50 for deceleration)
+        const numPointsPerPhase = 50;
         const properTimeData: { x: number; y: number }[] = [];
         const coordTimeData: { x: number; y: number }[] = [];
 
         // Acceleration phase (0 to half proper time)
-        for (let i = 0; i <= numPoints; i++) {
-            const tau = properTimeSeconds.mul(i / numPoints);
+        for (let i = 0; i <= numPointsPerPhase; i++) {
+            const tau = halfProperTimeSeconds.mul(i / numPointsPerPhase);
             const tauDays = parseFloat(tau.div(60 * 60 * 24).toString());
 
             // Velocity during acceleration
@@ -130,6 +131,28 @@ document.addEventListener('DOMContentLoaded', () => {
             // For coordinate time: x = coordinate time, y = velocity
             const t = rl.coordinateTime(rl.g, tau);
             const tDays = parseFloat(t.div(60 * 60 * 24).toString());
+            coordTimeData.push({ x: tDays, y: velocityC });
+        }
+
+        // Deceleration phase (half time to full time)
+        // During deceleration, velocity decreases symmetrically
+        for (let i = 1; i <= numPointsPerPhase; i++) {
+            // Mirror the acceleration phase
+            const tauFromMidpoint = halfProperTimeSeconds.mul(i / numPointsPerPhase);
+            const tauTotal = halfProperTimeSeconds.add(tauFromMidpoint);
+            const tauDays = parseFloat(tauTotal.div(60 * 60 * 24).toString());
+
+            // Velocity decreases - mirror of acceleration phase
+            const tauAccelEquivalent = halfProperTimeSeconds.mul((numPointsPerPhase - i) / numPointsPerPhase);
+            const velocity = rl.relativisticVelocity(rl.g, tauAccelEquivalent);
+            const velocityC = parseFloat(velocity.div(rl.c).toString());
+
+            properTimeData.push({ x: tauDays, y: velocityC });
+
+            // For coordinate time during deceleration
+            const tFromMidpoint = rl.coordinateTime(rl.g, tauFromMidpoint);
+            const tTotal = halfCoordTimeSeconds.add(tFromMidpoint);
+            const tDays = parseFloat(tTotal.div(60 * 60 * 24).toString());
             coordTimeData.push({ x: tDays, y: velocityC });
         }
 
