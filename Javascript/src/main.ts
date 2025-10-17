@@ -102,9 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Flip-and-burn charts
-    let flipProperTimeChart: Chart | null = null;
-    let flipCoordTimeChart: Chart | null = null;
+    // Flip-and-burn chart
+    let flipVelocityChart: Chart | null = null;
 
     function updateFlipBurnCharts(distanceLightYears: number) {
         const m = rl.ensure(distanceLightYears).mul(rl.lightYear); // convert light years to meters
@@ -113,54 +112,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Generate data points (100 points for smooth curves)
         const numPoints = 100;
-        const properTimePoints: number[] = [];
-        const coordTimePoints: number[] = [];
-        const velocityProperPoints: number[] = [];
-        const velocityCoordPoints: number[] = [];
+        const properTimeData: { x: number; y: number }[] = [];
+        const coordTimeData: { x: number; y: number }[] = [];
 
         // Acceleration phase (0 to half proper time)
         for (let i = 0; i <= numPoints; i++) {
             const tau = properTimeSeconds.mul(i / numPoints);
-            const tauDays = tau.div(60 * 60 * 24);
+            const tauDays = parseFloat(tau.div(60 * 60 * 24).toString());
 
             // Velocity during acceleration
             const velocity = rl.relativisticVelocity(rl.g, tau);
-            const velocityC = velocity.div(rl.c);
+            const velocityC = parseFloat(velocity.div(rl.c).toString());
 
-            properTimePoints.push(parseFloat(tauDays.toString()));
-            velocityProperPoints.push(parseFloat(velocityC.toString()));
-        }
+            // For proper time: x = proper time, y = velocity
+            properTimeData.push({ x: tauDays, y: velocityC });
 
-        // For coordinate time, we need to calculate coordinate time at each proper time step
-        for (let i = 0; i <= numPoints; i++) {
-            const tau = properTimeSeconds.mul(i / numPoints);
+            // For coordinate time: x = coordinate time, y = velocity
             const t = rl.coordinateTime(rl.g, tau);
-            const tDays = t.div(60 * 60 * 24);
-
-            // Velocity at this proper time
-            const velocity = rl.relativisticVelocity(rl.g, tau);
-            const velocityC = velocity.div(rl.c);
-
-            coordTimePoints.push(parseFloat(tDays.toString()));
-            velocityCoordPoints.push(parseFloat(velocityC.toString()));
+            const tDays = parseFloat(t.div(60 * 60 * 24).toString());
+            coordTimeData.push({ x: tDays, y: velocityC });
         }
 
-        // Velocity vs Proper Time Chart
-        const flipProperCtx = (document.getElementById('flipProperTimeChart') as HTMLCanvasElement)?.getContext('2d');
-        if (flipProperCtx) {
-            if (flipProperTimeChart) flipProperTimeChart.destroy();
-            flipProperTimeChart = new Chart(flipProperCtx, {
+        // Combined Velocity Chart with dual x-axes concept
+        const flipCtx = (document.getElementById('flipVelocityChart') as HTMLCanvasElement)?.getContext('2d');
+        if (flipCtx) {
+            if (flipVelocityChart) flipVelocityChart.destroy();
+            flipVelocityChart = new Chart(flipCtx, {
                 type: 'line',
                 data: {
-                    labels: properTimePoints,
                     datasets: [{
-                        label: 'Velocity (fraction of c)',
-                        data: velocityProperPoints,
-                        borderColor: 'rgb(99, 102, 241)',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        label: 'Velocity vs Proper Time',
+                        data: properTimeData,
+                        borderColor: 'rgb(220, 38, 38)',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
                         borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }, {
+                        label: 'Velocity vs Coordinate Time',
+                        data: coordTimeData,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0
                     }]
                 },
                 options: {
@@ -171,49 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     scales: {
                         x: {
-                            title: { display: true, text: 'Proper Time (days)' },
+                            type: 'linear',
+                            title: { display: true, text: 'Time (days)' },
                             ticks: { maxTicksLimit: 10 }
                         },
                         y: {
-                            title: { display: true, text: 'Velocity (c)' },
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-
-        // Velocity vs Coordinate Time Chart
-        const flipCoordCtx = (document.getElementById('flipCoordTimeChart') as HTMLCanvasElement)?.getContext('2d');
-        if (flipCoordCtx) {
-            if (flipCoordTimeChart) flipCoordTimeChart.destroy();
-            flipCoordTimeChart = new Chart(flipCoordCtx, {
-                type: 'line',
-                data: {
-                    labels: coordTimePoints,
-                    datasets: [{
-                        label: 'Velocity (fraction of c)',
-                        data: velocityCoordPoints,
-                        borderColor: 'rgb(139, 92, 246)',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: true },
-                        title: { display: false }
-                    },
-                    scales: {
-                        x: {
-                            title: { display: true, text: 'Coordinate Time (days)' },
-                            ticks: { maxTicksLimit: 10 }
-                        },
-                        y: {
-                            title: { display: true, text: 'Velocity (c)' },
+                            title: { display: true, text: 'Velocity (fraction of c)' },
                             beginAtZero: true
                         }
                     }
