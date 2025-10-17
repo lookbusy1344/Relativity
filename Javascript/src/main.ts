@@ -134,25 +134,24 @@ document.addEventListener('DOMContentLoaded', () => {
             coordTimeData.push({ x: tYears, y: velocityC });
         }
 
-        // Deceleration phase (half time to full time)
-        // During deceleration, velocity decreases symmetrically
-        for (let i = 1; i <= numPointsPerPhase; i++) {
-            // Mirror the acceleration phase
-            const tauFromMidpoint = halfProperTimeSeconds.mul(i / numPointsPerPhase);
-            const tauTotal = halfProperTimeSeconds.add(tauFromMidpoint);
-            const tauYears = parseFloat(tauTotal.div(rl.secondsPerYear).toString());
+        // Deceleration phase - mirror the acceleration phase
+        // For symmetry: point i in deceleration mirrors point (numPointsPerPhase - i) in acceleration
+        for (let i = numPointsPerPhase - 1; i >= 0; i--) {
+            // Get the mirrored proper time value from acceleration phase
+            const tauAccel = halfProperTimeSeconds.mul(i / numPointsPerPhase);
+            const tauDecel = res.properTime.sub(tauAccel); // Mirror around total time
+            const tauYears = parseFloat(tauDecel.div(rl.secondsPerYear).toString());
 
-            // Velocity decreases - mirror of acceleration phase
-            const tauAccelEquivalent = halfProperTimeSeconds.mul((numPointsPerPhase - i) / numPointsPerPhase);
-            const velocity = rl.relativisticVelocity(rl.g, tauAccelEquivalent);
+            // Velocity at this mirror point (same as acceleration)
+            const velocity = rl.relativisticVelocity(rl.g, tauAccel);
             const velocityC = parseFloat(velocity.div(rl.c).toString());
 
             properTimeData.push({ x: tauYears, y: velocityC });
 
-            // For coordinate time during deceleration
-            const tFromMidpoint = rl.coordinateTime(rl.g, tauFromMidpoint);
-            const tTotal = halfCoordTimeSeconds.add(tFromMidpoint);
-            const tYears = parseFloat(tTotal.div(rl.secondsPerYear).toString());
+            // For coordinate time: mirror around total coordinate time
+            const tAccel = rl.coordinateTime(rl.g, tauAccel);
+            const tDecel = res.coordTime.sub(tAccel);
+            const tYears = parseFloat(tDecel.div(rl.secondsPerYear).toString());
             coordTimeData.push({ x: tYears, y: velocityC });
         }
 
