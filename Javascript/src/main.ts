@@ -119,19 +119,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Acceleration phase (0 to half proper time)
         for (let i = 0; i <= numPointsPerPhase; i++) {
             const tau = halfProperTimeSeconds.mul(i / numPointsPerPhase);
-            const tauDays = parseFloat(tau.div(60 * 60 * 24).toString());
+            const tauYears = parseFloat(tau.div(rl.secondsPerYear).toString());
 
             // Velocity during acceleration
             const velocity = rl.relativisticVelocity(rl.g, tau);
             const velocityC = parseFloat(velocity.div(rl.c).toString());
 
             // For proper time: x = proper time, y = velocity
-            properTimeData.push({ x: tauDays, y: velocityC });
+            properTimeData.push({ x: tauYears, y: velocityC });
 
             // For coordinate time: x = coordinate time, y = velocity
             const t = rl.coordinateTime(rl.g, tau);
-            const tDays = parseFloat(t.div(60 * 60 * 24).toString());
-            coordTimeData.push({ x: tDays, y: velocityC });
+            const tYears = parseFloat(t.div(rl.secondsPerYear).toString());
+            coordTimeData.push({ x: tYears, y: velocityC });
         }
 
         // Deceleration phase (half time to full time)
@@ -140,20 +140,20 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mirror the acceleration phase
             const tauFromMidpoint = halfProperTimeSeconds.mul(i / numPointsPerPhase);
             const tauTotal = halfProperTimeSeconds.add(tauFromMidpoint);
-            const tauDays = parseFloat(tauTotal.div(60 * 60 * 24).toString());
+            const tauYears = parseFloat(tauTotal.div(rl.secondsPerYear).toString());
 
             // Velocity decreases - mirror of acceleration phase
             const tauAccelEquivalent = halfProperTimeSeconds.mul((numPointsPerPhase - i) / numPointsPerPhase);
             const velocity = rl.relativisticVelocity(rl.g, tauAccelEquivalent);
             const velocityC = parseFloat(velocity.div(rl.c).toString());
 
-            properTimeData.push({ x: tauDays, y: velocityC });
+            properTimeData.push({ x: tauYears, y: velocityC });
 
             // For coordinate time during deceleration
             const tFromMidpoint = rl.coordinateTime(rl.g, tauFromMidpoint);
             const tTotal = halfCoordTimeSeconds.add(tFromMidpoint);
-            const tDays = parseFloat(tTotal.div(60 * 60 * 24).toString());
-            coordTimeData.push({ x: tDays, y: velocityC });
+            const tYears = parseFloat(tTotal.div(rl.secondsPerYear).toString());
+            coordTimeData.push({ x: tYears, y: velocityC });
         }
 
         // Combined Velocity Chart with dual x-axes concept
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     scales: {
                         x: {
                             type: 'linear',
-                            title: { display: true, text: 'Time (days)' },
+                            title: { display: true, text: 'Time (years)' },
                             ticks: { maxTicksLimit: 10 }
                         },
                         y: {
