@@ -172,9 +172,13 @@ A ballistics simulation library is also included for modeling projectile traject
 
 https://github.com/lookbusy1344/Relativity/blob/main/Python/ballistics_lib.py
 
-and demonstrated in this notebook:
+and demonstrated in these notebooks:
 
-https://github.com/lookbusy1344/Relativity/blob/main/Python/Projectile%20Trajectories.ipynb
+[Projectile Trajectories - Basic](https://github.com/lookbusy1344/Relativity/blob/main/Python/Projectile%20Trajectories%20-%20Basic.ipynb)
+
+[Projectile Trajectories - Angle Optimization](https://github.com/lookbusy1344/Relativity/blob/main/Python/Projectile%20Trajectories%20-%20Angle%20Optimization.ipynb)
+
+[Projectile Trajectories - Supersonic](https://github.com/lookbusy1344/Relativity/blob/main/Python/Projectile%20Trajectories%20-%20Supersonic.ipynb)
 
 **Features:**
 - International Standard Atmosphere (ISA) model
