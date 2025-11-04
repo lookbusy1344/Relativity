@@ -102,8 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Flip-and-burn chart
+    // Flip-and-burn charts
     let flipVelocityChart: Chart | null = null;
+    let flipRapidityChart: Chart | null = null;
 
     function updateFlipBurnCharts(distanceLightYears: number) {
         const m = rl.ensure(distanceLightYears).mul(rl.lightYear); // convert light years to meters
@@ -114,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const numPointsPerPhase = 50;
         const properTimeData: { x: number; y: number }[] = [];
         const coordTimeData: { x: number; y: number }[] = [];
+        const properTimeRapidityData: { x: number; y: number }[] = [];
+        const coordTimeRapidityData: { x: number; y: number }[] = [];
 
         // Acceleration phase (0 to half proper time)
         for (let i = 0; i <= numPointsPerPhase; i++) {
@@ -124,6 +127,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const velocity = rl.relativisticVelocity(rl.g, tau);
             const velocityC = parseFloat(velocity.div(rl.c).toString());
 
+            // Rapidity during acceleration
+            const rapidity = rl.rapidityFromVelocity(velocity);
+            const rapidityValue = parseFloat(rapidity.toString());
+
             // For proper time: x = proper time, y = velocity
             properTimeData.push({ x: tauYears, y: velocityC });
 
@@ -131,6 +138,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const t = rl.coordinateTime(rl.g, tau);
             const tYears = parseFloat(t.div(rl.secondsPerYear).toString());
             coordTimeData.push({ x: tYears, y: velocityC });
+
+            // Rapidity data
+            properTimeRapidityData.push({ x: tauYears, y: rapidityValue });
+            coordTimeRapidityData.push({ x: tYears, y: rapidityValue });
         }
 
         // Deceleration phase - mirror the acceleration phase
@@ -145,6 +156,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const velocity = rl.relativisticVelocity(rl.g, tauAccel);
             const velocityC = parseFloat(velocity.div(rl.c).toString());
 
+            // Rapidity at this mirror point
+            const rapidity = rl.rapidityFromVelocity(velocity);
+            const rapidityValue = parseFloat(rapidity.toString());
+
             properTimeData.push({ x: tauYears, y: velocityC });
 
             // For coordinate time: mirror around total coordinate time
@@ -152,6 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const tDecel = res.coordTime.sub(tAccel);
             const tYears = parseFloat(tDecel.div(rl.secondsPerYear).toString());
             coordTimeData.push({ x: tYears, y: velocityC });
+
+            // Rapidity data
+            properTimeRapidityData.push({ x: tauYears, y: rapidityValue });
+            coordTimeRapidityData.push({ x: tYears, y: rapidityValue });
         }
 
         // Combined Velocity Chart with dual x-axes concept
@@ -195,6 +214,54 @@ document.addEventListener('DOMContentLoaded', () => {
                         },
                         y: {
                             title: { display: true, text: 'Velocity (fraction of c)' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Rapidity Chart with dual time axes
+        const flipRapidityCtx = (document.getElementById('flipRapidityChart') as HTMLCanvasElement)?.getContext('2d');
+        if (flipRapidityCtx) {
+            if (flipRapidityChart) flipRapidityChart.destroy();
+            flipRapidityChart = new Chart(flipRapidityCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Rapidity vs Proper Time',
+                        data: properTimeRapidityData,
+                        borderColor: 'rgb(220, 38, 38)',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }, {
+                        label: 'Rapidity vs Coordinate Time',
+                        data: coordTimeRapidityData,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: { display: true, text: 'Time (years)' },
+                            ticks: { maxTicksLimit: 10 }
+                        },
+                        y: {
+                            title: { display: true, text: 'Rapidity' },
                             beginAtZero: true
                         }
                     }
