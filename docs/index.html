@@ -261,7 +261,7 @@
         <script
             type="module"
             crossorigin
-            src="assets/index-C-HlgxQl.js"
+            src="assets/index-BQ_iKQ23.js"
         ></script>
     </head>
 
@@ -298,7 +298,7 @@
                             type="button"
                             role="tab"
                         >
-                            Relativistic Motion
+                            Constant Acceleration
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -310,7 +310,7 @@
                             type="button"
                             role="tab"
                         >
-                            Space Travel
+                            Flip and Burn
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -371,7 +371,11 @@
                                 >
                                     Calculate
                                 </button>
-                                <div class="result-box" id="resultLorentz">
+                                <div
+                                    class="result-box"
+                                    id="resultLorentz"
+                                    style="margin-top: 1.5rem"
+                                >
                                     -
                                 </div>
                             </div>
@@ -400,7 +404,11 @@
                                 >
                                     Calculate
                                 </button>
-                                <div class="result-box" id="resultVelocity">
+                                <div
+                                    class="result-box"
+                                    id="resultVelocity"
+                                    style="margin-top: 1.5rem"
+                                >
                                     -
                                 </div>
                             </div>
@@ -427,7 +435,11 @@
                                 >
                                     Calculate
                                 </button>
-                                <div class="result-box" id="resultRapidity">
+                                <div
+                                    class="result-box"
+                                    id="resultRapidity"
+                                    style="margin-top: 1.5rem"
+                                >
                                     -
                                 </div>
                             </div>
@@ -606,7 +618,7 @@
                                 </div>
                             </div>
 
-                            <!-- Flip-and-Burn Chart -->
+                            <!-- Flip-and-Burn Charts -->
                             <div style="margin-top: 1.5rem">
                                 <div
                                     class="input-label"
@@ -622,6 +634,24 @@
                                     "
                                 >
                                     <canvas id="flipVelocityChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 1.5rem">
+                                <div
+                                    class="input-label"
+                                    style="margin-bottom: 0.5rem"
+                                >
+                                    Rapidity over Time
+                                </div>
+                                <div
+                                    style="
+                                        background: white;
+                                        padding: 1rem;
+                                        border-radius: 12px;
+                                    "
+                                >
+                                    <canvas id="flipRapidityChart"></canvas>
                                 </div>
                             </div>
                         </div>
