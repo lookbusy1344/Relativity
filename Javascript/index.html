@@ -431,11 +431,7 @@
 		<div class="calculator-card">
 			<ul class="nav nav-tabs" id="calculatorTabs" role="tablist">
 				<li class="nav-item" role="presentation">
-					<button class="nav-link active" id="conversions-tab" data-bs-toggle="tab"
-						data-bs-target="#conversions" type="button" role="tab">Conversions</button>
-				</li>
-				<li class="nav-item" role="presentation">
-					<button class="nav-link" id="motion-tab" data-bs-toggle="tab" data-bs-target="#motion"
+					<button class="nav-link active" id="motion-tab" data-bs-toggle="tab" data-bs-target="#motion"
 						type="button" role="tab">Constant Acceleration</button>
 				</li>
 				<li class="nav-item" role="presentation">
@@ -446,78 +442,15 @@
 					<button class="nav-link" id="graphs-tab" data-bs-toggle="tab" data-bs-target="#graphs"
 						type="button" role="tab">Visualizations</button>
 				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="conversions-tab" data-bs-toggle="tab"
+						data-bs-target="#conversions" type="button" role="tab">Conversions</button>
+				</li>
 			</ul>
 
 			<div class="tab-content" id="calculatorTabContent">
-				<!-- Conversions Tab -->
-				<div class="tab-pane fade show active" id="conversions" role="tabpanel">
-					<div class="calc-section">
-						<div class="calc-label">Lorentz Factor from Velocity</div>
-						<div class="input-group-custom">
-							<div style="flex: 1; min-width: 200px;">
-								<div class="input-label">Velocity (m/s)</div>
-								<input type="number" id="lorentzInput" placeholder="Enter velocity"
-									value="299792457" class="form-control">
-							</div>
-							<button type="button" class="btn-calculate" id="lorentzButton"
-								>Calculate</button>
-							<div class="result-box" id="resultLorentz" >-</div>
-						</div>
-					</div>
-
-					<div class="calc-section">
-						<div class="calc-label">Velocity to Rapidity</div>
-						<div class="input-group-custom">
-							<div style="flex: 1; min-width: 200px;">
-								<div class="input-label">Velocity (m/s)</div>
-								<input type="number" id="velocityInput" placeholder="Enter velocity"
-									value="299792457" class="form-control">
-							</div>
-							<button type="button" class="btn-calculate" id="velocityButton"
-								>Calculate</button>
-							<div class="result-box" id="resultVelocity" >-</div>
-						</div>
-					</div>
-
-					<div class="calc-section">
-						<div class="calc-label">Rapidity to Velocity</div>
-						<div class="input-group-custom">
-							<div style="flex: 1; min-width: 200px;">
-								<div class="input-label">Rapidity</div>
-								<input type="number" id="rapidityInput" placeholder="Enter rapidity"
-									value="10.10587" class="form-control">
-							</div>
-							<button type="button" class="btn-calculate" id="rapidityButton"
-								>Calculate</button>
-							<div class="result-box" id="resultRapidity" >-</div>
-						</div>
-					</div>
-
-					<div class="calc-section">
-						<div class="calc-label">Relativistic Velocity Addition</div>
-						<div class="input-group-custom">
-							<div style="flex: 1; min-width: 200px;">
-								<div class="input-label">Velocity 1 (fraction of c)</div>
-								<input type="number" id="v1Input" placeholder="e.g., 0.9" value="0.9"
-									class="form-control" step="0.01">
-							</div>
-							<div style="flex: 1; min-width: 200px;">
-								<div class="input-label">Velocity 2 (fraction of c)</div>
-								<input type="number" id="v2Input" placeholder="e.g., 0.9" value="0.9"
-									class="form-control" step="0.01">
-							</div>
-							<button type="button" class="btn-calculate" id="addButton"
-								>Calculate</button>
-						</div>
-						<div style="margin-top: 1rem;">
-							<div class="result-item-label">Combined Velocity</div>
-							<div class="result-box" id="resultAdd">-</div>
-						</div>
-					</div>
-				</div>
-
 				<!-- Relativistic Motion Tab -->
-				<div class="tab-pane fade" id="motion" role="tabpanel">
+				<div class="tab-pane fade show active" id="motion" role="tabpanel">
 					<div class="calc-section">
 						<div class="calc-label">Constant Acceleration at 1g</div>
 						<div class="input-group-custom">
@@ -680,6 +613,73 @@
 				</div>
 			</div>
 		</div>
+				<!-- Conversions Tab -->
+				<div class="tab-pane fade" id="conversions" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">Lorentz Factor from Velocity</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity (m/s)</div>
+								<input type="number" id="lorentzInput" placeholder="Enter velocity"
+									value="299792457" class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="lorentzButton"
+								>Calculate</button>
+							<div class="result-box" id="resultLorentz" >-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">Velocity to Rapidity</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity (m/s)</div>
+								<input type="number" id="velocityInput" placeholder="Enter velocity"
+									value="299792457" class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="velocityButton"
+								>Calculate</button>
+							<div class="result-box" id="resultVelocity" >-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">Rapidity to Velocity</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Rapidity</div>
+								<input type="number" id="rapidityInput" placeholder="Enter rapidity"
+									value="10.10587" class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="rapidityButton"
+								>Calculate</button>
+							<div class="result-box" id="resultRapidity" >-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">Relativistic Velocity Addition</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity 1 (fraction of c)</div>
+								<input type="number" id="v1Input" placeholder="e.g., 0.9" value="0.9"
+									class="form-control" step="0.01">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity 2 (fraction of c)</div>
+								<input type="number" id="v2Input" placeholder="e.g., 0.9" value="0.9"
+									class="form-control" step="0.01">
+							</div>
+							<button type="button" class="btn-calculate" id="addButton"
+								>Calculate</button>
+						</div>
+						<div style="margin-top: 1rem;">
+							<div class="result-item-label">Combined Velocity</div>
+							<div class="result-box" id="resultAdd">-</div>
+						</div>
+					</div>
+				</div>
+
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
