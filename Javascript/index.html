@@ -437,10 +437,6 @@
 						type="button" role="tab">Flip and Burn</button>
 				</li>
 				<li class="nav-item" role="presentation">
-					<button class="nav-link" id="velocity-tab" data-bs-toggle="tab" data-bs-target="#velocity"
-						type="button" role="tab">Velocity Addition</button>
-				</li>
-				<li class="nav-item" role="presentation">
 					<button class="nav-link" id="graphs-tab" data-bs-toggle="tab" data-bs-target="#graphs"
 						type="button" role="tab">Visualizations</button>
 				</li>
@@ -488,6 +484,28 @@
 							<button type="button" class="btn-calculate" id="rapidityButton"
 								style="margin-top: 1.5rem;">Calculate</button>
 							<div class="result-box" id="resultRapidity" style="margin-top: 1.5rem;">-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">Relativistic Velocity Addition</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity 1 (fraction of c)</div>
+								<input type="number" id="v1Input" placeholder="e.g., 0.9" value="0.9"
+									class="form-control" step="0.01">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity 2 (fraction of c)</div>
+								<input type="number" id="v2Input" placeholder="e.g., 0.9" value="0.9"
+									class="form-control" step="0.01">
+							</div>
+							<button type="button" class="btn-calculate" id="addButton"
+								style="margin-top: 1.5rem;">Calculate</button>
+						</div>
+						<div style="margin-top: 1rem;">
+							<div class="result-item-label">Combined Velocity</div>
+							<div class="result-box" id="resultAdd">-</div>
 						</div>
 					</div>
 				</div>
@@ -573,31 +591,6 @@
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 								<canvas id="flipRapidityChart"></canvas>
 							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- Velocity Addition Tab -->
-				<div class="tab-pane fade" id="velocity" role="tabpanel">
-					<div class="calc-section">
-						<div class="calc-label">Relativistic Velocity Addition</div>
-						<div class="input-group-custom">
-							<div style="flex: 1; min-width: 200px;">
-								<div class="input-label">Velocity 1 (fraction of c)</div>
-								<input type="number" id="v1Input" placeholder="e.g., 0.9" value="0.9"
-									class="form-control" step="0.01">
-							</div>
-							<div style="flex: 1; min-width: 200px;">
-								<div class="input-label">Velocity 2 (fraction of c)</div>
-								<input type="number" id="v2Input" placeholder="e.g., 0.9" value="0.9"
-									class="form-control" step="0.01">
-							</div>
-							<button type="button" class="btn-calculate" id="addButton"
-								style="margin-top: 1.5rem;">Calculate</button>
-						</div>
-						<div style="margin-top: 1rem;">
-							<div class="result-item-label">Combined Velocity</div>
-							<div class="result-box" id="resultAdd">-</div>
 						</div>
 					</div>
 				</div>
