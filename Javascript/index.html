@@ -124,6 +124,17 @@
 			position: relative;
 		}
 
+		.header h1 a {
+			color: inherit;
+			text-decoration: none;
+			text-shadow: inherit;
+		}
+
+		.header h1 a:hover {
+			color: var(--scientific-green);
+			transition: color 0.3s ease;
+		}
+
 		.header .subtitle {
 			color: var(--scientific-green);
 			font-size: 0.95rem;
@@ -423,7 +434,7 @@
 <body>
 	<div class="main-container">
 		<div class="header">
-			<h1>Special Relativity Calculator</h1>
+			<h1><a href="https://github.com/lookbusy1344/Relativity">Special Relativity Calculator</a></h1>
 			<p class="subtitle">High-precision relativistic physics calculations</p>
 			<div class="speed-of-light">c = 299,792,458 m/s</div>
 		</div>
