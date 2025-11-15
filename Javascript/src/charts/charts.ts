@@ -1,0 +1,446 @@
+/**
+ * Functional chart management with Chart.js
+ * Provides configuration factories and lifecycle management
+ */
+
+import { Chart, ChartConfiguration, ChartOptions } from 'chart.js';
+import type { ChartDataPoint } from './dataGeneration';
+import type { generateAccelChartData, generateFlipBurnChartData, generateVisualizationChartData } from './dataGeneration';
+
+export type ChartRegistry = Map<string, Chart>;
+
+export type ChartStyleConfig = {
+    primaryColor: string;
+    secondaryColor: string;
+    xAxisLabel: string;
+    yAxisLabel: string;
+    yMax?: number;
+    yMin?: number;
+    y1AxisLabel?: string;
+    y1Max?: number;
+};
+
+function createChartOptions(config: ChartStyleConfig): ChartOptions {
+    const baseOptions: ChartOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                labels: {
+                    color: '#e8f1f5',
+                    font: { family: 'IBM Plex Mono', size: 12 }
+                }
+            },
+            title: { display: false }
+        },
+        scales: {
+            x: {
+                type: 'linear',
+                title: {
+                    display: true,
+                    text: config.xAxisLabel,
+                    color: '#00d9ff',
+                    font: { family: 'IBM Plex Mono', size: 11, weight: 600 }
+                },
+                ticks: {
+                    maxTicksLimit: 10,
+                    color: '#e8f1f5',
+                    font: { family: 'IBM Plex Mono' }
+                },
+                grid: {
+                    color: 'rgba(0, 217, 255, 0.15)'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: config.yAxisLabel,
+                    color: '#00d9ff',
+                    font: { family: 'IBM Plex Mono', size: 11, weight: 600 }
+                },
+                beginAtZero: config.yMin === undefined,
+                max: config.yMax,
+                min: config.yMin,
+                ticks: {
+                    color: '#e8f1f5',
+                    font: { family: 'IBM Plex Mono' }
+                },
+                grid: {
+                    color: 'rgba(0, 217, 255, 0.15)'
+                }
+            }
+        }
+    };
+
+    // Add second y-axis if configured
+    if (config.y1AxisLabel && baseOptions.scales) {
+        baseOptions.scales.y1 = {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+                display: true,
+                text: config.y1AxisLabel,
+                color: '#00d9ff',
+                font: { family: 'IBM Plex Mono', size: 11, weight: 600 }
+            },
+            beginAtZero: true,
+            max: config.y1Max,
+            ticks: {
+                color: '#e8f1f5',
+                font: { family: 'IBM Plex Mono' }
+            },
+            grid: {
+                drawOnChartArea: false
+            }
+        };
+    }
+
+    return baseOptions;
+}
+
+export function updateChart(
+    registry: ChartRegistry,
+    canvasId: string,
+    datasets: any[],
+    config: ChartStyleConfig
+): ChartRegistry {
+    const newRegistry = new Map(registry);
+
+    // Destroy old chart if exists
+    newRegistry.get(canvasId)?.destroy();
+
+    // Create new chart
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    const ctx = canvas?.getContext('2d');
+    if (ctx) {
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: { datasets },
+            options: createChartOptions(config)
+        });
+        newRegistry.set(canvasId, chart);
+    }
+
+    return newRegistry;
+}
+
+export function destroyAll(registry: ChartRegistry): ChartRegistry {
+    registry.forEach(chart => chart.destroy());
+    return new Map();
+}
+
+export function updateAccelCharts(
+    registry: ChartRegistry,
+    data: ReturnType<typeof generateAccelChartData>
+): ChartRegistry {
+    let newRegistry = registry;
+
+    // Velocity Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'accelVelocityChart',
+        [{
+            label: 'Velocity vs Proper Time',
+            data: data.properTimeVelocity,
+            borderColor: '#00d9ff',
+            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
+            label: 'Velocity vs Coordinate Time',
+            data: data.coordTimeVelocity,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Time (days)',
+            yAxisLabel: 'Velocity (fraction of c)'
+        }
+    );
+
+    // Lorentz/Time Dilation Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'accelLorentzChart',
+        [{
+            label: 'Time Dilation vs Proper Time (1/γ)',
+            data: data.properTimeTimeDilation,
+            borderColor: '#00d9ff',
+            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
+            label: 'Time Dilation vs Coordinate Time (1/γ)',
+            data: data.coordTimeTimeDilation,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Time (days)',
+            yAxisLabel: 'Time Rate (1 = normal)',
+            yMax: 1
+        }
+    );
+
+    // Rapidity Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'accelRapidityChart',
+        [{
+            label: 'Rapidity vs Proper Time',
+            data: data.properTimeRapidity,
+            borderColor: '#00d9ff',
+            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
+            label: 'Rapidity vs Coordinate Time',
+            data: data.coordTimeRapidity,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Time (days)',
+            yAxisLabel: 'Rapidity'
+        }
+    );
+
+    return newRegistry;
+}
+
+export function updateFlipBurnCharts(
+    registry: ChartRegistry,
+    data: ReturnType<typeof generateFlipBurnChartData>
+): ChartRegistry {
+    let newRegistry = registry;
+
+    // Velocity Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'flipVelocityChart',
+        [{
+            label: 'Velocity vs Proper Time',
+            data: data.properTimeVelocity,
+            borderColor: '#00d9ff',
+            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
+            label: 'Velocity vs Coordinate Time',
+            data: data.coordTimeVelocity,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Time (years)',
+            yAxisLabel: 'Velocity (fraction of c)'
+        }
+    );
+
+    // Time Dilation / Lorentz Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'flipLorentzChart',
+        [{
+            label: 'Time Dilation vs Proper Time (1/γ)',
+            data: data.properTimeLorentz,
+            borderColor: '#00d9ff',
+            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
+            label: 'Time Dilation vs Coordinate Time (1/γ)',
+            data: data.coordTimeLorentz,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Time (years)',
+            yAxisLabel: 'Time Rate (1 = normal)',
+            yMax: 1
+        }
+    );
+
+    // Rapidity Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'flipRapidityChart',
+        [{
+            label: 'Rapidity vs Proper Time',
+            data: data.properTimeRapidity,
+            borderColor: '#00d9ff',
+            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
+            label: 'Rapidity vs Coordinate Time',
+            data: data.coordTimeRapidity,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Time (years)',
+            yAxisLabel: 'Rapidity'
+        }
+    );
+
+    return newRegistry;
+}
+
+export function updateVisualizationCharts(
+    registry: ChartRegistry,
+    data: ReturnType<typeof generateVisualizationChartData>
+): ChartRegistry {
+    let newRegistry = registry;
+
+    // Velocity Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'velocityChart',
+        [{
+            label: 'Velocity (fraction of c)',
+            data: data.timePoints.map((x, i) => ({ x, y: data.velocityC[i] })),
+            borderColor: '#00d9ff',
+            backgroundColor: 'rgba(0, 217, 255, 0.15)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00d9ff',
+            xAxisLabel: 'Proper Time (days)',
+            yAxisLabel: 'Velocity (c)',
+            yMax: 1
+        }
+    );
+
+    // Distance Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'distanceChart',
+        [{
+            label: 'Distance (light years)',
+            data: data.timePoints.map((x, i) => ({ x, y: data.distanceLy[i] })),
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.15)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Proper Time (days)',
+            yAxisLabel: 'Distance (ly)'
+        }
+    );
+
+    // Rapidity Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'rapidityChart',
+        [{
+            label: 'Rapidity',
+            data: data.timePoints.map((x, i) => ({ x, y: data.rapidity[i] })),
+            borderColor: '#ffaa00',
+            backgroundColor: 'rgba(255, 170, 0, 0.15)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }],
+        {
+            primaryColor: '#ffaa00',
+            secondaryColor: '#ffaa00',
+            xAxisLabel: 'Proper Time (days)',
+            yAxisLabel: 'Rapidity'
+        }
+    );
+
+    // Time Dilation & Length Contraction Chart
+    const timeDilationData = data.timePoints.map((x, i) => ({ x, y: data.timeDilation[i] }));
+    newRegistry = updateChart(
+        newRegistry,
+        'lorentzChart',
+        [{
+            label: 'Time Dilation (1/γ)',
+            data: timeDilationData,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.15)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            yAxisID: 'y'
+        }, {
+            label: 'Length Contraction (1/γ)',
+            data: timeDilationData,
+            borderColor: '#ffaa00',
+            backgroundColor: 'rgba(255, 170, 0, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,
+            borderDash: [5, 5],
+            yAxisID: 'y1'
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Proper Time (days)',
+            yAxisLabel: 'Time Rate (1 = normal)',
+            yMax: 1,
+            y1AxisLabel: 'Length (1 = no contraction)',
+            y1Max: 1
+        }
+    );
+
+    return newRegistry;
+}
