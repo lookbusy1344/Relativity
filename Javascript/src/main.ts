@@ -183,19 +183,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     datasets: [{
                         label: 'Velocity vs Proper Time',
                         data: properTimeData,
-                        borderColor: 'rgb(220, 38, 38)',
-                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
                         borderWidth: 2,
-                        fill: false,
+                        fill: true,
                         tension: 0.4,
                         pointRadius: 0
                     }, {
                         label: 'Velocity vs Coordinate Time',
                         data: coordTimeData,
-                        borderColor: 'rgb(34, 197, 94)',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderColor: '#00ff9f',
+                        backgroundColor: 'rgba(0, 255, 159, 0.1)',
                         borderWidth: 2,
-                        fill: false,
+                        fill: true,
                         tension: 0.4,
                         pointRadius: 0
                     }]
@@ -203,18 +203,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { display: true },
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono', size: 12 }
+                            }
+                        },
                         title: { display: false }
                     },
                     scales: {
                         x: {
                             type: 'linear',
-                            title: { display: true, text: 'Time (years)' },
-                            ticks: { maxTicksLimit: 10 }
+                            title: {
+                                display: true,
+                                text: 'Time (years)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         },
                         y: {
-                            title: { display: true, text: 'Velocity (fraction of c)' },
-                            beginAtZero: true
+                            title: {
+                                display: true,
+                                text: 'Velocity (fraction of c)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         }
                     }
                 }
@@ -231,19 +261,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     datasets: [{
                         label: 'Rapidity vs Proper Time',
                         data: properTimeRapidityData,
-                        borderColor: 'rgb(220, 38, 38)',
-                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
                         borderWidth: 2,
-                        fill: false,
+                        fill: true,
                         tension: 0.4,
                         pointRadius: 0
                     }, {
                         label: 'Rapidity vs Coordinate Time',
                         data: coordTimeRapidityData,
-                        borderColor: 'rgb(34, 197, 94)',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderColor: '#00ff9f',
+                        backgroundColor: 'rgba(0, 255, 159, 0.1)',
                         borderWidth: 2,
-                        fill: false,
+                        fill: true,
                         tension: 0.4,
                         pointRadius: 0
                     }]
@@ -251,18 +281,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { display: true },
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono', size: 12 }
+                            }
+                        },
                         title: { display: false }
                     },
                     scales: {
                         x: {
                             type: 'linear',
-                            title: { display: true, text: 'Time (years)' },
-                            ticks: { maxTicksLimit: 10 }
+                            title: {
+                                display: true,
+                                text: 'Time (years)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         },
                         y: {
-                            title: { display: true, text: 'Rapidity' },
-                            beginAtZero: true
+                            title: {
+                                display: true,
+                                text: 'Rapidity',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         }
                     }
                 }
@@ -366,8 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     datasets: [{
                         label: 'Velocity (fraction of c)',
                         data: velocityCPoints,
-                        borderColor: 'rgb(99, 102, 241)',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.15)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4
@@ -376,18 +436,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { display: true },
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono', size: 12 }
+                            }
+                        },
                         title: { display: false }
                     },
                     scales: {
                         x: {
-                            title: { display: true, text: 'Proper Time (days)' },
-                            ticks: { maxTicksLimit: 10 }
+                            title: {
+                                display: true,
+                                text: 'Proper Time (days)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         },
                         y: {
-                            title: { display: true, text: 'Velocity (c)' },
+                            title: {
+                                display: true,
+                                text: 'Velocity (c)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
                             beginAtZero: true,
-                            max: 1
+                            max: 1,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         }
                     }
                 }
@@ -405,8 +495,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     datasets: [{
                         label: 'Distance (light years)',
                         data: distanceLyPoints,
-                        borderColor: 'rgb(139, 92, 246)',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderColor: '#00ff9f',
+                        backgroundColor: 'rgba(0, 255, 159, 0.15)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4
@@ -415,17 +505,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { display: true },
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono', size: 12 }
+                            }
+                        },
                         title: { display: false }
                     },
                     scales: {
                         x: {
-                            title: { display: true, text: 'Proper Time (days)' },
-                            ticks: { maxTicksLimit: 10 }
+                            title: {
+                                display: true,
+                                text: 'Proper Time (days)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         },
                         y: {
-                            title: { display: true, text: 'Distance (ly)' },
-                            beginAtZero: true
+                            title: {
+                                display: true,
+                                text: 'Distance (ly)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         }
                     }
                 }
@@ -443,8 +563,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     datasets: [{
                         label: 'Rapidity',
                         data: rapidityPoints,
-                        borderColor: 'rgb(236, 72, 153)',
-                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        borderColor: '#ffaa00',
+                        backgroundColor: 'rgba(255, 170, 0, 0.15)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4
@@ -453,17 +573,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { display: true },
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono', size: 12 }
+                            }
+                        },
                         title: { display: false }
                     },
                     scales: {
                         x: {
-                            title: { display: true, text: 'Proper Time (days)' },
-                            ticks: { maxTicksLimit: 10 }
+                            title: {
+                                display: true,
+                                text: 'Proper Time (days)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         },
                         y: {
-                            title: { display: true, text: 'Rapidity' },
-                            beginAtZero: true
+                            title: {
+                                display: true,
+                                text: 'Rapidity',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         }
                     }
                 }
@@ -481,8 +631,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     datasets: [{
                         label: 'Time Dilation (1/γ)',
                         data: timeDilationPoints,
-                        borderColor: 'rgb(34, 197, 94)',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderColor: '#00ff9f',
+                        backgroundColor: 'rgba(0, 255, 159, 0.15)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4,
@@ -490,8 +640,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, {
                         label: 'Length Contraction (1/γ)',
                         data: timeDilationPoints, // Same as time dilation since both are 1/γ
-                        borderColor: 'rgb(251, 146, 60)',
-                        backgroundColor: 'rgba(251, 146, 60, 0.1)',
+                        borderColor: '#ffaa00',
+                        backgroundColor: 'rgba(255, 170, 0, 0.1)',
                         borderWidth: 2,
                         fill: false,
                         tension: 0.4,
@@ -506,29 +656,68 @@ document.addEventListener('DOMContentLoaded', () => {
                         intersect: false
                     },
                     plugins: {
-                        legend: { display: true },
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono', size: 12 }
+                            }
+                        },
                         title: { display: false }
                     },
                     scales: {
                         x: {
-                            title: { display: true, text: 'Proper Time (days)' },
-                            ticks: { maxTicksLimit: 10 }
+                            title: {
+                                display: true,
+                                text: 'Proper Time (days)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         },
                         y: {
                             type: 'linear',
                             display: true,
                             position: 'left',
-                            title: { display: true, text: 'Time Rate (1 = normal)' },
+                            title: {
+                                display: true,
+                                text: 'Time Rate (1 = normal)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
                             beginAtZero: true,
-                            max: 1
+                            max: 1,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
                         },
                         y1: {
                             type: 'linear',
                             display: true,
                             position: 'right',
-                            title: { display: true, text: 'Length (1 = no contraction)' },
+                            title: {
+                                display: true,
+                                text: 'Length (1 = no contraction)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
                             beginAtZero: true,
                             max: 1,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
                             grid: {
                                 drawOnChartArea: false
                             }
