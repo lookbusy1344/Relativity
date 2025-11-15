@@ -13,6 +13,7 @@ export type ChartStyleConfig = {
     secondaryColor: string;
     xAxisLabel: string;
     yAxisLabel: string;
+    xMax?: number;
     yMax?: number;
     yMin?: number;
     y1AxisLabel?: string;
@@ -41,6 +42,7 @@ function createChartOptions(config: ChartStyleConfig): ChartOptions {
                     color: '#00d9ff',
                     font: { family: 'IBM Plex Mono', size: 11, weight: 600 }
                 },
+                max: config.xMax,
                 ticks: {
                     maxTicksLimit: 10,
                     color: '#e8f1f5',
@@ -135,6 +137,11 @@ export function updateAccelCharts(
 ): ChartRegistry {
     let newRegistry = registry;
 
+    // Calculate max x values for both proper and coordinate time
+    const maxProperTime = Math.max(...data.properTimeVelocity.map(d => d.x));
+    const maxCoordTime = Math.max(...data.coordTimeVelocity.map(d => d.x));
+    const maxTime = Math.max(maxProperTime, maxCoordTime);
+
     // Velocity Chart
     newRegistry = updateChart(
         newRegistry,
@@ -162,7 +169,8 @@ export function updateAccelCharts(
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
-            yAxisLabel: 'Velocity (fraction of c)'
+            yAxisLabel: 'Velocity (fraction of c)',
+            xMax: maxTime
         }
     );
 
@@ -194,6 +202,7 @@ export function updateAccelCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
             yAxisLabel: 'Time Rate (1 = normal)',
+            xMax: maxTime,
             yMax: 1
         }
     );
@@ -225,7 +234,8 @@ export function updateAccelCharts(
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
-            yAxisLabel: 'Rapidity'
+            yAxisLabel: 'Rapidity',
+            xMax: maxTime
         }
     );
 
@@ -237,6 +247,11 @@ export function updateFlipBurnCharts(
     data: ReturnType<typeof generateFlipBurnChartData>
 ): ChartRegistry {
     let newRegistry = registry;
+
+    // Calculate max x values for both proper and coordinate time
+    const maxProperTime = Math.max(...data.properTimeVelocity.map(d => d.x));
+    const maxCoordTime = Math.max(...data.coordTimeVelocity.map(d => d.x));
+    const maxTime = Math.max(maxProperTime, maxCoordTime);
 
     // Velocity Chart
     newRegistry = updateChart(
@@ -265,7 +280,8 @@ export function updateFlipBurnCharts(
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (years)',
-            yAxisLabel: 'Velocity (fraction of c)'
+            yAxisLabel: 'Velocity (fraction of c)',
+            xMax: maxTime
         }
     );
 
@@ -297,6 +313,7 @@ export function updateFlipBurnCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (years)',
             yAxisLabel: 'Time Rate (1 = normal)',
+            xMax: maxTime,
             yMax: 1
         }
     );
@@ -328,7 +345,8 @@ export function updateFlipBurnCharts(
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (years)',
-            yAxisLabel: 'Rapidity'
+            yAxisLabel: 'Rapidity',
+            xMax: maxTime
         }
     );
 
@@ -340,6 +358,7 @@ export function updateVisualizationCharts(
     data: ReturnType<typeof generateVisualizationChartData>
 ): ChartRegistry {
     let newRegistry = registry;
+    const maxTime = data.timePoints[data.timePoints.length - 1];
 
     // Velocity Chart
     newRegistry = updateChart(
@@ -359,6 +378,7 @@ export function updateVisualizationCharts(
             secondaryColor: '#00d9ff',
             xAxisLabel: 'Proper Time (days)',
             yAxisLabel: 'Velocity (c)',
+            xMax: maxTime,
             yMax: 1
         }
     );
@@ -380,7 +400,8 @@ export function updateVisualizationCharts(
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Proper Time (days)',
-            yAxisLabel: 'Distance (ly)'
+            yAxisLabel: 'Distance (ly)',
+            xMax: maxTime
         }
     );
 
@@ -401,7 +422,8 @@ export function updateVisualizationCharts(
             primaryColor: '#ffaa00',
             secondaryColor: '#ffaa00',
             xAxisLabel: 'Proper Time (days)',
-            yAxisLabel: 'Rapidity'
+            yAxisLabel: 'Rapidity',
+            xMax: maxTime
         }
     );
 
@@ -435,6 +457,7 @@ export function updateVisualizationCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Proper Time (days)',
             yAxisLabel: 'Time Rate (1 = normal)',
+            xMax: maxTime,
             yMax: 1,
             y1AxisLabel: 'Length (1 = no contraction)',
             y1Max: 1
