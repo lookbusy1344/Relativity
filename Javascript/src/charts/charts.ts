@@ -3,8 +3,7 @@
  * Provides configuration factories and lifecycle management
  */
 
-import { Chart, ChartConfiguration, ChartOptions } from 'chart.js';
-import type { ChartDataPoint } from './dataGeneration';
+import { Chart, ChartOptions } from 'chart.js';
 import type { generateAccelChartData, generateFlipBurnChartData, generateVisualizationChartData } from './dataGeneration';
 
 export type ChartRegistry = Map<string, Chart>;
