@@ -248,7 +248,7 @@
 		.input-group-custom {
 			display: flex;
 			gap: 0.75rem;
-			align-items: flex-start;
+			align-items: flex-end;
 			flex-wrap: wrap;
 		}
 
@@ -257,6 +257,8 @@
 			border-radius: 0;
 			padding: 0.75rem 1rem;
 			font-size: 1rem;
+			line-height: 1.5;
+			height: calc(1.5em + 0.75rem * 2 + 2px);
 			transition: all 0.2s ease;
 			background: rgba(0, 0, 0, 0.5);
 			color: var(--soft-white);
@@ -283,6 +285,9 @@
 			padding: 0.75rem 2rem;
 			border-radius: 0;
 			font-weight: 700;
+			font-size: 1rem;
+			line-height: 1.5;
+			height: calc(1.5em + 0.75rem * 2 + 2px);
 			transition: all 0.2s ease;
 			box-shadow: 0 0 20px var(--glow-cyan);
 			font-family: 'Orbitron', sans-serif;
@@ -304,17 +309,18 @@
 
 		.result-box {
 			background: rgba(0, 0, 0, 0.6);
-			padding: 1rem 1.25rem;
+			padding: 0.75rem 1rem;
 			border-radius: 0;
 			border: 1px solid var(--amber-alert);
-			min-height: 3rem;
 			display: flex;
 			align-items: center;
 			font-weight: 600;
 			color: var(--amber-alert);
 			flex: 1;
 			font-family: 'IBM Plex Mono', monospace;
-			font-size: 1.1rem;
+			font-size: 1rem;
+			line-height: 1.5;
+			height: calc(1.5em + 0.75rem * 2 + 2px);
 			box-shadow:
 				0 0 15px rgba(255, 170, 0, 0.3),
 				inset 0 0 10px rgba(0, 0, 0, 0.5);
@@ -454,8 +460,8 @@
 									value="299792457" class="form-control">
 							</div>
 							<button type="button" class="btn-calculate" id="lorentzButton"
-								style="margin-top: 1.5rem;">Calculate</button>
-							<div class="result-box" id="resultLorentz" style="margin-top: 1.5rem;">-</div>
+								>Calculate</button>
+							<div class="result-box" id="resultLorentz" >-</div>
 						</div>
 					</div>
 
@@ -468,8 +474,8 @@
 									value="299792457" class="form-control">
 							</div>
 							<button type="button" class="btn-calculate" id="velocityButton"
-								style="margin-top: 1.5rem;">Calculate</button>
-							<div class="result-box" id="resultVelocity" style="margin-top: 1.5rem;">-</div>
+								>Calculate</button>
+							<div class="result-box" id="resultVelocity" >-</div>
 						</div>
 					</div>
 
@@ -482,8 +488,8 @@
 									value="10.10587" class="form-control">
 							</div>
 							<button type="button" class="btn-calculate" id="rapidityButton"
-								style="margin-top: 1.5rem;">Calculate</button>
-							<div class="result-box" id="resultRapidity" style="margin-top: 1.5rem;">-</div>
+								>Calculate</button>
+							<div class="result-box" id="resultRapidity" >-</div>
 						</div>
 					</div>
 
@@ -501,7 +507,7 @@
 									class="form-control" step="0.01">
 							</div>
 							<button type="button" class="btn-calculate" id="addButton"
-								style="margin-top: 1.5rem;">Calculate</button>
+								>Calculate</button>
 						</div>
 						<div style="margin-top: 1rem;">
 							<div class="result-item-label">Combined Velocity</div>
@@ -521,7 +527,7 @@
 									class="form-control">
 							</div>
 							<button type="button" class="btn-calculate" id="aButton"
-								style="margin-top: 1.5rem;">Calculate</button>
+								>Calculate</button>
 						</div>
 						<div class="result-grid">
 							<div class="result-item">
@@ -555,7 +561,7 @@
 									class="form-control">
 							</div>
 							<button type="button" class="btn-calculate" id="flipButton"
-								style="margin-top: 1.5rem;">Calculate</button>
+								>Calculate</button>
 						</div>
 						<div class="result-grid">
 							<div class="result-item">
@@ -579,14 +585,14 @@
 						</div>
 
 						<!-- Flip-and-Burn Charts -->
-						<div style="margin-top: 1.5rem;">
+						<div >
 							<div class="input-label" style="margin-bottom: 0.5rem;">Velocity over Time</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 								<canvas id="flipVelocityChart"></canvas>
 							</div>
 						</div>
 
-						<div style="margin-top: 1.5rem;">
+						<div >
 							<div class="input-label" style="margin-bottom: 0.5rem;">Rapidity over Time</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 								<canvas id="flipRapidityChart"></canvas>
@@ -611,7 +617,7 @@
 									class="form-control" step="1" min="1">
 							</div>
 							<button type="button" class="btn-calculate" id="graphUpdateButton"
-								style="margin-top: 1.5rem;">Update Graphs</button>
+								>Update Graphs</button>
 						</div>
 					</div>
 
