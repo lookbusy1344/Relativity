@@ -385,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Flip-and-burn charts
     let flipVelocityChart: Chart | null = null;
+    let flipLorentzChart: Chart | null = null;
     let flipRapidityChart: Chart | null = null;
 
     function updateFlipBurnCharts(distanceLightYears: number) {
@@ -398,6 +399,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const coordTimeData: { x: number; y: number }[] = [];
         const properTimeRapidityData: { x: number; y: number }[] = [];
         const coordTimeRapidityData: { x: number; y: number }[] = [];
+        const properTimeLorentzData: { x: number; y: number }[] = [];
+        const coordTimeLorentzData: { x: number; y: number }[] = [];
 
         // Acceleration phase (0 to half proper time)
         for (let i = 0; i <= numPointsPerPhase; i++) {
@@ -412,6 +415,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const rapidity = rl.rapidityFromVelocity(velocity);
             const rapidityValue = parseFloat(rapidity.toString());
 
+            // Time dilation during acceleration
+            const lorentz = rl.lorentzFactor(velocity);
+            const timeDilation = parseFloat(rl.one.div(lorentz).toString());
+
             // For proper time: x = proper time, y = velocity
             properTimeData.push({ x: tauYears, y: velocityC });
 
@@ -423,6 +430,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Rapidity data
             properTimeRapidityData.push({ x: tauYears, y: rapidityValue });
             coordTimeRapidityData.push({ x: tYears, y: rapidityValue });
+
+            // Time dilation data
+            properTimeLorentzData.push({ x: tauYears, y: timeDilation });
+            coordTimeLorentzData.push({ x: tYears, y: timeDilation });
         }
 
         // Deceleration phase - mirror the acceleration phase
@@ -441,6 +452,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const rapidity = rl.rapidityFromVelocity(velocity);
             const rapidityValue = parseFloat(rapidity.toString());
 
+            // Time dilation at this mirror point
+            const lorentz = rl.lorentzFactor(velocity);
+            const timeDilation = parseFloat(rl.one.div(lorentz).toString());
+
             properTimeData.push({ x: tauYears, y: velocityC });
 
             // For coordinate time: mirror around total coordinate time
@@ -452,6 +467,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Rapidity data
             properTimeRapidityData.push({ x: tauYears, y: rapidityValue });
             coordTimeRapidityData.push({ x: tYears, y: rapidityValue });
+
+            // Time dilation data
+            properTimeLorentzData.push({ x: tauYears, y: timeDilation });
+            coordTimeLorentzData.push({ x: tYears, y: timeDilation });
         }
 
         // Combined Velocity Chart with dual x-axes concept
@@ -519,6 +538,85 @@ document.addEventListener('DOMContentLoaded', () => {
                                 font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
                             },
                             beginAtZero: true,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Time Dilation / Lorentz Chart
+        const flipLorentzCtx = (document.getElementById('flipLorentzChart') as HTMLCanvasElement)?.getContext('2d');
+        if (flipLorentzCtx) {
+            if (flipLorentzChart) flipLorentzChart.destroy();
+            flipLorentzChart = new Chart(flipLorentzCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Time Dilation vs Proper Time (1/γ)',
+                        data: properTimeLorentzData,
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }, {
+                        label: 'Time Dilation vs Coordinate Time (1/γ)',
+                        data: coordTimeLorentzData,
+                        borderColor: '#00ff9f',
+                        backgroundColor: 'rgba(0, 255, 159, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono', size: 12 }
+                            }
+                        },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Time (years)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Time Rate (1 = normal)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            beginAtZero: true,
+                            max: 1,
                             ticks: {
                                 color: '#e8f1f5',
                                 font: { family: 'IBM Plex Mono' }
