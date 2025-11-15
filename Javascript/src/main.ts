@@ -83,6 +83,283 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Constant Acceleration charts
+    let accelVelocityChart: Chart | null = null;
+    let accelLorentzChart: Chart | null = null;
+    let accelRapidityChart: Chart | null = null;
+
+    function updateAccelCharts(durationDays: number) {
+        const accel = rl.g;
+        const durationSeconds = durationDays * 60 * 60 * 24;
+
+        // Generate data points (100 points for smooth curves)
+        const numPoints = 100;
+        const properTimeData: { x: number; y: number }[] = [];
+        const coordTimeData: { x: number; y: number }[] = [];
+        const properTimeRapidityData: { x: number; y: number }[] = [];
+        const coordTimeRapidityData: { x: number; y: number }[] = [];
+        const timeDilationProperData: { x: number; y: number }[] = [];
+        const timeDilationCoordData: { x: number; y: number }[] = [];
+
+        for (let i = 0; i <= numPoints; i++) {
+            const tau = (i / numPoints) * durationSeconds;
+            const tauDays = tau / (60 * 60 * 24);
+
+            const velocity = rl.relativisticVelocity(accel, tau);
+            const velocityC = parseFloat(velocity.div(rl.c).toString());
+            const rapidity = rl.rapidityFromVelocity(velocity);
+            const rapidityValue = parseFloat(rapidity.toString());
+            const lorentz = rl.lorentzFactor(velocity);
+            const timeDilation = parseFloat(rl.one.div(lorentz).toString());
+
+            // For coordinate time
+            const t = rl.coordinateTime(accel, tau);
+            const tDays = parseFloat(t.div(rl.ensure(60 * 60 * 24)).toString());
+
+            properTimeData.push({ x: tauDays, y: velocityC });
+            coordTimeData.push({ x: tDays, y: velocityC });
+            properTimeRapidityData.push({ x: tauDays, y: rapidityValue });
+            coordTimeRapidityData.push({ x: tDays, y: rapidityValue });
+            timeDilationProperData.push({ x: tauDays, y: timeDilation });
+            timeDilationCoordData.push({ x: tDays, y: timeDilation });
+        }
+
+        // Velocity Chart
+        const accelVelocityCtx = (document.getElementById('accelVelocityChart') as HTMLCanvasElement)?.getContext('2d');
+        if (accelVelocityCtx) {
+            if (accelVelocityChart) accelVelocityChart.destroy();
+            accelVelocityChart = new Chart(accelVelocityCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Velocity vs Proper Time',
+                        data: properTimeData,
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }, {
+                        label: 'Velocity vs Coordinate Time',
+                        data: coordTimeData,
+                        borderColor: '#00ff9f',
+                        backgroundColor: 'rgba(0, 255, 159, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono', size: 12 }
+                            }
+                        },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Time (days)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Velocity (fraction of c)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Lorentz/Time Dilation Chart
+        const accelLorentzCtx = (document.getElementById('accelLorentzChart') as HTMLCanvasElement)?.getContext('2d');
+        if (accelLorentzCtx) {
+            if (accelLorentzChart) accelLorentzChart.destroy();
+            accelLorentzChart = new Chart(accelLorentzCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Time Dilation vs Proper Time (1/γ)',
+                        data: timeDilationProperData,
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }, {
+                        label: 'Time Dilation vs Coordinate Time (1/γ)',
+                        data: timeDilationCoordData,
+                        borderColor: '#00ff9f',
+                        backgroundColor: 'rgba(0, 255, 159, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono', size: 12 }
+                            }
+                        },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Time (days)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Time Rate (1 = normal)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Rapidity Chart
+        const accelRapidityCtx = (document.getElementById('accelRapidityChart') as HTMLCanvasElement)?.getContext('2d');
+        if (accelRapidityCtx) {
+            if (accelRapidityChart) accelRapidityChart.destroy();
+            accelRapidityChart = new Chart(accelRapidityCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Rapidity vs Proper Time',
+                        data: properTimeRapidityData,
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }, {
+                        label: 'Rapidity vs Coordinate Time',
+                        data: coordTimeRapidityData,
+                        borderColor: '#00ff9f',
+                        backgroundColor: 'rgba(0, 255, 159, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono', size: 12 }
+                            }
+                        },
+                        title: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Time (days)',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Rapidity',
+                                color: '#00d9ff',
+                                font: { family: 'IBM Plex Mono', size: 11, weight: '600' }
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#e8f1f5',
+                                font: { family: 'IBM Plex Mono' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.15)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
     // relativistic velocity and distance
     if (aButton && resultA1 && resultA2 && aInput) {
         aButton.addEventListener('click', () => {
@@ -99,6 +376,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setElement(resultA1b!, rl.formatSignificant(relVelC, "9", 3), "c");
             setElement(resultA2b!, rl.formatSignificant(relDistC, "0", 3), "ly");
+
+            // Update charts
+            const durationDays = parseFloat(aInput.value ?? '365');
+            updateAccelCharts(durationDays);
         });
     }
 
