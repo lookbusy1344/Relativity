@@ -394,17 +394,17 @@ export function spacetimeInterval3d(event1: Interval, event2: Interval): Decimal
 
 /**
  * Compute the time (in seconds) that a rocket can maintain constant proper acceleration
- * using matter-antimatter annihilation, assuming photon-rocket behaviour.
+ * using matter-antimatter annihilation with charged-pion exhaust.
  * @param fuelMass Combined matter + antimatter mass (kg) that will be annihilated
  * @param dryMass Dry mass of the spacecraft after all fuel is gone (kg)
- * @param efficiency Fraction of annihilation energy that becomes perfectly directed photon thrust (default 1.0 = ideal)
+ * @param efficiency Fraction of usable annihilation energy channelled into directed charged-pion thrust (default 1.0 = ideal)
  * @param accel Acceleration to maintain (m/s²). Default = 1g (9.80665 m/s²)
  * @returns Acceleration time in seconds as a Decimal
  */
-export function photonRocketAccelTime(
+export function pionRocketAccelTime(
     fuelMass: NumberInput,
     dryMass: NumberInput,
-    efficiency: NumberInput = 1.0,
+    efficiency: NumberInput = 0.6,
     accel: NumberInput = g
 ): Decimal {
     const fuelD = check(fuelMass, "Invalid fuel mass");
@@ -412,39 +412,18 @@ export function photonRocketAccelTime(
     const effD = check(efficiency, "Invalid efficiency");
     const accelD = check(accel, "Invalid acceleration");
 
+    // Charged pion exhaust velocity (~0.94c)
+    const ve = c.mul(0.94).mul(effD);
+
     const m0 = dryD.plus(fuelD);
     const mf = dryD;
 
-    if (m0.lte(mf)) {
+    if (m0.lte(mf) || ve.lte(0)) {
         return new Decimal(0);
     }
 
-    // t = (η * c / a) * ln(M0/Mf)
-    return effD.mul(c).div(accelD).mul(m0.div(mf).ln());
-}
-
-/**
- * Compute the propellant mass fraction required for a photon rocket
- * to maintain constant proper acceleration for a given time.
- * @param thrustTime Duration of thrust in seconds
- * @param accel Constant proper acceleration (m/s²). Default = 1g
- * @param efficiency Fraction of annihilation energy converted to directed thrust (default 0.5)
- * @returns Propellant mass fraction (fuel_mass / initial_mass), range 0.0 to 1.0
- */
-export function photonRocketFuelFraction(
-    thrustTime: NumberInput,
-    accel: NumberInput = g,
-    efficiency: NumberInput = 0.5
-): Decimal {
-    const timeD = check(thrustTime, "Invalid thrust time");
-    const accelD = check(accel, "Invalid acceleration");
-    const effD = check(efficiency, "Invalid efficiency");
-
-    // Mass ratio M0/Mf = exp(a*t / (η*c))
-    const massRatio = accelD.mul(timeD).div(effD.mul(c)).exp();
-
-    // Propellant fraction = 1 - (Mf/M0) = 1 - 1/mass_ratio
-    return one.minus(one.div(massRatio));
+    // t = (v_e / a) * ln(M0/Mf)
+    return ve.div(accelD).mul(m0.div(mf).ln());
 }
 
 /**
@@ -458,7 +437,7 @@ export function photonRocketFuelFraction(
 export function pionRocketFuelFraction(
     thrustTime: NumberInput,
     accel: NumberInput = g,
-    efficiency: NumberInput = 0.7
+    efficiency: NumberInput = 0.6
 ): Decimal {
     const timeD = check(thrustTime, "Invalid thrust time");
     const accelD = check(accel, "Invalid acceleration");
