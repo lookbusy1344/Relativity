@@ -303,6 +303,7 @@ export function updateFlipBurnCharts(
     const maxProperTime = Math.max(...data.properTimeVelocity.map(d => d.x));
     const maxCoordTime = Math.max(...data.coordTimeVelocity.map(d => d.x));
     const maxTime = Math.max(maxProperTime, maxCoordTime);
+    const maxMassProperTime = Math.max(...data.properTimeMassRemaining50.map(d => d.x));
 
     // Velocity Chart
     newRegistry = updateChart(
@@ -447,7 +448,7 @@ export function updateFlipBurnCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Proper Time (years)',
             yAxisLabel: '% of Initial Mass',
-            xMax: maxProperTime,
+            xMax: maxMassProperTime,
             yMax: 100
         }
     );
