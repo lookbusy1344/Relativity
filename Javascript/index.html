@@ -391,6 +391,10 @@
 			filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.2));
 		}
 
+		.hide-on-mobile {
+			display: block;
+		}
+
 		/* Tablet and smaller */
 		@media (max-width: 768px) {
 			.main-container {
@@ -580,6 +584,11 @@
 				font-size: 0.85rem;
 			}
 
+			/* Hide extra efficiency items on mobile */
+			.hide-on-mobile {
+				display: none;
+			}
+
 			/* Smaller chart containers for phones */
 			canvas {
 				max-height: 200px;
@@ -685,7 +694,7 @@
 								<div class="result-item-label">Distance (ly)</div>
 								<div class="result-item-value" id="resultA2b">-</div>
 							</div>
-							<div class="result-item">
+							<div class="result-item hide-on-mobile">
 								<div class="result-item-label">Fuel Fraction (40% eff)</div>
 								<div class="result-item-value" id="resultAFuel40">-</div>
 							</div>
@@ -693,11 +702,11 @@
 								<div class="result-item-label">Fuel Fraction (50% eff)</div>
 								<div class="result-item-value" id="resultAFuel">-</div>
 							</div>
-							<div class="result-item">
+							<div class="result-item hide-on-mobile">
 								<div class="result-item-label">Fuel Fraction (60% eff)</div>
 								<div class="result-item-value" id="resultAFuel60">-</div>
 							</div>
-							<div class="result-item">
+							<div class="result-item hide-on-mobile">
 								<div class="result-item-label">Fuel Fraction (70% eff)</div>
 								<div class="result-item-value" id="resultAFuel70">-</div>
 							</div>
@@ -766,7 +775,7 @@
 								<div class="result-item-value" id="resultFlip3">-</div>
 								<div class="result-item-value" id="resultFlip6" style="font-size: 0.875rem; margin-top: 0.25rem;">-</div>
 							</div>
-							<div class="result-item">
+							<div class="result-item hide-on-mobile">
 								<div class="result-item-label">Fuel Fraction (40% eff)</div>
 								<div class="result-item-value" id="resultFlipFuel40">-</div>
 							</div>
@@ -774,11 +783,11 @@
 								<div class="result-item-label">Fuel Fraction (50% eff)</div>
 								<div class="result-item-value" id="resultFlipFuel">-</div>
 							</div>
-							<div class="result-item">
+							<div class="result-item hide-on-mobile">
 								<div class="result-item-label">Fuel Fraction (60% eff)</div>
 								<div class="result-item-value" id="resultFlipFuel60">-</div>
 							</div>
-							<div class="result-item">
+							<div class="result-item hide-on-mobile">
 								<div class="result-item-label">Fuel Fraction (70% eff)</div>
 								<div class="result-item-value" id="resultFlipFuel70">-</div>
 							</div>
