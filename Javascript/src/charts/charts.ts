@@ -239,6 +239,30 @@ export function updateAccelCharts(
         }
     );
 
+    // Mass Remaining Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'accelMassChart',
+        [{
+            label: 'Mass Remaining vs Proper Time',
+            data: data.properTimeMassRemaining,
+            borderColor: '#ffaa00',
+            backgroundColor: 'rgba(255, 170, 0, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#ffaa00',
+            secondaryColor: '#ffaa00',
+            xAxisLabel: 'Proper Time (days)',
+            yAxisLabel: '% of Initial Mass',
+            xMax: maxProperTime,
+            yMax: 100
+        }
+    );
+
     return newRegistry;
 }
 
@@ -347,6 +371,30 @@ export function updateFlipBurnCharts(
             xAxisLabel: 'Time (years)',
             yAxisLabel: 'Rapidity',
             xMax: maxTime
+        }
+    );
+
+    // Mass Remaining Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'flipMassChart',
+        [{
+            label: 'Mass Remaining vs Proper Time',
+            data: data.properTimeMassRemaining,
+            borderColor: '#ffaa00',
+            backgroundColor: 'rgba(255, 170, 0, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#ffaa00',
+            secondaryColor: '#ffaa00',
+            xAxisLabel: 'Proper Time (years)',
+            yAxisLabel: '% of Initial Mass',
+            xMax: maxProperTime,
+            yMax: 100
         }
     );
 

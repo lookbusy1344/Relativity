@@ -17,10 +17,12 @@ export function generateAccelChartData(
     coordTimeRapidity: ChartDataPoint[];
     properTimeTimeDilation: ChartDataPoint[];
     coordTimeTimeDilation: ChartDataPoint[];
+    properTimeMassRemaining: ChartDataPoint[];
 } {
     const accel = rl.g.mul(accelG);
     const durationSeconds = durationDays * 60 * 60 * 24;
     const numPoints = 100;
+    const efficiency = 0.5;
 
     const properTimeVelocity: ChartDataPoint[] = [];
     const coordTimeVelocity: ChartDataPoint[] = [];
@@ -28,6 +30,7 @@ export function generateAccelChartData(
     const coordTimeRapidity: ChartDataPoint[] = [];
     const properTimeTimeDilation: ChartDataPoint[] = [];
     const coordTimeTimeDilation: ChartDataPoint[] = [];
+    const properTimeMassRemaining: ChartDataPoint[] = [];
 
     for (let i = 0; i <= numPoints; i++) {
         const tau = (i / numPoints) * durationSeconds;
@@ -43,12 +46,17 @@ export function generateAccelChartData(
         const t = rl.coordinateTime(accel, tau);
         const tDays = parseFloat(t.div(rl.ensure(60 * 60 * 24)).toString());
 
+        // Calculate mass remaining as percentage
+        const fuelFraction = rl.photonRocketFuelFraction(tau, accel, efficiency);
+        const massRemaining = parseFloat(rl.one.minus(fuelFraction).mul(100).toString());
+
         properTimeVelocity.push({ x: tauDays, y: velocityC });
         coordTimeVelocity.push({ x: tDays, y: velocityC });
         properTimeRapidity.push({ x: tauDays, y: rapidityValue });
         coordTimeRapidity.push({ x: tDays, y: rapidityValue });
         properTimeTimeDilation.push({ x: tauDays, y: timeDilation });
         coordTimeTimeDilation.push({ x: tDays, y: timeDilation });
+        properTimeMassRemaining.push({ x: tauDays, y: massRemaining });
     }
 
     return {
@@ -57,7 +65,8 @@ export function generateAccelChartData(
         properTimeRapidity,
         coordTimeRapidity,
         properTimeTimeDilation,
-        coordTimeTimeDilation
+        coordTimeTimeDilation,
+        properTimeMassRemaining
     };
 }
 
@@ -70,11 +79,13 @@ export function generateFlipBurnChartData(
     coordTimeRapidity: ChartDataPoint[];
     properTimeLorentz: ChartDataPoint[];
     coordTimeLorentz: ChartDataPoint[];
+    properTimeMassRemaining: ChartDataPoint[];
 } {
     const m = rl.ensure(distanceLightYears).mul(rl.lightYear);
     const res = rl.flipAndBurn(rl.g, m);
     const halfProperTimeSeconds = res.properTime.div(2);
     const numPointsPerPhase = 50;
+    const efficiency = 0.5;
 
     const properTimeVelocity: ChartDataPoint[] = [];
     const coordTimeVelocity: ChartDataPoint[] = [];
@@ -82,6 +93,7 @@ export function generateFlipBurnChartData(
     const coordTimeRapidity: ChartDataPoint[] = [];
     const properTimeLorentz: ChartDataPoint[] = [];
     const coordTimeLorentz: ChartDataPoint[] = [];
+    const properTimeMassRemaining: ChartDataPoint[] = [];
 
     // Acceleration phase (0 to half proper time)
     for (let i = 0; i <= numPointsPerPhase; i++) {
@@ -95,6 +107,10 @@ export function generateFlipBurnChartData(
         const lorentz = rl.lorentzFactor(velocity);
         const timeDilation = parseFloat(rl.one.div(lorentz).toString());
 
+        // Calculate mass remaining (fuel burned for thrust time so far)
+        const fuelFraction = rl.photonRocketFuelFraction(tau, rl.g, efficiency);
+        const massRemaining = parseFloat(rl.one.minus(fuelFraction).mul(100).toString());
+
         properTimeVelocity.push({ x: tauYears, y: velocityC });
 
         const t = rl.coordinateTime(rl.g, tau);
@@ -105,6 +121,7 @@ export function generateFlipBurnChartData(
         coordTimeRapidity.push({ x: tYears, y: rapidityValue });
         properTimeLorentz.push({ x: tauYears, y: timeDilation });
         coordTimeLorentz.push({ x: tYears, y: timeDilation });
+        properTimeMassRemaining.push({ x: tauYears, y: massRemaining });
     }
 
     // Deceleration phase - mirror the acceleration phase
@@ -120,6 +137,12 @@ export function generateFlipBurnChartData(
         const lorentz = rl.lorentzFactor(velocity);
         const timeDilation = parseFloat(rl.one.div(lorentz).toString());
 
+        // Total thrust time = half (accel) + time into decel phase
+        const decelThrust = halfProperTimeSeconds.sub(tauAccel);
+        const totalThrustTime = halfProperTimeSeconds.plus(decelThrust);
+        const fuelFraction = rl.photonRocketFuelFraction(totalThrustTime, rl.g, efficiency);
+        const massRemaining = parseFloat(rl.one.minus(fuelFraction).mul(100).toString());
+
         properTimeVelocity.push({ x: tauYears, y: velocityC });
 
         const tAccel = rl.coordinateTime(rl.g, tauAccel);
@@ -131,6 +154,7 @@ export function generateFlipBurnChartData(
         coordTimeRapidity.push({ x: tYears, y: rapidityValue });
         properTimeLorentz.push({ x: tauYears, y: timeDilation });
         coordTimeLorentz.push({ x: tYears, y: timeDilation });
+        properTimeMassRemaining.push({ x: tauYears, y: massRemaining });
     }
 
     return {
@@ -139,7 +163,8 @@ export function generateFlipBurnChartData(
         properTimeRapidity,
         coordTimeRapidity,
         properTimeLorentz,
-        coordTimeLorentz
+        coordTimeLorentz,
+        properTimeMassRemaining
     };
 }
 

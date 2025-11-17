@@ -50,7 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 getResultElement('resultA1'),
                 getResultElement('resultA2'),
                 getResultElement('resultA1b'),
-                getResultElement('resultA2b')
+                getResultElement('resultA2b'),
+                getResultElement('resultAFuel')
             ],
             chartRegistry
         )
@@ -66,7 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 getResultElement('resultFlip3'),
                 getResultElement('resultFlip4'),
                 getResultElement('resultFlip5'),
-                getResultElement('resultFlip6')
+                getResultElement('resultFlip6'),
+                getResultElement('resultFlipFuel')
             ],
             chartRegistry
         )
