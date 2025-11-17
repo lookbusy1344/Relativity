@@ -7,7 +7,8 @@ import {
     createAccelHandler,
     createFlipBurnHandler,
     createAddVelocitiesHandler,
-    createGraphUpdateHandler
+    createGraphUpdateHandler,
+    createPionAccelTimeHandler
 } from './ui/eventHandlers';
 import { generateVisualizationChartData } from './charts/dataGeneration';
 import { updateVisualizationCharts, type ChartRegistry } from './charts/charts';
@@ -86,6 +87,16 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getInputElement('v1Input'),
             () => getInputElement('v2Input'),
             () => getResultElement('resultAdd')
+        )
+    );
+
+    // Pion rocket acceleration time
+    getButtonElement('pionAccelButton')?.addEventListener('click',
+        createPionAccelTimeHandler(
+            () => getInputElement('pionFuelMassInput'),
+            () => getInputElement('pionDryMassInput'),
+            () => getInputElement('pionEfficiencyInput'),
+            () => getResultElement('resultPionAccel')
         )
     );
 

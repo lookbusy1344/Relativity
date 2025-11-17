@@ -178,3 +178,27 @@ export function createGraphUpdateHandler(
         chartRegistry.current = updateVisualizationCharts(chartRegistry.current, data);
     };
 }
+
+export function createPionAccelTimeHandler(
+    getFuelMassInput: () => HTMLInputElement | null,
+    getDryMassInput: () => HTMLInputElement | null,
+    getEfficiencyInput: () => HTMLInputElement | null,
+    getResult: () => HTMLElement | null
+): () => void {
+    return () => {
+        const fuelMassInput = getFuelMassInput();
+        const dryMassInput = getDryMassInput();
+        const efficiencyInput = getEfficiencyInput();
+        const result = getResult();
+        if (!fuelMassInput || !dryMassInput || !efficiencyInput || !result) return;
+
+        const fuelMass = rl.ensure(fuelMassInput.value ?? 0);
+        const dryMass = rl.ensure(dryMassInput.value ?? 0);
+        const efficiency = rl.ensure(efficiencyInput.value ?? 0.6);
+
+        const accelTimeSeconds = rl.pionRocketAccelTime(fuelMass, dryMass, efficiency);
+        const accelTimeDays = accelTimeSeconds.div(60 * 60 * 24);
+
+        setElement(result, rl.formatSignificant(accelTimeDays, "0", 3), "days");
+    };
+}
