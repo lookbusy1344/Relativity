@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const graphUpdateHandler = createGraphUpdateHandler(
         () => getInputElement('graphAccelInput'),
         () => getInputElement('graphDurationInput'),
+        () => getResultElement('graphStatus'),
         chartRegistry
     );
 
