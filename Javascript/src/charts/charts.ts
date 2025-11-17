@@ -244,12 +244,21 @@ export function updateAccelCharts(
         newRegistry,
         'accelMassChart',
         [{
+            label: '40% Efficiency',
+            data: data.properTimeMassRemaining40,
+            borderColor: '#ff5555',
+            backgroundColor: 'rgba(255, 85, 85, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
             label: '50% Efficiency',
             data: data.properTimeMassRemaining50,
             borderColor: '#ffaa00',
             backgroundColor: 'rgba(255, 170, 0, 0.1)',
             borderWidth: 2,
-            fill: true,
+            fill: false,
             tension: 0.4,
             pointRadius: 0
         }, {
@@ -258,7 +267,16 @@ export function updateAccelCharts(
             borderColor: '#00ff9f',
             backgroundColor: 'rgba(0, 255, 159, 0.1)',
             borderWidth: 2,
-            fill: true,
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
+            label: '70% Efficiency',
+            data: data.properTimeMassRemaining70,
+            borderColor: '#aa55ff',
+            backgroundColor: 'rgba(170, 85, 255, 0.1)',
+            borderWidth: 2,
+            fill: false,
             tension: 0.4,
             pointRadius: 0
         }],
@@ -388,12 +406,21 @@ export function updateFlipBurnCharts(
         newRegistry,
         'flipMassChart',
         [{
+            label: '40% Efficiency',
+            data: data.properTimeMassRemaining40,
+            borderColor: '#ff5555',
+            backgroundColor: 'rgba(255, 85, 85, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
             label: '50% Efficiency',
             data: data.properTimeMassRemaining50,
             borderColor: '#ffaa00',
             backgroundColor: 'rgba(255, 170, 0, 0.1)',
             borderWidth: 2,
-            fill: true,
+            fill: false,
             tension: 0.4,
             pointRadius: 0
         }, {
@@ -402,7 +429,16 @@ export function updateFlipBurnCharts(
             borderColor: '#00ff9f',
             backgroundColor: 'rgba(0, 255, 159, 0.1)',
             borderWidth: 2,
-            fill: true,
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
+            label: '70% Efficiency',
+            data: data.properTimeMassRemaining70,
+            borderColor: '#aa55ff',
+            backgroundColor: 'rgba(170, 85, 255, 0.1)',
+            borderWidth: 2,
+            fill: false,
             tension: 0.4,
             pointRadius: 0
         }],

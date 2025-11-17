@@ -77,7 +77,7 @@ export function createAccelHandler(
 ): () => void {
     return () => {
         const input = getInput();
-        const [resultA1, resultA2, resultA1b, resultA2b, resultAFuel, resultAFuel60] = getResults();
+        const [resultA1, resultA2, resultA1b, resultA2b, resultAFuel40, resultAFuel, resultAFuel60, resultAFuel70] = getResults();
         if (!input) return;
 
         const accel = rl.g;
@@ -88,18 +88,24 @@ export function createAccelHandler(
         const relVelC = relVel.div(rl.c);
         const relDistC = relDist.div(rl.lightYear);
 
-        // Calculate fuel fractions at 50% and 60% efficiency
+        // Calculate fuel fractions at all efficiencies
+        const fuelFraction40 = rl.photonRocketFuelFraction(secs, accel, 0.4);
+        const fuelPercent40 = fuelFraction40.mul(100);
         const fuelFraction50 = rl.photonRocketFuelFraction(secs, accel, 0.5);
         const fuelPercent50 = fuelFraction50.mul(100);
         const fuelFraction60 = rl.photonRocketFuelFraction(secs, accel, 0.6);
         const fuelPercent60 = fuelFraction60.mul(100);
+        const fuelFraction70 = rl.photonRocketFuelFraction(secs, accel, 0.7);
+        const fuelPercent70 = fuelFraction70.mul(100);
 
         if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 3), "m/s");
         if (resultA2) setElement(resultA2, rl.formatSignificant(relDist, "9", 3), "m");
         if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
         if (resultA2b) setElement(resultA2b, rl.formatSignificant(relDistC, "0", 3), "ly");
+        if (resultAFuel40) setElement(resultAFuel40, rl.formatSignificant(fuelPercent40, "0", 4), "%");
         if (resultAFuel) setElement(resultAFuel, rl.formatSignificant(fuelPercent50, "0", 4), "%");
         if (resultAFuel60) setElement(resultAFuel60, rl.formatSignificant(fuelPercent60, "0", 4), "%");
+        if (resultAFuel70) setElement(resultAFuel70, rl.formatSignificant(fuelPercent70, "0", 4), "%");
 
         // Update charts
         const durationDays = parseFloat(input.value ?? '365');
@@ -115,7 +121,7 @@ export function createFlipBurnHandler(
 ): () => void {
     return () => {
         const input = getInput();
-        const [resultFlip1, resultFlip2, resultFlip3, resultFlip4, resultFlip5, resultFlip6, resultFlipFuel, resultFlipFuel60] = getResults();
+        const [resultFlip1, resultFlip2, resultFlip3, resultFlip4, resultFlip5, resultFlip6, resultFlipFuel40, resultFlipFuel, resultFlipFuel60, resultFlipFuel70] = getResults();
         if (!input) return;
 
         const distanceLightYears = parseFloat(input.value ?? '0');
@@ -128,11 +134,15 @@ export function createFlipBurnHandler(
         const metre = rl.formatSignificant(rl.one.div(lorentz), "0", 2);
         const sec = rl.formatSignificant(rl.one.mul(lorentz), "0", 2);
 
-        // Calculate fuel fractions at 50% and 60% efficiency
+        // Calculate fuel fractions at all efficiencies
+        const fuelFraction40 = rl.photonRocketFuelFraction(res.properTime, rl.g, 0.4);
+        const fuelPercent40 = fuelFraction40.mul(100);
         const fuelFraction50 = rl.photonRocketFuelFraction(res.properTime, rl.g, 0.5);
         const fuelPercent50 = fuelFraction50.mul(100);
         const fuelFraction60 = rl.photonRocketFuelFraction(res.properTime, rl.g, 0.6);
         const fuelPercent60 = fuelFraction60.mul(100);
+        const fuelFraction70 = rl.photonRocketFuelFraction(res.properTime, rl.g, 0.7);
+        const fuelPercent70 = fuelFraction70.mul(100);
 
         if (resultFlip1) setElement(resultFlip1, rl.formatSignificant(properTime, "0", 2), "yrs");
         if (resultFlip2) setElement(resultFlip2, rl.formatSignificant(peak, "9", 2), "c");
@@ -140,8 +150,10 @@ export function createFlipBurnHandler(
         if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
         if (resultFlip5) setElement(resultFlip5, `1m becomes ${metre}m`, "");
         if (resultFlip6) setElement(resultFlip6, `1s becomes ${sec}s`, "");
+        if (resultFlipFuel40) setElement(resultFlipFuel40, rl.formatSignificant(fuelPercent40, "0", 4), "%");
         if (resultFlipFuel) setElement(resultFlipFuel, rl.formatSignificant(fuelPercent50, "0", 4), "%");
         if (resultFlipFuel60) setElement(resultFlipFuel60, rl.formatSignificant(fuelPercent60, "0", 4), "%");
+        if (resultFlipFuel70) setElement(resultFlipFuel70, rl.formatSignificant(fuelPercent70, "0", 4), "%");
 
         // Update charts
         const data = generateFlipBurnChartData(distanceLightYears);
