@@ -392,6 +392,61 @@ export function spacetimeInterval3d(event1: Interval, event2: Interval): Decimal
     return cSquared.mul(delta_ts).minus(delta_xs).minus(delta_ys).minus(delta_zs).sqrt();
 }
 
+/**
+ * Compute the time (in seconds) that a rocket can maintain constant proper acceleration
+ * using matter-antimatter annihilation, assuming photon-rocket behaviour.
+ * @param fuelMass Combined matter + antimatter mass (kg) that will be annihilated
+ * @param dryMass Dry mass of the spacecraft after all fuel is gone (kg)
+ * @param efficiency Fraction of annihilation energy that becomes perfectly directed photon thrust (default 1.0 = ideal)
+ * @param accel Acceleration to maintain (m/s²). Default = 1g (9.80665 m/s²)
+ * @returns Acceleration time in seconds as a Decimal
+ */
+export function photonRocketAccelTime(
+    fuelMass: NumberInput,
+    dryMass: NumberInput,
+    efficiency: NumberInput = 1.0,
+    accel: NumberInput = g
+): Decimal {
+    const fuelD = check(fuelMass, "Invalid fuel mass");
+    const dryD = check(dryMass, "Invalid dry mass");
+    const effD = check(efficiency, "Invalid efficiency");
+    const accelD = check(accel, "Invalid acceleration");
+
+    const m0 = dryD.plus(fuelD);
+    const mf = dryD;
+
+    if (m0.lte(mf)) {
+        return new Decimal(0);
+    }
+
+    // t = (η * c / a) * ln(M0/Mf)
+    return effD.mul(c).div(accelD).mul(m0.div(mf).ln());
+}
+
+/**
+ * Compute the propellant mass fraction required for a photon rocket
+ * to maintain constant proper acceleration for a given time.
+ * @param thrustTime Duration of thrust in seconds
+ * @param accel Constant proper acceleration (m/s²). Default = 1g
+ * @param efficiency Fraction of annihilation energy converted to directed thrust (default 0.5)
+ * @returns Propellant mass fraction (fuel_mass / initial_mass), range 0.0 to 1.0
+ */
+export function photonRocketFuelFraction(
+    thrustTime: NumberInput,
+    accel: NumberInput = g,
+    efficiency: NumberInput = 0.5
+): Decimal {
+    const timeD = check(thrustTime, "Invalid thrust time");
+    const accelD = check(accel, "Invalid acceleration");
+    const effD = check(efficiency, "Invalid efficiency");
+
+    // Mass ratio M0/Mf = exp(a*t / (η*c))
+    const massRatio = accelD.mul(timeD).div(effD.mul(c)).exp();
+
+    // Propellant fraction = 1 - (Mf/M0) = 1 - 1/mass_ratio
+    return one.minus(one.div(massRatio));
+}
+
 export function formatSignificant(value: Decimal, ignoreChar: string = "", significantDecimalPlaces: number = 2): string {
     if (ignoreChar.length > 1) {
         throw new Error('ignoreChar must be a single character or empty');
