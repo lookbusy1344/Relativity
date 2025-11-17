@@ -183,14 +183,14 @@ if __name__ == "__main__":
     dry_mass = 500.0  # kg, the spacecraft dry mass
 
     t = pion_rocket_accel_time(fuel_mass, dry_mass, efficiency=0.6)
-    years = t / rl.ensure(60.0) / rl.ensure(60.0) / rl.ensure(24.0) / rl.ensure("365.25")
+    years = t / rl.seconds_per_year
     print(
         f"Dry mass {float(dry_mass):.0f}, fuel mass {float(fuel_mass):.0f} means {float(years):.2f} years at 1g with 60% efficiency"
     )
 
     # Calculate propellant fraction for 3.52 years of 1g acceleration at 60% efficiency
     years = rl.ensure("3.52")
-    secs = rl.ensure("365.25") * rl.ensure("86400") * years
+    secs = rl.seconds_per_year * years
     f = pion_rocket_fuel_fraction(secs, None, 0.6)
     print(
         f"Propellant mass fraction: {float(f) * 100:.4f}% for {float(years)} years of 1g acceleration at 60% efficiency"
