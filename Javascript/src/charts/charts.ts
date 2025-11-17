@@ -244,10 +244,19 @@ export function updateAccelCharts(
         newRegistry,
         'accelMassChart',
         [{
-            label: 'Mass Remaining vs Proper Time',
-            data: data.properTimeMassRemaining,
+            label: '50% Efficiency',
+            data: data.properTimeMassRemaining50,
             borderColor: '#ffaa00',
             backgroundColor: 'rgba(255, 170, 0, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
+            label: '60% Efficiency',
+            data: data.properTimeMassRemaining60,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.1)',
             borderWidth: 2,
             fill: true,
             tension: 0.4,
@@ -255,7 +264,7 @@ export function updateAccelCharts(
         }],
         {
             primaryColor: '#ffaa00',
-            secondaryColor: '#ffaa00',
+            secondaryColor: '#00ff9f',
             xAxisLabel: 'Proper Time (days)',
             yAxisLabel: '% of Initial Mass',
             xMax: maxProperTime,
@@ -379,10 +388,19 @@ export function updateFlipBurnCharts(
         newRegistry,
         'flipMassChart',
         [{
-            label: 'Mass Remaining vs Proper Time',
-            data: data.properTimeMassRemaining,
+            label: '50% Efficiency',
+            data: data.properTimeMassRemaining50,
             borderColor: '#ffaa00',
             backgroundColor: 'rgba(255, 170, 0, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+        }, {
+            label: '60% Efficiency',
+            data: data.properTimeMassRemaining60,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.1)',
             borderWidth: 2,
             fill: true,
             tension: 0.4,
@@ -390,7 +408,7 @@ export function updateFlipBurnCharts(
         }],
         {
             primaryColor: '#ffaa00',
-            secondaryColor: '#ffaa00',
+            secondaryColor: '#00ff9f',
             xAxisLabel: 'Proper Time (years)',
             yAxisLabel: '% of Initial Mass',
             xMax: maxProperTime,
