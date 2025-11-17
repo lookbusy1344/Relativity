@@ -447,6 +447,37 @@ export function photonRocketFuelFraction(
     return one.minus(one.div(massRatio));
 }
 
+/**
+ * Compute the propellant mass fraction required for a charged-pion antimatter rocket
+ * to maintain constant proper acceleration for a given time.
+ * @param thrustTime Duration of thrust in seconds
+ * @param accel Constant proper acceleration (m/s²). Default = 1g
+ * @param efficiency Fraction of charged-pion kinetic energy effectively directed into thrust (0-1). Typical magnetic-nozzle values: ~0.6-0.8
+ * @returns Propellant mass fraction (fuel_mass / initial_mass), range 0.0 to 1.0
+ */
+export function pionRocketFuelFraction(
+    thrustTime: NumberInput,
+    accel: NumberInput = g,
+    efficiency: NumberInput = 0.7
+): Decimal {
+    const timeD = check(thrustTime, "Invalid thrust time");
+    const accelD = check(accel, "Invalid acceleration");
+    const effD = check(efficiency, "Invalid efficiency");
+
+    // Charged pion exhaust velocity (~0.94c)
+    const ve = c.mul(0.94).mul(effD);
+
+    if (ve.lte(0)) {
+        return new Decimal(0);
+    }
+
+    // Mass ratio M0/Mf = exp(a*t / v_e)
+    const massRatio = accelD.mul(timeD).div(ve).exp();
+
+    // Propellant fraction = 1 - (Mf/M0) = 1 - 1/mass_ratio
+    return one.minus(one.div(massRatio));
+}
+
 export function formatSignificant(value: Decimal, ignoreChar: string = "", significantDecimalPlaces: number = 2): string {
     if (ignoreChar.length > 1) {
         throw new Error('ignoreChar must be a single character or empty');

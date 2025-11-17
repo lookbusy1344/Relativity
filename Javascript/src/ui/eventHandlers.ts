@@ -89,13 +89,13 @@ export function createAccelHandler(
         const relDistC = relDist.div(rl.lightYear);
 
         // Calculate fuel fractions at all efficiencies
-        const fuelFraction40 = rl.photonRocketFuelFraction(secs, accel, 0.4);
+        const fuelFraction40 = rl.pionRocketFuelFraction(secs, accel, 0.4);
         const fuelPercent40 = fuelFraction40.mul(100);
-        const fuelFraction50 = rl.photonRocketFuelFraction(secs, accel, 0.5);
+        const fuelFraction50 = rl.pionRocketFuelFraction(secs, accel, 0.5);
         const fuelPercent50 = fuelFraction50.mul(100);
-        const fuelFraction60 = rl.photonRocketFuelFraction(secs, accel, 0.6);
+        const fuelFraction60 = rl.pionRocketFuelFraction(secs, accel, 0.6);
         const fuelPercent60 = fuelFraction60.mul(100);
-        const fuelFraction70 = rl.photonRocketFuelFraction(secs, accel, 0.7);
+        const fuelFraction70 = rl.pionRocketFuelFraction(secs, accel, 0.7);
         const fuelPercent70 = fuelFraction70.mul(100);
 
         if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 3), "m/s");
@@ -135,13 +135,13 @@ export function createFlipBurnHandler(
         const sec = rl.formatSignificant(rl.one.mul(lorentz), "0", 2);
 
         // Calculate fuel fractions at all efficiencies
-        const fuelFraction40 = rl.photonRocketFuelFraction(res.properTime, rl.g, 0.4);
+        const fuelFraction40 = rl.pionRocketFuelFraction(res.properTime, rl.g, 0.4);
         const fuelPercent40 = fuelFraction40.mul(100);
-        const fuelFraction50 = rl.photonRocketFuelFraction(res.properTime, rl.g, 0.5);
+        const fuelFraction50 = rl.pionRocketFuelFraction(res.properTime, rl.g, 0.5);
         const fuelPercent50 = fuelFraction50.mul(100);
-        const fuelFraction60 = rl.photonRocketFuelFraction(res.properTime, rl.g, 0.6);
+        const fuelFraction60 = rl.pionRocketFuelFraction(res.properTime, rl.g, 0.6);
         const fuelPercent60 = fuelFraction60.mul(100);
-        const fuelFraction70 = rl.photonRocketFuelFraction(res.properTime, rl.g, 0.7);
+        const fuelFraction70 = rl.pionRocketFuelFraction(res.properTime, rl.g, 0.7);
         const fuelPercent70 = fuelFraction70.mul(100);
 
         if (resultFlip1) setElement(resultFlip1, rl.formatSignificant(properTime, "0", 2), "yrs");

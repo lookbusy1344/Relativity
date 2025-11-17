@@ -52,13 +52,13 @@ export function generateAccelChartData(
         const tDays = parseFloat(t.div(rl.ensure(60 * 60 * 24)).toString());
 
         // Calculate mass remaining as percentage for all efficiencies
-        const fuelFraction40 = rl.photonRocketFuelFraction(tau, accel, 0.4);
+        const fuelFraction40 = rl.pionRocketFuelFraction(tau, accel, 0.4);
         const massRemaining40 = parseFloat(rl.one.minus(fuelFraction40).mul(100).toString());
-        const fuelFraction50 = rl.photonRocketFuelFraction(tau, accel, 0.5);
+        const fuelFraction50 = rl.pionRocketFuelFraction(tau, accel, 0.5);
         const massRemaining50 = parseFloat(rl.one.minus(fuelFraction50).mul(100).toString());
-        const fuelFraction60 = rl.photonRocketFuelFraction(tau, accel, 0.6);
+        const fuelFraction60 = rl.pionRocketFuelFraction(tau, accel, 0.6);
         const massRemaining60 = parseFloat(rl.one.minus(fuelFraction60).mul(100).toString());
-        const fuelFraction70 = rl.photonRocketFuelFraction(tau, accel, 0.7);
+        const fuelFraction70 = rl.pionRocketFuelFraction(tau, accel, 0.7);
         const massRemaining70 = parseFloat(rl.one.minus(fuelFraction70).mul(100).toString());
 
         properTimeVelocity.push({ x: tauDays, y: velocityC });
@@ -130,13 +130,13 @@ export function generateFlipBurnChartData(
         const timeDilation = parseFloat(rl.one.div(lorentz).toString());
 
         // Calculate mass remaining (fuel burned for thrust time so far)
-        const fuelFraction40 = rl.photonRocketFuelFraction(tau, rl.g, 0.4);
+        const fuelFraction40 = rl.pionRocketFuelFraction(tau, rl.g, 0.4);
         const massRemaining40 = parseFloat(rl.one.minus(fuelFraction40).mul(100).toString());
-        const fuelFraction50 = rl.photonRocketFuelFraction(tau, rl.g, 0.5);
+        const fuelFraction50 = rl.pionRocketFuelFraction(tau, rl.g, 0.5);
         const massRemaining50 = parseFloat(rl.one.minus(fuelFraction50).mul(100).toString());
-        const fuelFraction60 = rl.photonRocketFuelFraction(tau, rl.g, 0.6);
+        const fuelFraction60 = rl.pionRocketFuelFraction(tau, rl.g, 0.6);
         const massRemaining60 = parseFloat(rl.one.minus(fuelFraction60).mul(100).toString());
-        const fuelFraction70 = rl.photonRocketFuelFraction(tau, rl.g, 0.7);
+        const fuelFraction70 = rl.pionRocketFuelFraction(tau, rl.g, 0.7);
         const massRemaining70 = parseFloat(rl.one.minus(fuelFraction70).mul(100).toString());
 
         properTimeVelocity.push({ x: tauYears, y: velocityC });
@@ -171,13 +171,13 @@ export function generateFlipBurnChartData(
         // Total thrust time = half (accel) + time into decel phase
         const decelThrust = halfProperTimeSeconds.sub(tauAccel);
         const totalThrustTime = halfProperTimeSeconds.plus(decelThrust);
-        const fuelFraction40 = rl.photonRocketFuelFraction(totalThrustTime, rl.g, 0.4);
+        const fuelFraction40 = rl.pionRocketFuelFraction(totalThrustTime, rl.g, 0.4);
         const massRemaining40 = parseFloat(rl.one.minus(fuelFraction40).mul(100).toString());
-        const fuelFraction50 = rl.photonRocketFuelFraction(totalThrustTime, rl.g, 0.5);
+        const fuelFraction50 = rl.pionRocketFuelFraction(totalThrustTime, rl.g, 0.5);
         const massRemaining50 = parseFloat(rl.one.minus(fuelFraction50).mul(100).toString());
-        const fuelFraction60 = rl.photonRocketFuelFraction(totalThrustTime, rl.g, 0.6);
+        const fuelFraction60 = rl.pionRocketFuelFraction(totalThrustTime, rl.g, 0.6);
         const massRemaining60 = parseFloat(rl.one.minus(fuelFraction60).mul(100).toString());
-        const fuelFraction70 = rl.photonRocketFuelFraction(totalThrustTime, rl.g, 0.7);
+        const fuelFraction70 = rl.pionRocketFuelFraction(totalThrustTime, rl.g, 0.7);
         const massRemaining70 = parseFloat(rl.one.minus(fuelFraction70).mul(100).toString());
 
         properTimeVelocity.push({ x: tauYears, y: velocityC });
