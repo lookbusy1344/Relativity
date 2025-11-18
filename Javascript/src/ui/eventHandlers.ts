@@ -280,7 +280,7 @@ export function createSpacetimeIntervalHandler(
 
         // Display interval squared in km²
         const intervalSquaredKm = intervalSquared.div(1000000);
-        setElement(resultSquared, rl.formatSignificant(intervalSquaredKm, "0", 3), "km²");
+        setElement(resultSquared, rl.formatSignificant(intervalSquaredKm, "0", 1), "km²");
 
         // Interpret the interval
         const tolerance = new Decimal(1e-10);
@@ -295,7 +295,7 @@ export function createSpacetimeIntervalHandler(
             // Spacelike interval - not causally connected
             const properDistanceM = intervalSquared.abs().sqrt();
             const properDistanceKm = properDistanceM.div(1000);
-            setElement(resultType, `Spacelike: ${rl.formatSignificant(properDistanceKm, "0", 3)} km - Events cannot be causally connected`, "");
+            setElement(resultType, `Spacelike: ${rl.formatSignificant(properDistanceKm, "0", 1)} km - Events cannot be causally connected`, "");
         }
 
         // Calculate Lorentz transformation
@@ -310,6 +310,6 @@ export function createSpacetimeIntervalHandler(
         const deltaXprimeKm = deltaXprimeM.div(1000);
 
         setElement(resultDeltaT, rl.formatSignificant(deltaTprime, "0", 3), "s");
-        setElement(resultDeltaX, rl.formatSignificant(deltaXprimeKm, "0", 3), "km");
+        setElement(resultDeltaX, rl.formatSignificant(deltaXprimeKm, "0", 1), "km");
     };
 }
