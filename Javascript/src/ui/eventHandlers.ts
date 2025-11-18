@@ -243,8 +243,6 @@ export function createPionAccelTimeHandler(
 }
 
 export function createSpacetimeIntervalHandler(
-    getTime1Input: () => HTMLInputElement | null,
-    getX1Input: () => HTMLInputElement | null,
     getTime2Input: () => HTMLInputElement | null,
     getX2Input: () => HTMLInputElement | null,
     getVelocityInput: () => HTMLInputElement | null,
@@ -254,8 +252,6 @@ export function createSpacetimeIntervalHandler(
     getResultDeltaX: () => HTMLElement | null
 ): () => void {
     return () => {
-        const time1Input = getTime1Input();
-        const x1Input = getX1Input();
         const time2Input = getTime2Input();
         const x2Input = getX2Input();
         const velocityInput = getVelocityInput();
@@ -263,17 +259,18 @@ export function createSpacetimeIntervalHandler(
         const resultType = getResultType();
         const resultDeltaT = getResultDeltaT();
         const resultDeltaX = getResultDeltaX();
-        if (!time1Input || !x1Input || !time2Input || !x2Input || !velocityInput ||
+        if (!time2Input || !x2Input || !velocityInput ||
             !resultSquared || !resultType || !resultDeltaT || !resultDeltaX) return;
 
-        const t1 = rl.ensure(time1Input.value ?? 0);
-        const x1Km = rl.ensure(x1Input.value ?? 0);
+        // Event 1 is always at (0, 0)
+        const t1 = new Decimal(0);
+        const x1 = new Decimal(0);
+
         const t2 = rl.ensure(time2Input.value ?? 0);
         const x2Km = rl.ensure(x2Input.value ?? 0);
         const velocityC = rl.ensure(velocityInput.value ?? 0);
 
         // Convert km to m for calculations
-        const x1 = x1Km.mul(1000);
         const x2 = x2Km.mul(1000);
 
         // Calculate interval squared: s² = c²(Δt)² - (Δx)²

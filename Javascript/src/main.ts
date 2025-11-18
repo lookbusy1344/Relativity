@@ -104,8 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Spacetime interval
     getButtonElement('spacetimeButton')?.addEventListener('click',
         createSpacetimeIntervalHandler(
-            () => getInputElement('spacetimeTime1'),
-            () => getInputElement('spacetimeX1'),
             () => getInputElement('spacetimeTime2'),
             () => getInputElement('spacetimeX2'),
             () => getInputElement('spacetimeVelocity'),
