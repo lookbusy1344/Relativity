@@ -21,6 +21,8 @@ export function generateAccelChartData(
     properTimeMassRemaining50: ChartDataPoint[];
     properTimeMassRemaining60: ChartDataPoint[];
     properTimeMassRemaining70: ChartDataPoint[];
+    positionVelocity: ChartDataPoint[];  // NEW: {x: distance_ly, y: velocity_c}
+    spacetimeWorldline: ChartDataPoint[];  // NEW: {x: coord_time_years, y: distance_ly}
 } {
     const accel = rl.g.mul(accelG);
     const durationSeconds = durationDays * 60 * 60 * 24;
@@ -36,6 +38,8 @@ export function generateAccelChartData(
     const properTimeMassRemaining50: ChartDataPoint[] = [];
     const properTimeMassRemaining60: ChartDataPoint[] = [];
     const properTimeMassRemaining70: ChartDataPoint[] = [];
+    const positionVelocity: ChartDataPoint[] = [];
+    const spacetimeWorldline: ChartDataPoint[] = [];
 
     for (let i = 0; i <= numPoints; i++) {
         const tau = (i / numPoints) * durationSeconds;
@@ -71,6 +75,16 @@ export function generateAccelChartData(
         properTimeMassRemaining50.push({ x: tauDays, y: massRemaining50 });
         properTimeMassRemaining60.push({ x: tauDays, y: massRemaining60 });
         properTimeMassRemaining70.push({ x: tauDays, y: massRemaining70 });
+
+        // Calculate distance for phase space plots
+        const distance = rl.relativisticDistance(accel, tau);
+        const distanceLy = parseFloat(distance.div(rl.lightYear).toString());
+
+        // Position-velocity phase space
+        positionVelocity.push({ x: distanceLy, y: velocityC });
+
+        // Spacetime worldline (coord time vs distance)
+        spacetimeWorldline.push({ x: tDays / 365.25, y: distanceLy });
     }
 
     return {
@@ -83,7 +97,9 @@ export function generateAccelChartData(
         properTimeMassRemaining40,
         properTimeMassRemaining50,
         properTimeMassRemaining60,
-        properTimeMassRemaining70
+        properTimeMassRemaining70,
+        positionVelocity,
+        spacetimeWorldline
     };
 }
 
@@ -100,6 +116,8 @@ export function generateFlipBurnChartData(
     properTimeMassRemaining50: ChartDataPoint[];
     properTimeMassRemaining60: ChartDataPoint[];
     properTimeMassRemaining70: ChartDataPoint[];
+    positionVelocity: ChartDataPoint[];  // NEW: creates the loop!
+    spacetimeWorldline: ChartDataPoint[];  // NEW: S-curve
 } {
     const m = rl.ensure(distanceLightYears).mul(rl.lightYear);
     const res = rl.flipAndBurn(rl.g, m);
@@ -116,6 +134,8 @@ export function generateFlipBurnChartData(
     const properTimeMassRemaining50: ChartDataPoint[] = [];
     const properTimeMassRemaining60: ChartDataPoint[] = [];
     const properTimeMassRemaining70: ChartDataPoint[] = [];
+    const positionVelocity: ChartDataPoint[] = [];
+    const spacetimeWorldline: ChartDataPoint[] = [];
 
     // Acceleration phase (0 to half proper time)
     for (let i = 0; i <= numPointsPerPhase; i++) {
@@ -153,6 +173,16 @@ export function generateFlipBurnChartData(
         properTimeMassRemaining50.push({ x: tauYears, y: massRemaining50 });
         properTimeMassRemaining60.push({ x: tauYears, y: massRemaining60 });
         properTimeMassRemaining70.push({ x: tauYears, y: massRemaining70 });
+
+        // Calculate distance traveled so far
+        const distance = rl.relativisticDistance(rl.g, tau);
+        const distanceLy = parseFloat(distance.div(rl.lightYear).toString());
+
+        // Position-velocity phase space
+        positionVelocity.push({ x: distanceLy, y: velocityC });
+
+        // Spacetime worldline
+        spacetimeWorldline.push({ x: tYears, y: distanceLy });
     }
 
     // Deceleration phase - mirror the acceleration phase
@@ -195,6 +225,19 @@ export function generateFlipBurnChartData(
         properTimeMassRemaining50.push({ x: tauYears, y: massRemaining50 });
         properTimeMassRemaining60.push({ x: tauYears, y: massRemaining60 });
         properTimeMassRemaining70.push({ x: tauYears, y: massRemaining70 });
+
+        // During deceleration, distance continues increasing from halfDistance to totalDistance
+        // tauAccel represents equivalent accel time for current velocity
+        const remainingAccelDistance = rl.relativisticDistance(rl.g, tauAccel);
+        const totalDistance = rl.ensure(distanceLightYears).mul(rl.lightYear);
+        const currentDistance = totalDistance.minus(remainingAccelDistance);
+        const currentDistanceLy = parseFloat(currentDistance.div(rl.lightYear).toString());
+
+        // Position-velocity phase space (creates return path of loop)
+        positionVelocity.push({ x: currentDistanceLy, y: velocityC });
+
+        // Spacetime worldline
+        spacetimeWorldline.push({ x: tYears, y: currentDistanceLy });
     }
 
     return {
@@ -207,7 +250,9 @@ export function generateFlipBurnChartData(
         properTimeMassRemaining40,
         properTimeMassRemaining50,
         properTimeMassRemaining60,
-        properTimeMassRemaining70
+        properTimeMassRemaining70,
+        positionVelocity,
+        spacetimeWorldline
     };
 }
 

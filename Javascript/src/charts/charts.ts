@@ -290,6 +290,28 @@ export function updateAccelCharts(
         }
     );
 
+    // Position-Velocity Phase Portrait
+    const posVelCanvas = document.getElementById('accelPositionVelocityChart') as HTMLCanvasElement | null;
+    if (posVelCanvas) {
+        if (newRegistry.has('accelPositionVelocity')) {
+            newRegistry.get('accelPositionVelocity')?.destroy();
+        }
+        newRegistry.set('accelPositionVelocity',
+            createPositionVelocityChart(posVelCanvas, data.positionVelocity)
+        );
+    }
+
+    // Spacetime Worldline
+    const spacetimeCanvas = document.getElementById('accelSpacetimeChart') as HTMLCanvasElement | null;
+    if (spacetimeCanvas) {
+        if (newRegistry.has('accelSpacetime')) {
+            newRegistry.get('accelSpacetime')?.destroy();
+        }
+        newRegistry.set('accelSpacetime',
+            createSpacetimeChart(spacetimeCanvas, data.spacetimeWorldline)
+        );
+    }
+
     return newRegistry;
 }
 
@@ -453,6 +475,28 @@ export function updateFlipBurnCharts(
         }
     );
 
+    // Position-Velocity Phase Portrait
+    const posVelCanvas = document.getElementById('flipPositionVelocityChart') as HTMLCanvasElement | null;
+    if (posVelCanvas) {
+        if (newRegistry.has('flipPositionVelocity')) {
+            newRegistry.get('flipPositionVelocity')?.destroy();
+        }
+        newRegistry.set('flipPositionVelocity',
+            createPositionVelocityChart(posVelCanvas, data.positionVelocity)
+        );
+    }
+
+    // Spacetime Worldline
+    const spacetimeCanvas = document.getElementById('flipSpacetimeChart') as HTMLCanvasElement | null;
+    if (spacetimeCanvas) {
+        if (newRegistry.has('flipSpacetime')) {
+            newRegistry.get('flipSpacetime')?.destroy();
+        }
+        newRegistry.set('flipSpacetime',
+            createSpacetimeChart(spacetimeCanvas, data.spacetimeWorldline)
+        );
+    }
+
     return newRegistry;
 }
 
@@ -568,4 +612,144 @@ export function updateVisualizationCharts(
     );
 
     return newRegistry;
+}
+
+function createPositionVelocityChart(
+    canvas: HTMLCanvasElement,
+    data: { x: number; y: number }[]
+): Chart {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    // Create velocity-based gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#00d9ff');     // electric cyan at low velocity
+    gradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
+    gradient.addColorStop(1, '#ffaa00');     // amber at high velocity
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Trajectory',
+                data: data,
+                borderColor: gradient,
+                backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                borderWidth: 3,
+                pointRadius: 0,
+                tension: 0.4,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2.5,
+            plugins: {
+                title: {
+                    display: false
+                },
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Distance (light years)',
+                        color: '#00d9ff',
+                        font: { size: 14 }
+                    },
+                    grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                    ticks: { color: '#e8f1f5' }
+                },
+                y: {
+                    type: 'linear',
+                    min: 0,
+                    max: 1,
+                    title: {
+                        display: true,
+                        text: 'Velocity (c)',
+                        color: '#00d9ff',
+                        font: { size: 14 }
+                    },
+                    grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                    ticks: { color: '#e8f1f5' }
+                }
+            }
+        }
+    }) as Chart;
+}
+
+function createSpacetimeChart(
+    canvas: HTMLCanvasElement,
+    data: { x: number; y: number }[]
+): Chart {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    // Find max values for light cone
+    const maxTime = Math.max(...data.map(d => d.x));
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'Worldline',
+                    data: data,
+                    borderColor: '#00d9ff',
+                    backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'Light Cone',
+                    data: [{ x: 0, y: 0 }, { x: maxTime, y: maxTime }],
+                    borderColor: 'rgba(255, 170, 0, 0.3)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2.5,
+            plugins: {
+                title: {
+                    display: false
+                },
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Coordinate Time (years)',
+                        color: '#00d9ff',
+                        font: { size: 14 }
+                    },
+                    grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                    ticks: { color: '#e8f1f5' }
+                },
+                y: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Distance (light years)',
+                        color: '#00d9ff',
+                        font: { size: 14 }
+                    },
+                    grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                    ticks: { color: '#e8f1f5' }
+                }
+            }
+        }
+    }) as Chart;
 }
