@@ -378,6 +378,32 @@
 			font-family: 'IBM Plex Mono', monospace;
 		}
 
+		.notebook-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.35rem;
+			margin-left: 0.75rem;
+			color: var(--scientific-green);
+			font-size: 0.7rem;
+			text-decoration: none;
+			font-weight: 500;
+			transition: all 0.2s ease;
+			text-transform: none;
+			letter-spacing: 0.5px;
+			opacity: 0.8;
+		}
+
+		.notebook-link:hover {
+			color: var(--electric-cyan);
+			opacity: 1;
+			text-shadow: 0 0 8px var(--glow-green);
+		}
+
+		.notebook-link::before {
+			content: '📖';
+			font-size: 0.9rem;
+		}
+
 		.input-label {
 			font-size: 0.75rem;
 			color: var(--electric-cyan);
@@ -714,28 +740,40 @@
 
 						<!-- Constant Acceleration Charts -->
 						<div style="margin-top: 1.5rem;">
-							<div class="input-label" style="margin-bottom: 0.5rem;">Velocity over Time</div>
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Velocity over Time
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 								<canvas id="accelVelocityChart"></canvas>
 							</div>
 						</div>
 
 						<div style="margin-top: 1.5rem;">
-							<div class="input-label" style="margin-bottom: 0.5rem;">Time Dilation Factor</div>
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Time Dilation Factor
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 								<canvas id="accelLorentzChart"></canvas>
 							</div>
 						</div>
 
 						<div style="margin-top: 1.5rem;">
-							<div class="input-label" style="margin-bottom: 0.5rem;">Rapidity over Time</div>
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Rapidity over Time
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 								<canvas id="accelRapidityChart"></canvas>
 							</div>
 						</div>
 
 						<div style="margin-top: 1.5rem;">
-							<div class="input-label" style="margin-bottom: 0.5rem;">Ship mass over time - charged-pion antimatter rocket</div>
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Ship mass over time - charged-pion antimatter rocket
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Relativistic%20mass.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 								<canvas id="accelMassChart"></canvas>
 							</div>
@@ -795,28 +833,40 @@
 
 						<!-- Flip-and-Burn Charts -->
 						<div style="margin-top: 1.5rem;">
-							<div class="input-label" style="margin-bottom: 0.5rem;">Velocity over Time</div>
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Velocity over Time
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 								<canvas id="flipVelocityChart"></canvas>
 							</div>
 						</div>
 
 						<div style="margin-top: 1.5rem;">
-							<div class="input-label" style="margin-bottom: 0.5rem;">Time Dilation Factor</div>
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Time Dilation Factor
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 								<canvas id="flipLorentzChart"></canvas>
 						</div>
 					</div>
 
 					<div style="margin-top: 1.5rem;">
-						<div class="input-label" style="margin-bottom: 0.5rem;">Rapidity over Time</div>
+						<div class="input-label" style="margin-bottom: 0.5rem;">
+							Rapidity over Time
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
 						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 							<canvas id="flipRapidityChart"></canvas>
 							</div>
 						</div>
 
 					<div style="margin-top: 1.5rem;">
-						<div class="input-label" style="margin-bottom: 0.5rem;">Ship mass over time - charged-pion antimatter rocket</div>
+						<div class="input-label" style="margin-bottom: 0.5rem;">
+							Ship mass over time - charged-pion antimatter rocket
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Relativistic%20mass.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
 						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 							<canvas id="flipMassChart"></canvas>
 							</div>
@@ -846,7 +896,10 @@
 					</div>
 
 					<div class="calc-section">
-						<div class="calc-label">Velocity vs Time</div>
+						<div class="calc-label">
+							Velocity vs Time
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
 						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 							<canvas id="velocityChart"></canvas>
 						</div>
@@ -860,14 +913,20 @@
 					</div>
 
 					<div class="calc-section">
-						<div class="calc-label">Rapidity vs Time</div>
+						<div class="calc-label">
+							Rapidity vs Time
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
 						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 							<canvas id="rapidityChart"></canvas>
 						</div>
 					</div>
 
 					<div class="calc-section">
-						<div class="calc-label">Time Dilation & Length Contraction</div>
+						<div class="calc-label">
+							Time Dilation & Length Contraction
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
 						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 							<canvas id="lorentzChart"></canvas>
 						</div>
@@ -920,7 +979,10 @@
 					</div>
 
 					<div class="calc-section">
-						<div class="calc-label">Relativistic Velocity Addition</div>
+						<div class="calc-label">
+							Relativistic Velocity Addition
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Velocity%20adding.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
 						<div class="input-group-custom">
 							<div style="flex: 1; min-width: 200px;">
 								<div class="input-label">Velocity 1 (fraction of c)</div>
