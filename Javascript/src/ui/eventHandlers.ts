@@ -247,22 +247,30 @@ export function createSpacetimeIntervalHandler(
     getX1Input: () => HTMLInputElement | null,
     getTime2Input: () => HTMLInputElement | null,
     getX2Input: () => HTMLInputElement | null,
+    getVelocityInput: () => HTMLInputElement | null,
     getResultSquared: () => HTMLElement | null,
-    getResultType: () => HTMLElement | null
+    getResultType: () => HTMLElement | null,
+    getResultDeltaT: () => HTMLElement | null,
+    getResultDeltaX: () => HTMLElement | null
 ): () => void {
     return () => {
         const time1Input = getTime1Input();
         const x1Input = getX1Input();
         const time2Input = getTime2Input();
         const x2Input = getX2Input();
+        const velocityInput = getVelocityInput();
         const resultSquared = getResultSquared();
         const resultType = getResultType();
-        if (!time1Input || !x1Input || !time2Input || !x2Input || !resultSquared || !resultType) return;
+        const resultDeltaT = getResultDeltaT();
+        const resultDeltaX = getResultDeltaX();
+        if (!time1Input || !x1Input || !time2Input || !x2Input || !velocityInput ||
+            !resultSquared || !resultType || !resultDeltaT || !resultDeltaX) return;
 
         const t1 = rl.ensure(time1Input.value ?? 0);
         const x1 = rl.ensure(x1Input.value ?? 0);
         const t2 = rl.ensure(time2Input.value ?? 0);
         const x2 = rl.ensure(x2Input.value ?? 0);
+        const velocityC = rl.ensure(velocityInput.value ?? 0);
 
         // Calculate interval squared: s² = c²(Δt)² - (Δx)²
         const deltaT = t2.minus(t1);
@@ -286,5 +294,18 @@ export function createSpacetimeIntervalHandler(
             const properDistance = intervalSquared.abs().sqrt();
             setElement(resultType, `Spacelike: ${rl.formatSignificant(properDistance, "0", 3)} m - Events cannot be causally connected`, "");
         }
+
+        // Calculate Lorentz transformation
+        const v = velocityC.mul(rl.c); // Convert from c to m/s
+        const gamma = rl.lorentzFactor(v);
+
+        // Δt' = γ(Δt - vΔx/c²)
+        const deltaTprime = gamma.mul(deltaT.minus(v.mul(deltaX).div(rl.c.pow(2))));
+
+        // Δx' = γ(Δx - vΔt)
+        const deltaXprime = gamma.mul(deltaX.minus(v.mul(deltaT)));
+
+        setElement(resultDeltaT, rl.formatSignificant(deltaTprime, "0", 3), "s");
+        setElement(resultDeltaX, rl.formatSignificant(deltaXprime, "0", 3), "m");
     };
 }

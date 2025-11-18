@@ -108,8 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getInputElement('spacetimeX1'),
             () => getInputElement('spacetimeTime2'),
             () => getInputElement('spacetimeX2'),
+            () => getInputElement('spacetimeVelocity'),
             () => getResultElement('resultSpacetimeSquared'),
-            () => getResultElement('resultSpacetimeType')
+            () => getResultElement('resultSpacetimeType'),
+            () => getResultElement('resultSpacetimeDeltaT'),
+            () => getResultElement('resultSpacetimeDeltaX')
         )
     );
 

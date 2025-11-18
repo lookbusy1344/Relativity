@@ -1065,6 +1065,11 @@
 								<input type="number" id="spacetimeX2" placeholder="e.g., 299792458" value="299792458"
 									class="form-control">
 							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Relative Velocity (c)</div>
+								<input type="number" id="spacetimeVelocity" placeholder="e.g., 0.5" value="0.5"
+									class="form-control" step="0.1" min="-0.999" max="0.999">
+							</div>
 							<button type="button" class="btn-calculate" id="spacetimeButton"
 								>Calculate</button>
 						</div>
@@ -1075,6 +1080,16 @@
 						<div style="margin-top: 0.5rem;">
 							<div class="result-item-label">Interpretation</div>
 							<div class="result-box" id="resultSpacetimeType">-</div>
+						</div>
+						<div class="result-grid" style="margin-top: 1rem;">
+							<div class="result-item">
+								<div class="result-item-label">Δt' (transformed)</div>
+								<div class="result-item-value" id="resultSpacetimeDeltaT">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Δx' (transformed)</div>
+								<div class="result-item-value" id="resultSpacetimeDeltaX">-</div>
+							</div>
 						</div>
 					</div>
 				</div>
