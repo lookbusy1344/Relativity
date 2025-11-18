@@ -267,18 +267,23 @@ export function createSpacetimeIntervalHandler(
             !resultSquared || !resultType || !resultDeltaT || !resultDeltaX) return;
 
         const t1 = rl.ensure(time1Input.value ?? 0);
-        const x1 = rl.ensure(x1Input.value ?? 0);
+        const x1Km = rl.ensure(x1Input.value ?? 0);
         const t2 = rl.ensure(time2Input.value ?? 0);
-        const x2 = rl.ensure(x2Input.value ?? 0);
+        const x2Km = rl.ensure(x2Input.value ?? 0);
         const velocityC = rl.ensure(velocityInput.value ?? 0);
+
+        // Convert km to m for calculations
+        const x1 = x1Km.mul(1000);
+        const x2 = x2Km.mul(1000);
 
         // Calculate interval squared: s² = c²(Δt)² - (Δx)²
         const deltaT = t2.minus(t1);
         const deltaX = x2.minus(x1);
         const intervalSquared = rl.c.pow(2).mul(deltaT.pow(2)).minus(deltaX.pow(2));
 
-        // Display interval squared
-        setElement(resultSquared, rl.formatSignificant(intervalSquared, "0", 3), "m²");
+        // Display interval squared in km²
+        const intervalSquaredKm = intervalSquared.div(1000000);
+        setElement(resultSquared, rl.formatSignificant(intervalSquaredKm, "0", 3), "km²");
 
         // Interpret the interval
         const tolerance = new Decimal(1e-10);
@@ -291,8 +296,9 @@ export function createSpacetimeIntervalHandler(
             setElement(resultType, `Timelike: ${rl.formatSignificant(properTime, "0", 3)} s - Events are causally connected`, "");
         } else {
             // Spacelike interval - not causally connected
-            const properDistance = intervalSquared.abs().sqrt();
-            setElement(resultType, `Spacelike: ${rl.formatSignificant(properDistance, "0", 3)} m - Events cannot be causally connected`, "");
+            const properDistanceM = intervalSquared.abs().sqrt();
+            const properDistanceKm = properDistanceM.div(1000);
+            setElement(resultType, `Spacelike: ${rl.formatSignificant(properDistanceKm, "0", 3)} km - Events cannot be causally connected`, "");
         }
 
         // Calculate Lorentz transformation
@@ -303,9 +309,10 @@ export function createSpacetimeIntervalHandler(
         const deltaTprime = gamma.mul(deltaT.minus(v.mul(deltaX).div(rl.c.pow(2))));
 
         // Δx' = γ(Δx - vΔt)
-        const deltaXprime = gamma.mul(deltaX.minus(v.mul(deltaT)));
+        const deltaXprimeM = gamma.mul(deltaX.minus(v.mul(deltaT)));
+        const deltaXprimeKm = deltaXprimeM.div(1000);
 
         setElement(resultDeltaT, rl.formatSignificant(deltaTprime, "0", 3), "s");
-        setElement(resultDeltaX, rl.formatSignificant(deltaXprime, "0", 3), "m");
+        setElement(resultDeltaX, rl.formatSignificant(deltaXprimeKm, "0", 3), "km");
     };
 }
