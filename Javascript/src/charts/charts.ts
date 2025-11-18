@@ -644,7 +644,7 @@ function createPositionVelocityChart(
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            aspectRatio: 1.5,
+            aspectRatio: 2.5,
             plugins: {
                 title: {
                     display: false
@@ -719,7 +719,7 @@ function createSpacetimeChart(
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            aspectRatio: 1.5,
+            aspectRatio: 2.5,
             plugins: {
                 title: {
                     display: false
