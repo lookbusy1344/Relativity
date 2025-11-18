@@ -2,9 +2,7 @@ from mpmath import mp
 import relativity_lib as rl
 
 
-def photon_rocket_accel_time(
-    fuel_mass, dry_mass, efficiency=1.0, g=None
-):
+def photon_rocket_accel_time(fuel_mass, dry_mass, efficiency=1.0, g=None):
     """
     Compute the time (in seconds) that a rocket can maintain 1g acceleration
     using matter–antimatter annihilation, assuming photon-rocket behaviour.
@@ -23,12 +21,12 @@ def photon_rocket_accel_time(
     Returns:
         mpmath number : acceleration time in seconds.
     """
-    
+
     # Convert inputs to mpmath
     fuel_mass = rl.ensure(fuel_mass)
     dry_mass = rl.ensure(dry_mass)
     efficiency = rl.ensure(efficiency)
-    
+
     # Use relativity_lib's g if not provided
     if g is None:
         g = rl.g
@@ -48,9 +46,7 @@ def photon_rocket_accel_time(
     return (efficiency * rl.c / g) * mp.log(M0 / Mf)
 
 
-def pion_rocket_accel_time(
-    fuel_mass, dry_mass, efficiency=1.0, g=None
-):
+def pion_rocket_accel_time(fuel_mass, dry_mass, efficiency=1.0, g=None):
     """
     Compute the time (in seconds) that a rocket can maintain constant
     proper acceleration g using matter–antimatter annihilation with
@@ -70,12 +66,12 @@ def pion_rocket_accel_time(
     Returns:
         mpmath number : acceleration time in seconds.
     """
-    
+
     # Convert inputs to mpmath
     fuel_mass = rl.ensure(fuel_mass)
     dry_mass = rl.ensure(dry_mass)
     efficiency = rl.ensure(efficiency)
-    
+
     # Use relativity_lib's g if not provided
     if g is None:
         g = rl.g
@@ -94,9 +90,7 @@ def pion_rocket_accel_time(
     return (ve / g) * mp.log(M0 / Mf)
 
 
-def photon_rocket_fuel_fraction(
-    thrust_time, acceleration=None, efficiency=0.4
-):
+def photon_rocket_fuel_fraction(thrust_time, acceleration=None, efficiency=0.4):
     """
     Compute the propellant mass fraction required for a photon rocket
     to maintain constant proper acceleration for a given time.
@@ -114,11 +108,11 @@ def photon_rocket_fuel_fraction(
         mpmath number : Propellant mass fraction (fuel_mass / initial_mass).
                         Range: 0.0 to 1.0
     """
-    
+
     # Convert inputs to mpmath
     thrust_time = rl.ensure(thrust_time)
     efficiency = rl.ensure(efficiency)
-    
+
     # Use relativity_lib's g if not provided
     if acceleration is None:
         acceleration = rl.g
@@ -132,9 +126,7 @@ def photon_rocket_fuel_fraction(
     return rl.one - (rl.one / mass_ratio)
 
 
-def pion_rocket_fuel_fraction(
-    thrust_time, acceleration=None, efficiency=0.7
-):
+def pion_rocket_fuel_fraction(thrust_time, acceleration=None, efficiency=0.7):
     """
     Compute the propellant mass fraction required for a charged-pion
     antimatter rocket to maintain constant proper acceleration for a
@@ -152,11 +144,11 @@ def pion_rocket_fuel_fraction(
     Returns:
         mpmath number : Propellant fraction = fuel_mass / initial_mass (0–1).
     """
-    
+
     # Convert inputs to mpmath
     thrust_time = rl.ensure(thrust_time)
     efficiency = rl.ensure(efficiency)
-    
+
     # Use relativity_lib's g if not provided
     if acceleration is None:
         acceleration = rl.g
@@ -178,7 +170,7 @@ def pion_rocket_fuel_fraction(
 if __name__ == "__main__":
     # Configure relativity_lib for precision calculations
     rl.configure(50)
-    
+
     fuel_mass = 1000.0  # kg, half is matter, half is antimatter
     dry_mass = 500.0  # kg, the spacecraft dry mass
 
