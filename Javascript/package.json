@@ -19,5 +19,8 @@
         "typescript": "^5.9.3",
         "vite": "^7.2.2"
     },
+    "resolutions": {
+        "glob": "^11.1.0"
+    },
     "packageManager": "yarn@4.11.0"
 }
