@@ -226,11 +226,11 @@ export function generateFlipBurnChartData(
         properTimeMassRemaining60.push({ x: tauYears, y: massRemaining60 });
         properTimeMassRemaining70.push({ x: tauYears, y: massRemaining70 });
 
-        // Distance during deceleration = total - remaining accel distance
-        const accelDistance = rl.relativisticDistance(rl.g, tauAccel);
+        // During deceleration, distance continues increasing from halfDistance to totalDistance
+        // tauAccel represents equivalent accel time for current velocity
+        const remainingAccelDistance = rl.relativisticDistance(rl.g, tauAccel);
         const totalDistance = rl.ensure(distanceLightYears).mul(rl.lightYear);
-        const decelDistance = totalDistance.minus(accelDistance);
-        const currentDistance = accelDistance.plus(decelDistance.minus(decelDistance.mul(i / numPointsPerPhase)));
+        const currentDistance = totalDistance.minus(remainingAccelDistance);
         const currentDistanceLy = parseFloat(currentDistance.div(rl.lightYear).toString());
 
         // Position-velocity phase space (creates return path of loop)
