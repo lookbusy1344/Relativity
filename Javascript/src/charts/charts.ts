@@ -640,3 +640,81 @@ function createPositionVelocityChart(
         }
     }) as Chart;
 }
+
+function createSpacetimeChart(
+    canvas: HTMLCanvasElement,
+    data: { x: number; y: number }[],
+    title: string
+): Chart {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    // Find max values for light cone
+    const maxTime = Math.max(...data.map(d => d.x));
+    const maxDistance = Math.max(...data.map(d => d.y));
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'Worldline',
+                    data: data,
+                    borderColor: '#00d9ff',
+                    backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'Light Cone',
+                    data: [{ x: 0, y: 0 }, { x: maxTime, y: maxTime }],
+                    borderColor: 'rgba(255, 170, 0, 0.3)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1.5,
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    color: '#00ff9f',
+                    font: { size: 16, family: 'Orbitron' }
+                },
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Coordinate Time (years)',
+                        color: '#00d9ff',
+                        font: { size: 14 }
+                    },
+                    grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                    ticks: { color: '#e8f1f5' }
+                },
+                y: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Distance (light years)',
+                        color: '#00d9ff',
+                        font: { size: 14 }
+                    },
+                    grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                    ticks: { color: '#e8f1f5' }
+                }
+            }
+        }
+    }) as Chart;
+}
