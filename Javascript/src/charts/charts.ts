@@ -297,7 +297,7 @@ export function updateAccelCharts(
             newRegistry.get('accelPositionVelocity')?.destroy();
         }
         newRegistry.set('accelPositionVelocity',
-            createPositionVelocityChart(posVelCanvas, data.positionVelocity, 'Position-Velocity Phase Portrait')
+            createPositionVelocityChart(posVelCanvas, data.positionVelocity)
         );
     }
 
@@ -308,7 +308,7 @@ export function updateAccelCharts(
             newRegistry.get('accelSpacetime')?.destroy();
         }
         newRegistry.set('accelSpacetime',
-            createSpacetimeChart(spacetimeCanvas, data.spacetimeWorldline, 'Spacetime Worldline')
+            createSpacetimeChart(spacetimeCanvas, data.spacetimeWorldline)
         );
     }
 
@@ -482,7 +482,7 @@ export function updateFlipBurnCharts(
             newRegistry.get('flipPositionVelocity')?.destroy();
         }
         newRegistry.set('flipPositionVelocity',
-            createPositionVelocityChart(posVelCanvas, data.positionVelocity, 'Position-Velocity Phase Portrait')
+            createPositionVelocityChart(posVelCanvas, data.positionVelocity)
         );
     }
 
@@ -493,7 +493,7 @@ export function updateFlipBurnCharts(
             newRegistry.get('flipSpacetime')?.destroy();
         }
         newRegistry.set('flipSpacetime',
-            createSpacetimeChart(spacetimeCanvas, data.spacetimeWorldline, 'Spacetime Worldline')
+            createSpacetimeChart(spacetimeCanvas, data.spacetimeWorldline)
         );
     }
 
@@ -616,8 +616,7 @@ export function updateVisualizationCharts(
 
 function createPositionVelocityChart(
     canvas: HTMLCanvasElement,
-    data: { x: number; y: number }[],
-    title: string
+    data: { x: number; y: number }[]
 ): Chart {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get canvas context');
@@ -648,10 +647,7 @@ function createPositionVelocityChart(
             aspectRatio: 1.5,
             plugins: {
                 title: {
-                    display: true,
-                    text: title,
-                    color: '#00ff9f',
-                    font: { size: 16, family: 'Orbitron' }
+                    display: false
                 },
                 legend: { display: false }
             },
@@ -687,8 +683,7 @@ function createPositionVelocityChart(
 
 function createSpacetimeChart(
     canvas: HTMLCanvasElement,
-    data: { x: number; y: number }[],
-    title: string
+    data: { x: number; y: number }[]
 ): Chart {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get canvas context');
@@ -727,10 +722,7 @@ function createSpacetimeChart(
             aspectRatio: 1.5,
             plugins: {
                 title: {
-                    display: true,
-                    text: title,
-                    color: '#00ff9f',
-                    font: { size: 16, family: 'Orbitron' }
+                    display: false
                 },
                 legend: { display: false }
             },
