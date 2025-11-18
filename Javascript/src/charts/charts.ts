@@ -569,3 +569,74 @@ export function updateVisualizationCharts(
 
     return newRegistry;
 }
+
+function createPositionVelocityChart(
+    canvas: HTMLCanvasElement,
+    data: { x: number; y: number }[],
+    title: string
+): Chart {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    // Create velocity-based gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#00d9ff');     // electric cyan at low velocity
+    gradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
+    gradient.addColorStop(1, '#ffaa00');     // amber at high velocity
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Trajectory',
+                data: data,
+                borderColor: gradient,
+                backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                borderWidth: 3,
+                pointRadius: 0,
+                tension: 0.4,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1.5,
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    color: '#00ff9f',
+                    font: { size: 16, family: 'Orbitron' }
+                },
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Distance (light years)',
+                        color: '#00d9ff',
+                        font: { size: 14 }
+                    },
+                    grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                    ticks: { color: '#e8f1f5' }
+                },
+                y: {
+                    type: 'linear',
+                    min: 0,
+                    max: 1,
+                    title: {
+                        display: true,
+                        text: 'Velocity (c)',
+                        color: '#00d9ff',
+                        font: { size: 14 }
+                    },
+                    grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                    ticks: { color: '#e8f1f5' }
+                }
+            }
+        }
+    }) as Chart;
+}
