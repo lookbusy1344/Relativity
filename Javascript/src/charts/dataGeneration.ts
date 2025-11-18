@@ -84,7 +84,7 @@ export function generateAccelChartData(
         positionVelocity.push({ x: distanceLy, y: velocityC });
 
         // Spacetime worldline (coord time vs distance)
-        spacetimeWorldline.push({ x: tDays, y: distanceLy });
+        spacetimeWorldline.push({ x: tDays / 365.25, y: distanceLy });
     }
 
     return {
