@@ -651,7 +651,6 @@ function createSpacetimeChart(
 
     // Find max values for light cone
     const maxTime = Math.max(...data.map(d => d.x));
-    const maxDistance = Math.max(...data.map(d => d.y));
 
     return new Chart(ctx, {
         type: 'line',
