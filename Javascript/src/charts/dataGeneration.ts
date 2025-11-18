@@ -21,6 +21,8 @@ export function generateAccelChartData(
     properTimeMassRemaining50: ChartDataPoint[];
     properTimeMassRemaining60: ChartDataPoint[];
     properTimeMassRemaining70: ChartDataPoint[];
+    positionVelocity: ChartDataPoint[];  // NEW: {x: distance_ly, y: velocity_c}
+    spacetimeWorldline: ChartDataPoint[];  // NEW: {x: coord_time_years, y: distance_ly}
 } {
     const accel = rl.g.mul(accelG);
     const durationSeconds = durationDays * 60 * 60 * 24;
@@ -36,6 +38,8 @@ export function generateAccelChartData(
     const properTimeMassRemaining50: ChartDataPoint[] = [];
     const properTimeMassRemaining60: ChartDataPoint[] = [];
     const properTimeMassRemaining70: ChartDataPoint[] = [];
+    const positionVelocity: ChartDataPoint[] = [];
+    const spacetimeWorldline: ChartDataPoint[] = [];
 
     for (let i = 0; i <= numPoints; i++) {
         const tau = (i / numPoints) * durationSeconds;
@@ -71,6 +75,16 @@ export function generateAccelChartData(
         properTimeMassRemaining50.push({ x: tauDays, y: massRemaining50 });
         properTimeMassRemaining60.push({ x: tauDays, y: massRemaining60 });
         properTimeMassRemaining70.push({ x: tauDays, y: massRemaining70 });
+
+        // Calculate distance for phase space plots
+        const distance = rl.relativisticDistance(accel, tau);
+        const distanceLy = parseFloat(distance.div(rl.lightYear).toString());
+
+        // Position-velocity phase space
+        positionVelocity.push({ x: distanceLy, y: velocityC });
+
+        // Spacetime worldline (coord time vs distance)
+        spacetimeWorldline.push({ x: tDays, y: distanceLy });
     }
 
     return {
@@ -83,7 +97,9 @@ export function generateAccelChartData(
         properTimeMassRemaining40,
         properTimeMassRemaining50,
         properTimeMassRemaining60,
-        properTimeMassRemaining70
+        properTimeMassRemaining70,
+        positionVelocity,
+        spacetimeWorldline
     };
 }
 
