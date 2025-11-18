@@ -290,6 +290,28 @@ export function updateAccelCharts(
         }
     );
 
+    // Position-Velocity Phase Portrait
+    const posVelCanvas = document.getElementById('accelPositionVelocityChart') as HTMLCanvasElement | null;
+    if (posVelCanvas) {
+        if (newRegistry.has('accelPositionVelocity')) {
+            newRegistry.get('accelPositionVelocity')?.destroy();
+        }
+        newRegistry.set('accelPositionVelocity',
+            createPositionVelocityChart(posVelCanvas, data.positionVelocity, 'Position-Velocity Phase Portrait')
+        );
+    }
+
+    // Spacetime Worldline
+    const spacetimeCanvas = document.getElementById('accelSpacetimeChart') as HTMLCanvasElement | null;
+    if (spacetimeCanvas) {
+        if (newRegistry.has('accelSpacetime')) {
+            newRegistry.get('accelSpacetime')?.destroy();
+        }
+        newRegistry.set('accelSpacetime',
+            createSpacetimeChart(spacetimeCanvas, data.spacetimeWorldline, 'Spacetime Worldline')
+        );
+    }
+
     return newRegistry;
 }
 
@@ -452,6 +474,28 @@ export function updateFlipBurnCharts(
             yMax: 100
         }
     );
+
+    // Position-Velocity Phase Portrait
+    const posVelCanvas = document.getElementById('flipPositionVelocityChart') as HTMLCanvasElement | null;
+    if (posVelCanvas) {
+        if (newRegistry.has('flipPositionVelocity')) {
+            newRegistry.get('flipPositionVelocity')?.destroy();
+        }
+        newRegistry.set('flipPositionVelocity',
+            createPositionVelocityChart(posVelCanvas, data.positionVelocity, 'Position-Velocity Phase Portrait')
+        );
+    }
+
+    // Spacetime Worldline
+    const spacetimeCanvas = document.getElementById('flipSpacetimeChart') as HTMLCanvasElement | null;
+    if (spacetimeCanvas) {
+        if (newRegistry.has('flipSpacetime')) {
+            newRegistry.get('flipSpacetime')?.destroy();
+        }
+        newRegistry.set('flipSpacetime',
+            createSpacetimeChart(spacetimeCanvas, data.spacetimeWorldline, 'Spacetime Worldline')
+        );
+    }
 
     return newRegistry;
 }
