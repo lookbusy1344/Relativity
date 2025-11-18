@@ -3,6 +3,7 @@
  * Coordinate between DOM, physics, data generation, and charts
  */
 
+import Decimal from 'decimal.js';
 import * as rl from '../relativity_lib';
 import { setElement } from './domUtils';
 import { generateAccelChartData, generateFlipBurnChartData, generateVisualizationChartData } from '../charts/dataGeneration';
@@ -238,5 +239,52 @@ export function createPionAccelTimeHandler(
         const accelTimeDays = accelTimeSeconds.div(60 * 60 * 24);
 
         setElement(result, rl.formatSignificant(accelTimeDays, "0", 3), "days");
+    };
+}
+
+export function createSpacetimeIntervalHandler(
+    getTime1Input: () => HTMLInputElement | null,
+    getX1Input: () => HTMLInputElement | null,
+    getTime2Input: () => HTMLInputElement | null,
+    getX2Input: () => HTMLInputElement | null,
+    getResultSquared: () => HTMLElement | null,
+    getResultType: () => HTMLElement | null
+): () => void {
+    return () => {
+        const time1Input = getTime1Input();
+        const x1Input = getX1Input();
+        const time2Input = getTime2Input();
+        const x2Input = getX2Input();
+        const resultSquared = getResultSquared();
+        const resultType = getResultType();
+        if (!time1Input || !x1Input || !time2Input || !x2Input || !resultSquared || !resultType) return;
+
+        const t1 = rl.ensure(time1Input.value ?? 0);
+        const x1 = rl.ensure(x1Input.value ?? 0);
+        const t2 = rl.ensure(time2Input.value ?? 0);
+        const x2 = rl.ensure(x2Input.value ?? 0);
+
+        // Calculate interval squared: s² = c²(Δt)² - (Δx)²
+        const deltaT = t2.minus(t1);
+        const deltaX = x2.minus(x1);
+        const intervalSquared = rl.c.pow(2).mul(deltaT.pow(2)).minus(deltaX.pow(2));
+
+        // Display interval squared
+        setElement(resultSquared, rl.formatSignificant(intervalSquared, "0", 3), "m²");
+
+        // Interpret the interval
+        const tolerance = new Decimal(1e-10);
+        if (intervalSquared.abs().lt(tolerance)) {
+            // Lightlike interval
+            setElement(resultType, "Lightlike: Light-speed connection", "");
+        } else if (intervalSquared.gt(0)) {
+            // Timelike interval - causally connected
+            const properTime = intervalSquared.sqrt().div(rl.c);
+            setElement(resultType, `Timelike: ${rl.formatSignificant(properTime, "0", 3)} s - Events are causally connected`, "");
+        } else {
+            // Spacelike interval - not causally connected
+            const properDistance = intervalSquared.abs().sqrt();
+            setElement(resultType, `Spacelike: ${rl.formatSignificant(properDistance, "0", 3)} m - Events cannot be causally connected`, "");
+        }
     };
 }

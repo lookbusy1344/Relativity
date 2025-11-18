@@ -8,7 +8,8 @@ import {
     createFlipBurnHandler,
     createAddVelocitiesHandler,
     createGraphUpdateHandler,
-    createPionAccelTimeHandler
+    createPionAccelTimeHandler,
+    createSpacetimeIntervalHandler
 } from './ui/eventHandlers';
 import { generateVisualizationChartData } from './charts/dataGeneration';
 import { updateVisualizationCharts, type ChartRegistry } from './charts/charts';
@@ -97,6 +98,18 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getInputElement('pionDryMassInput'),
             () => getInputElement('pionEfficiencyInput'),
             () => getResultElement('resultPionAccel')
+        )
+    );
+
+    // Spacetime interval
+    getButtonElement('spacetimeButton')?.addEventListener('click',
+        createSpacetimeIntervalHandler(
+            () => getInputElement('spacetimeTime1'),
+            () => getInputElement('spacetimeX1'),
+            () => getInputElement('spacetimeTime2'),
+            () => getInputElement('spacetimeX2'),
+            () => getResultElement('resultSpacetimeSquared'),
+            () => getResultElement('resultSpacetimeType')
         )
     );
 
