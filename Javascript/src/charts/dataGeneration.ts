@@ -191,7 +191,7 @@ export function generateFlipBurnChartData(
     // Deceleration phase - mirror the acceleration phase
     // Start from i=49 down to i=0 (numPointsPerPhase points)
     for (let i = numPointsPerPhase - 1; i >= 0; i--) {
-        const tauAccel = halfProperTimeSeconds.mul((i + 1) / numPointsPerPhase);
+        const tauAccel = halfProperTimeSeconds.mul(i / numPointsPerPhase);
         const tauDecel = res.properTime.sub(tauAccel);
         const tauYears = parseFloat(tauDecel.div(rl.secondsPerYear).toString());
 
