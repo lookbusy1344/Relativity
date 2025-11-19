@@ -475,14 +475,14 @@ export function updateFlipBurnCharts(
         }
     );
 
-    // Position-Velocity Phase Portrait
+    // Position-Velocity Phase Portrait (with separate accel/decel phases)
     const posVelCanvas = document.getElementById('flipPositionVelocityChart') as HTMLCanvasElement | null;
     if (posVelCanvas) {
         if (newRegistry.has('flipPositionVelocity')) {
             newRegistry.get('flipPositionVelocity')?.destroy();
         }
         newRegistry.set('flipPositionVelocity',
-            createPositionVelocityChart(posVelCanvas, data.positionVelocity)
+            createPositionVelocityFlipBurnChart(posVelCanvas, data.positionVelocityAccel, data.positionVelocityDecel)
         );
     }
 
@@ -623,9 +623,24 @@ function createPositionVelocityChart(
 
     // Create velocity-based gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#00d9ff');     // electric cyan at low velocity
+    gradient.addColorStop(0, '#ffaa00');     // amber at high velocity (top)
     gradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
-    gradient.addColorStop(1, '#ffaa00');     // amber at high velocity
+    gradient.addColorStop(1, '#00d9ff');     // electric cyan at low velocity (bottom)
+
+    // Add directional arrow indicators at intervals
+    const arrowIndices = [0, 25, 50, 75];
+    const pointRadii = data.map((_, i) => arrowIndices.indexOf(i) !== -1 ? 4 : 0);
+    const pointStyles = data.map((_, i) => arrowIndices.indexOf(i) !== -1 ? 'triangle' as const : 'circle' as const);
+    const pointRotations = data.map((_, i) => {
+        if (arrowIndices.indexOf(i) === -1) return 0;
+        // Calculate rotation based on trajectory direction
+        const idx = arrowIndices.indexOf(i);
+        if (idx === arrowIndices.length - 1) return 0;
+        const nextArrowIdx = arrowIndices[idx + 1];
+        const dx = data[nextArrowIdx].x - data[i].x;
+        const dy = data[nextArrowIdx].y - data[i].y;
+        return Math.atan2(dy, dx) + Math.PI / 2; // +90deg to point along path
+    });
 
     return new Chart(ctx, {
         type: 'line',
@@ -634,11 +649,14 @@ function createPositionVelocityChart(
                 label: 'Trajectory',
                 data: data,
                 borderColor: gradient,
-                backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                backgroundColor: 'rgba(0, 217, 255, 0.15)',
                 borderWidth: 3,
-                pointRadius: 0,
+                pointRadius: pointRadii,
+                pointStyle: pointStyles,
+                pointRotation: pointRotations,
+                pointBackgroundColor: '#00d9ff',
                 tension: 0.4,
-                fill: false
+                fill: true
             }]
         },
         options: {
@@ -681,15 +699,143 @@ function createPositionVelocityChart(
     }) as Chart;
 }
 
+function createPositionVelocityFlipBurnChart(
+    canvas: HTMLCanvasElement,
+    accelData: { x: number; y: number }[],
+    decelData: { x: number; y: number }[]
+): Chart {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    // Create gradients for both phases
+    const accelGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    accelGradient.addColorStop(0, '#ffaa00');     // amber at high velocity
+    accelGradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
+    accelGradient.addColorStop(1, '#00d9ff');     // electric cyan at low velocity
+
+    const decelGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    decelGradient.addColorStop(0, '#ffaa00');     // amber at high velocity
+    decelGradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
+    decelGradient.addColorStop(1, '#00d9ff');     // electric cyan at low velocity
+
+    // Add directional indicators for acceleration phase
+    const accelArrowIndices = [0, 17, 34, 50];
+    const accelPointRadii = accelData.map((_, i) => accelArrowIndices.indexOf(i) !== -1 ? 4 : 0);
+    const accelPointStyles = accelData.map((_, i) => accelArrowIndices.indexOf(i) !== -1 ? 'triangle' as const : 'circle' as const);
+    const accelPointRotations = accelData.map((_, i) => {
+        if (accelArrowIndices.indexOf(i) === -1) return 0;
+        const idx = accelArrowIndices.indexOf(i);
+        if (idx === accelArrowIndices.length - 1) return 0;
+        const nextArrowIdx = accelArrowIndices[idx + 1];
+        const dx = accelData[nextArrowIdx].x - accelData[i].x;
+        const dy = accelData[nextArrowIdx].y - accelData[i].y;
+        return Math.atan2(dy, dx) + Math.PI / 2;
+    });
+
+    // Add directional indicators for deceleration phase
+    const decelArrowIndices = [0, 16, 33, 49];
+    const decelPointRadii = decelData.map((_, i) => decelArrowIndices.indexOf(i) !== -1 ? 4 : 0);
+    const decelPointStyles = decelData.map((_, i) => decelArrowIndices.indexOf(i) !== -1 ? 'triangle' as const : 'circle' as const);
+    const decelPointRotations = decelData.map((_, i) => {
+        if (decelArrowIndices.indexOf(i) === -1) return 0;
+        const idx = decelArrowIndices.indexOf(i);
+        if (idx === decelArrowIndices.length - 1) return 0;
+        const nextArrowIdx = decelArrowIndices[idx + 1];
+        const dx = decelData[nextArrowIdx].x - decelData[i].x;
+        const dy = decelData[nextArrowIdx].y - decelData[i].y;
+        return Math.atan2(dy, dx) + Math.PI / 2;
+    });
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Acceleration',
+                data: accelData,
+                borderColor: accelGradient,
+                backgroundColor: 'rgba(0, 217, 255, 0.2)',
+                borderWidth: 3,
+                pointRadius: accelPointRadii,
+                pointStyle: accelPointStyles,
+                pointRotation: accelPointRotations,
+                pointBackgroundColor: '#00d9ff',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Deceleration',
+                data: decelData,
+                borderColor: decelGradient,
+                backgroundColor: 'rgba(255, 170, 0, 0.15)',
+                borderWidth: 3,
+                pointRadius: decelPointRadii,
+                pointStyle: decelPointStyles,
+                pointRotation: decelPointRotations,
+                pointBackgroundColor: '#ffaa00',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2.5,
+            plugins: {
+                title: {
+                    display: false
+                },
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#e8f1f5',
+                        font: { family: 'IBM Plex Mono', size: 11 }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Distance (light years)',
+                        color: '#00d9ff',
+                        font: { size: 14 }
+                    },
+                    grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                    ticks: { color: '#e8f1f5' }
+                },
+                y: {
+                    type: 'linear',
+                    min: 0,
+                    max: 1,
+                    title: {
+                        display: true,
+                        text: 'Velocity (c)',
+                        color: '#00d9ff',
+                        font: { size: 14 }
+                    },
+                    grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                    ticks: { color: '#e8f1f5' }
+                }
+            }
+        }
+    }) as Chart;
+}
+
 function createSpacetimeChart(
     canvas: HTMLCanvasElement,
-    data: { x: number; y: number }[]
+    data: { x: number; y: number; velocity?: number }[]
 ): Chart {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get canvas context');
 
     // Find max values for light cone
     const maxTime = Math.max(...data.map(d => d.x));
+
+    // Create velocity-based gradient (vertical, since distance is on y-axis)
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#ffaa00');     // amber at far distance (high velocity region)
+    gradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
+    gradient.addColorStop(1, '#00d9ff');     // electric cyan at near distance (low velocity)
 
     return new Chart(ctx, {
         type: 'line',
@@ -698,12 +844,12 @@ function createSpacetimeChart(
                 {
                     label: 'Worldline',
                     data: data,
-                    borderColor: '#00d9ff',
-                    backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                    borderColor: gradient,
+                    backgroundColor: 'rgba(0, 217, 255, 0.15)',
                     borderWidth: 3,
                     pointRadius: 0,
                     tension: 0.4,
-                    fill: false
+                    fill: true
                 },
                 {
                     label: 'Light Cone',
