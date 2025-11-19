@@ -100,6 +100,8 @@ export function createAccelHandler(
             const relDist = rl.relativisticDistance(accel, secs);
             const relVelC = relVel.div(rl.c);
             const relDistC = relDist.div(rl.lightYear);
+            const relVelKm = relVel.div(1000);
+            const relDistKm = relDist.div(1000);
 
             // Calculate fuel fractions at all efficiencies
             const fuelFraction40 = rl.pionRocketFuelFraction(secs, accel, 0.4);
@@ -111,8 +113,8 @@ export function createAccelHandler(
             const fuelFraction70 = rl.pionRocketFuelFraction(secs, accel, 0.7);
             const fuelPercent70 = fuelFraction70.mul(100);
 
-            if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 3), "m/s");
-            if (resultA2) setElement(resultA2, rl.formatSignificant(relDist, "9", 3), "m");
+            if (resultA1) setElement(resultA1, rl.formatSignificant(relVelKm, "9", 3), "km/s");
+            if (resultA2) setElement(resultA2, rl.formatSignificant(relDistKm, "9", 3), "km");
             if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
             if (resultA2b) setElement(resultA2b, rl.formatSignificant(relDistC, "0", 3), "ly");
             if (resultAFuel40) setElement(resultAFuel40, rl.formatSignificant(fuelPercent40, "0", 8), "%");
