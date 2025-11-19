@@ -707,17 +707,6 @@ function createPositionVelocityFlipBurnChart(
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get canvas context');
 
-    // Create gradients for both phases
-    const accelGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    accelGradient.addColorStop(0, '#ffaa00');     // amber at high velocity
-    accelGradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
-    accelGradient.addColorStop(1, '#00d9ff');     // electric cyan at low velocity
-
-    const decelGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    decelGradient.addColorStop(0, '#ffaa00');     // amber at high velocity
-    decelGradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
-    decelGradient.addColorStop(1, '#00d9ff');     // electric cyan at low velocity
-
     // Add directional indicators for acceleration phase
     const accelArrowIndices = [0, 17, 34, 50];
     const accelPointRadii = accelData.map((_, i) => accelArrowIndices.indexOf(i) !== -1 ? 4 : 0);
@@ -752,7 +741,7 @@ function createPositionVelocityFlipBurnChart(
             datasets: [{
                 label: 'Acceleration',
                 data: accelData,
-                borderColor: accelGradient,
+                borderColor: '#00d9ff',
                 backgroundColor: 'rgba(0, 217, 255, 0.2)',
                 borderWidth: 3,
                 pointRadius: accelPointRadii,
@@ -764,7 +753,7 @@ function createPositionVelocityFlipBurnChart(
             }, {
                 label: 'Deceleration',
                 data: decelData,
-                borderColor: decelGradient,
+                borderColor: '#ffaa00',
                 backgroundColor: 'rgba(255, 170, 0, 0.15)',
                 borderWidth: 3,
                 pointRadius: decelPointRadii,
