@@ -707,6 +707,17 @@ function createPositionVelocityFlipBurnChart(
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get canvas context');
 
+    // Create velocity-based gradients with different color schemes for each phase
+    const accelGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    accelGradient.addColorStop(0, '#ffaa00');     // amber at high velocity (top)
+    accelGradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
+    accelGradient.addColorStop(1, '#00d9ff');     // electric cyan at low velocity (bottom)
+
+    const decelGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    decelGradient.addColorStop(0, '#ff55aa');     // magenta at high velocity (top)
+    decelGradient.addColorStop(0.5, '#aa55ff');   // purple at mid
+    decelGradient.addColorStop(1, '#5588ff');     // blue at low velocity (bottom)
+
     // Add directional indicators for acceleration phase
     const accelArrowIndices = [0, 17, 34, 50];
     const accelPointRadii = accelData.map((_, i) => accelArrowIndices.indexOf(i) !== -1 ? 4 : 0);
@@ -741,25 +752,25 @@ function createPositionVelocityFlipBurnChart(
             datasets: [{
                 label: 'Acceleration',
                 data: accelData,
-                borderColor: '#00d9ff',
+                borderColor: accelGradient,
                 backgroundColor: 'rgba(0, 217, 255, 0.2)',
                 borderWidth: 3,
                 pointRadius: accelPointRadii,
                 pointStyle: accelPointStyles,
                 pointRotation: accelPointRotations,
-                pointBackgroundColor: '#00d9ff',
+                pointBackgroundColor: accelGradient,
                 tension: 0.4,
                 fill: true
             }, {
                 label: 'Deceleration',
                 data: decelData,
-                borderColor: '#ffaa00',
-                backgroundColor: 'rgba(255, 170, 0, 0.15)',
+                borderColor: decelGradient,
+                backgroundColor: 'rgba(170, 85, 255, 0.15)',
                 borderWidth: 3,
                 pointRadius: decelPointRadii,
                 pointStyle: decelPointStyles,
                 pointRotation: decelPointRotations,
-                pointBackgroundColor: '#ffaa00',
+                pointBackgroundColor: decelGradient,
                 tension: 0.4,
                 fill: true
             }]
