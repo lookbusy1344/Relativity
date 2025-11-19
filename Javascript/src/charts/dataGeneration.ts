@@ -6,6 +6,7 @@
 import * as rl from '../relativity_lib';
 
 export type ChartDataPoint = { x: number; y: number };
+export type ChartDataPointWithVelocity = { x: number; y: number; velocity: number };
 
 export function generateAccelChartData(
     accelG: number,
@@ -22,7 +23,7 @@ export function generateAccelChartData(
     properTimeMassRemaining60: ChartDataPoint[];
     properTimeMassRemaining70: ChartDataPoint[];
     positionVelocity: ChartDataPoint[];  // NEW: {x: distance_ly, y: velocity_c}
-    spacetimeWorldline: ChartDataPoint[];  // NEW: {x: coord_time_years, y: distance_ly}
+    spacetimeWorldline: ChartDataPointWithVelocity[];  // NEW: {x: coord_time_years, y: distance_ly, velocity}
 } {
     const accel = rl.g.mul(accelG);
     const durationSeconds = durationDays * 60 * 60 * 24;
@@ -39,7 +40,7 @@ export function generateAccelChartData(
     const properTimeMassRemaining60: ChartDataPoint[] = [];
     const properTimeMassRemaining70: ChartDataPoint[] = [];
     const positionVelocity: ChartDataPoint[] = [];
-    const spacetimeWorldline: ChartDataPoint[] = [];
+    const spacetimeWorldline: ChartDataPointWithVelocity[] = [];
 
     for (let i = 0; i <= numPoints; i++) {
         const tau = (i / numPoints) * durationSeconds;
@@ -83,8 +84,8 @@ export function generateAccelChartData(
         // Position-velocity phase space
         positionVelocity.push({ x: distanceLy, y: velocityC });
 
-        // Spacetime worldline (coord time vs distance)
-        spacetimeWorldline.push({ x: tDays / 365.25, y: distanceLy });
+        // Spacetime worldline (coord time vs distance) with velocity for gradient
+        spacetimeWorldline.push({ x: tDays / 365.25, y: distanceLy, velocity: velocityC });
     }
 
     return {
@@ -116,8 +117,9 @@ export function generateFlipBurnChartData(
     properTimeMassRemaining50: ChartDataPoint[];
     properTimeMassRemaining60: ChartDataPoint[];
     properTimeMassRemaining70: ChartDataPoint[];
-    positionVelocity: ChartDataPoint[];  // NEW: creates the loop!
-    spacetimeWorldline: ChartDataPoint[];  // NEW: S-curve
+    positionVelocityAccel: ChartDataPoint[];  // NEW: acceleration phase
+    positionVelocityDecel: ChartDataPoint[];  // NEW: deceleration phase
+    spacetimeWorldline: ChartDataPointWithVelocity[];  // NEW: S-curve with velocity
 } {
     const m = rl.ensure(distanceLightYears).mul(rl.lightYear);
     const res = rl.flipAndBurn(rl.g, m);
@@ -134,8 +136,9 @@ export function generateFlipBurnChartData(
     const properTimeMassRemaining50: ChartDataPoint[] = [];
     const properTimeMassRemaining60: ChartDataPoint[] = [];
     const properTimeMassRemaining70: ChartDataPoint[] = [];
-    const positionVelocity: ChartDataPoint[] = [];
-    const spacetimeWorldline: ChartDataPoint[] = [];
+    const positionVelocityAccel: ChartDataPoint[] = [];
+    const positionVelocityDecel: ChartDataPoint[] = [];
+    const spacetimeWorldline: ChartDataPointWithVelocity[] = [];
 
     // Acceleration phase (0 to half proper time)
     for (let i = 0; i <= numPointsPerPhase; i++) {
@@ -178,16 +181,17 @@ export function generateFlipBurnChartData(
         const distance = rl.relativisticDistance(rl.g, tau);
         const distanceLy = parseFloat(distance.div(rl.lightYear).toString());
 
-        // Position-velocity phase space
-        positionVelocity.push({ x: distanceLy, y: velocityC });
+        // Position-velocity phase space (acceleration phase)
+        positionVelocityAccel.push({ x: distanceLy, y: velocityC });
 
-        // Spacetime worldline
-        spacetimeWorldline.push({ x: tYears, y: distanceLy });
+        // Spacetime worldline with velocity for gradient
+        spacetimeWorldline.push({ x: tYears, y: distanceLy, velocity: velocityC });
     }
 
     // Deceleration phase - mirror the acceleration phase
+    // Start from i=49 down to i=0 (numPointsPerPhase points)
     for (let i = numPointsPerPhase - 1; i >= 0; i--) {
-        const tauAccel = halfProperTimeSeconds.mul(i / numPointsPerPhase);
+        const tauAccel = halfProperTimeSeconds.mul((i + 1) / numPointsPerPhase);
         const tauDecel = res.properTime.sub(tauAccel);
         const tauYears = parseFloat(tauDecel.div(rl.secondsPerYear).toString());
 
@@ -233,11 +237,11 @@ export function generateFlipBurnChartData(
         const currentDistance = totalDistance.minus(remainingAccelDistance);
         const currentDistanceLy = parseFloat(currentDistance.div(rl.lightYear).toString());
 
-        // Position-velocity phase space (creates return path of loop)
-        positionVelocity.push({ x: currentDistanceLy, y: velocityC });
+        // Position-velocity phase space (deceleration phase - creates return path of loop)
+        positionVelocityDecel.push({ x: currentDistanceLy, y: velocityC });
 
-        // Spacetime worldline
-        spacetimeWorldline.push({ x: tYears, y: currentDistanceLy });
+        // Spacetime worldline with velocity for gradient
+        spacetimeWorldline.push({ x: tYears, y: currentDistanceLy, velocity: velocityC });
     }
 
     return {
@@ -251,7 +255,8 @@ export function generateFlipBurnChartData(
         properTimeMassRemaining50,
         properTimeMassRemaining60,
         properTimeMassRemaining70,
-        positionVelocity,
+        positionVelocityAccel,
+        positionVelocityDecel,
         spacetimeWorldline
     };
 }
