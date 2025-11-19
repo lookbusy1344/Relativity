@@ -290,7 +290,7 @@ export function updateAccelCharts(
         }
     );
 
-    // Position-Velocity Phase Portrait
+    // Velocity over Distance
     const posVelCanvas = document.getElementById('accelPositionVelocityChart') as HTMLCanvasElement | null;
     if (posVelCanvas) {
         if (newRegistry.has('accelPositionVelocity')) {
@@ -475,7 +475,7 @@ export function updateFlipBurnCharts(
         }
     );
 
-    // Position-Velocity Phase Portrait (with separate accel/decel phases)
+    // Velocity over Distance (with separate accel/decel phases)
     const posVelCanvas = document.getElementById('flipPositionVelocityChart') as HTMLCanvasElement | null;
     if (posVelCanvas) {
         if (newRegistry.has('flipPositionVelocity')) {
