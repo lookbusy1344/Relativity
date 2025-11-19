@@ -639,7 +639,7 @@ function createPositionVelocityChart(
         const nextArrowIdx = arrowIndices[idx + 1];
         const dx = data[nextArrowIdx].x - data[i].x;
         const dy = data[nextArrowIdx].y - data[i].y;
-        return Math.atan2(dy, dx) + Math.PI / 2; // +90deg to point along path
+        return Math.atan2(dy, dx) + Math.PI / 2; // Rotate triangle to point forward along path
     });
 
     return new Chart(ctx, {
