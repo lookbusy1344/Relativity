@@ -129,4 +129,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = generateVisualizationChartData(1, 365);
         chartRegistry.current = updateVisualizationCharts(chartRegistry.current, data);
     }, 100);
+
+    // Handle orientation changes and window resize with debounce
+    let resizeTimeout: number | undefined;
+    const handleResize = () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = window.setTimeout(() => {
+            // Resize all charts in the registry
+            chartRegistry.current.forEach(chart => {
+                chart.resize();
+            });
+        }, 700);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
 });
