@@ -64,7 +64,7 @@ Both paths implement the same relativistic formulas but with different precision
 
 ## Code Conventions
 
-- Uses C# 13 features and targets .NET 9
+- Uses C# 14 features and targets .NET 10
 - Nullable reference types enabled
 - Comprehensive code analysis rules enabled (Design, Security, Performance, Reliability, Usage)
 - Immutable record structs for value types like `FractionOfC` and `LorentzFactor`

@@ -6,7 +6,7 @@ The units of measure library is here:
 
 https://github.com/lookbusy1344/Relativity/blob/main/CSharp/UomTools.cs
 
-Written for C# 13 and .NET 9
+Written for C# 14 and .NET 10
 
 ## Example usage, 1 year at 1g (units of measure)
 
