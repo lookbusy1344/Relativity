@@ -3,83 +3,1200 @@
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Special Relativity</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>Special Relativity Calculator</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 	<style>
-		.text-box {
+		:root {
+			--space-black: #0a0e27;
+			--deep-navy: #141b34;
+			--panel-gray: #1a2238;
+			--electric-cyan: #00d9ff;
+			--scientific-green: #00ff9f;
+			--amber-alert: #ffaa00;
+			--soft-white: #e8f1f5;
+			--grid-color: rgba(0, 217, 255, 0.15);
+			--glow-cyan: rgba(0, 217, 255, 0.5);
+			--glow-green: rgba(0, 255, 159, 0.4);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		@keyframes scanline {
+			0% { transform: translateY(-100%); }
+			100% { transform: translateY(100vh); }
+		}
+
+		@keyframes fadeInUp {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		@keyframes pulse {
+			0%, 100% { opacity: 1; }
+			50% { opacity: 0.6; }
+		}
+
+		body {
+			background: var(--space-black);
+			background-image:
+				repeating-linear-gradient(0deg, transparent, transparent 2px, var(--grid-color) 2px, var(--grid-color) 3px),
+				repeating-linear-gradient(90deg, transparent, transparent 2px, var(--grid-color) 2px, var(--grid-color) 3px);
+			background-size: 50px 50px;
+			min-height: 100vh;
+			font-family: 'IBM Plex Mono', monospace;
+			color: var(--soft-white);
+			position: relative;
+			overflow-x: hidden;
+		}
+
+		body::before {
+			content: '';
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 3px;
+			background: linear-gradient(90deg, transparent, var(--electric-cyan), transparent);
+			animation: scanline 8s linear infinite;
+			opacity: 0.3;
+			pointer-events: none;
+			z-index: 1000;
+		}
+
+		.main-container {
+			padding: 2rem 1rem;
+			max-width: 1400px;
+			margin: 0 auto;
+			animation: fadeInUp 0.6s ease-out;
+		}
+
+		.header {
+			background: var(--deep-navy);
+			border: 2px solid var(--electric-cyan);
+			border-radius: 4px;
+			padding: 2.5rem 2rem;
+			margin-bottom: 2rem;
+			box-shadow:
+				0 0 30px var(--glow-cyan),
+				inset 0 0 20px rgba(0, 217, 255, 0.1);
+			text-align: center;
+			position: relative;
 			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
+		}
+
+		.header::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.1), transparent);
+			animation: shimmer 3s infinite;
+		}
+
+		@keyframes shimmer {
+			0% { left: -100%; }
+			100% { left: 100%; }
+		}
+
+		.header h1 {
+			font-family: 'Orbitron', sans-serif;
+			color: var(--electric-cyan);
+			font-weight: 900;
+			margin-bottom: 0.5rem;
+			font-size: 3rem;
+			letter-spacing: 2px;
+			text-transform: uppercase;
+			text-shadow: 0 0 20px var(--glow-cyan);
+			position: relative;
+		}
+
+		.github-link {
+			position: absolute;
+			top: 1.5rem;
+			right: 1.5rem;
+			display: flex;
+			align-items: center;
+			gap: 0.35rem;
+			color: var(--electric-cyan);
+			text-decoration: none;
+			font-family: 'Orbitron', sans-serif;
+			font-weight: 600;
+			font-size: 0.75rem;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			padding: 0.4rem 0.75rem;
+			border: 1px solid var(--electric-cyan);
+			border-radius: 2px;
+			background: rgba(0, 217, 255, 0.05);
+			transition: all 0.3s ease;
+			z-index: 10;
+			cursor: pointer;
+		}
+
+		.github-link:hover {
+			color: var(--scientific-green);
+			border-color: var(--scientific-green);
+			background: rgba(0, 255, 159, 0.1);
+			box-shadow: 0 0 15px var(--glow-green);
+			transform: translateY(-2px);
+		}
+
+		.github-link svg,
+		.github-link span {
+			pointer-events: none;
+		}
+
+		.github-link svg {
+			width: 20px;
+			height: 20px;
+			fill: currentColor;
+		}
+
+		.header .subtitle {
+			color: var(--scientific-green);
+			font-size: 0.95rem;
+			letter-spacing: 1px;
+			font-weight: 500;
+			text-transform: uppercase;
+		}
+
+		.speed-of-light {
+			display: inline-block;
+			background: rgba(0, 217, 255, 0.1);
+			border: 1px solid var(--electric-cyan);
+			color: var(--electric-cyan);
+			padding: 0.6rem 1.8rem;
+			border-radius: 2px;
+			font-weight: 600;
+			margin-top: 1rem;
+			font-family: 'IBM Plex Mono', monospace;
+			letter-spacing: 1px;
+			box-shadow: 0 0 15px var(--glow-cyan);
+			animation: pulse 2s infinite;
+			position: relative;
+		}
+
+		.calculator-card {
+			background: var(--panel-gray);
+			border: 2px solid rgba(0, 217, 255, 0.3);
+			border-radius: 4px;
+			padding: 0;
+			box-shadow:
+				0 0 40px rgba(0, 217, 255, 0.2),
+				inset 0 0 30px rgba(0, 0, 0, 0.5);
+			overflow: hidden;
+		}
+
+		.nav-tabs {
+			border-bottom: 2px solid var(--electric-cyan);
+			background: var(--deep-navy);
+			padding: 1rem 1rem 0 1rem;
+			gap: 0.5rem;
+		}
+
+		.nav-tabs .nav-link {
+			border: 1px solid rgba(0, 217, 255, 0.3);
+			color: var(--soft-white);
+			font-weight: 600;
+			padding: 0.75rem 1.5rem;
+			border-radius: 0;
+			margin-right: 0;
+			transition: all 0.2s ease;
+			background: rgba(0, 0, 0, 0.3);
+			font-family: 'Orbitron', sans-serif;
+			font-size: 0.85rem;
+			letter-spacing: 0.5px;
+			text-transform: uppercase;
+			position: relative;
+		}
+
+		.nav-tabs .nav-link:hover {
+			color: var(--electric-cyan);
+			background: rgba(0, 217, 255, 0.1);
+			border-color: var(--electric-cyan);
+			box-shadow: 0 0 10px var(--glow-cyan);
+		}
+
+		.nav-tabs .nav-link.active {
+			color: var(--space-black);
+			background: var(--electric-cyan);
+			border-color: var(--electric-cyan);
+			box-shadow: 0 0 20px var(--glow-cyan);
+		}
+
+		.nav-tabs .nav-link.active::after {
+			content: '';
+			position: absolute;
+			bottom: -2px;
+			left: 0;
+			right: 0;
+			height: 2px;
+			background: var(--electric-cyan);
+		}
+
+		.tab-content {
+			padding: 2rem;
+			background: var(--panel-gray);
+		}
+
+		.calc-section {
+			margin-bottom: 2rem;
+			padding: 1.5rem;
+			background: rgba(0, 0, 0, 0.3);
+			border-radius: 0;
+			border: 1px solid rgba(0, 217, 255, 0.3);
+			border-left: 3px solid var(--scientific-green);
+			box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+		}
+
+		.calc-section:last-child {
+			margin-bottom: 0;
+		}
+
+		.calc-label {
+			font-weight: 600;
+			color: var(--scientific-green);
+			margin-bottom: 1rem;
+			font-size: 1rem;
+			display: flex;
+			align-items: center;
+			font-family: 'Orbitron', sans-serif;
+			letter-spacing: 1px;
+			text-transform: uppercase;
+		}
+
+		.calc-label::before {
+			content: '▸';
+			display: inline-block;
+			color: var(--electric-cyan);
+			font-size: 1.2rem;
+			margin-right: 0.5rem;
+		}
+
+		.input-group-custom {
+			display: flex;
+			gap: 0.75rem;
+			align-items: flex-end;
+			flex-wrap: wrap;
+		}
+
+		.form-control {
+			border: 1px solid rgba(0, 217, 255, 0.4);
+			border-radius: 0;
+			padding: 0.75rem 1rem;
+			font-size: 1rem;
+			line-height: 1.5;
+			height: calc(1.5em + 0.75rem * 2 + 2px);
+			transition: all 0.2s ease;
+			background: rgba(0, 0, 0, 0.5);
+			color: var(--soft-white);
+			font-family: 'IBM Plex Mono', monospace;
+			font-weight: 500;
+		}
+
+		.form-control::placeholder {
+			color: rgba(232, 241, 245, 0.4);
+		}
+
+		.form-control:focus {
+			border-color: var(--electric-cyan);
+			box-shadow: 0 0 15px var(--glow-cyan);
+			outline: none;
+			background: rgba(0, 0, 0, 0.7);
+			color: var(--soft-white);
+		}
+
+		.btn-calculate {
+			background: var(--electric-cyan);
+			border: 1px solid var(--electric-cyan);
+			color: var(--space-black);
+			padding: 0.75rem 2rem;
+			border-radius: 0;
+			font-weight: 700;
+			font-size: 1rem;
+			line-height: 1.5;
+			height: calc(1.5em + 0.75rem * 2 + 2px);
+			transition: all 0.2s ease;
+			box-shadow: 0 0 20px var(--glow-cyan);
+			font-family: 'Orbitron', sans-serif;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			cursor: pointer;
+		}
+
+		.btn-calculate:hover {
+			background: var(--scientific-green);
+			border-color: var(--scientific-green);
+			box-shadow: 0 0 25px var(--glow-green);
+			transform: translateY(-1px);
+		}
+
+		.btn-calculate:active {
+			transform: translateY(0);
+		}
+
+		.result-box {
+			background: rgba(0, 0, 0, 0.6);
+			padding: 0.75rem 1rem;
+			border-radius: 0;
+			border: 1px solid var(--amber-alert);
+			display: flex;
+			align-items: center;
+			font-weight: 600;
+			color: var(--amber-alert);
+			flex: 1;
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 1rem;
+			line-height: 1.5;
+			height: calc(1.5em + 0.75rem * 2 + 2px);
+			box-shadow:
+				0 0 15px rgba(255, 170, 0, 0.3),
+				inset 0 0 10px rgba(0, 0, 0, 0.5);
+		}
+
+		.result-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 1rem;
+			margin-top: 1rem;
+		}
+
+		.result-item {
+			background: rgba(0, 0, 0, 0.6);
+			padding: 1rem;
+			border-radius: 0;
+			border: 1px solid rgba(0, 217, 255, 0.4);
+			box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+			transition: all 0.2s ease;
+		}
+
+		.result-item:hover {
+			border-color: var(--electric-cyan);
+			box-shadow:
+				0 0 15px var(--glow-cyan),
+				inset 0 0 10px rgba(0, 0, 0, 0.5);
+		}
+
+		.result-item-label {
+			font-size: 0.75rem;
+			color: var(--electric-cyan);
+			font-weight: 600;
+			margin-bottom: 0.5rem;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			font-family: 'Orbitron', sans-serif;
+		}
+
+		.result-item-value {
+			color: var(--soft-white);
+			font-weight: 600;
+			font-size: 1.1rem;
+			word-wrap: break-word;
+			font-family: 'IBM Plex Mono', monospace;
+		}
+
+		.notebook-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.35rem;
+			margin-left: 0.75rem;
+			color: var(--scientific-green);
+			font-size: 0.7rem;
+			text-decoration: none;
+			font-weight: 500;
+			transition: all 0.2s ease;
+			text-transform: none;
+			letter-spacing: 0.5px;
+			opacity: 0.8;
+		}
+
+		.notebook-link:hover {
+			color: var(--electric-cyan);
+			opacity: 1;
+			text-shadow: 0 0 8px var(--glow-green);
+		}
+
+		.notebook-link::before {
+			content: '📖';
+			font-size: 0.9rem;
+		}
+
+		.input-label {
+			font-size: 0.75rem;
+			color: var(--electric-cyan);
+			font-weight: 600;
+			margin-bottom: 0.25rem;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+
+		canvas {
+			filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.2));
+		}
+
+		.hide-on-mobile {
+			display: block;
+		}
+
+		/* Tablet and smaller */
+		@media (max-width: 768px) {
+			.main-container {
+				padding: 1rem 0.75rem;
+			}
+
+			.header {
+				padding: 1.5rem 1rem;
+				margin-bottom: 1rem;
+			}
+
+			.github-link {
+				position: static;
+				margin: 0 auto 1rem;
+				font-size: 0.75rem;
+				padding: 0.4rem 0.75rem;
+			}
+
+			.github-link svg {
+				width: 18px;
+				height: 18px;
+			}
+
+			.header h1 {
+				font-size: 1.5rem;
+				letter-spacing: 1px;
+			}
+
+			.header .subtitle {
+				font-size: 0.8rem;
+			}
+
+			.speed-of-light {
+				padding: 0.4rem 1rem;
+				font-size: 0.85rem;
+				margin-top: 0.75rem;
+			}
+
+			/* Horizontal scrollable tabs */
+			.nav-tabs {
+				padding: 0.5rem 0.5rem 0 0.5rem;
+				flex-wrap: nowrap;
+				overflow-x: auto;
+				overflow-y: hidden;
+				-webkit-overflow-scrolling: touch;
+				scrollbar-width: none;
+				-ms-overflow-style: none;
+			}
+
+			.nav-tabs::-webkit-scrollbar {
+				display: none;
+			}
+
+			.nav-tabs .nav-link {
+				padding: 0.6rem 1rem;
+				font-size: 0.65rem;
+				white-space: nowrap;
+				flex-shrink: 0;
+			}
+
+			.tab-content {
+				padding: 1rem;
+			}
+
+			.calc-section {
+				padding: 1rem;
+				margin-bottom: 1rem;
+			}
+
+			.calc-label {
+				font-size: 0.85rem;
+				margin-bottom: 0.75rem;
+			}
+
+			.input-group-custom {
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+
+			.input-group-custom > div {
+				min-width: 100% !important;
+			}
+
+			.btn-calculate {
+				width: 100%;
+				padding: 0.875rem 1.5rem;
+				font-size: 0.9rem;
+			}
+
+			.result-box {
+				width: 100%;
+				min-height: calc(1.5em + 0.75rem * 2 + 2px);
+				height: auto;
+			}
+
+			.result-grid {
+				grid-template-columns: 1fr 1fr;
+				gap: 0.75rem;
+			}
+
+			.result-item {
+				padding: 0.75rem;
+			}
+
+			.result-item-label {
+				font-size: 0.65rem;
+			}
+
+			.result-item-value {
+				font-size: 0.95rem;
+				word-break: break-all;
+			}
+
+			/* Chart containers */
+			canvas {
+				max-height: 250px;
+			}
+		}
+
+		/* Mobile phones */
+		@media (max-width: 480px) {
+			.main-container {
+				padding: 0.5rem;
+			}
+
+			.header {
+				padding: 1rem 0.75rem;
+				margin-bottom: 0.75rem;
+			}
+
+			.github-link {
+				font-size: 0.7rem;
+				padding: 0.35rem 0.65rem;
+			}
+
+			.github-link svg {
+				width: 16px;
+				height: 16px;
+			}
+
+			.header h1 {
+				font-size: 1.1rem;
+				letter-spacing: 0.5px;
+			}
+
+			.header .subtitle {
+				font-size: 0.7rem;
+				margin-bottom: 0.25rem;
+			}
+
+			.speed-of-light {
+				padding: 0.3rem 0.8rem;
+				font-size: 0.75rem;
+				margin-top: 0.5rem;
+			}
+
+			.nav-tabs .nav-link {
+				padding: 0.5rem 0.75rem;
+				font-size: 0.6rem;
+			}
+
+			.tab-content {
+				padding: 0.75rem;
+			}
+
+			.calc-section {
+				padding: 0.75rem;
+				margin-bottom: 0.75rem;
+			}
+
+			.calc-label {
+				font-size: 0.75rem;
+			}
+
+			.calc-label::before {
+				font-size: 1rem;
+				margin-right: 0.35rem;
+			}
+
+			.input-label {
+				font-size: 0.65rem;
+			}
+
+			.form-control {
+				padding: 0.6rem 0.75rem;
+				font-size: 0.9rem;
+			}
+
+			.btn-calculate {
+				padding: 0.75rem 1rem;
+				font-size: 0.8rem;
+			}
+
+			.result-grid {
+				grid-template-columns: 1fr;
+				gap: 0.5rem;
+			}
+
+			.result-item {
+				padding: 0.6rem;
+			}
+
+			.result-item-label {
+				font-size: 0.6rem;
+				margin-bottom: 0.35rem;
+			}
+
+			.result-item-value {
+				font-size: 0.85rem;
+			}
+
+			/* Hide extra efficiency items on mobile */
+			.hide-on-mobile {
+				display: none;
+			}
+
+			/* Smaller chart containers for phones */
+			canvas {
+				max-height: 200px;
+			}
+
+			/* Reduce chart container padding */
+			[style*="padding: 1rem"] {
+				padding: 0.5rem !important;
+			}
+		}
+
+		/* Very small phones */
+		@media (max-width: 360px) {
+			.header h1 {
+				font-size: 0.95rem;
+			}
+
+			.header .subtitle {
+				font-size: 0.6rem;
+			}
+
+			.speed-of-light {
+				font-size: 0.65rem;
+				padding: 0.25rem 0.6rem;
+			}
+
+			.nav-tabs .nav-link {
+				padding: 0.4rem 0.6rem;
+				font-size: 0.55rem;
+			}
+
+			.calc-label {
+				font-size: 0.7rem;
+			}
+
+			.form-control {
+				font-size: 0.85rem;
+			}
+
+			.btn-calculate {
+				font-size: 0.75rem;
+			}
 		}
 	</style>
-  <script type="module" crossorigin src="assets/index-986a69df.js"></script>
+  <script type="module" crossorigin src="./assets/index-CvEOSW-V.js"></script>
 </head>
 
 <body>
-	<div class="container mt-4">
-		<h2 class="text-center">Special Relativity Calculator</h2>
-		<div class="row mb-4">
-			<div class="col-12">
-				<h5 class="text-center">Speed of light is 299792458 m/s</h5>
-			</div>
+	<div class="main-container">
+		<div class="header">
+			<a href="https://github.com/lookbusy1344/Relativity" class="github-link" target="_blank" rel="noopener noreferrer">
+				<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+					<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+				</svg>
+				<span>GitHub</span>
+			</a>
+			<h1>Special Relativity Calculator</h1>
+			<p class="subtitle">High-precision relativistic physics calculations</p>
+			<div class="speed-of-light">c = 299,792,458 m/s</div>
 		</div>
 
-		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Lorentz factor from velocity</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="lorentzInput" placeholder="m/s"
-					value="299792457" class="form-control"></div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="lorentzButton">OK</button>
-			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultLorentz"></div>
-		</div>
+		<div class="calculator-card">
+			<ul class="nav nav-tabs" id="calculatorTabs" role="tablist">
+				<li class="nav-item" role="presentation">
+					<button class="nav-link active" id="motion-tab" data-bs-toggle="tab" data-bs-target="#motion"
+						type="button" role="tab">Constant Acceleration</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="travel-tab" data-bs-toggle="tab" data-bs-target="#travel"
+						type="button" role="tab">Flip and Burn</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="graphs-tab" data-bs-toggle="tab" data-bs-target="#graphs"
+						type="button" role="tab">Visualizations</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="conversions-tab" data-bs-toggle="tab"
+						data-bs-target="#conversions" type="button" role="tab">Calc</button>
+				</li>
+			</ul>
 
-		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Fraction of light speed</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="velocityInput" placeholder="m/s"
-					value="299792457" class="form-control">
-			</div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="velocityButton">OK</button>
-			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultVelocity"></div>
-		</div>
+			<div class="tab-content" id="calculatorTabContent">
+				<!-- Relativistic Motion Tab -->
+				<div class="tab-pane fade show active" id="motion" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">Constant Acceleration</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Acceleration (g)</div>
+								<input type="number" id="aAccelInput" placeholder="Enter g" value="1"
+									class="form-control" step="0.1" min="0.1">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Proper Time (days)</div>
+								<input type="number" id="aInput" placeholder="Enter days" value="365"
+									class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="aButton"
+								>Calculate</button>
+						</div>
+						<div class="result-grid">
+							<div class="result-item">
+								<div class="result-item-label">Velocity (km/s)</div>
+								<div class="result-item-value" id="resultA1">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Velocity (c)</div>
+								<div class="result-item-value" id="resultA1b">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Distance (km)</div>
+								<div class="result-item-value" id="resultA2">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Distance (ly)</div>
+								<div class="result-item-value" id="resultA2b">-</div>
+							</div>
+							<div class="result-item hide-on-mobile">
+								<div class="result-item-label">Fuel Fraction (40% eff)</div>
+								<div class="result-item-value" id="resultAFuel40">-</div>
+							</div>
+							<div class="result-item hide-on-mobile">
+								<div class="result-item-label">Fuel Fraction (50% eff)</div>
+								<div class="result-item-value" id="resultAFuel">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Fuel Fraction (60% eff)</div>
+								<div class="result-item-value" id="resultAFuel60">-</div>
+							</div>
+							<div class="result-item hide-on-mobile">
+								<div class="result-item-label">Fuel Fraction (70% eff)</div>
+								<div class="result-item-value" id="resultAFuel70">-</div>
+							</div>
+						</div>
 
-		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Acceleration / tau</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="text" id="aInput"
-					placeholder="metres per second^2 / seconds" value="g/31557600" class="form-control">
-			</div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="aButton">OK</button>
-			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultA"></div>
-		</div>
+						<!-- Constant Acceleration Charts -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Velocity over Time
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelVelocityChart"></canvas>
+							</div>
+						</div>
 
-		<div class="row mb-2">
-			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Relativistic velocity</div>
-				<div class="text-box" id="resultA1" title="-">-</div>
-				<div class="text-box" id="resultA1b" title="-">-</div>
-			</div>
-			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Relativistic distance</div>
-				<div class="text-box" id="resultA2" title="-">-</div>
-				<div class="text-box" id="resultA2b" title="-">-</div>
-			</div>
-			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Simple velocity</div>
-				<div class="text-box" id="resultA3" title="-">-</div>
-				<div class="text-box" id="resultA3b" title="-">-</div>
-			</div>
-			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Simple distance</div>
-				<div class="text-box" id="resultA4" title="-">-</div>
-				<div class="text-box" id="resultA4b" title="-">-</div>
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Time Dilation Factor
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelLorentzChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Rapidity over Time
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelRapidityChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Ship mass over time - charged-pion antimatter rocket
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Relativistic%20mass.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelMassChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Velocity over Distance
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelPositionVelocityChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Spacetime Worldline
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelSpacetimeChart"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Space Travel Tab -->
+				<div class="tab-pane fade" id="travel" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">Flip-and-Burn Maneuver</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Acceleration (g)</div>
+								<input type="number" id="flipAccelInput" placeholder="Enter g" value="1"
+									class="form-control" step="0.1" min="0.1">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Distance (light years)</div>
+								<input type="number" id="flipInput" placeholder="Enter distance" value="4"
+									class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="flipButton"
+								>Calculate</button>
+						</div>
+						<div class="result-grid">
+							<div class="result-item">
+								<div class="result-item-label">Proper Time</div>
+								<div class="result-item-value" id="resultFlip1">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Coordinate Time</div>
+								<div class="result-item-value" id="resultFlip4">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Peak Velocity</div>
+								<div class="result-item-value" id="resultFlip2">-</div>
+								<div class="result-item-value" id="resultFlip5" style="font-size: 0.875rem; margin-top: 0.25rem;">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Peak Lorentz</div>
+								<div class="result-item-value" id="resultFlip3">-</div>
+								<div class="result-item-value" id="resultFlip6" style="font-size: 0.875rem; margin-top: 0.25rem;">-</div>
+							</div>
+							<div class="result-item hide-on-mobile">
+								<div class="result-item-label">Fuel Fraction (40% eff)</div>
+								<div class="result-item-value" id="resultFlipFuel40">-</div>
+							</div>
+							<div class="result-item hide-on-mobile">
+								<div class="result-item-label">Fuel Fraction (50% eff)</div>
+								<div class="result-item-value" id="resultFlipFuel">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Fuel Fraction (60% eff)</div>
+								<div class="result-item-value" id="resultFlipFuel60">-</div>
+							</div>
+							<div class="result-item hide-on-mobile">
+								<div class="result-item-label">Fuel Fraction (70% eff)</div>
+								<div class="result-item-value" id="resultFlipFuel70">-</div>
+							</div>
+						</div>
+
+						<!-- Flip-and-Burn Charts -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Velocity over Time
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="flipVelocityChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Time Dilation Factor
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="flipLorentzChart"></canvas>
+						</div>
+					</div>
+
+					<div style="margin-top: 1.5rem;">
+						<div class="input-label" style="margin-bottom: 0.5rem;">
+							Rapidity over Time
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="flipRapidityChart"></canvas>
+							</div>
+						</div>
+
+					<div style="margin-top: 1.5rem;">
+						<div class="input-label" style="margin-bottom: 0.5rem;">
+							Ship mass over time - charged-pion antimatter rocket
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Relativistic%20mass.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="flipMassChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+						<div class="input-label" style="margin-bottom: 0.5rem;">
+							Velocity over Distance
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="flipPositionVelocityChart"></canvas>
+						</div>
+					</div>
+
+						<div style="margin-top: 1.5rem;">
+						<div class="input-label" style="margin-bottom: 0.5rem;">
+							Spacetime Worldline
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="flipSpacetimeChart"></canvas>
+						</div>
+					</div>
+					</div>
+				</div>
+
+				<!-- Visualizations Tab -->
+				<div class="tab-pane fade" id="graphs" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">Journey Parameters</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Acceleration (g)</div>
+								<input type="number" id="graphAccelInput" placeholder="e.g., 1" value="1"
+									class="form-control" step="0.1" min="0.1">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Journey Duration (days)</div>
+								<input type="number" id="graphDurationInput" placeholder="e.g., 365" value="365"
+									class="form-control" step="1" min="1">
+							</div>
+							<button type="button" class="btn-calculate" id="graphUpdateButton"
+								>Update Graphs</button>
+							<div class="result-box" id="graphStatus" style="min-width: 100px;">-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Velocity vs Time
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="velocityChart"></canvas>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">Distance vs Time</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="distanceChart"></canvas>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Rapidity vs Time
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="rapidityChart"></canvas>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Time Dilation & Length Contraction
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="lorentzChart"></canvas>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
+				<!-- Conversions Tab -->
+				<div class="tab-pane fade" id="conversions" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">
+							Lorentz Factor from Velocity
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity (m/s)</div>
+								<input type="number" id="lorentzInput" placeholder="Enter velocity"
+									value="299792457" class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="lorentzButton"
+								>Calculate</button>
+							<div class="result-box" id="resultLorentz" >-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Velocity to Rapidity
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity (m/s)</div>
+								<input type="number" id="velocityInput" placeholder="Enter velocity"
+									value="299792457" class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="velocityButton"
+								>Calculate</button>
+							<div class="result-box" id="resultVelocity" >-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Rapidity to Velocity
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Rapidity</div>
+								<input type="number" id="rapidityInput" placeholder="Enter rapidity"
+									value="10.10587" class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="rapidityButton"
+								>Calculate</button>
+							<div class="result-box" id="resultRapidity" >-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Relativistic Velocity Addition
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Velocity%20adding.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity 1 (fraction of c)</div>
+								<input type="number" id="v1Input" placeholder="e.g., 0.9" value="0.9"
+									class="form-control" step="0.01">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity 2 (fraction of c)</div>
+								<input type="number" id="v2Input" placeholder="e.g., 0.9" value="0.9"
+									class="form-control" step="0.01">
+							</div>
+							<button type="button" class="btn-calculate" id="addButton"
+								>Calculate</button>
+						</div>
+						<div style="margin-top: 1rem;">
+							<div class="result-item-label">Combined Velocity</div>
+							<div class="result-box" id="resultAdd">-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">Charged-pion rocket - Constant 1g Acceleration</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Fuel Mass (kg)</div>
+								<input type="number" id="pionFuelMassInput" placeholder="e.g., 1000" value="1000"
+									class="form-control" step="100">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Dry Mass (kg)</div>
+								<input type="number" id="pionDryMassInput" placeholder="e.g., 500" value="500"
+									class="form-control" step="100">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Efficiency (0-1)</div>
+								<input type="number" id="pionEfficiencyInput" placeholder="e.g., 0.6" value="0.6"
+									class="form-control" step="0.1" min="0" max="1">
+							</div>
+							<button type="button" class="btn-calculate" id="pionAccelButton"
+								>Calculate</button>
+						</div>
+						<div style="margin-top: 1rem;">
+							<div class="result-item-label">Time at constant 1g</div>
+							<div class="result-box" id="resultPionAccel">-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Spacetime Interval Calculator
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Time (sec)</div>
+								<input type="number" id="spacetimeTime2" placeholder="e.g., 2" value="2"
+									class="form-control">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Distance (km)</div>
+								<input type="number" id="spacetimeX2" placeholder="e.g., 299792.458" value="299792.458"
+									class="form-control">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Relative Velocity (c)</div>
+								<input type="number" id="spacetimeVelocity" placeholder="e.g., 0.5" value="0.5"
+									class="form-control" step="0.1" min="-0.999" max="0.999">
+							</div>
+							<button type="button" class="btn-calculate" id="spacetimeButton"
+								>Calculate</button>
+						</div>
+						<div style="margin-top: 1rem;">
+							<div class="result-item-label">Interval Squared (km²)</div>
+							<div class="result-box" id="resultSpacetimeSquared">-</div>
+						</div>
+						<div style="margin-top: 0.5rem;">
+							<div class="result-item-label">Interpretation</div>
+							<div class="result-box" id="resultSpacetimeType">-</div>
+						</div>
+						<div class="result-grid" style="margin-top: 1rem;">
+							<div class="result-item">
+								<div class="result-item-label">Δt' (transformed)</div>
+								<div class="result-item-value" id="resultSpacetimeDeltaT">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Δx' (transformed)</div>
+								<div class="result-item-value" id="resultSpacetimeDeltaX">-</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-	
 </body>
 
 </html>
