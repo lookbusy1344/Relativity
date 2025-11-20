@@ -20,6 +20,10 @@ The maths needed for special relativity is not difficult, there's nothing more c
 
 [Spacetime intervals, invariant intervals between events](https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb)
 
+## Web-based calculator
+
+There is also a web-based Javascript calculator with visualizations, available here https://lookbusy1344.github.io/Relativity/
+
 ## Library
 
 The Python library uses *mpmath* for arbitrary precision calculations, allowing us to calculate velocities to hundreds of decimal places. Other folders in the repository include C# and Rust versions of the library, but they are not as easy to use.
