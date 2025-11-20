@@ -1,4 +1,4 @@
-﻿using PeterO.Numbers;
+using PeterO.Numbers;
 
 namespace Relativity.Quantity;
 

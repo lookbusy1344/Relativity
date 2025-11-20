@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using PeterO.Numbers;
 
 namespace Relativity;
@@ -337,9 +337,9 @@ internal sealed class EFloatRelativity
 	public EFloat SpacetimeInterval3D(Interval event1, Interval event2) =>
 		// sqrt(csquared * delta_t^2 - delta_x^2 - delta_y^2 - delta_z^2)
 		Sqrt((CSQUARED_B * (B(event2.time) - event1.time).Pow(2))
-		     - (B(event2.x) - event1.x).Pow(2)
-		     - (B(event2.y) - event1.y).Pow(2)
-		     - (B(event2.z) - event1.z).Pow(2)).Value;
+			 - (B(event2.x) - event1.x).Pow(2)
+			 - (B(event2.y) - event1.y).Pow(2)
+			 - (B(event2.z) - event1.z).Pow(2)).Value;
 
 	// ====== Wrappers around hyperbolic trig functions ======
 

@@ -1,4 +1,4 @@
-﻿namespace Relativity;
+namespace Relativity;
 
 using UnitsNet;
 

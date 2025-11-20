@@ -29,6 +29,18 @@ dotnet run
 dotnet clean
 ```
 
+### Format
+```bash
+dotnet format Relativity.sln
+```
+
+## Workflow
+
+After making code changes, always run:
+```bash
+dotnet format Relativity.sln
+```
+
 ## Architecture
 
 ### Core Components
