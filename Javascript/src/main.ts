@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Constant acceleration
     getButtonElement('aButton')?.addEventListener('click',
         createAccelHandler(
+            () => getInputElement('aAccelInput'),
             () => getInputElement('aInput'),
             () => [
                 getResultElement('resultA1'),
@@ -65,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Flip-and-burn
     getButtonElement('flipButton')?.addEventListener('click',
         createFlipBurnHandler(
+            () => getInputElement('flipAccelInput'),
             () => getInputElement('flipInput'),
             () => [
                 getResultElement('resultFlip1'),

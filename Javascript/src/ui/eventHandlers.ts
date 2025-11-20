@@ -72,14 +72,16 @@ export function createAddVelocitiesHandler(
 }
 
 export function createAccelHandler(
-    getInput: () => HTMLInputElement | null,
+    getAccelInput: () => HTMLInputElement | null,
+    getTimeInput: () => HTMLInputElement | null,
     getResults: () => (HTMLElement | null)[],
     chartRegistry: { current: ChartRegistry }
 ): () => void {
     return () => {
-        const input = getInput();
+        const accelInput = getAccelInput();
+        const timeInput = getTimeInput();
         const [resultA1, resultA2, resultA1b, resultA2b, resultAFuel40, resultAFuel, resultAFuel60, resultAFuel70] = getResults();
-        if (!input) return;
+        if (!accelInput || !timeInput) return;
 
         // Show working message
         if (resultA1) resultA1.textContent = "Working...";
@@ -93,8 +95,9 @@ export function createAccelHandler(
 
         // Allow UI to update before heavy calculation
         requestAnimationFrame(() => setTimeout(() => {
-            const accel = rl.g;
-            const secs = rl.ensure(input.value ?? 0).mul(60 * 60 * 24);
+            const accelG = parseFloat(accelInput.value ?? '1');
+            const accel = rl.g.mul(accelG);
+            const secs = rl.ensure(timeInput.value ?? 0).mul(60 * 60 * 24);
 
             const relVel = rl.relativisticVelocity(accel, secs);
             const relDist = rl.relativisticDistance(accel, secs);
@@ -123,22 +126,24 @@ export function createAccelHandler(
             if (resultAFuel70) setElement(resultAFuel70, rl.formatSignificant(fuelPercent70, "0", 8), "%");
 
             // Update charts
-            const durationDays = parseFloat(input.value ?? '365');
-            const data = generateAccelChartData(1, durationDays);
+            const durationDays = parseFloat(timeInput.value ?? '365');
+            const data = generateAccelChartData(accelG, durationDays);
             chartRegistry.current = updateAccelCharts(chartRegistry.current, data);
         }, 0));
     };
 }
 
 export function createFlipBurnHandler(
-    getInput: () => HTMLInputElement | null,
+    getAccelInput: () => HTMLInputElement | null,
+    getDistanceInput: () => HTMLInputElement | null,
     getResults: () => (HTMLElement | null)[],
     chartRegistry: { current: ChartRegistry }
 ): () => void {
     return () => {
-        const input = getInput();
+        const accelInput = getAccelInput();
+        const distanceInput = getDistanceInput();
         const [resultFlip1, resultFlip2, resultFlip3, resultFlip4, resultFlip5, resultFlip6, resultFlipFuel40, resultFlipFuel, resultFlipFuel60, resultFlipFuel70] = getResults();
-        if (!input) return;
+        if (!accelInput || !distanceInput) return;
 
         // Show working message
         if (resultFlip1) resultFlip1.textContent = "Working...";
@@ -154,9 +159,11 @@ export function createFlipBurnHandler(
 
         // Allow UI to update before heavy calculation
         requestAnimationFrame(() => setTimeout(() => {
-            const distanceLightYears = parseFloat(input.value ?? '0');
+            const accelG = parseFloat(accelInput.value ?? '1');
+            const accel = rl.g.mul(accelG);
+            const distanceLightYears = parseFloat(distanceInput.value ?? '0');
             const m = rl.ensure(distanceLightYears).mul(rl.lightYear);
-            const res = rl.flipAndBurn(rl.g, m);
+            const res = rl.flipAndBurn(accel, m);
             const properTime = res.properTime.div(rl.secondsPerYear);
             const coordTime = res.coordTime.div(rl.secondsPerYear);
             const peak = res.peakVelocity.div(rl.c);
@@ -165,13 +172,13 @@ export function createFlipBurnHandler(
             const sec = rl.formatSignificant(rl.one.mul(lorentz), "0", 2);
 
             // Calculate fuel fractions at all efficiencies
-            const fuelFraction40 = rl.pionRocketFuelFraction(res.properTime, rl.g, 0.4);
+            const fuelFraction40 = rl.pionRocketFuelFraction(res.properTime, accel, 0.4);
             const fuelPercent40 = fuelFraction40.mul(100);
-            const fuelFraction50 = rl.pionRocketFuelFraction(res.properTime, rl.g, 0.5);
+            const fuelFraction50 = rl.pionRocketFuelFraction(res.properTime, accel, 0.5);
             const fuelPercent50 = fuelFraction50.mul(100);
-            const fuelFraction60 = rl.pionRocketFuelFraction(res.properTime, rl.g, 0.6);
+            const fuelFraction60 = rl.pionRocketFuelFraction(res.properTime, accel, 0.6);
             const fuelPercent60 = fuelFraction60.mul(100);
-            const fuelFraction70 = rl.pionRocketFuelFraction(res.properTime, rl.g, 0.7);
+            const fuelFraction70 = rl.pionRocketFuelFraction(res.properTime, accel, 0.7);
             const fuelPercent70 = fuelFraction70.mul(100);
 
             if (resultFlip1) setElement(resultFlip1, rl.formatSignificant(properTime, "0", 2), "yrs");
@@ -186,7 +193,7 @@ export function createFlipBurnHandler(
             if (resultFlipFuel70) setElement(resultFlipFuel70, rl.formatSignificant(fuelPercent70, "0", 8), "%");
 
             // Update charts
-            const data = generateFlipBurnChartData(distanceLightYears);
+            const data = generateFlipBurnChartData(accelG, distanceLightYears);
             chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data);
         }, 0));
     };

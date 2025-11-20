@@ -693,8 +693,13 @@
 				<!-- Relativistic Motion Tab -->
 				<div class="tab-pane fade show active" id="motion" role="tabpanel">
 					<div class="calc-section">
-						<div class="calc-label">Constant Acceleration at 1g</div>
+						<div class="calc-label">Constant Acceleration</div>
 						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Acceleration (g)</div>
+								<input type="number" id="aAccelInput" placeholder="Enter g" value="1"
+									class="form-control" step="0.1" min="0.1">
+							</div>
 							<div style="flex: 1; min-width: 200px;">
 								<div class="input-label">Proper Time (days)</div>
 								<input type="number" id="aInput" placeholder="Enter days" value="365"
@@ -804,8 +809,13 @@
 				<!-- Space Travel Tab -->
 				<div class="tab-pane fade" id="travel" role="tabpanel">
 					<div class="calc-section">
-						<div class="calc-label">Flip-and-Burn Maneuver at 1g</div>
+						<div class="calc-label">Flip-and-Burn Maneuver</div>
 						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Acceleration (g)</div>
+								<input type="number" id="flipAccelInput" placeholder="Enter g" value="1"
+									class="form-control" step="0.1" min="0.1">
+							</div>
 							<div style="flex: 1; min-width: 200px;">
 								<div class="input-label">Distance (light years)</div>
 								<input type="number" id="flipInput" placeholder="Enter distance" value="4"
