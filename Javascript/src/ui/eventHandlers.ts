@@ -8,7 +8,7 @@ import * as rl from '../relativity_lib';
 import { setElement } from './domUtils';
 import { generateAccelChartData, generateFlipBurnChartData, generateVisualizationChartData } from '../charts/dataGeneration';
 import { updateAccelCharts, updateFlipBurnCharts, updateVisualizationCharts, type ChartRegistry } from '../charts/charts';
-import { drawMinkowskiDiagram, type MinkowskiData } from '../charts/minkowski';
+import { drawMinkowskiDiagramD3, type MinkowskiData } from '../charts/minkowski';
 
 export function createLorentzHandler(
     getInput: () => HTMLInputElement | null,
@@ -260,8 +260,7 @@ export function createSpacetimeIntervalHandler(
     getResultType: () => HTMLElement | null,
     getResultDeltaT: () => HTMLElement | null,
     getResultDeltaX: () => HTMLElement | null,
-    getCanvas: () => HTMLCanvasElement | null,
-    onDiagramDrawn?: (canvas: HTMLCanvasElement, data: MinkowskiData) => void
+    onDiagramDrawn?: (container: HTMLElement, data: MinkowskiData, controller: ReturnType<typeof drawMinkowskiDiagramD3>) => void
 ): () => void {
     return () => {
         const time2Input = getTime2Input();
@@ -325,8 +324,8 @@ export function createSpacetimeIntervalHandler(
         setElement(resultDeltaX, rl.formatSignificant(deltaXprimeKm, "0", 1), "km");
 
         // Draw Minkowski diagram
-        const canvas = getCanvas();
-        if (canvas) {
+        const container = document.getElementById('minkowskiContainer');
+        if (container) {
             // Determine interval type
             let intervalType: 'timelike' | 'spacelike' | 'lightlike';
             if (intervalSquared.abs().lt(tolerance)) {
@@ -346,11 +345,11 @@ export function createSpacetimeIntervalHandler(
                 intervalType
             };
 
-            drawMinkowskiDiagram(canvas, diagramData);
+            const controller = drawMinkowskiDiagramD3(container, diagramData);
 
             // Notify caller that diagram was drawn (for resize handling)
             if (onDiagramDrawn) {
-                onDiagramDrawn(canvas, diagramData);
+                onDiagramDrawn(container, diagramData, controller);
             }
         }
     };

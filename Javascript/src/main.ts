@@ -11,7 +11,7 @@ import {
     createSpacetimeIntervalHandler
 } from './ui/eventHandlers';
 import { type ChartRegistry } from './charts/charts';
-import { drawMinkowskiDiagram, type MinkowskiData } from './charts/minkowski';
+import { drawMinkowskiDiagramD3, type MinkowskiData } from './charts/minkowski';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -19,13 +19,13 @@ Chart.register(...registerables);
 document.addEventListener('DOMContentLoaded', () => {
     const chartRegistry: { current: ChartRegistry } = { current: new Map() };
 
-    // Store last Minkowski diagram data for resize handling
+    // Store Minkowski diagram controller and data for updates
     const minkowskiState: {
         lastData: MinkowskiData | null,
-        canvas: HTMLCanvasElement | null
+        controller: ReturnType<typeof drawMinkowskiDiagramD3> | null
     } = {
         lastData: null,
-        canvas: null
+        controller: null
     };
 
     // Lorentz factor from velocity
@@ -121,11 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getResultElement('resultSpacetimeType'),
             () => getResultElement('resultSpacetimeDeltaT'),
             () => getResultElement('resultSpacetimeDeltaX'),
-            () => document.getElementById('minkowskiCanvas') as HTMLCanvasElement,
-            (canvas, data) => {
-                // Store for resize handling
-                minkowskiState.canvas = canvas;
+            (_container, data, controller) => {
                 minkowskiState.lastData = data;
+                minkowskiState.controller = controller;
             }
         )
     );
@@ -141,9 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 chart.resize();
             });
 
-            // Redraw Minkowski diagram if it exists
-            if (minkowskiState.canvas && minkowskiState.lastData) {
-                drawMinkowskiDiagram(minkowskiState.canvas, minkowskiState.lastData);
+            // Update Minkowski diagram if it exists
+            if (minkowskiState.controller && minkowskiState.lastData) {
+                minkowskiState.controller.update(minkowskiState.lastData);
             }
         }, 700);
     };
