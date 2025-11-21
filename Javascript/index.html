@@ -1142,6 +1142,29 @@
 							</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2); width: 100%; max-width: 900px;">
 								<canvas id="minkowskiCanvas" style="display: block; width: 100%;"></canvas>
+
+								<!-- Legend below the diagram -->
+								<div style="margin-top: 1rem; padding: 1rem; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 217, 255, 0.2);">
+									<div style="font-family: 'IBM Plex Mono', monospace; font-weight: bold; font-size: 15px; color: #e8f1f5; margin-bottom: 0.75rem;">LEGEND</div>
+									<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-family: 'IBM Plex Mono', monospace; font-size: 14px;">
+										<div style="display: flex; align-items: center; gap: 0.5rem;">
+											<div style="width: 35px; height: 3px; background: #00d9ff;"></div>
+											<span style="color: #00d9ff;">Original frame (ct, x)</span>
+										</div>
+										<div style="display: flex; align-items: center; gap: 0.5rem;">
+											<div style="width: 35px; height: 3px; background: #00ff9f;"></div>
+											<span style="color: #00ff9f;">Moving frame (ct', x')</span>
+										</div>
+										<div style="display: flex; align-items: center; gap: 0.5rem;">
+											<div style="width: 35px; height: 2px; background: rgba(255, 170, 0, 0.8); background-image: repeating-linear-gradient(90deg, rgba(255, 170, 0, 0.8) 0px, rgba(255, 170, 0, 0.8) 5px, transparent 5px, transparent 10px);"></div>
+											<span style="color: #ffaa00;">Light cones (c)</span>
+										</div>
+										<div style="display: flex; align-items: center; gap: 0.5rem;">
+											<div style="width: 35px; height: 3px; background: #e8f1f5;"></div>
+											<span style="color: #e8f1f5;">Spacetime interval</span>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
