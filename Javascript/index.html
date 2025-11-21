@@ -5,7 +5,6 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<title>Special Relativity Calculator</title>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -202,13 +201,22 @@
 		}
 
 		.nav-tabs {
-			border-bottom: 2px solid var(--electric-cyan);
-			background: var(--deep-navy);
+			display: flex;
+			flex-wrap: wrap;
+			list-style: none;
+			margin: 0;
 			padding: 1rem 1rem 0 1rem;
 			gap: 0.5rem;
+			border-bottom: 2px solid var(--electric-cyan);
+			background: var(--deep-navy);
+		}
+
+		.nav-item {
+			list-style: none;
 		}
 
 		.nav-tabs .nav-link {
+			display: block;
 			border: 1px solid rgba(0, 217, 255, 0.3);
 			color: var(--soft-white);
 			font-weight: 600;
@@ -294,6 +302,28 @@
 			flex-wrap: wrap;
 		}
 
+		.input-group-custom > div[style*="flex: 1"] {
+			flex: 1 1 auto;
+			min-width: 0;
+		}
+
+		.input-group-custom > div[style*="min-width: 150px"] {
+			flex: 1 0 150px;
+		}
+
+		.input-group-custom > div[style*="min-width: 200px"] {
+			flex: 1 0 200px;
+		}
+
+		.input-group-custom > button {
+			flex: 0 0 auto;
+		}
+
+		.input-group-custom > .result-box {
+			flex: 0 0 auto;
+			min-width: 120px;
+		}
+
 		.form-control {
 			border: 1px solid rgba(0, 217, 255, 0.4);
 			border-radius: 0;
@@ -336,6 +366,8 @@
 			text-transform: uppercase;
 			letter-spacing: 1px;
 			cursor: pointer;
+			flex-shrink: 0;
+			white-space: nowrap;
 		}
 
 		.btn-calculate:hover {
@@ -359,10 +391,14 @@
 			font-weight: 600;
 			color: var(--amber-alert);
 			flex: 1;
+			min-width: 0;
 			font-family: 'IBM Plex Mono', monospace;
 			font-size: 1rem;
 			line-height: 1.5;
 			height: calc(1.5em + 0.75rem * 2 + 2px);
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 			box-shadow:
 				0 0 15px rgba(255, 170, 0, 0.3),
 				inset 0 0 10px rgba(0, 0, 0, 0.5);
@@ -711,6 +747,15 @@
 				font-size: 0.75rem;
 			}
 		}
+
+		/* Tab pane visibility */
+		.tab-pane {
+			display: none;
+		}
+
+		.tab-pane.show {
+			display: block;
+		}
 	</style>
 </head>
 
@@ -731,20 +776,20 @@
 		<div class="calculator-card">
 			<ul class="nav nav-tabs" id="calculatorTabs" role="tablist">
 				<li class="nav-item" role="presentation">
-					<button class="nav-link active" id="motion-tab" data-bs-toggle="tab" data-bs-target="#motion"
+					<button class="nav-link active" id="motion-tab" data-tab-target="#motion"
 						type="button" role="tab">Constant Acceleration</button>
 				</li>
 				<li class="nav-item" role="presentation">
-					<button class="nav-link" id="travel-tab" data-bs-toggle="tab" data-bs-target="#travel"
+					<button class="nav-link" id="travel-tab" data-tab-target="#travel"
 						type="button" role="tab">Flip and Burn</button>
 				</li>
 				<li class="nav-item" role="presentation">
-					<button class="nav-link" id="graphs-tab" data-bs-toggle="tab" data-bs-target="#graphs"
+					<button class="nav-link" id="graphs-tab" data-tab-target="#graphs"
 						type="button" role="tab">Visualizations</button>
 				</li>
 				<li class="nav-item" role="presentation">
-					<button class="nav-link" id="conversions-tab" data-bs-toggle="tab"
-						data-bs-target="#conversions" type="button" role="tab">Calc</button>
+					<button class="nav-link" id="conversions-tab" data-tab-target="#conversions"
+						type="button" role="tab">Calc</button>
 				</li>
 			</ul>
 
@@ -1195,7 +1240,6 @@
 
 	</div>
 
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script type="module" src="/src/main.ts"></script>
 </body>
 

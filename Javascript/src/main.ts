@@ -20,6 +20,32 @@ Chart.register(...registerables);
 document.addEventListener('DOMContentLoaded', () => {
     const chartRegistry: { current: ChartRegistry } = { current: new Map() };
 
+    // Tab switching functionality
+    const tabButtons = document.querySelectorAll('[data-tab-target]');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetId = button.getAttribute('data-tab-target');
+            if (!targetId) return;
+
+            // Remove active class from all tab buttons
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            button.classList.add('active');
+
+            // Hide all tab panes
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            tabPanes.forEach(pane => {
+                pane.classList.remove('show', 'active');
+            });
+
+            // Show target tab pane
+            const targetPane = document.querySelector(targetId);
+            if (targetPane) {
+                targetPane.classList.add('show', 'active');
+            }
+        });
+    });
+
     // Lorentz factor from velocity
     getButtonElement('lorentzButton')?.addEventListener('click',
         createLorentzHandler(
