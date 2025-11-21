@@ -7,18 +7,26 @@ import {
     createAccelHandler,
     createFlipBurnHandler,
     createAddVelocitiesHandler,
-    createGraphUpdateHandler,
     createPionAccelTimeHandler,
     createSpacetimeIntervalHandler
 } from './ui/eventHandlers';
-import { generateVisualizationChartData } from './charts/dataGeneration';
-import { updateVisualizationCharts, type ChartRegistry } from './charts/charts';
+import { type ChartRegistry } from './charts/charts';
+import { drawMinkowskiDiagram, type MinkowskiData } from './charts/minkowski';
 
 // Register Chart.js components
 Chart.register(...registerables);
 
 document.addEventListener('DOMContentLoaded', () => {
     const chartRegistry: { current: ChartRegistry } = { current: new Map() };
+
+    // Store last Minkowski diagram data for resize handling
+    const minkowskiState: {
+        lastData: MinkowskiData | null,
+        canvas: HTMLCanvasElement | null
+    } = {
+        lastData: null,
+        canvas: null
+    };
 
     // Lorentz factor from velocity
     getButtonElement('lorentzButton')?.addEventListener('click',
@@ -112,35 +120,31 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getResultElement('resultSpacetimeSquared'),
             () => getResultElement('resultSpacetimeType'),
             () => getResultElement('resultSpacetimeDeltaT'),
-            () => getResultElement('resultSpacetimeDeltaX')
+            () => getResultElement('resultSpacetimeDeltaX'),
+            () => document.getElementById('minkowskiCanvas') as HTMLCanvasElement,
+            (canvas, data) => {
+                // Store for resize handling
+                minkowskiState.canvas = canvas;
+                minkowskiState.lastData = data;
+            }
         )
     );
 
-    // Visualization graphs
-    const graphUpdateHandler = createGraphUpdateHandler(
-        () => getInputElement('graphAccelInput'),
-        () => getInputElement('graphDurationInput'),
-        () => getResultElement('graphStatus'),
-        chartRegistry
-    );
-
-    getButtonElement('graphUpdateButton')?.addEventListener('click', graphUpdateHandler);
-
-    // Initialize visualization graphs on page load
-    setTimeout(() => {
-        const data = generateVisualizationChartData(1, 365);
-        chartRegistry.current = updateVisualizationCharts(chartRegistry.current, data);
-    }, 100);
 
     // Handle orientation changes and window resize with debounce
     let resizeTimeout: number | undefined;
     const handleResize = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = window.setTimeout(() => {
-            // Resize all charts in the registry
+            // Resize all Chart.js charts in the registry
             chartRegistry.current.forEach(chart => {
                 chart.resize();
             });
+
+            // Redraw Minkowski diagram if it exists
+            if (minkowskiState.canvas && minkowskiState.lastData) {
+                drawMinkowskiDiagram(minkowskiState.canvas, minkowskiState.lastData);
+            }
         }, 700);
     };
 

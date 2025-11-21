@@ -739,8 +739,8 @@
 						type="button" role="tab">Flip and Burn</button>
 				</li>
 				<li class="nav-item" role="presentation">
-					<button class="nav-link" id="graphs-tab" data-bs-toggle="tab" data-bs-target="#graphs"
-						type="button" role="tab">Visualizations</button>
+					<button class="nav-link" id="spacetime-tab" data-bs-toggle="tab"
+						data-bs-target="#spacetime" type="button" role="tab">Spacetime</button>
 				</li>
 				<li class="nav-item" role="presentation">
 					<button class="nav-link" id="conversions-tab" data-bs-toggle="tab"
@@ -983,66 +983,6 @@
 					</div>
 				</div>
 
-				<!-- Visualizations Tab -->
-				<div class="tab-pane fade" id="graphs" role="tabpanel">
-					<div class="calc-section">
-						<div class="calc-label">Journey Parameters</div>
-						<div class="input-group-custom">
-							<div style="flex: 1; min-width: 200px;">
-								<div class="input-label">Acceleration (g)</div>
-								<input type="number" id="graphAccelInput" placeholder="e.g., 1" value="1"
-									class="form-control" step="0.1" min="0.1">
-							</div>
-							<div style="flex: 1; min-width: 200px;">
-								<div class="input-label">Journey Duration (days)</div>
-								<input type="number" id="graphDurationInput" placeholder="e.g., 365" value="365"
-									class="form-control" step="1" min="1">
-							</div>
-							<button type="button" class="btn-calculate" id="graphUpdateButton"
-								>Update Graphs</button>
-							<div class="result-box" id="graphStatus" style="min-width: 100px;">-</div>
-						</div>
-					</div>
-
-					<div class="calc-section">
-						<div class="calc-label">
-							Velocity vs Time
-							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
-						</div>
-						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
-							<canvas id="velocityChart"></canvas>
-						</div>
-					</div>
-
-					<div class="calc-section">
-						<div class="calc-label">Distance vs Time</div>
-						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
-							<canvas id="distanceChart"></canvas>
-						</div>
-					</div>
-
-					<div class="calc-section">
-						<div class="calc-label">
-							Rapidity vs Time
-							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
-						</div>
-						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
-							<canvas id="rapidityChart"></canvas>
-						</div>
-					</div>
-
-					<div class="calc-section">
-						<div class="calc-label">
-							Time Dilation & Length Contraction
-							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
-						</div>
-						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
-							<canvas id="lorentzChart"></canvas>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
 				<!-- Conversions Tab -->
 				<div class="tab-pane fade" id="conversions" role="tabpanel">
 					<div class="calc-section">
@@ -1148,6 +1088,10 @@
 						</div>
 					</div>
 
+				</div>
+
+				<!-- Spacetime Tab -->
+				<div class="tab-pane fade" id="spacetime" role="tabpanel">
 					<div class="calc-section">
 						<div class="calc-label">
 							Spacetime Interval Calculator
@@ -1190,10 +1134,20 @@
 								<div class="result-item-value" id="resultSpacetimeDeltaX">-</div>
 							</div>
 						</div>
+
+						<!-- Minkowski Diagram -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Minkowski Diagram - Dual Reference Frames
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2); width: 100%; max-width: 900px;">
+								<canvas id="minkowskiCanvas" style="display: block; width: 100%;"></canvas>
+							</div>
+						</div>
 					</div>
 				</div>
-
-	</div>
+			</div>
+		</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script type="module" src="/src/main.ts"></script>
