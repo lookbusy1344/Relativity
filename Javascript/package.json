@@ -12,9 +12,19 @@
     },
     "dependencies": {
         "chart.js": "^4.5.1",
+        "d3-ease": "^3.0.1",
+        "d3-scale": "^4.0.2",
+        "d3-selection": "^3.0.0",
+        "d3-timer": "^3.0.1",
+        "d3-transition": "^3.0.1",
         "decimal.js": "^10.6.0"
     },
     "devDependencies": {
+        "@types/d3-ease": "^3",
+        "@types/d3-scale": "^4",
+        "@types/d3-selection": "^3",
+        "@types/d3-timer": "^3",
+        "@types/d3-transition": "^3",
         "esbuild": "^0.27.0",
         "typescript": "^5.9.3",
         "vite": "^7.2.2"
