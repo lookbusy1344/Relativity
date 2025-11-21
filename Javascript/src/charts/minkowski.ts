@@ -556,3 +556,398 @@ export function setupSVG(container: HTMLElement): Selection<SVGSVGElement, unkno
 
     return svg;
 }
+
+/**
+ * Render light cones
+ */
+function renderLightCones(
+    svg: Selection<SVGSVGElement, unknown, null, undefined>,
+    scales: ScaleSet,
+    data: MinkowskiData,
+    withTransition: boolean
+): void {
+    const ct = data.time * C;
+    const x = data.distance;
+    const extent = scales.maxCoord;
+
+    const lightConesGroup = svg.select('g.light-cones');
+    const backgroundGroup = svg.select('g.background');
+
+    // Light cone fill data
+    const fillData = (ct !== 0 || x !== 0) ? [
+        { points: [[0, 0], [extent, extent], [extent, -extent]], class: 'future' },
+        { points: [[0, 0], [-extent, -extent], [-extent, extent]], class: 'past' }
+    ] : [];
+
+    backgroundGroup.selectAll('polygon')
+        .data(fillData)
+        .join('polygon')
+        .attr('points', d => d.points.map(p =>
+            `${scales.xScale(p[0])},${scales.yScale(p[1])}`
+        ).join(' '))
+        .attr('fill', `${D3_COLORS.photonGold}${D3_COLORS.lightConeFill}`)
+        .attr('stroke', 'none');
+
+    // Light cone lines
+    const lineData = [
+        { x1: -extent, y1: -extent, x2: extent, y2: extent, from: 'origin' },
+        { x1: -extent, y1: extent, x2: extent, y2: -extent, from: 'origin' }
+    ];
+
+    if (ct !== 0 || x !== 0) {
+        lineData.push(
+            { x1: x - extent, y1: ct - extent, x2: x + extent, y2: ct + extent, from: 'event' },
+            { x1: x - extent, y1: ct + extent, x2: x + extent, y2: ct - extent, from: 'event' }
+        );
+    }
+
+    const lines = lightConesGroup.selectAll('line')
+        .data(lineData)
+        .join('line')
+        .attr('stroke', `${D3_COLORS.photonGold}${D3_COLORS.dashedLine}`)
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
+        .style('cursor', 'help');
+
+    if (withTransition) {
+        lines.transition().duration(600).ease(easeCubicInOut)
+            .attr('x1', d => scales.xScale(d.x1))
+            .attr('y1', d => scales.yScale(d.y1))
+            .attr('x2', d => scales.xScale(d.x2))
+            .attr('y2', d => scales.yScale(d.y2));
+    } else {
+        lines.attr('x1', d => scales.xScale(d.x1))
+            .attr('y1', d => scales.yScale(d.y1))
+            .attr('x2', d => scales.xScale(d.x2))
+            .attr('y2', d => scales.yScale(d.y2));
+    }
+}
+
+/**
+ * Render reference frame axes
+ */
+function renderAxes(
+    svg: Selection<SVGSVGElement, unknown, null, undefined>,
+    scales: ScaleSet,
+    data: MinkowskiData,
+    withTransition: boolean
+): void {
+    const extent = scales.maxCoord;
+    const beta = data.velocity;
+    const angle = Math.atan(beta);
+    const cosAngle = Math.cos(angle);
+    const sinAngle = Math.sin(angle);
+
+    const axesGroup = svg.select('g.axes');
+
+    // Original frame axes (orthogonal)
+    const originalAxes = [
+        { x1: 0, y1: -extent, x2: 0, y2: extent, color: D3_COLORS.electricBlue, frame: 'original', axis: 'ct' },
+        { x1: -extent, y1: 0, x2: extent, y2: 0, color: D3_COLORS.electricBlue, frame: 'original', axis: 'x' }
+    ];
+
+    // Moving frame axes (tilted)
+    const ctPrimeLength = extent / cosAngle;
+    const xPrimeLength = extent / cosAngle;
+
+    const movingAxes = [
+        {
+            x1: -ctPrimeLength * sinAngle,
+            y1: -ctPrimeLength * cosAngle,
+            x2: ctPrimeLength * sinAngle,
+            y2: ctPrimeLength * cosAngle,
+            color: D3_COLORS.quantumGreen,
+            frame: 'moving',
+            axis: 'ct\''
+        },
+        {
+            x1: -xPrimeLength * cosAngle,
+            y1: -xPrimeLength * sinAngle,
+            x2: xPrimeLength * cosAngle,
+            y2: xPrimeLength * sinAngle,
+            color: D3_COLORS.quantumGreen,
+            frame: 'moving',
+            axis: 'x\''
+        }
+    ];
+
+    const allAxes = [...originalAxes, ...movingAxes];
+
+    const axisLines = axesGroup.selectAll('line')
+        .data(allAxes)
+        .join('line')
+        .attr('stroke', d => d.color)
+        .attr('stroke-width', 3)
+        .attr('marker-end', d => d.frame === 'original' ? 'url(#arrowBlue)' : 'url(#arrowGreen)')
+        .style('cursor', 'help');
+
+    if (withTransition) {
+        axisLines.transition().duration(600).ease(easeCubicInOut)
+            .attr('x1', d => scales.xScale(d.x1))
+            .attr('y1', d => scales.yScale(d.y1))
+            .attr('x2', d => scales.xScale(d.x2))
+            .attr('y2', d => scales.yScale(d.y2));
+    } else {
+        axisLines.attr('x1', d => scales.xScale(d.x1))
+            .attr('y1', d => scales.yScale(d.y1))
+            .attr('x2', d => scales.xScale(d.x2))
+            .attr('y2', d => scales.yScale(d.y2));
+    }
+}
+
+/**
+ * Render simultaneity and position lines
+ */
+function renderSimultaneityLines(
+    svg: Selection<SVGSVGElement, unknown, null, undefined>,
+    scales: ScaleSet,
+    data: MinkowskiData,
+    withTransition: boolean
+): void {
+    const ct = data.time * C;
+    const x = data.distance;
+    const extent = scales.maxCoord;
+    const beta = data.velocity;
+    const angle = Math.atan(beta);
+    const cosAngle = Math.cos(angle);
+    const sinAngle = Math.sin(angle);
+
+    const simGroup = svg.select('g.simultaneity-lines');
+
+    if (ct === 0 && x === 0) {
+        simGroup.selectAll('line').remove();
+        return;
+    }
+
+    const lineData = [
+        // Original frame
+        { x1: -extent, y1: ct, x2: extent, y2: ct, color: D3_COLORS.electricBlue, frame: 'original' },
+        { x1: x, y1: -extent, x2: x, y2: extent, color: D3_COLORS.electricBlue, frame: 'original' },
+        // Moving frame
+        {
+            x1: x - extent / cosAngle * cosAngle,
+            y1: ct - extent / cosAngle * sinAngle,
+            x2: x + extent / cosAngle * cosAngle,
+            y2: ct + extent / cosAngle * sinAngle,
+            color: D3_COLORS.quantumGreen,
+            frame: 'moving'
+        },
+        {
+            x1: x - extent / cosAngle * sinAngle,
+            y1: ct - extent / cosAngle * cosAngle,
+            x2: x + extent / cosAngle * sinAngle,
+            y2: ct + extent / cosAngle * cosAngle,
+            color: D3_COLORS.quantumGreen,
+            frame: 'moving'
+        }
+    ];
+
+    const lines = simGroup.selectAll('line')
+        .data(lineData)
+        .join('line')
+        .attr('stroke', d => `${d.color}${D3_COLORS.simultaneity}`)
+        .attr('stroke-width', 1.5)
+        .attr('stroke-dasharray', '3,3');
+
+    if (withTransition) {
+        lines.transition().duration(600).ease(easeCubicInOut)
+            .attr('x1', d => scales.xScale(d.x1))
+            .attr('y1', d => scales.yScale(d.y1))
+            .attr('x2', d => scales.xScale(d.x2))
+            .attr('y2', d => scales.yScale(d.y2));
+    } else {
+        lines.attr('x1', d => scales.xScale(d.x1))
+            .attr('y1', d => scales.yScale(d.y1))
+            .attr('x2', d => scales.xScale(d.x2))
+            .attr('y2', d => scales.yScale(d.y2));
+    }
+}
+
+/**
+ * Render events and interval line
+ */
+function renderEvents(
+    svg: Selection<SVGSVGElement, unknown, null, undefined>,
+    scales: ScaleSet,
+    data: MinkowskiData,
+    withTransition: boolean
+): void {
+    const ct = data.time * C;
+    const x = data.distance;
+
+    // Interval line
+    const intervalGroup = svg.select('g.interval');
+    if (ct !== 0 || x !== 0) {
+        const intervalLine = intervalGroup.selectAll('line')
+            .data([{ x1: 0, y1: 0, x2: x, y2: ct }])
+            .join('line')
+            .attr('stroke', D3_COLORS.plasmaWhite)
+            .attr('stroke-width', 3);
+
+        if (withTransition) {
+            intervalLine.transition().duration(600).ease(easeCubicInOut)
+                .attr('x1', d => scales.xScale(d.x1))
+                .attr('y1', d => scales.yScale(d.y1))
+                .attr('x2', d => scales.xScale(d.x2))
+                .attr('y2', d => scales.yScale(d.y2));
+        } else {
+            intervalLine.attr('x1', d => scales.xScale(d.x1))
+                .attr('y1', d => scales.yScale(d.y1))
+                .attr('x2', d => scales.xScale(d.x2))
+                .attr('y2', d => scales.yScale(d.y2));
+        }
+    } else {
+        intervalGroup.selectAll('line').remove();
+    }
+
+    // Event points
+    const eventsGroup = svg.select('g.events');
+
+    // Determine event color
+    let eventColor = D3_COLORS.plasmaWhite;
+    if (data.intervalType === 'timelike') {
+        eventColor = D3_COLORS.timelike;
+    } else if (data.intervalType === 'spacelike') {
+        eventColor = D3_COLORS.spacelike;
+    } else if (data.intervalType === 'lightlike') {
+        eventColor = D3_COLORS.lightlike;
+    }
+
+    const eventData = [
+        { x: 0, y: 0, color: D3_COLORS.plasmaWhite, radius: 8, label: 'Origin' },
+        { x: x, y: ct, color: eventColor, radius: 8, label: 'Event' }
+    ];
+
+    const events = eventsGroup.selectAll('circle')
+        .data(eventData)
+        .join('circle')
+        .attr('r', d => d.radius)
+        .attr('fill', d => d.color)
+        .style('cursor', 'help');
+
+    if (withTransition) {
+        events.transition().duration(600).ease(easeCubicInOut)
+            .attr('cx', d => scales.xScale(d.x))
+            .attr('cy', d => scales.yScale(d.y));
+    } else {
+        events.attr('cx', d => scales.xScale(d.x))
+            .attr('cy', d => scales.yScale(d.y));
+    }
+}
+
+/**
+ * Render labels
+ */
+function renderLabels(
+    svg: Selection<SVGSVGElement, unknown, null, undefined>,
+    scales: ScaleSet,
+    data: MinkowskiData,
+    withTransition: boolean
+): void {
+    const ct = data.time * C;
+    const x = data.distance;
+    const beta = data.velocity;
+    const gamma = 1 / Math.sqrt(1 - beta * beta);
+    const ctPrime = gamma * (ct - beta * x);
+    const xPrime = gamma * (x - beta * ct);
+
+    const labelsGroup = svg.select('g.labels');
+
+    const labelData = [
+        {
+            text: 'Origin',
+            x: 0,
+            y: 0,
+            dx: 10,
+            dy: -10,
+            color: D3_COLORS.plasmaWhite,
+            class: 'label'
+        }
+    ];
+
+    if (ct !== 0 || x !== 0) {
+        labelData.push({
+            text: `(ct=${formatCoordinate(ct)}, x=${formatCoordinate(x)})`,
+            x: x,
+            y: ct,
+            dx: 12,
+            dy: -25,
+            color: D3_COLORS.electricBlue,
+            class: 'label'
+        });
+        labelData.push({
+            text: `(ct'=${formatCoordinate(ctPrime)}, x'=${formatCoordinate(xPrime)})`,
+            x: x,
+            y: ct,
+            dx: 12,
+            dy: -8,
+            color: D3_COLORS.quantumGreen,
+            class: 'label'
+        });
+    }
+
+    const labels = labelsGroup.selectAll('text')
+        .data(labelData)
+        .join('text')
+        .attr('class', d => d.class)
+        .attr('fill', d => d.color)
+        .attr('text-anchor', 'start')
+        .text(d => d.text);
+
+    if (withTransition) {
+        labels.transition().duration(600).ease(easeCubicInOut)
+            .attr('x', d => scales.xScale(d.x) + d.dx)
+            .attr('y', d => scales.yScale(d.y) + d.dy);
+    } else {
+        labels.attr('x', d => scales.xScale(d.x) + d.dx)
+            .attr('y', d => scales.yScale(d.y) + d.dy);
+    }
+
+    // Causal indicator (bottom of diagram)
+    const size = 900;
+    const causalData = (ct !== 0 || x !== 0) ? [{
+        type: data.intervalType,
+        y: size - 35
+    }] : [];
+
+    const causalIndicator = labelsGroup.selectAll('text.causal')
+        .data(causalData)
+        .join('text')
+        .attr('class', 'causal header')
+        .attr('x', 15)
+        .attr('y', d => d.y);
+
+    causalIndicator.each(function(d) {
+        const elem = select(this);
+        elem.selectAll('tspan').remove();
+
+        if (d.type === 'timelike') {
+            elem.attr('fill', D3_COLORS.timelike);
+            elem.append('tspan').text('✓ CAUSALLY CONNECTED');
+            elem.append('tspan')
+                .attr('x', 15)
+                .attr('dy', '1.2em')
+                .attr('font-size', '13px')
+                .attr('font-weight', 'normal')
+                .text('(Event inside light cone)');
+        } else if (d.type === 'spacelike') {
+            elem.attr('fill', D3_COLORS.spacelike);
+            elem.append('tspan').text('✗ NOT CAUSALLY CONNECTED');
+            elem.append('tspan')
+                .attr('x', 15)
+                .attr('dy', '1.2em')
+                .attr('font-size', '13px')
+                .attr('font-weight', 'normal')
+                .text('(Event outside light cone)');
+        } else {
+            elem.attr('fill', D3_COLORS.lightlike);
+            elem.append('tspan').text('⚡ ON LIGHT CONE');
+            elem.append('tspan')
+                .attr('x', 15)
+                .attr('dy', '1.2em')
+                .attr('font-size', '13px')
+                .attr('font-weight', 'normal')
+                .text('(Connected by light signal)');
+        }
+    });
+}
