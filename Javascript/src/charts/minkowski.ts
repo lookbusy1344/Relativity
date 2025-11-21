@@ -959,3 +959,139 @@ function renderLabels(
         }
     });
 }
+
+/**
+ * Setup tooltip system
+ */
+function setupTooltips(
+    svg: Selection<SVGSVGElement, unknown, null, undefined>,
+    container: HTMLElement
+): TooltipController {
+    // Create tooltip div
+    const tooltip = select(container)
+        .append('div')
+        .attr('class', 'minkowski-tooltip')
+        .style('position', 'absolute')
+        .style('background', D3_COLORS.tooltipBg)
+        .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
+        .style('padding', '8px 12px')
+        .style('border-radius', '4px')
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '12px')
+        .style('color', D3_COLORS.plasmaWhite)
+        .style('pointer-events', 'none')
+        .style('opacity', '0')
+        .style('z-index', '1000')
+        .style('box-shadow', `0 0 15px ${D3_COLORS.tooltipBorder}80`)
+        .style('transition', 'opacity 200ms');
+
+    let hideTimeout: number | undefined;
+
+    // Add hover handlers to axes
+    svg.selectAll('g.axes line').on('mouseenter', function(event) {
+        const d = select(this).datum() as any;
+        const axisName = d.axis === 'ct' ? 'ct axis - Original Frame (time)' :
+                        d.axis === 'x' ? 'x axis - Original Frame (space)' :
+                        d.axis === 'ct\'' ? 'ct\' axis - Moving Frame (time)' :
+                        'x\' axis - Moving Frame (space)';
+
+        tooltip.html(axisName)
+            .style('left', `${event.pageX + 10}px`)
+            .style('top', `${event.pageY + 10}px`)
+            .style('opacity', '1');
+    }).on('mouseleave', () => {
+        tooltip.style('opacity', '0');
+    });
+
+    // Add hover handlers to events
+    svg.selectAll('g.events circle').on('mouseenter', function(event, d: any) {
+        const content = d.label === 'Origin'
+            ? 'Event 1: Origin (0, 0)'
+            : `Event 2: ${select(svg.selectAll('g.labels text').nodes()[1]).text()}<br>${select(svg.selectAll('g.labels text').nodes()[2]).text()}`;
+
+        tooltip.html(content)
+            .style('left', `${event.pageX + 10}px`)
+            .style('top', `${event.pageY + 10}px`)
+            .style('opacity', '1');
+    }).on('mouseleave', () => {
+        tooltip.style('opacity', '0');
+    });
+
+    // Add hover handlers to light cones
+    svg.selectAll('g.light-cones line').on('mouseenter', function(event) {
+        const d = select(this).datum() as any;
+        const content = d.from === 'origin'
+            ? 'Light cone from origin'
+            : 'Light cone from event';
+
+        tooltip.html(content)
+            .style('left', `${event.pageX + 10}px`)
+            .style('top', `${event.pageY + 10}px`)
+            .style('opacity', '1');
+    }).on('mouseleave', () => {
+        tooltip.style('opacity', '0');
+    });
+
+    // Touch support for mobile
+    let touchedElement: any = null;
+
+    svg.on('touchstart', function(event) {
+        event.preventDefault();
+        const touch = event.touches[0];
+        const target = select(event.target as any);
+
+        if (touchedElement === event.target) {
+            // Second tap - hide tooltip
+            tooltip.style('opacity', '0');
+            touchedElement = null;
+        } else {
+            // First tap - show tooltip
+            touchedElement = event.target;
+
+            let content = '';
+            if (target.node()?.tagName === 'line' && target.node()?.parentElement?.classList.contains('axes')) {
+                const d = target.datum() as any;
+                content = d.axis === 'ct' ? 'ct axis - Original Frame (time)' :
+                         d.axis === 'x' ? 'x axis - Original Frame (space)' :
+                         d.axis === 'ct\'' ? 'ct\' axis - Moving Frame (time)' :
+                         'x\' axis - Moving Frame (space)';
+            } else if (target.node()?.tagName === 'circle') {
+                const d = target.datum() as any;
+                content = d.label === 'Origin' ? 'Event 1: Origin (0, 0)' : 'Event 2';
+            } else if (target.node()?.tagName === 'line' && target.node()?.parentElement?.classList.contains('light-cones')) {
+                const d = target.datum() as any;
+                content = d.from === 'origin' ? 'Light cone from origin' : 'Light cone from event';
+            }
+
+            if (content) {
+                tooltip.html(content)
+                    .style('left', `${touch.pageX + 10}px`)
+                    .style('top', `${touch.pageY + 10}px`)
+                    .style('opacity', '1');
+
+                // Auto-hide after 3 seconds
+                clearTimeout(hideTimeout);
+                hideTimeout = window.setTimeout(() => {
+                    tooltip.style('opacity', '0');
+                    touchedElement = null;
+                }, 3000);
+            }
+        }
+    });
+
+    return {
+        show(content: string, x: number, y: number) {
+            tooltip.html(content)
+                .style('left', `${x}px`)
+                .style('top', `${y}px`)
+                .style('opacity', '1');
+        },
+        hide() {
+            tooltip.style('opacity', '0');
+        },
+        destroy() {
+            clearTimeout(hideTimeout);
+            tooltip.remove();
+        }
+    };
+}
