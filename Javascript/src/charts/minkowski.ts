@@ -40,8 +40,8 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     const ctPrime = gamma * (ct - beta * x);
     const xPrime = gamma * (x - beta * ct);
 
-    // Calculate scale to fit all coordinates with 30% padding for labels
-    const maxCoord = Math.max(Math.abs(ct), Math.abs(x), Math.abs(ctPrime), Math.abs(xPrime)) * 1.3;
+    // Calculate scale to fit all coordinates with 40% padding for labels and legend
+    const maxCoord = Math.max(Math.abs(ct), Math.abs(x), Math.abs(ctPrime), Math.abs(xPrime)) * 1.4;
     const scale = (size / 2) / maxCoord;
 
     // Helper function to convert spacetime coords to canvas coords
@@ -102,6 +102,7 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
 
     // Draw original frame axes (orthogonal) - VERY PROMINENT
     ctx.strokeStyle = COLORS.cyan;
+    ctx.fillStyle = COLORS.cyan;
     ctx.lineWidth = 4;
 
     // ct axis (vertical)
@@ -110,8 +111,8 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     const [ctX2, ctY2] = toCanvas(0, extent);
     ctx.moveTo(ctX1, ctY1);
     ctx.lineTo(ctX2, ctY2);
-    drawArrow(ctx, ctX2, ctY2, 0, -1);
     ctx.stroke();
+    drawArrow(ctx, ctX2, ctY2, 0, -1);
 
     // x axis (horizontal)
     ctx.beginPath();
@@ -119,22 +120,14 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     const [xX2, xY2] = toCanvas(extent, 0);
     ctx.moveTo(xX1, xY1);
     ctx.lineTo(xX2, xY2);
-    drawArrow(ctx, xX2, xY2, 1, 0);
     ctx.stroke();
+    drawArrow(ctx, xX2, xY2, 1, 0);
 
-    // Axis labels for original frame - LARGER and better positioned
-    ctx.fillStyle = COLORS.cyan;
-    ctx.font = 'bold 16px "IBM Plex Mono", monospace';
-    // Position labels at a reasonable distance from center, not at the extreme ends
-    const labelDist = extent * 0.75;
-    const [ctLabelX, ctLabelY] = toCanvas(0, labelDist);
-    const [xLabelX, xLabelY] = toCanvas(labelDist, 0);
-    ctx.fillText('ct', ctLabelX + 15, ctLabelY);
-    ctx.fillText('x', xLabelX - 10, xLabelY + 25);
-    ctx.font = '13px "IBM Plex Mono", monospace';
+    // Note: Axis labels removed - legend now identifies the frames
 
     // Draw transformed frame axes (tilted) - VERY PROMINENT
     ctx.strokeStyle = COLORS.green;
+    ctx.fillStyle = COLORS.green;
     ctx.lineWidth = 4;
 
     const angle = Math.atan(beta);
@@ -148,8 +141,8 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     const [ctpX2, ctpY2] = toCanvas(ctPrimeLength * sinAngle, ctPrimeLength * cosAngle);
     ctx.moveTo(ctpX1, ctpY1);
     ctx.lineTo(ctpX2, ctpY2);
-    drawArrow(ctx, ctpX2, ctpY2, sinAngle, cosAngle);
     ctx.stroke();
+    drawArrow(ctx, ctpX2, ctpY2, sinAngle, cosAngle);
 
     // x' axis (tilted opposite direction)
     ctx.beginPath();
@@ -158,18 +151,10 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     const [xpX2, xpY2] = toCanvas(xPrimeLength * cosAngle, xPrimeLength * sinAngle);
     ctx.moveTo(xpX1, xpY1);
     ctx.lineTo(xpX2, xpY2);
-    drawArrow(ctx, xpX2, xpY2, cosAngle, sinAngle);
     ctx.stroke();
+    drawArrow(ctx, xpX2, xpY2, cosAngle, sinAngle);
 
-    // Axis labels for transformed frame - LARGER and better positioned
-    ctx.fillStyle = COLORS.green;
-    ctx.font = 'bold 16px "IBM Plex Mono", monospace';
-    // Position labels along the tilted axes at reasonable distance
-    const [ctpLabelX, ctpLabelY] = toCanvas(labelDist * sinAngle, labelDist * cosAngle);
-    const [xpLabelX, xpLabelY] = toCanvas(labelDist * cosAngle, labelDist * sinAngle);
-    ctx.fillText("ct'", ctpLabelX + 15, ctpLabelY);
-    ctx.fillText("x'", xpLabelX - 15, xpLabelY + 25);
-    ctx.font = '13px "IBM Plex Mono", monospace';
+    // Note: Transformed axis labels removed - legend now identifies the frames
 
     // Draw simultaneity and position lines if event is not at origin
     if (ct !== 0 || x !== 0) {
@@ -247,6 +232,65 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     ctx.beginPath();
     ctx.arc(eventX, eventY, 8, 0, 2 * Math.PI);
     ctx.fill();
+
+    // Draw legend with background
+    const legendX = 15;
+    const legendY = 30;
+    const lineHeight = 25;
+    const legendWidth = 250;
+    const legendHeight = 120;
+
+    // Semi-transparent background for legend
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(legendX - 8, legendY - 22, legendWidth, legendHeight);
+
+    ctx.font = 'bold 15px "IBM Plex Mono", monospace';
+    ctx.fillStyle = COLORS.white;
+    ctx.fillText('LEGEND', legendX, legendY);
+
+    ctx.font = '14px "IBM Plex Mono", monospace';
+
+    // Original frame - thick cyan line
+    ctx.strokeStyle = COLORS.cyan;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(legendX, legendY + 8 + lineHeight * 0.5);
+    ctx.lineTo(legendX + 35, legendY + 8 + lineHeight * 0.5);
+    ctx.stroke();
+    ctx.fillStyle = COLORS.cyan;
+    ctx.fillText('Original frame (ct, x)', legendX + 45, legendY + 12 + lineHeight * 0.5);
+
+    // Moving frame - thick green line
+    ctx.strokeStyle = COLORS.green;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(legendX, legendY + 8 + lineHeight * 1.5);
+    ctx.lineTo(legendX + 35, legendY + 8 + lineHeight * 1.5);
+    ctx.stroke();
+    ctx.fillStyle = COLORS.green;
+    ctx.fillText("Moving frame (ct', x')", legendX + 45, legendY + 12 + lineHeight * 1.5);
+
+    // Light cones - amber dashed
+    ctx.strokeStyle = COLORS.amber + '80';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(legendX, legendY + 8 + lineHeight * 2.5);
+    ctx.lineTo(legendX + 35, legendY + 8 + lineHeight * 2.5);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = COLORS.amber;
+    ctx.fillText('Light cones (c)', legendX + 45, legendY + 12 + lineHeight * 2.5);
+
+    // Interval line - white solid
+    ctx.strokeStyle = COLORS.white;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(legendX, legendY + 8 + lineHeight * 3.5);
+    ctx.lineTo(legendX + 35, legendY + 8 + lineHeight * 3.5);
+    ctx.stroke();
+    ctx.fillStyle = COLORS.white;
+    ctx.fillText('Spacetime interval', legendX + 45, legendY + 12 + lineHeight * 3.5);
 
     // Draw coordinate labels
     ctx.font = '12px "IBM Plex Mono", monospace';
