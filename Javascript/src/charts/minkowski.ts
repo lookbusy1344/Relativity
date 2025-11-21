@@ -430,3 +430,129 @@ function createScales(data: MinkowskiData, size: number): ScaleSet {
         maxCoord
     };
 }
+
+/**
+ * Setup or select SVG element with proper structure
+ */
+function setupSVG(container: HTMLElement): Selection<SVGSVGElement, unknown, null, undefined> {
+    const size = 900;
+
+    // Remove existing SVG if present
+    select(container).select('svg').remove();
+
+    // Create new SVG with viewBox
+    const svg = select(container)
+        .append('svg')
+        .attr('viewBox', `0 0 ${size} ${size}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('width', '100%')
+        .style('height', 'auto')
+        .style('display', 'block');
+
+    // Add style block for text
+    svg.append('defs')
+        .append('style')
+        .text(`
+            text {
+                font-family: 'IBM Plex Mono', monospace;
+                user-select: none;
+                pointer-events: none;
+            }
+            text.label { font-size: 13px; }
+            text.header { font-size: 15px; font-weight: bold; }
+            text.secondary { font-size: 11px; }
+
+            @media (max-width: 768px) {
+                text.label { font-size: 12px; }
+                text.header { font-size: 14px; }
+            }
+
+            @media (max-width: 480px) {
+                text.label { font-size: 11px; }
+                text.header { font-size: 13px; }
+                text.secondary { display: none; }
+            }
+        `);
+
+    // Add gradient definitions
+    const defs = svg.select('defs');
+
+    // Gradient for original frame axis
+    defs.append('linearGradient')
+        .attr('id', 'axisGradientBlue')
+        .attr('x1', '0%').attr('y1', '0%')
+        .attr('x2', '0%').attr('y2', '100%')
+        .selectAll('stop')
+        .data([
+            { offset: '0%', color: D3_COLORS.electricBlue, opacity: 0.3 },
+            { offset: '50%', color: D3_COLORS.electricBlue, opacity: 1 },
+            { offset: '100%', color: D3_COLORS.electricBlue, opacity: 0.3 }
+        ])
+        .join('stop')
+        .attr('offset', d => d.offset)
+        .attr('stop-color', d => d.color)
+        .attr('stop-opacity', d => d.opacity);
+
+    // Gradient for moving frame axis
+    defs.append('linearGradient')
+        .attr('id', 'axisGradientGreen')
+        .attr('x1', '0%').attr('y1', '0%')
+        .attr('x2', '0%').attr('y2', '100%')
+        .selectAll('stop')
+        .data([
+            { offset: '0%', color: D3_COLORS.quantumGreen, opacity: 0.3 },
+            { offset: '50%', color: D3_COLORS.quantumGreen, opacity: 1 },
+            { offset: '100%', color: D3_COLORS.quantumGreen, opacity: 0.3 }
+        ])
+        .join('stop')
+        .attr('offset', d => d.offset)
+        .attr('stop-color', d => d.color)
+        .attr('stop-opacity', d => d.opacity);
+
+    // Glow filter for interactive elements
+    const filter = defs.append('filter')
+        .attr('id', 'glow')
+        .attr('x', '-50%').attr('y', '-50%')
+        .attr('width', '200%').attr('height', '200%');
+
+    filter.append('feGaussianBlur')
+        .attr('stdDeviation', '3')
+        .attr('result', 'coloredBlur');
+
+    const feMerge = filter.append('feMerge');
+    feMerge.append('feMergeNode').attr('in', 'coloredBlur');
+    feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+    // Arrow marker for axes
+    defs.append('marker')
+        .attr('id', 'arrowBlue')
+        .attr('viewBox', '0 0 10 10')
+        .attr('refX', '5').attr('refY', '5')
+        .attr('markerWidth', '6').attr('markerHeight', '6')
+        .attr('orient', 'auto-start-reverse')
+        .append('path')
+        .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+        .attr('fill', D3_COLORS.electricBlue);
+
+    defs.append('marker')
+        .attr('id', 'arrowGreen')
+        .attr('viewBox', '0 0 10 10')
+        .attr('refX', '5').attr('refY', '5')
+        .attr('markerWidth', '6').attr('markerHeight', '6')
+        .attr('orient', 'auto-start-reverse')
+        .append('path')
+        .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+        .attr('fill', D3_COLORS.quantumGreen);
+
+    // Create layer groups
+    svg.append('g').attr('class', 'background');
+    svg.append('g').attr('class', 'light-cones');
+    svg.append('g').attr('class', 'simultaneity-lines');
+    svg.append('g').attr('class', 'axes');
+    svg.append('g').attr('class', 'interval');
+    svg.append('g').attr('class', 'events');
+    svg.append('g').attr('class', 'labels');
+    svg.append('g').attr('class', 'controls');
+
+    return svg;
+}
