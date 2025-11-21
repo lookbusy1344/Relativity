@@ -109,4 +109,5 @@ Run configurations are stored in `.idea/runConfigurations/`:
 - **TypeScript** - ES2015 with strict type checking
 - **Vite** - Development server with hot module replacement
 - **Decimal.js** - Prevents floating-point precision errors in physics calculations
+- **Bootstrap** - Removed
 - **Modern ES Modules** - Clean, modular code organization
