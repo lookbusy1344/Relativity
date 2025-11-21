@@ -61,11 +61,36 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
 
     const extent = maxCoord;
 
-    // Draw light cone lines (45° diagonals)
-    ctx.strokeStyle = COLORS.amber + '60'; // Semi-transparent
+    // Draw light cone from origin with shaded causal regions
+    ctx.strokeStyle = COLORS.amber + '60';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
 
+    // Shade the interior of the light cone to show causally connected region
+    if (ct !== 0 || x !== 0) {
+        ctx.fillStyle = COLORS.amber + '15'; // Very subtle shading
+        ctx.beginPath();
+        const [lc1, lc1y] = toCanvas(-extent, -extent);
+        const [lc2, lc2y] = toCanvas(extent, extent);
+        const [lc3, lc3y] = toCanvas(extent, -extent);
+        const [lc4, lc4y] = toCanvas(-extent, extent);
+        // Draw future light cone
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(lc2, lc2y);
+        ctx.lineTo(lc4, lc4y);
+        ctx.closePath();
+        ctx.fill();
+        // Draw past light cone
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(lc1, lc1y);
+        ctx.lineTo(lc3, lc3y);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Draw light cone lines
+    ctx.strokeStyle = COLORS.amber + '60';
     ctx.beginPath();
     const [lcX1, lcY1] = toCanvas(-extent, -extent);
     const [lcX2, lcY2] = toCanvas(extent, extent);
@@ -291,6 +316,29 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     ctx.stroke();
     ctx.fillStyle = COLORS.white;
     ctx.fillText('Spacetime interval', legendX + 45, legendY + 12 + lineHeight * 3.5);
+
+    // Draw causal relationship indicator
+    if (ct !== 0 || x !== 0) {
+        const causalY = size - 35;
+        ctx.font = 'bold 15px "IBM Plex Mono", monospace';
+
+        if (data.intervalType === 'timelike') {
+            ctx.fillStyle = COLORS.cyan;
+            ctx.fillText('✓ CAUSALLY CONNECTED', 15, causalY);
+            ctx.font = '13px "IBM Plex Mono", monospace';
+            ctx.fillText('(Event inside light cone)', 15, causalY + 18);
+        } else if (data.intervalType === 'spacelike') {
+            ctx.fillStyle = COLORS.amber;
+            ctx.fillText('✗ NOT CAUSALLY CONNECTED', 15, causalY);
+            ctx.font = '13px "IBM Plex Mono", monospace';
+            ctx.fillText('(Event outside light cone)', 15, causalY + 18);
+        } else {
+            ctx.fillStyle = COLORS.white;
+            ctx.fillText('⚡ ON LIGHT CONE', 15, causalY);
+            ctx.font = '13px "IBM Plex Mono", monospace';
+            ctx.fillText('(Connected by light signal)', 15, causalY + 18);
+        }
+    }
 
     // Draw coordinate labels
     ctx.font = '12px "IBM Plex Mono", monospace';
