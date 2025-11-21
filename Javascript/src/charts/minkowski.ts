@@ -19,8 +19,12 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size (responsive)
-    const size = Math.min(600, canvas.parentElement?.clientWidth || 600);
+    // Set canvas size (responsive) - get actual display size and set canvas resolution
+    const rect = canvas.getBoundingClientRect();
+    const displayWidth = rect.width;
+    const size = Math.min(900, displayWidth || 900);
+
+    // Set canvas resolution to match display size for crisp rendering
     canvas.width = size;
     canvas.height = size;
 

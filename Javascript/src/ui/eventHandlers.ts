@@ -260,7 +260,8 @@ export function createSpacetimeIntervalHandler(
     getResultType: () => HTMLElement | null,
     getResultDeltaT: () => HTMLElement | null,
     getResultDeltaX: () => HTMLElement | null,
-    getCanvas: () => HTMLCanvasElement | null
+    getCanvas: () => HTMLCanvasElement | null,
+    onDiagramDrawn?: (canvas: HTMLCanvasElement, data: MinkowskiData) => void
 ): () => void {
     return () => {
         const time2Input = getTime2Input();
@@ -346,6 +347,11 @@ export function createSpacetimeIntervalHandler(
             };
 
             drawMinkowskiDiagram(canvas, diagramData);
+
+            // Notify caller that diagram was drawn (for resize handling)
+            if (onDiagramDrawn) {
+                onDiagramDrawn(canvas, diagramData);
+            }
         }
     };
 }

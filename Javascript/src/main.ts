@@ -13,12 +13,22 @@ import {
 } from './ui/eventHandlers';
 import { generateVisualizationChartData } from './charts/dataGeneration';
 import { updateVisualizationCharts, type ChartRegistry } from './charts/charts';
+import { drawMinkowskiDiagram, type MinkowskiData } from './charts/minkowski';
 
 // Register Chart.js components
 Chart.register(...registerables);
 
 document.addEventListener('DOMContentLoaded', () => {
     const chartRegistry: { current: ChartRegistry } = { current: new Map() };
+
+    // Store last Minkowski diagram data for resize handling
+    const minkowskiState: {
+        lastData: MinkowskiData | null,
+        canvas: HTMLCanvasElement | null
+    } = {
+        lastData: null,
+        canvas: null
+    };
 
     // Lorentz factor from velocity
     getButtonElement('lorentzButton')?.addEventListener('click',
@@ -113,7 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getResultElement('resultSpacetimeType'),
             () => getResultElement('resultSpacetimeDeltaT'),
             () => getResultElement('resultSpacetimeDeltaX'),
-            () => document.getElementById('minkowskiCanvas') as HTMLCanvasElement
+            () => document.getElementById('minkowskiCanvas') as HTMLCanvasElement,
+            (canvas, data) => {
+                // Store for resize handling
+                minkowskiState.canvas = canvas;
+                minkowskiState.lastData = data;
+            }
         )
     );
 
@@ -138,10 +153,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleResize = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = window.setTimeout(() => {
-            // Resize all charts in the registry
+            // Resize all Chart.js charts in the registry
             chartRegistry.current.forEach(chart => {
                 chart.resize();
             });
+
+            // Redraw Minkowski diagram if it exists
+            if (minkowskiState.canvas && minkowskiState.lastData) {
+                drawMinkowskiDiagram(minkowskiState.canvas, minkowskiState.lastData);
+            }
         }, 700);
     };
 
