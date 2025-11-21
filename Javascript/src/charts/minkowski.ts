@@ -5,10 +5,10 @@ import { select, Selection } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 // @ts-expect-error - Imports will be used in subsequent tasks
 import { transition } from 'd3-transition';
-// @ts-expect-error - Imports will be used in subsequent tasks
 import { easeCubicInOut } from 'd3-ease';
-// @ts-expect-error - Imports will be used in subsequent tasks
-import { timer, Timer } from 'd3-timer';
+// @ts-expect-error - timer will be used in subsequent tasks
+import { timer } from 'd3-timer';
+import type { Timer } from 'd3-timer';
 // Imports will be used in subsequent tasks
 import { COLORS as D3_COLORS } from './minkowski-colors';
 import type {
@@ -376,7 +376,6 @@ const C = 299792.458; // km/s
 /**
  * Debounce helper for resize events
  */
-// @ts-expect-error - Will be used in subsequent tasks
 function debounce<T extends (...args: any[]) => any>(
     func: T,
     wait: number
@@ -402,7 +401,6 @@ function formatCoordinateD3(value: number): string {
 /**
  * Create coordinate scales for spacetime diagram
  */
-// @ts-expect-error - Will be used in subsequent tasks
 function createScales(data: MinkowskiData, size: number): ScaleSet {
     const ct = data.time * C;
     const x = data.distance;
@@ -1125,6 +1123,7 @@ export function drawMinkowskiDiagramD3(
 
     // Animation state
     let animationTimer: Timer | null = null;
+    // @ts-expect-error - For future feature (frame animation)
     let isPlaying = true;
 
     // TODO: Add auto-play frame animation in next task
@@ -1157,7 +1156,7 @@ export function drawMinkowskiDiagramD3(
         pause() {
             isPlaying = false;
             if (animationTimer) {
-                animationTimer.stop();
+                (animationTimer as Timer).stop();
             }
         },
 
@@ -1170,7 +1169,7 @@ export function drawMinkowskiDiagramD3(
             window.removeEventListener('resize', resizeHandler);
             tooltips.destroy();
             if (animationTimer) {
-                animationTimer.stop();
+                (animationTimer as Timer).stop();
             }
             svg.remove();
         }
