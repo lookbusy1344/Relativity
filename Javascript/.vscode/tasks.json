@@ -41,7 +41,7 @@
         {
             "label": "kill-vite",
             "type": "shell",
-            "command": "echo ${input:terminate}",
+            "command": "lsof -ti:5173 | xargs kill -9 2>/dev/null || true",
             "problemMatcher": []
         },
         {
@@ -57,14 +57,6 @@
                 "panel": "new"
             },
             "problemMatcher": []
-        }
-    ],
-    "inputs": [
-        {
-            "id": "terminate",
-            "type": "command",
-            "command": "workbench.action.tasks.terminate",
-            "args": "start-vite"
         }
     ]
 }

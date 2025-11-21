@@ -6,7 +6,9 @@
       "request": "launch",
       "name": "Launch Chrome",
       "url": "http://localhost:5173",
-      "webRoot": "${workspaceFolder}"
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "start-vite",
+      "postDebugTask": "kill-vite"
     },
     {
       "type": "msedge",
@@ -31,7 +33,7 @@
       "type": "vscode-edge-devtools.debug",
       "name": "Open Edge DevTools",
       "request": "attach",
-      "url": "http://localhost:5500",
+      "url": "http://localhost:5173",
       "presentation": {
         "hidden": true
       }
