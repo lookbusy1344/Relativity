@@ -804,7 +804,7 @@ function renderEvents(
     const eventsGroup = svg.select('g.events');
 
     // Determine event color
-    let eventColor = D3_COLORS.plasmaWhite;
+    let eventColor: string = D3_COLORS.plasmaWhite;
     if (data.intervalType === 'timelike') {
         eventColor = D3_COLORS.timelike;
     } else if (data.intervalType === 'spacelike') {
@@ -853,7 +853,15 @@ function renderLabels(
 
     const labelsGroup = svg.select('g.labels');
 
-    const labelData = [
+    const labelData: Array<{
+        text: string;
+        x: number;
+        y: number;
+        dx: number;
+        dy: number;
+        color: string;
+        class: string;
+    }> = [
         {
             text: 'Origin',
             x: 0,
