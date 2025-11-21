@@ -3,6 +3,7 @@
     <browser url="http://localhost:5173" family="CHROME" />
     <method v="2">
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="Kill Chrome" run_configuration_type="ShellConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Wait for Vite" run_configuration_type="ShellConfigurationType" />
     </method>
   </configuration>
 </component>

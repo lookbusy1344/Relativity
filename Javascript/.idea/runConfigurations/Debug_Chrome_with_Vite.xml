@@ -1,8 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Debug Chrome with Vite" type="CompoundRunConfigurationType">
-    <toRun name="Kill Chrome" type="ShellConfigurationType" />
     <toRun name="Dev Server" type="js.build_tools.npm" />
-    <toRun name="Wait for Vite" type="ShellConfigurationType" />
     <toRun name="Debug in Chrome" type="JavascriptDebugType" />
     <method v="2" />
   </configuration>
