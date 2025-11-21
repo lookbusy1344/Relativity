@@ -125,10 +125,10 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
 
     ctx.setLineDash([]);
 
-    // Draw original frame axes (orthogonal) - VERY PROMINENT
+    // Draw original frame axes (orthogonal)
     ctx.strokeStyle = COLORS.cyan;
     ctx.fillStyle = COLORS.cyan;
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
 
     // ct axis (vertical)
     ctx.beginPath();
@@ -150,10 +150,10 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
 
     // Note: Axis labels removed - legend now identifies the frames
 
-    // Draw transformed frame axes (tilted) - VERY PROMINENT
+    // Draw transformed frame axes (tilted)
     ctx.strokeStyle = COLORS.green;
     ctx.fillStyle = COLORS.green;
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
 
     const angle = Math.atan(beta);
     const cosAngle = Math.cos(angle);
@@ -275,9 +275,9 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
 
     ctx.font = '14px "IBM Plex Mono", monospace';
 
-    // Original frame - thick cyan line
+    // Original frame - cyan line
     ctx.strokeStyle = COLORS.cyan;
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(legendX, legendY + 8 + lineHeight * 0.5);
     ctx.lineTo(legendX + 35, legendY + 8 + lineHeight * 0.5);
@@ -285,9 +285,9 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     ctx.fillStyle = COLORS.cyan;
     ctx.fillText('Original frame (ct, x)', legendX + 45, legendY + 12 + lineHeight * 0.5);
 
-    // Moving frame - thick green line
+    // Moving frame - green line
     ctx.strokeStyle = COLORS.green;
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(legendX, legendY + 8 + lineHeight * 1.5);
     ctx.lineTo(legendX + 35, legendY + 8 + lineHeight * 1.5);
