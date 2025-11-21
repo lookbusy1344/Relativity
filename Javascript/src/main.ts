@@ -112,7 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getResultElement('resultSpacetimeSquared'),
             () => getResultElement('resultSpacetimeType'),
             () => getResultElement('resultSpacetimeDeltaT'),
-            () => getResultElement('resultSpacetimeDeltaX')
+            () => getResultElement('resultSpacetimeDeltaX'),
+            () => document.getElementById('minkowskiCanvas') as HTMLCanvasElement
         )
     );
 

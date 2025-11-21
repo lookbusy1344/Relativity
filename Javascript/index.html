@@ -746,6 +746,10 @@
 					<button class="nav-link" id="conversions-tab" data-bs-toggle="tab"
 						data-bs-target="#conversions" type="button" role="tab">Calc</button>
 				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="spacetime-tab" data-bs-toggle="tab"
+						data-bs-target="#spacetime" type="button" role="tab">Spacetime</button>
+				</li>
 			</ul>
 
 			<div class="tab-content" id="calculatorTabContent">
@@ -1041,8 +1045,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+
 				<!-- Conversions Tab -->
 				<div class="tab-pane fade" id="conversions" role="tabpanel">
 					<div class="calc-section">
@@ -1148,6 +1151,10 @@
 						</div>
 					</div>
 
+				</div>
+
+				<!-- Spacetime Tab -->
+				<div class="tab-pane fade" id="spacetime" role="tabpanel">
 					<div class="calc-section">
 						<div class="calc-label">
 							Spacetime Interval Calculator
@@ -1190,10 +1197,20 @@
 								<div class="result-item-value" id="resultSpacetimeDeltaX">-</div>
 							</div>
 						</div>
+
+						<!-- Minkowski Diagram -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Minkowski Diagram - Dual Reference Frames
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="minkowskiCanvas"></canvas>
+							</div>
+						</div>
 					</div>
 				</div>
-
-	</div>
+			</div>
+		</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script type="module" src="/src/main.ts"></script>
