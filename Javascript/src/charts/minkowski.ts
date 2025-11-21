@@ -40,8 +40,8 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     const ctPrime = gamma * (ct - beta * x);
     const xPrime = gamma * (x - beta * ct);
 
-    // Calculate scale to fit all coordinates with 20% padding
-    const maxCoord = Math.max(Math.abs(ct), Math.abs(x), Math.abs(ctPrime), Math.abs(xPrime)) * 1.2;
+    // Calculate scale to fit all coordinates with 30% padding for labels
+    const maxCoord = Math.max(Math.abs(ct), Math.abs(x), Math.abs(ctPrime), Math.abs(xPrime)) * 1.3;
     const scale = (size / 2) / maxCoord;
 
     // Helper function to convert spacetime coords to canvas coords
@@ -57,14 +57,15 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     ctx.fillRect(0, 0, size, size);
 
     // Set font
-    ctx.font = '12px "IBM Plex Mono", monospace';
+    ctx.font = '13px "IBM Plex Mono", monospace';
+
+    const extent = maxCoord;
 
     // Draw light cone lines (45° diagonals)
-    ctx.strokeStyle = COLORS.amber;
+    ctx.strokeStyle = COLORS.amber + '60'; // Semi-transparent
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
 
-    const extent = maxCoord;
     ctx.beginPath();
     const [lcX1, lcY1] = toCanvas(-extent, -extent);
     const [lcX2, lcY2] = toCanvas(extent, extent);
@@ -79,11 +80,29 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     ctx.lineTo(lcX4, lcY4);
     ctx.stroke();
 
+    // Draw light cone at the event (if not at origin)
+    if (ct !== 0 || x !== 0) {
+        // Light cone through event point
+        ctx.beginPath();
+        const [evlcX1, evlcY1] = toCanvas(x - extent, ct - extent);
+        const [evlcX2, evlcY2] = toCanvas(x + extent, ct + extent);
+        ctx.moveTo(evlcX1, evlcY1);
+        ctx.lineTo(evlcX2, evlcY2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        const [evlcX3, evlcY3] = toCanvas(x - extent, ct + extent);
+        const [evlcX4, evlcY4] = toCanvas(x + extent, ct - extent);
+        ctx.moveTo(evlcX3, evlcY3);
+        ctx.lineTo(evlcX4, evlcY4);
+        ctx.stroke();
+    }
+
     ctx.setLineDash([]);
 
-    // Draw original frame axes (orthogonal)
+    // Draw original frame axes (orthogonal) - VERY PROMINENT
     ctx.strokeStyle = COLORS.cyan;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 4;
 
     // ct axis (vertical)
     ctx.beginPath();
@@ -103,14 +122,20 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     drawArrow(ctx, xX2, xY2, 1, 0);
     ctx.stroke();
 
-    // Axis labels for original frame
+    // Axis labels for original frame - LARGER and better positioned
     ctx.fillStyle = COLORS.cyan;
-    ctx.fillText('ct', ctX2 + 10, ctY2 + 5);
-    ctx.fillText('x', xX2 - 10, xY2 + 20);
+    ctx.font = 'bold 16px "IBM Plex Mono", monospace';
+    // Position labels at a reasonable distance from center, not at the extreme ends
+    const labelDist = extent * 0.75;
+    const [ctLabelX, ctLabelY] = toCanvas(0, labelDist);
+    const [xLabelX, xLabelY] = toCanvas(labelDist, 0);
+    ctx.fillText('ct', ctLabelX + 15, ctLabelY);
+    ctx.fillText('x', xLabelX - 10, xLabelY + 25);
+    ctx.font = '13px "IBM Plex Mono", monospace';
 
-    // Draw transformed frame axes (tilted)
+    // Draw transformed frame axes (tilted) - VERY PROMINENT
     ctx.strokeStyle = COLORS.green;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 4;
 
     const angle = Math.atan(beta);
     const cosAngle = Math.cos(angle);
@@ -136,10 +161,61 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     drawArrow(ctx, xpX2, xpY2, cosAngle, sinAngle);
     ctx.stroke();
 
-    // Axis labels for transformed frame
+    // Axis labels for transformed frame - LARGER and better positioned
     ctx.fillStyle = COLORS.green;
-    ctx.fillText("ct'", ctpX2 + 10, ctpY2 + 5);
-    ctx.fillText("x'", xpX2 - 10, xpY2 + 20);
+    ctx.font = 'bold 16px "IBM Plex Mono", monospace';
+    // Position labels along the tilted axes at reasonable distance
+    const [ctpLabelX, ctpLabelY] = toCanvas(labelDist * sinAngle, labelDist * cosAngle);
+    const [xpLabelX, xpLabelY] = toCanvas(labelDist * cosAngle, labelDist * sinAngle);
+    ctx.fillText("ct'", ctpLabelX + 15, ctpLabelY);
+    ctx.fillText("x'", xpLabelX - 15, xpLabelY + 25);
+    ctx.font = '13px "IBM Plex Mono", monospace';
+
+    // Draw simultaneity and position lines if event is not at origin
+    if (ct !== 0 || x !== 0) {
+        ctx.setLineDash([3, 3]);
+        ctx.lineWidth = 1.5;
+
+        // Original frame: horizontal line through event (line of simultaneity)
+        ctx.strokeStyle = COLORS.cyan + '50'; // Semi-transparent
+        ctx.beginPath();
+        const [simX1, simY1] = toCanvas(-extent, ct);
+        const [simX2, simY2] = toCanvas(extent, ct);
+        ctx.moveTo(simX1, simY1);
+        ctx.lineTo(simX2, simY2);
+        ctx.stroke();
+
+        // Original frame: vertical line through event (line of constant position)
+        ctx.beginPath();
+        const [posX1, posY1] = toCanvas(x, -extent);
+        const [posX2, posY2] = toCanvas(x, extent);
+        ctx.moveTo(posX1, posY1);
+        ctx.lineTo(posX2, posY2);
+        ctx.stroke();
+
+        // Transformed frame: tilted simultaneity line (parallel to x' axis through event)
+        ctx.strokeStyle = COLORS.green + '50'; // Semi-transparent
+        ctx.beginPath();
+        // Points on line parallel to x' axis through (x, ct)
+        const simLength = extent / cosAngle;
+        const [simPX1, simPY1] = toCanvas(x - simLength * cosAngle, ct - simLength * sinAngle);
+        const [simPX2, simPY2] = toCanvas(x + simLength * cosAngle, ct + simLength * sinAngle);
+        ctx.moveTo(simPX1, simPY1);
+        ctx.lineTo(simPX2, simPY2);
+        ctx.stroke();
+
+        // Transformed frame: tilted position line (parallel to ct' axis through event)
+        ctx.beginPath();
+        // Points on line parallel to ct' axis through (x, ct)
+        const posPrimeLength = extent / cosAngle;
+        const [posPX1, posPY1] = toCanvas(x - posPrimeLength * sinAngle, ct - posPrimeLength * cosAngle);
+        const [posPX2, posPY2] = toCanvas(x + posPrimeLength * sinAngle, ct + posPrimeLength * cosAngle);
+        ctx.moveTo(posPX1, posPY1);
+        ctx.lineTo(posPX2, posPY2);
+        ctx.stroke();
+
+        ctx.setLineDash([]);
+    }
 
     // Draw interval line
     if (ct !== 0 || x !== 0) {
@@ -152,11 +228,11 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
         ctx.stroke();
     }
 
-    // Draw events
+    // Draw events - LARGER
     // Origin
     ctx.fillStyle = COLORS.white;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
     ctx.fill();
 
     // Event 2 (color-coded by interval type)
@@ -169,27 +245,34 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
         ctx.fillStyle = COLORS.white;
     }
     ctx.beginPath();
-    ctx.arc(eventX, eventY, 6, 0, 2 * Math.PI);
+    ctx.arc(eventX, eventY, 8, 0, 2 * Math.PI);
     ctx.fill();
 
     // Draw coordinate labels
-    ctx.fillStyle = COLORS.white;
-    ctx.font = '11px "IBM Plex Mono", monospace';
+    ctx.font = '12px "IBM Plex Mono", monospace';
 
     // Origin label
-    ctx.fillText('(0, 0)', centerX + 10, centerY - 10);
+    ctx.fillStyle = COLORS.white;
+    ctx.fillText('Origin', centerX + 10, centerY - 10);
 
-    // Event 2 labels - original frame
-    ctx.fillStyle = COLORS.cyan;
+    // Event labels with better formatting
     const ctLabel = formatCoordinate(ct);
     const xLabel = formatCoordinate(x);
-    ctx.fillText(`(${ctLabel}, ${xLabel})`, eventX + 10, eventY - 20);
-
-    // Event 2 labels - transformed frame
-    ctx.fillStyle = COLORS.green;
     const ctPrimeLabel = formatCoordinate(ctPrime);
     const xPrimeLabel = formatCoordinate(xPrime);
-    ctx.fillText(`(${ctPrimeLabel}, ${xPrimeLabel})'`, eventX + 10, eventY - 5);
+
+    // Background for labels
+    const labelX = eventX + 12;
+    const labelY1 = eventY - 25;
+    const labelY2 = eventY - 8;
+
+    // Original frame label
+    ctx.fillStyle = COLORS.cyan;
+    ctx.fillText(`(ct=${ctLabel}, x=${xLabel})`, labelX, labelY1);
+
+    // Transformed frame label
+    ctx.fillStyle = COLORS.green;
+    ctx.fillText(`(ct'=${ctPrimeLabel}, x'=${xPrimeLabel})`, labelX, labelY2);
 }
 
 function drawArrow(ctx: CanvasRenderingContext2D, x: number, y: number, dx: number, dy: number): void {
