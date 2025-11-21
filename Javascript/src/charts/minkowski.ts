@@ -44,8 +44,8 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     const ctPrime = gamma * (ct - beta * x);
     const xPrime = gamma * (x - beta * ct);
 
-    // Calculate scale to fit all coordinates with 40% padding for labels and legend
-    const maxCoord = Math.max(Math.abs(ct), Math.abs(x), Math.abs(ctPrime), Math.abs(xPrime)) * 1.4;
+    // Calculate scale to fit all coordinates with 20% padding for labels
+    const maxCoord = Math.max(Math.abs(ct), Math.abs(x), Math.abs(ctPrime), Math.abs(xPrime)) * 1.2;
     const scale = (size / 2) / maxCoord;
 
     // Helper function to convert spacetime coords to canvas coords
@@ -261,65 +261,6 @@ export function drawMinkowskiDiagram(canvas: HTMLCanvasElement, data: MinkowskiD
     ctx.beginPath();
     ctx.arc(eventX, eventY, 8, 0, 2 * Math.PI);
     ctx.fill();
-
-    // Draw legend with background
-    const legendX = 15;
-    const legendY = 30;
-    const lineHeight = 25;
-    const legendWidth = 250;
-    const legendHeight = 120;
-
-    // Semi-transparent background for legend
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(legendX - 8, legendY - 22, legendWidth, legendHeight);
-
-    ctx.font = 'bold 15px "IBM Plex Mono", monospace';
-    ctx.fillStyle = COLORS.white;
-    ctx.fillText('LEGEND', legendX, legendY);
-
-    ctx.font = '14px "IBM Plex Mono", monospace';
-
-    // Original frame - cyan line
-    ctx.strokeStyle = COLORS.cyan;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(legendX, legendY + 8 + lineHeight * 0.5);
-    ctx.lineTo(legendX + 35, legendY + 8 + lineHeight * 0.5);
-    ctx.stroke();
-    ctx.fillStyle = COLORS.cyan;
-    ctx.fillText('Original frame (ct, x)', legendX + 45, legendY + 12 + lineHeight * 0.5);
-
-    // Moving frame - green line
-    ctx.strokeStyle = COLORS.green;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(legendX, legendY + 8 + lineHeight * 1.5);
-    ctx.lineTo(legendX + 35, legendY + 8 + lineHeight * 1.5);
-    ctx.stroke();
-    ctx.fillStyle = COLORS.green;
-    ctx.fillText("Moving frame (ct', x')", legendX + 45, legendY + 12 + lineHeight * 1.5);
-
-    // Light cones - amber dashed
-    ctx.strokeStyle = COLORS.amber + '80';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    ctx.moveTo(legendX, legendY + 8 + lineHeight * 2.5);
-    ctx.lineTo(legendX + 35, legendY + 8 + lineHeight * 2.5);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = COLORS.amber;
-    ctx.fillText('Light cones (c)', legendX + 45, legendY + 12 + lineHeight * 2.5);
-
-    // Interval line - white solid
-    ctx.strokeStyle = COLORS.white;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(legendX, legendY + 8 + lineHeight * 3.5);
-    ctx.lineTo(legendX + 35, legendY + 8 + lineHeight * 3.5);
-    ctx.stroke();
-    ctx.fillStyle = COLORS.white;
-    ctx.fillText('Spacetime interval', legendX + 45, legendY + 12 + lineHeight * 3.5);
 
     // Draw causal relationship indicator
     if (ct !== 0 || x !== 0) {
