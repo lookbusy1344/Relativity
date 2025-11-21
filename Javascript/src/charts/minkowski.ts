@@ -1,5 +1,5 @@
 // D3 imports for new implementation
-// @ts-expect-error - Imports will be used in subsequent tasks
+// Imports will be used in subsequent tasks
 import { select, Selection } from 'd3-selection';
 // @ts-expect-error - Imports will be used in subsequent tasks
 import { scaleLinear } from 'd3-scale';
@@ -9,7 +9,7 @@ import { transition } from 'd3-transition';
 import { easeCubicInOut } from 'd3-ease';
 // @ts-expect-error - Imports will be used in subsequent tasks
 import { timer, Timer } from 'd3-timer';
-// @ts-expect-error - Imports will be used in subsequent tasks
+// Imports will be used in subsequent tasks
 import { COLORS as D3_COLORS } from './minkowski-colors';
 import type {
     MinkowskiController,
@@ -434,7 +434,7 @@ function createScales(data: MinkowskiData, size: number): ScaleSet {
 /**
  * Setup or select SVG element with proper structure
  */
-function setupSVG(container: HTMLElement): Selection<SVGSVGElement, unknown, null, undefined> {
+export function setupSVG(container: HTMLElement): Selection<SVGSVGElement, unknown, null, undefined> {
     const size = 900;
 
     // Remove existing SVG if present
