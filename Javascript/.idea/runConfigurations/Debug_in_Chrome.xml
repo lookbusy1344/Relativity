@@ -3,8 +3,6 @@
     <browser url="http://localhost:5173" family="CHROME">
       <user-data-dir>$PROJECT_DIR$/.chrome-debug-profile</user-data-dir>
     </browser>
-    <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Wait for Vite" run_configuration_type="ShellConfigurationType" />
-    </method>
+    <method v="2" />
   </configuration>
 </component>
