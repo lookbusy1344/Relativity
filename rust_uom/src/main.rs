@@ -8,7 +8,6 @@
 // these all use f64 (double) hardware floats, so are fast but lack accuracy
 
 mod tools;
-mod tools_rational;
 
 use tools::{
     FractionOfC, LorentzFactor, Rapidity, STANDARD_GRAVITY, add_velocities_using_rapidity,
