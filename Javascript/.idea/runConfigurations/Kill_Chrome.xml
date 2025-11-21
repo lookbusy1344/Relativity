@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Kill Chrome" type="ShellConfigurationType">
-    <option name="SCRIPT_TEXT" value="killall 'Google Chrome' 2&gt;/dev/null || true" />
+    <option name="SCRIPT_TEXT" value="pkill -9 'Google Chrome' 2&gt;/dev/null || true; pkill -9 'Chrome Helper' 2&gt;/dev/null || true; sleep 0.5; while pgrep -q 'Google Chrome' || pgrep -q 'Chrome Helper'; do sleep 0.1; done" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="false" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />
