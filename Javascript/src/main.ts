@@ -7,12 +7,10 @@ import {
     createAccelHandler,
     createFlipBurnHandler,
     createAddVelocitiesHandler,
-    createGraphUpdateHandler,
     createPionAccelTimeHandler,
     createSpacetimeIntervalHandler
 } from './ui/eventHandlers';
-import { generateVisualizationChartData } from './charts/dataGeneration';
-import { updateVisualizationCharts, type ChartRegistry } from './charts/charts';
+import { type ChartRegistry } from './charts/charts';
 import { drawMinkowskiDiagram, type MinkowskiData } from './charts/minkowski';
 
 // Register Chart.js components
@@ -132,21 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
         )
     );
 
-    // Visualization graphs
-    const graphUpdateHandler = createGraphUpdateHandler(
-        () => getInputElement('graphAccelInput'),
-        () => getInputElement('graphDurationInput'),
-        () => getResultElement('graphStatus'),
-        chartRegistry
-    );
-
-    getButtonElement('graphUpdateButton')?.addEventListener('click', graphUpdateHandler);
-
-    // Initialize visualization graphs on page load
-    setTimeout(() => {
-        const data = generateVisualizationChartData(1, 365);
-        chartRegistry.current = updateVisualizationCharts(chartRegistry.current, data);
-    }, 100);
 
     // Handle orientation changes and window resize with debounce
     let resizeTimeout: number | undefined;
