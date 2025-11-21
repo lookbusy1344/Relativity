@@ -1095,3 +1095,86 @@ function setupTooltips(
         }
     };
 }
+
+/**
+ * Main function: Draw Minkowski spacetime diagram (D3 version)
+ *
+ * @param container - HTML element to render into
+ * @param data - Spacetime event data
+ * @returns Controller for updates and animation control
+ */
+export function drawMinkowskiDiagramD3(
+    container: HTMLElement,
+    data: MinkowskiData
+): MinkowskiController {
+    const size = 900;
+
+    // Setup SVG
+    const svg = setupSVG(container);
+    let scales = createScales(data, size);
+
+    // Initial render
+    renderLightCones(svg, scales, data, false);
+    renderSimultaneityLines(svg, scales, data, false);
+    renderAxes(svg, scales, data, false);
+    renderEvents(svg, scales, data, false);
+    renderLabels(svg, scales, data, false);
+
+    // Setup tooltips
+    const tooltips = setupTooltips(svg, container);
+
+    // Animation state
+    let animationTimer: Timer | null = null;
+    let isPlaying = true;
+
+    // TODO: Add auto-play frame animation in next task
+
+    // Resize handler
+    const resizeHandler = debounce(() => {
+        scales = createScales(data, size);
+        renderLightCones(svg, scales, data, false);
+        renderSimultaneityLines(svg, scales, data, false);
+        renderAxes(svg, scales, data, false);
+        renderEvents(svg, scales, data, false);
+        renderLabels(svg, scales, data, false);
+    }, 150);
+
+    window.addEventListener('resize', resizeHandler);
+
+    // Public controller API
+    const controller: MinkowskiController = {
+        update(newData: MinkowskiData) {
+            data = newData;
+            scales = createScales(data, size);
+
+            renderLightCones(svg, scales, data, true);
+            renderSimultaneityLines(svg, scales, data, true);
+            renderAxes(svg, scales, data, true);
+            renderEvents(svg, scales, data, true);
+            renderLabels(svg, scales, data, true);
+        },
+
+        pause() {
+            isPlaying = false;
+            if (animationTimer) {
+                animationTimer.stop();
+            }
+        },
+
+        play() {
+            isPlaying = true;
+            // TODO: Restart animation
+        },
+
+        destroy() {
+            window.removeEventListener('resize', resizeHandler);
+            tooltips.destroy();
+            if (animationTimer) {
+                animationTimer.stop();
+            }
+            svg.remove();
+        }
+    };
+
+    return controller;
+}
