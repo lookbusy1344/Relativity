@@ -234,19 +234,36 @@ function renderLightCones(
     const lightConesGroup = svg.select('g.light-cones');
     const backgroundGroup = svg.select('g.background');
 
-    // Light cone fill data
-    const fillData = (ct !== 0 || x !== 0) ? [
+    // Main light cone fill data
+    const mainFillData = (ct !== 0 || x !== 0) ? [
         { points: [[0, 0], [extent, extent], [extent, -extent]], class: 'future' },
         { points: [[0, 0], [-extent, -extent], [-extent, extent]], class: 'past' }
     ] : [];
 
-    backgroundGroup.selectAll('polygon')
-        .data(fillData)
+    backgroundGroup.selectAll('polygon.main-cone-fill')
+        .data(mainFillData)
         .join('polygon')
+        .attr('class', 'main-cone-fill')
         .attr('points', d => d.points.map(p =>
             `${scales.xScale(p[0])},${scales.yScale(p[1])}`
         ).join(' '))
         .attr('fill', `${D3_COLORS.photonGold}${D3_COLORS.lightConeFill}`)
+        .attr('stroke', 'none');
+
+    // Event light cone fill data
+    const eventFillData = (ct !== 0 || x !== 0) ? [
+        { points: [[x, ct], [x + extent, ct + extent], [x + extent, ct - extent]], class: 'future' },
+        { points: [[x, ct], [x - extent, ct - extent], [x - extent, ct + extent]], class: 'past' }
+    ] : [];
+
+    backgroundGroup.selectAll('polygon.event-cone-fill')
+        .data(eventFillData)
+        .join('polygon')
+        .attr('class', 'event-cone-fill')
+        .attr('points', d => d.points.map(p =>
+            `${scales.xScale(p[0])},${scales.yScale(p[1])}`
+        ).join(' '))
+        .attr('fill', `${D3_COLORS.electricBlue}${D3_COLORS.lightConeFill}`)
         .attr('stroke', 'none');
 
     // Light cone lines
@@ -268,7 +285,7 @@ function renderLightCones(
         .attr('data-from', d => d.from)
         .attr('stroke', `${D3_COLORS.photonGold}${D3_COLORS.dashedLine}`)
         .attr('stroke-width', 2)
-        .attr('stroke-dasharray', '5,5')
+        .attr('stroke-dasharray', d => d.from === 'event' ? '2,3' : '5,5')
         .style('cursor', 'pointer');
 
     if (withTransition) {
