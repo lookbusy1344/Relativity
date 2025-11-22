@@ -630,16 +630,43 @@ function renderLabels(
         }
     });
 
-    // Velocity label (bottom-right corner)
-    labelsGroup.selectAll('text.velocity-label')
-        .data([{ beta: beta }])
+    // Velocity and separation labels (bottom-right corner)
+    const labelGroup = labelsGroup.selectAll('g.velocity-info')
+        .data([{ beta, ctPrime, xPrime }])
+        .join('g')
+        .attr('class', 'velocity-info');
+
+    labelGroup.selectAll('text.velocity-label')
+        .data(d => [d])
         .join('text')
         .attr('class', 'velocity-label header')
         .attr('x', size - 15)
-        .attr('y', size - 35)
+        .attr('y', size - 60)
         .attr('text-anchor', 'end')
         .attr('fill', D3_COLORS.quantumGreen)
         .text(d => `Moving frame ${d.beta.toFixed(2)}c`);
+
+    labelGroup.selectAll('text.separation-time')
+        .data(d => [d])
+        .join('text')
+        .attr('class', 'separation-time')
+        .attr('x', size - 15)
+        .attr('y', size - 45)
+        .attr('text-anchor', 'end')
+        .attr('fill', D3_COLORS.quantumGreen)
+        .style('font-size', '11px')
+        .text(d => `Δt' = ${(d.ctPrime / C).toFixed(3)} s`);
+
+    labelGroup.selectAll('text.separation-distance')
+        .data(d => [d])
+        .join('text')
+        .attr('class', 'separation-distance')
+        .attr('x', size - 15)
+        .attr('y', size - 30)
+        .attr('text-anchor', 'end')
+        .attr('fill', D3_COLORS.quantumGreen)
+        .style('font-size', '11px')
+        .text(d => `Δx' = ${d.xPrime.toFixed(3)} km`);
 }
 
 /**
@@ -905,10 +932,18 @@ function startFrameAnimation(
                 .attr('y2', scales.yScale(ct + simLength * cosCurrent));
         }
 
-        // Update velocity label with interpolated velocity
+        // Update velocity label with interpolated velocity and transformed coordinates
         const currentBeta = Math.tan(currentAngle);
+        const currentGamma = 1 / Math.sqrt(1 - currentBeta * currentBeta);
+        const currentCtPrime = currentGamma * (ct - currentBeta * x);
+        const currentXPrime = currentGamma * (x - currentBeta * ct);
+
         svg.select('.velocity-label')
             .text(`Moving frame ${currentBeta.toFixed(2)}c`);
+        svg.select('.separation-time')
+            .text(`Δt' = ${(currentCtPrime / C).toFixed(3)} s`);
+        svg.select('.separation-distance')
+            .text(`Δx' = ${currentXPrime.toFixed(3)} km`);
     });
 
     return {
@@ -1003,8 +1038,16 @@ export function drawMinkowskiDiagramD3(
             // Snap axes and simultaneity lines to their correct final positions
             renderAxes(svg, scales, data, false);
             renderSimultaneityLines(svg, scales, data, false);
-            // Update velocity label to show target velocity
+            // Update labels to show target velocity and separations
+            const beta = data.velocity;
+            const gamma = 1 / Math.sqrt(1 - beta * beta);
+            const ct = data.time * C;
+            const x = data.distance;
+            const ctPrime = gamma * (ct - beta * x);
+            const xPrime = gamma * (x - beta * ct);
             svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
+            svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(3)} s`);
+            svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(3)} km`);
             tooltips.reattach();
         } else {
             animation.play();
@@ -1072,8 +1115,16 @@ export function drawMinkowskiDiagramD3(
             // Snap axes and simultaneity lines to their correct final positions
             renderAxes(svg, scales, data, false);
             renderSimultaneityLines(svg, scales, data, false);
-            // Update velocity label to show target velocity
+            // Update labels to show target velocity and separations
+            const beta = data.velocity;
+            const gamma = 1 / Math.sqrt(1 - beta * beta);
+            const ct = data.time * C;
+            const x = data.distance;
+            const ctPrime = gamma * (ct - beta * x);
+            const xPrime = gamma * (x - beta * ct);
             svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
+            svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(3)} s`);
+            svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(3)} km`);
             tooltips.reattach();
         },
 
