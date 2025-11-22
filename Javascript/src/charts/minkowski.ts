@@ -118,18 +118,18 @@ export function setupSVG(container: HTMLElement): Selection<SVGSVGElement, unkno
                 user-select: none;
                 pointer-events: none;
             }
-            text.label { font-size: 13px; }
-            text.header { font-size: 15px; font-weight: bold; }
-            text.secondary { font-size: 11px; }
+            text.label { font-size: 11px; }
+            text.header { font-size: 13px; font-weight: bold; }
+            text.secondary { font-size: 10px; }
 
             @media (max-width: 768px) {
-                text.label { font-size: 12px; }
-                text.header { font-size: 14px; }
+                text.label { font-size: 10px; }
+                text.header { font-size: 12px; }
             }
 
             @media (max-width: 480px) {
-                text.label { font-size: 11px; }
-                text.header { font-size: 13px; }
+                text.label { font-size: 10px; }
+                text.header { font-size: 11px; }
                 text.secondary { display: none; }
             }
         `);
