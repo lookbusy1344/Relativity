@@ -860,6 +860,7 @@ function startFrameAnimation(
     let isPaused = false;
     let totalPausedTime = 0;
     let pauseStartTime = 0;
+    let manualPosition: number | null = null; // null = auto, 0-1 = manual
 
     const ct = data.time * C;
     const x = data.distance;
@@ -867,12 +868,8 @@ function startFrameAnimation(
     const beta = data.velocity;
     const targetAngle = Math.atan(beta);
 
-    const animationTimer = timer(() => {
-        if (isPaused) return;
-
-        const elapsed = Date.now() - startTime - totalPausedTime;
-        const t = (elapsed % LOOP_DURATION) / LOOP_DURATION; // 0 to 1
-
+    // Function to update frame based on position t (0-1)
+    const updateFrame = (t: number) => {
         // Smooth interpolation: 0-0.5 = orthogonal→tilted, 0.5-1 = tilted→orthogonal
         let p: number;
         if (t < 0.5) {
@@ -944,6 +941,14 @@ function startFrameAnimation(
             .text(`Δt' = ${(currentCtPrime / C).toFixed(1)} s`);
         svg.select('.separation-distance')
             .text(`Δx' = ${currentXPrime.toFixed(1)} km`);
+    };
+
+    const animationTimer = timer(() => {
+        if (isPaused || manualPosition !== null) return;
+
+        const elapsed = Date.now() - startTime - totalPausedTime;
+        const t = (elapsed % LOOP_DURATION) / LOOP_DURATION; // 0 to 1
+        updateFrame(t);
     });
 
     return {
@@ -957,10 +962,15 @@ function startFrameAnimation(
             if (isPaused) {
                 totalPausedTime += Date.now() - pauseStartTime;
                 isPaused = false;
+                manualPosition = null;
             }
         },
         stop() {
             animationTimer.stop();
+        },
+        setPosition(t: number) {
+            manualPosition = t;
+            updateFrame(t);
         }
     };
 }
@@ -992,14 +1002,24 @@ export function drawMinkowskiDiagramD3(
     // Setup tooltips
     const tooltips = setupTooltips(svg, container);
 
-    // Create animation control button
-    const controlButton = select(container)
-        .append('button')
-        .attr('class', 'minkowski-animation-control')
+    // Create control container
+    const controlContainer = select(container)
+        .append('div')
+        .attr('class', 'minkowski-controls')
         .style('position', 'absolute')
         .style('bottom', '10px')
         .style('left', '50%')
         .style('transform', 'translateX(-50%)')
+        .style('display', 'flex')
+        .style('flex-direction', 'column')
+        .style('align-items', 'center')
+        .style('gap', '8px')
+        .style('z-index', '1000');
+
+    // Create animation control button
+    const controlButton = controlContainer
+        .append('button')
+        .attr('class', 'minkowski-animation-control')
         .style('background', D3_COLORS.tooltipBg)
         .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
         .style('color', D3_COLORS.plasmaWhite)
@@ -1008,7 +1028,6 @@ export function drawMinkowskiDiagramD3(
         .style('font-family', "'IBM Plex Mono', monospace")
         .style('font-size', '12px')
         .style('cursor', 'pointer')
-        .style('z-index', '1000')
         .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
         .style('transition', 'all 200ms')
         .text('⏸ Pause Animation')
@@ -1023,6 +1042,32 @@ export function drawMinkowskiDiagramD3(
                 .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`);
         });
 
+    // Create slider for manual position control (hidden initially)
+    const sliderContainer = controlContainer
+        .append('div')
+        .style('display', 'none')
+        .style('align-items', 'center')
+        .style('gap', '8px');
+
+    sliderContainer.append('label')
+        .style('color', D3_COLORS.quantumGreen)
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '11px')
+        .text('Position:');
+
+    sliderContainer
+        .append('input')
+        .attr('type', 'range')
+        .attr('min', '0')
+        .attr('max', '100')
+        .attr('value', '0')
+        .style('width', '200px')
+        .style('cursor', 'pointer')
+        .on('input', function() {
+            const value = parseFloat((this as HTMLInputElement).value) / 100;
+            animation.setPosition(value);
+        });
+
     // Start auto-play frame animation
     let animation = startFrameAnimation(svg, scales, data, () => {
         // Animation update callback (currently unused)
@@ -1035,6 +1080,7 @@ export function drawMinkowskiDiagramD3(
             animation.pause();
             isPlaying = false;
             controlButton.text('▶ Resume Animation');
+            sliderContainer.style('display', 'flex');
             // Snap axes and simultaneity lines to their correct final positions
             renderAxes(svg, scales, data, false);
             renderSimultaneityLines(svg, scales, data, false);
@@ -1046,13 +1092,14 @@ export function drawMinkowskiDiagramD3(
             const ctPrime = gamma * (ct - beta * x);
             const xPrime = gamma * (x - beta * ct);
             svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
-            svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(3)} s`);
-            svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(3)} km`);
+            svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(1)} s`);
+            svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(1)} km`);
             tooltips.reattach();
         } else {
             animation.play();
             isPlaying = true;
             controlButton.text('⏸ Pause Animation');
+            sliderContainer.style('display', 'none');
         }
     });
 
@@ -1139,7 +1186,7 @@ export function drawMinkowskiDiagramD3(
             document.removeEventListener('visibilitychange', visibilityChangeHandler);
             tooltips.destroy();
             animation.stop();
-            controlButton.remove();
+            controlContainer.remove();
             svg.remove();
         }
     };
