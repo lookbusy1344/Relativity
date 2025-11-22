@@ -457,6 +457,23 @@ export function pionRocketFuelFraction(
     return one.minus(one.div(massRatio));
 }
 
+/**
+ * Calculate fuel fractions at multiple efficiency levels
+ * @param thrustTime Duration of thrust in seconds
+ * @param accel Constant proper acceleration (m/s²)
+ * @param efficiencies Array of efficiency values (0-1)
+ * @returns Array of fuel fractions as percentages (0-100) for each efficiency level
+ */
+export function pionRocketFuelFractionsMultiple(
+    thrustTime: NumberInput,
+    accel: NumberInput,
+    efficiencies: number[]
+): Decimal[] {
+    return efficiencies.map(eff => 
+        pionRocketFuelFraction(thrustTime, accel, eff).mul(100)
+    );
+}
+
 export function formatSignificant(value: Decimal, ignoreChar: string = "", significantDecimalPlaces: number = 2): string {
     if (ignoreChar.length > 1) {
         throw new Error('ignoreChar must be a single character or empty');

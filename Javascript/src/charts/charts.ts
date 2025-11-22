@@ -20,6 +20,149 @@ export type ChartStyleConfig = {
     y1Max?: number;
 };
 
+type GradientColors = {
+    high: string;
+    mid: string;
+    low: string;
+};
+
+type ChartDataset = {
+    label: string;
+    data: { x: number; y: number }[];
+    borderColor: string | CanvasGradient;
+    backgroundColor: string;
+    borderWidth: number;
+    fill: boolean;
+    tension: number;
+    pointRadius?: number | number[];
+    pointStyle?: 'circle' | 'triangle' | ('circle' | 'triangle')[];
+    pointRotation?: number | number[];
+    pointBackgroundColor?: string | CanvasGradient | (string | CanvasGradient)[];
+    borderDash?: number[];
+    yAxisID?: string;
+};
+
+/**
+ * Create a vertical velocity-based gradient for charts
+ */
+function createVelocityGradient(
+    ctx: CanvasRenderingContext2D,
+    height: number,
+    colors: GradientColors
+): CanvasGradient {
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, colors.high);
+    gradient.addColorStop(0.5, colors.mid);
+    gradient.addColorStop(1, colors.low);
+    return gradient;
+}
+
+/**
+ * Calculate arrow indicator properties for trajectory visualization
+ */
+function createArrowIndicators(
+    data: { x: number; y: number }[],
+    arrowIndices: number[]
+): {
+    pointRadii: number[];
+    pointStyles: ('triangle' | 'circle')[];
+    pointRotations: number[];
+} {
+    const arrowSet = new Set(arrowIndices);
+    const indexMap = new Map(arrowIndices.map((idx, pos) => [idx, pos]));
+    
+    const pointRadii = data.map((_, i) => arrowSet.has(i) ? 4 : 0);
+    const pointStyles = data.map((_, i) => arrowSet.has(i) ? 'triangle' as const : 'circle' as const);
+    const pointRotations = data.map((_, i) => {
+        if (!arrowSet.has(i)) return 0;
+        const pos = indexMap.get(i)!;
+        if (pos === arrowIndices.length - 1) return 0;
+        const nextArrowIdx = arrowIndices[pos + 1];
+        const dx = data[nextArrowIdx].x - data[i].x;
+        const dy = data[nextArrowIdx].y - data[i].y;
+        return Math.atan2(dy, dx) + Math.PI / 2;
+    });
+    return { pointRadii, pointStyles, pointRotations };
+}
+
+/**
+ * Create standard mass remaining dataset configuration for fuel charts
+ */
+function createMassRemainingDatasets(
+    data40: { x: number; y: number }[],
+    data50: { x: number; y: number }[],
+    data60: { x: number; y: number }[],
+    data70: { x: number; y: number }[]
+): ChartDataset[] {
+    return [{
+        label: '40% Efficiency',
+        data: data40,
+        borderColor: '#ff5555',
+        backgroundColor: 'rgba(255, 85, 85, 0.1)',
+        borderWidth: 2,
+        fill: false,
+        tension: 0.4,
+        pointRadius: 0
+    }, {
+        label: '50% Efficiency',
+        data: data50,
+        borderColor: '#ffaa00',
+        backgroundColor: 'rgba(255, 170, 0, 0.1)',
+        borderWidth: 2,
+        fill: false,
+        tension: 0.4,
+        pointRadius: 0
+    }, {
+        label: '60% Efficiency',
+        data: data60,
+        borderColor: '#00ff9f',
+        backgroundColor: 'rgba(0, 255, 159, 0.1)',
+        borderWidth: 2,
+        fill: false,
+        tension: 0.4,
+        pointRadius: 0
+    }, {
+        label: '70% Efficiency',
+        data: data70,
+        borderColor: '#aa55ff',
+        backgroundColor: 'rgba(170, 85, 255, 0.1)',
+        borderWidth: 2,
+        fill: false,
+        tension: 0.4,
+        pointRadius: 0
+    }];
+}
+
+/**
+ * Create dual-time dataset configuration (proper time vs coordinate time)
+ */
+function createDualTimeDatasets(
+    properTimeData: { x: number; y: number }[],
+    coordTimeData: { x: number; y: number }[],
+    properLabel: string,
+    coordLabel: string
+): ChartDataset[] {
+    return [{
+        label: properLabel,
+        data: properTimeData,
+        borderColor: '#00d9ff',
+        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0
+    }, {
+        label: coordLabel,
+        data: coordTimeData,
+        borderColor: '#00ff9f',
+        backgroundColor: 'rgba(0, 255, 159, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0
+    }];
+}
+
 function createChartOptions(config: ChartStyleConfig): ChartOptions {
     const baseOptions: ChartOptions = {
         responsive: true,
@@ -103,7 +246,7 @@ function createChartOptions(config: ChartStyleConfig): ChartOptions {
 export function updateChart(
     registry: ChartRegistry,
     canvasId: string,
-    datasets: any[],
+    datasets: ChartDataset[],
     config: ChartStyleConfig
 ): ChartRegistry {
     const newRegistry = new Map(registry);
@@ -146,25 +289,12 @@ export function updateAccelCharts(
     newRegistry = updateChart(
         newRegistry,
         'accelVelocityChart',
-        [{
-            label: 'Velocity vs Proper Time',
-            data: data.properTimeVelocity,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Velocity vs Coordinate Time',
-            data: data.coordTimeVelocity,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeVelocity,
+            data.coordTimeVelocity,
+            'Velocity vs Proper Time',
+            'Velocity vs Coordinate Time'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -178,25 +308,12 @@ export function updateAccelCharts(
     newRegistry = updateChart(
         newRegistry,
         'accelLorentzChart',
-        [{
-            label: 'Time Dilation vs Proper Time (1/γ)',
-            data: data.properTimeTimeDilation,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Time Dilation vs Coordinate Time (1/γ)',
-            data: data.coordTimeTimeDilation,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeTimeDilation,
+            data.coordTimeTimeDilation,
+            'Time Dilation vs Proper Time (1/γ)',
+            'Time Dilation vs Coordinate Time (1/γ)'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -211,25 +328,12 @@ export function updateAccelCharts(
     newRegistry = updateChart(
         newRegistry,
         'accelRapidityChart',
-        [{
-            label: 'Rapidity vs Proper Time',
-            data: data.properTimeRapidity,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Rapidity vs Coordinate Time',
-            data: data.coordTimeRapidity,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeRapidity,
+            data.coordTimeRapidity,
+            'Rapidity vs Proper Time',
+            'Rapidity vs Coordinate Time'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -243,43 +347,12 @@ export function updateAccelCharts(
     newRegistry = updateChart(
         newRegistry,
         'accelMassChart',
-        [{
-            label: '40% Efficiency',
-            data: data.properTimeMassRemaining40,
-            borderColor: '#ff5555',
-            backgroundColor: 'rgba(255, 85, 85, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: '50% Efficiency',
-            data: data.properTimeMassRemaining50,
-            borderColor: '#ffaa00',
-            backgroundColor: 'rgba(255, 170, 0, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: '60% Efficiency',
-            data: data.properTimeMassRemaining60,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: '70% Efficiency',
-            data: data.properTimeMassRemaining70,
-            borderColor: '#aa55ff',
-            backgroundColor: 'rgba(170, 85, 255, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createMassRemainingDatasets(
+            data.properTimeMassRemaining40,
+            data.properTimeMassRemaining50,
+            data.properTimeMassRemaining60,
+            data.properTimeMassRemaining70
+        ),
         {
             primaryColor: '#ffaa00',
             secondaryColor: '#00ff9f',
@@ -331,25 +404,12 @@ export function updateFlipBurnCharts(
     newRegistry = updateChart(
         newRegistry,
         'flipVelocityChart',
-        [{
-            label: 'Velocity vs Proper Time',
-            data: data.properTimeVelocity,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Velocity vs Coordinate Time',
-            data: data.coordTimeVelocity,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeVelocity,
+            data.coordTimeVelocity,
+            'Velocity vs Proper Time',
+            'Velocity vs Coordinate Time'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -363,25 +423,12 @@ export function updateFlipBurnCharts(
     newRegistry = updateChart(
         newRegistry,
         'flipLorentzChart',
-        [{
-            label: 'Time Dilation vs Proper Time (1/γ)',
-            data: data.properTimeLorentz,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Time Dilation vs Coordinate Time (1/γ)',
-            data: data.coordTimeLorentz,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeLorentz,
+            data.coordTimeLorentz,
+            'Time Dilation vs Proper Time (1/γ)',
+            'Time Dilation vs Coordinate Time (1/γ)'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -396,25 +443,12 @@ export function updateFlipBurnCharts(
     newRegistry = updateChart(
         newRegistry,
         'flipRapidityChart',
-        [{
-            label: 'Rapidity vs Proper Time',
-            data: data.properTimeRapidity,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Rapidity vs Coordinate Time',
-            data: data.coordTimeRapidity,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeRapidity,
+            data.coordTimeRapidity,
+            'Rapidity vs Proper Time',
+            'Rapidity vs Coordinate Time'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -428,43 +462,12 @@ export function updateFlipBurnCharts(
     newRegistry = updateChart(
         newRegistry,
         'flipMassChart',
-        [{
-            label: '40% Efficiency',
-            data: data.properTimeMassRemaining40,
-            borderColor: '#ff5555',
-            backgroundColor: 'rgba(255, 85, 85, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: '50% Efficiency',
-            data: data.properTimeMassRemaining50,
-            borderColor: '#ffaa00',
-            backgroundColor: 'rgba(255, 170, 0, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: '60% Efficiency',
-            data: data.properTimeMassRemaining60,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: '70% Efficiency',
-            data: data.properTimeMassRemaining70,
-            borderColor: '#aa55ff',
-            backgroundColor: 'rgba(170, 85, 255, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createMassRemainingDatasets(
+            data.properTimeMassRemaining40,
+            data.properTimeMassRemaining50,
+            data.properTimeMassRemaining60,
+            data.properTimeMassRemaining70
+        ),
         {
             primaryColor: '#ffaa00',
             secondaryColor: '#00ff9f',
@@ -622,25 +625,14 @@ function createPositionVelocityChart(
     if (!ctx) throw new Error('Could not get canvas context');
 
     // Create velocity-based gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#ffaa00');     // amber at high velocity (top)
-    gradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
-    gradient.addColorStop(1, '#00d9ff');     // electric cyan at low velocity (bottom)
+    const gradient = createVelocityGradient(ctx, canvas.height, {
+        high: '#ffaa00',   // amber at high velocity (top)
+        mid: '#00ff9f',    // scientific green at mid
+        low: '#00d9ff'     // electric cyan at low velocity (bottom)
+    });
 
     // Add directional arrow indicators at intervals
-    const arrowIndices = [0, 25, 50, 75];
-    const pointRadii = data.map((_, i) => arrowIndices.indexOf(i) !== -1 ? 4 : 0);
-    const pointStyles = data.map((_, i) => arrowIndices.indexOf(i) !== -1 ? 'triangle' as const : 'circle' as const);
-    const pointRotations = data.map((_, i) => {
-        if (arrowIndices.indexOf(i) === -1) return 0;
-        // Calculate rotation based on trajectory direction
-        const idx = arrowIndices.indexOf(i);
-        if (idx === arrowIndices.length - 1) return 0;
-        const nextArrowIdx = arrowIndices[idx + 1];
-        const dx = data[nextArrowIdx].x - data[i].x;
-        const dy = data[nextArrowIdx].y - data[i].y;
-        return Math.atan2(dy, dx) + Math.PI / 2; // Rotate triangle to point forward along path
-    });
+    const { pointRadii, pointStyles, pointRotations } = createArrowIndicators(data, [0, 25, 50, 75]);
 
     return new Chart(ctx, {
         type: 'line',
@@ -708,43 +700,23 @@ function createPositionVelocityFlipBurnChart(
     if (!ctx) throw new Error('Could not get canvas context');
 
     // Create velocity-based gradients with different color schemes for each phase
-    const accelGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    accelGradient.addColorStop(0, '#ffaa00');     // amber at high velocity (top)
-    accelGradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
-    accelGradient.addColorStop(1, '#00d9ff');     // electric cyan at low velocity (bottom)
-
-    const decelGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    decelGradient.addColorStop(0, '#ff55aa');     // magenta at high velocity (top)
-    decelGradient.addColorStop(0.5, '#aa55ff');   // purple at mid
-    decelGradient.addColorStop(1, '#5588ff');     // blue at low velocity (bottom)
-
-    // Add directional indicators for acceleration phase
-    const accelArrowIndices = [0, 17, 34, 50];
-    const accelPointRadii = accelData.map((_, i) => accelArrowIndices.indexOf(i) !== -1 ? 4 : 0);
-    const accelPointStyles = accelData.map((_, i) => accelArrowIndices.indexOf(i) !== -1 ? 'triangle' as const : 'circle' as const);
-    const accelPointRotations = accelData.map((_, i) => {
-        if (accelArrowIndices.indexOf(i) === -1) return 0;
-        const idx = accelArrowIndices.indexOf(i);
-        if (idx === accelArrowIndices.length - 1) return 0;
-        const nextArrowIdx = accelArrowIndices[idx + 1];
-        const dx = accelData[nextArrowIdx].x - accelData[i].x;
-        const dy = accelData[nextArrowIdx].y - accelData[i].y;
-        return Math.atan2(dy, dx) + Math.PI / 2;
+    const accelGradient = createVelocityGradient(ctx, canvas.height, {
+        high: '#ffaa00',   // amber at high velocity (top)
+        mid: '#00ff9f',    // scientific green at mid
+        low: '#00d9ff'     // electric cyan at low velocity (bottom)
     });
 
-    // Add directional indicators for deceleration phase
-    const decelArrowIndices = [0, 16, 33, 49];
-    const decelPointRadii = decelData.map((_, i) => decelArrowIndices.indexOf(i) !== -1 ? 4 : 0);
-    const decelPointStyles = decelData.map((_, i) => decelArrowIndices.indexOf(i) !== -1 ? 'triangle' as const : 'circle' as const);
-    const decelPointRotations = decelData.map((_, i) => {
-        if (decelArrowIndices.indexOf(i) === -1) return 0;
-        const idx = decelArrowIndices.indexOf(i);
-        if (idx === decelArrowIndices.length - 1) return 0;
-        const nextArrowIdx = decelArrowIndices[idx + 1];
-        const dx = decelData[nextArrowIdx].x - decelData[i].x;
-        const dy = decelData[nextArrowIdx].y - decelData[i].y;
-        return Math.atan2(dy, dx) + Math.PI / 2;
+    const decelGradient = createVelocityGradient(ctx, canvas.height, {
+        high: '#ff55aa',   // magenta at high velocity (top)
+        mid: '#aa55ff',    // purple at mid
+        low: '#5588ff'     // blue at low velocity (bottom)
     });
+
+    // Add directional indicators for acceleration and deceleration phases
+    const { pointRadii: accelPointRadii, pointStyles: accelPointStyles, pointRotations: accelPointRotations } = 
+        createArrowIndicators(accelData, [0, 17, 34, 50]);
+    const { pointRadii: decelPointRadii, pointStyles: decelPointStyles, pointRotations: decelPointRotations } = 
+        createArrowIndicators(decelData, [0, 16, 33, 49]);
 
     return new Chart(ctx, {
         type: 'line',
@@ -832,10 +804,11 @@ function createSpacetimeChart(
     const maxTime = Math.max(...data.map(d => d.x));
 
     // Create velocity-based gradient (vertical, since distance is on y-axis)
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#ffaa00');     // amber at far distance (high velocity region)
-    gradient.addColorStop(0.5, '#00ff9f');   // scientific green at mid
-    gradient.addColorStop(1, '#00d9ff');     // electric cyan at near distance (low velocity)
+    const gradient = createVelocityGradient(ctx, canvas.height, {
+        high: '#ffaa00',   // amber at far distance (high velocity region)
+        mid: '#00ff9f',    // scientific green at mid
+        low: '#00d9ff'     // electric cyan at near distance (low velocity)
+    });
 
     return new Chart(ctx, {
         type: 'line',
