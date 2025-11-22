@@ -96,14 +96,15 @@ function createScales(data: MinkowskiData, size: number): ScaleSet {
  */
 export function setupSVG(container: HTMLElement): Selection<SVGSVGElement, unknown, null, undefined> {
     const size = 900;
+    const padding = 10; // Padding to prevent arrow markers from being clipped
 
     // Remove existing SVG if present
     select(container).select('svg').remove();
 
-    // Create new SVG with viewBox
+    // Create new SVG with viewBox (with padding for arrow markers)
     const svg = select(container)
         .append('svg')
-        .attr('viewBox', `0 0 ${size} ${size}`)
+        .attr('viewBox', `${-padding} ${-padding} ${size + 2 * padding} ${size + 2 * padding}`)
         .attr('preserveAspectRatio', 'xMidYMid meet')
         .style('width', '100%')
         .style('height', 'auto')
