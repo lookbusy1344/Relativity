@@ -649,24 +649,22 @@ function renderLabels(
     labelGroup.selectAll('text.separation-time')
         .data(d => [d])
         .join('text')
-        .attr('class', 'separation-time')
+        .attr('class', 'separation-time header')
         .attr('x', size - 15)
         .attr('y', size - 45)
         .attr('text-anchor', 'end')
         .attr('fill', D3_COLORS.quantumGreen)
-        .style('font-size', '11px')
-        .text(d => `Δt' = ${(d.ctPrime / C).toFixed(1)} s`);
+        .text(d => `${(d.ctPrime / C).toFixed(3)} sec`);
 
     labelGroup.selectAll('text.separation-distance')
         .data(d => [d])
         .join('text')
-        .attr('class', 'separation-distance')
+        .attr('class', 'separation-distance header')
         .attr('x', size - 15)
         .attr('y', size - 30)
         .attr('text-anchor', 'end')
         .attr('fill', D3_COLORS.quantumGreen)
-        .style('font-size', '11px')
-        .text(d => `Δx' = ${d.xPrime.toFixed(1)} km`);
+        .text(d => `${d.xPrime.toFixed(1)} km`);
 }
 
 /**
@@ -938,9 +936,9 @@ function startFrameAnimation(
         svg.select('.velocity-label')
             .text(`Moving frame ${currentBeta.toFixed(2)}c`);
         svg.select('.separation-time')
-            .text(`Δt' = ${(currentCtPrime / C).toFixed(1)} s`);
+            .text(`${(currentCtPrime / C).toFixed(3)} sec`);
         svg.select('.separation-distance')
-            .text(`Δx' = ${currentXPrime.toFixed(1)} km`);
+            .text(`${currentXPrime.toFixed(1)} km`);
     };
 
     const animationTimer = timer(() => {
@@ -1091,8 +1089,8 @@ export function drawMinkowskiDiagramD3(
             const ctPrime = gamma * (ct - beta * x);
             const xPrime = gamma * (x - beta * ct);
             svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
-            svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(1)} s`);
-            svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(1)} km`);
+            svg.select('.separation-time').text(`${(ctPrime / C).toFixed(3)} sec`);
+            svg.select('.separation-distance').text(`${xPrime.toFixed(1)} km`);
             tooltips.reattach();
         } else {
             animation.play();
@@ -1174,8 +1172,8 @@ export function drawMinkowskiDiagramD3(
                 const ctPrime = gamma * (ct - beta * x);
                 const xPrime = gamma * (x - beta * ct);
                 svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
-                svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(1)} s`);
-                svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(1)} km`);
+                svg.select('.separation-time').text(`${(ctPrime / C).toFixed(3)} sec`);
+                svg.select('.separation-distance').text(`${xPrime.toFixed(1)} km`);
                 tooltips.reattach();
             }
         },
