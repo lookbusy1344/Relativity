@@ -26,6 +26,22 @@ type GradientColors = {
     low: string;
 };
 
+type ChartDataset = {
+    label: string;
+    data: { x: number; y: number }[];
+    borderColor: string | CanvasGradient;
+    backgroundColor: string;
+    borderWidth: number;
+    fill: boolean;
+    tension: number;
+    pointRadius?: number | number[];
+    pointStyle?: 'circle' | 'triangle' | ('circle' | 'triangle')[];
+    pointRotation?: number | number[];
+    pointBackgroundColor?: string | CanvasGradient | (string | CanvasGradient)[];
+    borderDash?: number[];
+    yAxisID?: string;
+};
+
 /**
  * Create a vertical velocity-based gradient for charts
  */
@@ -53,13 +69,15 @@ function createArrowIndicators(
     pointRotations: number[];
 } {
     const arrowSet = new Set(arrowIndices);
+    const indexMap = new Map(arrowIndices.map((idx, pos) => [idx, pos]));
+    
     const pointRadii = data.map((_, i) => arrowSet.has(i) ? 4 : 0);
     const pointStyles = data.map((_, i) => arrowSet.has(i) ? 'triangle' as const : 'circle' as const);
     const pointRotations = data.map((_, i) => {
         if (!arrowSet.has(i)) return 0;
-        const idx = arrowIndices.indexOf(i);
-        if (idx === arrowIndices.length - 1) return 0;
-        const nextArrowIdx = arrowIndices[idx + 1];
+        const pos = indexMap.get(i)!;
+        if (pos === arrowIndices.length - 1) return 0;
+        const nextArrowIdx = arrowIndices[pos + 1];
         const dx = data[nextArrowIdx].x - data[i].x;
         const dy = data[nextArrowIdx].y - data[i].y;
         return Math.atan2(dy, dx) + Math.PI / 2;
@@ -75,7 +93,7 @@ function createMassRemainingDatasets(
     data50: { x: number; y: number }[],
     data60: { x: number; y: number }[],
     data70: { x: number; y: number }[]
-): any[] {
+): ChartDataset[] {
     return [{
         label: '40% Efficiency',
         data: data40,
@@ -123,7 +141,7 @@ function createDualTimeDatasets(
     coordTimeData: { x: number; y: number }[],
     properLabel: string,
     coordLabel: string
-): any[] {
+): ChartDataset[] {
     return [{
         label: properLabel,
         data: properTimeData,
@@ -228,7 +246,7 @@ function createChartOptions(config: ChartStyleConfig): ChartOptions {
 export function updateChart(
     registry: ChartRegistry,
     canvasId: string,
-    datasets: any[],
+    datasets: ChartDataset[],
     config: ChartStyleConfig
 ): ChartRegistry {
     const newRegistry = new Map(registry);
