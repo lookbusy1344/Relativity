@@ -831,7 +831,8 @@ function startFrameAnimation(
     const LOOP_DURATION = 4000; // 4 seconds total loop
     let startTime = Date.now();
     let isPaused = false;
-    let pausedTime = 0;
+    let totalPausedTime = 0;
+    let pauseStartTime = 0;
 
     const ct = data.time * C;
     const x = data.distance;
@@ -842,7 +843,7 @@ function startFrameAnimation(
     const animationTimer = timer(() => {
         if (isPaused) return;
 
-        const elapsed = Date.now() - startTime - pausedTime;
+        const elapsed = Date.now() - startTime - totalPausedTime;
         const t = (elapsed % LOOP_DURATION) / LOOP_DURATION; // 0 to 1
 
         // Smooth interpolation: 0-0.5 = orthogonal→tilted, 0.5-1 = tilted→orthogonal
@@ -912,11 +913,14 @@ function startFrameAnimation(
 
     return {
         pause() {
-            isPaused = true;
+            if (!isPaused) {
+                isPaused = true;
+                pauseStartTime = Date.now();
+            }
         },
         play() {
             if (isPaused) {
-                pausedTime += Date.now() - startTime;
+                totalPausedTime += Date.now() - pauseStartTime;
                 isPaused = false;
             }
         },
@@ -1039,6 +1043,17 @@ export function drawMinkowskiDiagramD3(
         update(newData: MinkowskiData) {
             data = newData;
             scales = createScales(data, size);
+
+            // Stop old animation and restart with new data to prevent glitches
+            animation.stop();
+            animation = startFrameAnimation(svg, scales, data, () => {
+                // Animation update callback (currently unused)
+            });
+            
+            // If animation was paused, pause the new animation too
+            if (!isPlaying) {
+                animation.pause();
+            }
 
             renderLightCones(svg, scales, data, true);
             renderSimultaneityLines(svg, scales, data, true);
