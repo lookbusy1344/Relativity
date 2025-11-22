@@ -1,5 +1,6 @@
 // D3 imports for new implementation
 import { select, Selection } from 'd3-selection';
+import 'd3-transition'; // Enables .transition() method on selections
 import { easeCubicInOut } from 'd3-ease';
 import { timer } from 'd3-timer';
 // Imports will be used in subsequent tasks
@@ -789,28 +790,28 @@ function startFrameAnimation(
             p = 1 - p;
         }
 
-        // Update axis emphasis
+        // Update axis emphasis (more pronounced)
         svg.selectAll('.axis-original')
-            .style('opacity', 1 - p * 0.3)
-            .style('stroke-width', 3 - p * 0.5);
+            .style('opacity', 1 - p * 0.5)
+            .style('stroke-width', 3 - p * 1);
 
         svg.selectAll('.axis-moving')
-            .style('opacity', 0.7 + p * 0.3)
-            .style('stroke-width', 2.5 + p * 0.5);
+            .style('opacity', 0.5 + p * 0.5)
+            .style('stroke-width', 2 + p * 1);
 
-        // Update label prominence
+        // Update label prominence (more pronounced)
         svg.selectAll('.label-original')
-            .style('opacity', 1 - p * 0.4);
+            .style('opacity', 1 - p * 0.6);
 
         svg.selectAll('.label-moving')
-            .style('opacity', 0.7 + p * 0.3);
+            .style('opacity', 0.4 + p * 0.6);
 
-        // Update simultaneity line emphasis
+        // Update simultaneity line emphasis (more pronounced)
         svg.selectAll('.simultaneity-original')
-            .style('opacity', 0.5 - p * 0.2);
+            .style('opacity', 0.5 - p * 0.3);
 
         svg.selectAll('.simultaneity-moving')
-            .style('opacity', 0.3 + p * 0.2);
+            .style('opacity', 0.2 + p * 0.3);
     });
 
     return {
