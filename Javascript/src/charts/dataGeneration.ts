@@ -59,7 +59,7 @@ export function generateAccelChartData(
         // Calculate mass remaining as percentage for all efficiencies
         const fuelPercents = rl.pionRocketFuelFractionsMultiple(tau, accel, [0.4, 0.5, 0.6, 0.7]);
         const [massRemaining40, massRemaining50, massRemaining60, massRemaining70] = 
-            fuelPercents.map(fp => parseFloat(rl.one.minus(fp.div(100)).mul(100).toString()));
+            fuelPercents.map(fp => 100 - parseFloat(fp.toString()));
 
         properTimeVelocity.push({ x: tauDays, y: velocityC });
         coordTimeVelocity.push({ x: tDays, y: velocityC });
@@ -152,7 +152,7 @@ export function generateFlipBurnChartData(
         // Calculate mass remaining (fuel burned for thrust time so far)
         const fuelPercents = rl.pionRocketFuelFractionsMultiple(tau, accel, [0.4, 0.5, 0.6, 0.7]);
         const [massRemaining40, massRemaining50, massRemaining60, massRemaining70] = 
-            fuelPercents.map(fp => parseFloat(rl.one.minus(fp.div(100)).mul(100).toString()));
+            fuelPercents.map(fp => 100 - parseFloat(fp.toString()));
 
         properTimeVelocity.push({ x: tauYears, y: velocityC });
 
@@ -199,7 +199,7 @@ export function generateFlipBurnChartData(
         const totalThrustTime = halfProperTimeSeconds.plus(decelThrust);
         const fuelPercents = rl.pionRocketFuelFractionsMultiple(totalThrustTime, accel, [0.4, 0.5, 0.6, 0.7]);
         const [massRemaining40, massRemaining50, massRemaining60, massRemaining70] = 
-            fuelPercents.map(fp => parseFloat(rl.one.minus(fp.div(100)).mul(100).toString()));
+            fuelPercents.map(fp => 100 - parseFloat(fp.toString()));
 
         properTimeVelocity.push({ x: tauYears, y: velocityC });
 
