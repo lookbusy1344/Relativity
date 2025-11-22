@@ -1016,19 +1016,10 @@ export function drawMinkowskiDiagramD3(
         .style('gap', '8px')
         .style('z-index', '1000');
 
-    // Create button container to maintain consistent width
-    const buttonContainer = controlContainer
-        .append('div')
-        .style('position', 'relative')
-        .style('width', '150px')
-        .style('height', '36px');
-
-    // Create pause button
-    const pauseButton = buttonContainer
+    // Create toggle button
+    const toggleButton = controlContainer
         .append('button')
-        .attr('class', 'minkowski-pause-button')
-        .style('position', 'absolute')
-        .style('width', '100%')
+        .attr('class', 'minkowski-toggle-button')
         .style('background', D3_COLORS.tooltipBg)
         .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
         .style('color', D3_COLORS.plasmaWhite)
@@ -1039,37 +1030,7 @@ export function drawMinkowskiDiagramD3(
         .style('cursor', 'pointer')
         .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
         .style('transition', 'all 200ms')
-        .style('display', 'block')
-        .text('Pause')
-        .on('mouseenter', function() {
-            select(this)
-                .style('background', D3_COLORS.tooltipBorder)
-                .style('box-shadow', `0 0 15px ${D3_COLORS.tooltipBorder}80`);
-        })
-        .on('mouseleave', function() {
-            select(this)
-                .style('background', D3_COLORS.tooltipBg)
-                .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`);
-        });
-
-    // Create resume button
-    const resumeButton = buttonContainer
-        .append('button')
-        .attr('class', 'minkowski-resume-button')
-        .style('position', 'absolute')
-        .style('width', '100%')
-        .style('background', D3_COLORS.tooltipBg)
-        .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
-        .style('color', D3_COLORS.plasmaWhite)
-        .style('padding', '8px 16px')
-        .style('border-radius', '4px')
-        .style('font-family', "'IBM Plex Mono', monospace")
-        .style('font-size', '12px')
-        .style('cursor', 'pointer')
-        .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
-        .style('transition', 'all 200ms')
-        .style('display', 'none')
-        .text('Resume')
+        .text('Toggle Animation')
         .on('mouseenter', function() {
             select(this)
                 .style('background', D3_COLORS.tooltipBorder)
@@ -1113,35 +1074,31 @@ export function drawMinkowskiDiagramD3(
     });
     let isPlaying = true;
 
-    // Add click handlers for buttons
-    pauseButton.on('click', () => {
-        animation.pause();
-        isPlaying = false;
-        pauseButton.style('display', 'none');
-        resumeButton.style('display', 'block');
-        sliderContainer.style('display', 'flex');
-        // Snap axes and simultaneity lines to their correct final positions
-        renderAxes(svg, scales, data, false);
-        renderSimultaneityLines(svg, scales, data, false);
-        // Update labels to show target velocity and separations
-        const beta = data.velocity;
-        const gamma = 1 / Math.sqrt(1 - beta * beta);
-        const ct = data.time * C;
-        const x = data.distance;
-        const ctPrime = gamma * (ct - beta * x);
-        const xPrime = gamma * (x - beta * ct);
-        svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
-        svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(1)} s`);
-        svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(1)} km`);
-        tooltips.reattach();
-    });
-
-    resumeButton.on('click', () => {
-        animation.play();
-        isPlaying = true;
-        pauseButton.style('display', 'block');
-        resumeButton.style('display', 'none');
-        sliderContainer.style('display', 'none');
+    // Add click handler for toggle button
+    toggleButton.on('click', () => {
+        if (isPlaying) {
+            animation.pause();
+            isPlaying = false;
+            sliderContainer.style('display', 'flex');
+            // Snap axes and simultaneity lines to their correct final positions
+            renderAxes(svg, scales, data, false);
+            renderSimultaneityLines(svg, scales, data, false);
+            // Update labels to show target velocity and separations
+            const beta = data.velocity;
+            const gamma = 1 / Math.sqrt(1 - beta * beta);
+            const ct = data.time * C;
+            const x = data.distance;
+            const ctPrime = gamma * (ct - beta * x);
+            const xPrime = gamma * (x - beta * ct);
+            svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
+            svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(1)} s`);
+            svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(1)} km`);
+            tooltips.reattach();
+        } else {
+            animation.play();
+            isPlaying = true;
+            sliderContainer.style('display', 'none');
+        }
     });
 
     // Pause animation when tab is hidden
@@ -1197,33 +1154,33 @@ export function drawMinkowskiDiagramD3(
         },
 
         pause() {
-            isPlaying = false;
-            animation.pause();
-            pauseButton.style('display', 'none');
-            resumeButton.style('display', 'block');
-            sliderContainer.style('display', 'flex');
-            // Snap axes and simultaneity lines to their correct final positions
-            renderAxes(svg, scales, data, false);
-            renderSimultaneityLines(svg, scales, data, false);
-            // Update labels to show target velocity and separations
-            const beta = data.velocity;
-            const gamma = 1 / Math.sqrt(1 - beta * beta);
-            const ct = data.time * C;
-            const x = data.distance;
-            const ctPrime = gamma * (ct - beta * x);
-            const xPrime = gamma * (x - beta * ct);
-            svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
-            svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(1)} s`);
-            svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(1)} km`);
-            tooltips.reattach();
+            if (isPlaying) {
+                isPlaying = false;
+                animation.pause();
+                sliderContainer.style('display', 'flex');
+                // Snap axes and simultaneity lines to their correct final positions
+                renderAxes(svg, scales, data, false);
+                renderSimultaneityLines(svg, scales, data, false);
+                // Update labels to show target velocity and separations
+                const beta = data.velocity;
+                const gamma = 1 / Math.sqrt(1 - beta * beta);
+                const ct = data.time * C;
+                const x = data.distance;
+                const ctPrime = gamma * (ct - beta * x);
+                const xPrime = gamma * (x - beta * ct);
+                svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
+                svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(1)} s`);
+                svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(1)} km`);
+                tooltips.reattach();
+            }
         },
 
         play() {
-            isPlaying = true;
-            animation.play();
-            pauseButton.style('display', 'block');
-            resumeButton.style('display', 'none');
-            sliderContainer.style('display', 'none');
+            if (!isPlaying) {
+                isPlaying = true;
+                animation.play();
+                sliderContainer.style('display', 'none');
+            }
         },
 
         destroy() {
