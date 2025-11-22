@@ -264,10 +264,11 @@ function renderLightCones(
     const lines = lightConesGroup.selectAll('line')
         .data(lineData)
         .join('line')
+        .attr('data-from', d => d.from)
         .attr('stroke', `${D3_COLORS.photonGold}${D3_COLORS.dashedLine}`)
         .attr('stroke-width', 2)
         .attr('stroke-dasharray', '5,5')
-        .style('cursor', 'help');
+        .style('cursor', 'pointer');
 
     if (withTransition) {
         lines.transition().duration(600).ease(easeCubicInOut)
@@ -341,7 +342,7 @@ function renderAxes(
         .attr('stroke', d => d.color)
         .attr('stroke-width', 3)
         .attr('marker-end', d => d.frame === 'original' ? 'url(#arrowBlue)' : 'url(#arrowGreen)')
-        .style('cursor', 'help');
+        .style('cursor', 'pointer');
 
     if (withTransition) {
         axisLines.transition().duration(600).ease(easeCubicInOut)
@@ -487,9 +488,12 @@ function renderEvents(
     const events = eventsGroup.selectAll('circle')
         .data(eventData)
         .join('circle')
+        .attr('data-label', d => d.label)
+        .attr('data-x', d => d.x)
+        .attr('data-y', d => d.y)
         .attr('r', d => d.radius)
         .attr('fill', d => d.color)
-        .style('cursor', 'help');
+        .style('cursor', 'pointer');
 
     if (withTransition) {
         events.transition().duration(600).ease(easeCubicInOut)
@@ -637,7 +641,7 @@ function setupTooltips(
     const tooltip = select(container)
         .append('div')
         .attr('class', 'minkowski-tooltip')
-        .style('position', 'absolute')
+        .style('position', 'fixed')
         .style('background', D3_COLORS.tooltipBg)
         .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
         .style('padding', '8px 12px')
@@ -647,56 +651,75 @@ function setupTooltips(
         .style('color', D3_COLORS.plasmaWhite)
         .style('pointer-events', 'none')
         .style('opacity', '0')
-        .style('z-index', '1000')
+        .style('z-index', '10000')
         .style('box-shadow', `0 0 15px ${D3_COLORS.tooltipBorder}80`)
         .style('transition', 'opacity 200ms');
 
     let hideTimeout: number | undefined;
 
-    // Add hover handlers to axes
-    svg.selectAll('g.axes line').on('mouseenter', function(event) {
-        const d = select(this).datum() as any;
-        const axisName = d.axis === 'ct' ? 'ct axis - Original Frame (time)' :
-                        d.axis === 'x' ? 'x axis - Original Frame (space)' :
-                        d.axis === 'ct\'' ? 'ct\' axis - Moving Frame (time)' :
-                        'x\' axis - Moving Frame (space)';
+    // Helper function to attach tooltip handlers to axes
+    const attachAxisTooltips = () => {
+        svg.selectAll('g.axes line').on('mouseenter', function(event: MouseEvent) {
+            const axis = (this as SVGLineElement).getAttribute('data-axis');
+            const axisName = axis === 'ct' ? 'ct axis - Original Frame (time)' :
+                            axis === 'x' ? 'x axis - Original Frame (space)' :
+                            axis === 'ct\'' ? 'ct\' axis - Moving Frame (time)' :
+                            'x\' axis - Moving Frame (space)';
 
-        tooltip.html(axisName)
-            .style('left', `${event.pageX + 10}px`)
-            .style('top', `${event.pageY + 10}px`)
-            .style('opacity', '1');
-    }).on('mouseleave', () => {
-        tooltip.style('opacity', '0');
-    });
+            const rect = container.getBoundingClientRect();
+            tooltip.html(axisName)
+                .style('position', 'fixed')
+                .style('left', `${event.clientX + 10}px`)
+                .style('top', `${event.clientY + 10}px`)
+                .style('opacity', '1');
+        }).on('mouseleave', () => {
+            tooltip.style('opacity', '0');
+        });
+    };
 
-    // Add hover handlers to events
-    svg.selectAll('g.events circle').on('mouseenter', function(event, d: any) {
-        const content = d.label === 'Origin'
-            ? 'Event 1: Origin (0, 0)'
-            : `Event 2: ${select(svg.selectAll('g.labels text').nodes()[1]).text()}<br>${select(svg.selectAll('g.labels text').nodes()[2]).text()}`;
+    // Helper function to attach tooltip handlers to events
+    const attachEventTooltips = () => {
+        svg.selectAll('g.events circle').on('mouseenter', function(event: MouseEvent) {
+            const label = (this as SVGCircleElement).getAttribute('data-label');
+            const x = parseFloat((this as SVGCircleElement).getAttribute('data-x') || '0');
+            const y = parseFloat((this as SVGCircleElement).getAttribute('data-y') || '0');
 
-        tooltip.html(content)
-            .style('left', `${event.pageX + 10}px`)
-            .style('top', `${event.pageY + 10}px`)
-            .style('opacity', '1');
-    }).on('mouseleave', () => {
-        tooltip.style('opacity', '0');
-    });
+            const content = label === 'Origin'
+                ? 'Event 1: Origin (0, 0)'
+                : `Event 2: (${formatCoordinateD3(y / C)}, ${formatCoordinateD3(x)})`;
 
-    // Add hover handlers to light cones
-    svg.selectAll('g.light-cones line').on('mouseenter', function(event) {
-        const d = select(this).datum() as any;
-        const content = d.from === 'origin'
-            ? 'Light cone from origin'
-            : 'Light cone from event';
+            tooltip.html(content)
+                .style('position', 'fixed')
+                .style('left', `${event.clientX + 10}px`)
+                .style('top', `${event.clientY + 10}px`)
+                .style('opacity', '1');
+        }).on('mouseleave', () => {
+            tooltip.style('opacity', '0');
+        });
+    };
 
-        tooltip.html(content)
-            .style('left', `${event.pageX + 10}px`)
-            .style('top', `${event.pageY + 10}px`)
-            .style('opacity', '1');
-    }).on('mouseleave', () => {
-        tooltip.style('opacity', '0');
-    });
+    // Helper function to attach tooltip handlers to light cones
+    const attachLightConeTooltips = () => {
+        svg.selectAll('g.light-cones line').on('mouseenter', function(event: MouseEvent) {
+            const from = (this as SVGLineElement).getAttribute('data-from');
+            const content = from === 'origin'
+                ? 'Light cone from origin'
+                : 'Light cone from event';
+
+            tooltip.html(content)
+                .style('position', 'fixed')
+                .style('left', `${event.clientX + 10}px`)
+                .style('top', `${event.clientY + 10}px`)
+                .style('opacity', '1');
+        }).on('mouseleave', () => {
+            tooltip.style('opacity', '0');
+        });
+    };
+
+    // Attach initial tooltip handlers
+    attachAxisTooltips();
+    attachEventTooltips();
+    attachLightConeTooltips();
 
     // Touch support for mobile
     let touchedElement: any = null;
@@ -704,7 +727,7 @@ function setupTooltips(
     svg.on('touchstart', function(event) {
         event.preventDefault();
         const touch = event.touches[0];
-        const target = select(event.target as any);
+        const targetElement = event.target as SVGElement;
 
         if (touchedElement === event.target) {
             // Second tap - hide tooltip
@@ -715,24 +738,29 @@ function setupTooltips(
             touchedElement = event.target;
 
             let content = '';
-            if (target.node()?.tagName === 'line' && target.node()?.parentElement?.classList.contains('axes')) {
-                const d = target.datum() as any;
-                content = d.axis === 'ct' ? 'ct axis - Original Frame (time)' :
-                         d.axis === 'x' ? 'x axis - Original Frame (space)' :
-                         d.axis === 'ct\'' ? 'ct\' axis - Moving Frame (time)' :
+            if (targetElement.tagName === 'line' && targetElement.parentElement?.classList.contains('axes')) {
+                const axis = (targetElement as SVGLineElement).getAttribute('data-axis');
+                content = axis === 'ct' ? 'ct axis - Original Frame (time)' :
+                         axis === 'x' ? 'x axis - Original Frame (space)' :
+                         axis === 'ct\'' ? 'ct\' axis - Moving Frame (time)' :
                          'x\' axis - Moving Frame (space)';
-            } else if (target.node()?.tagName === 'circle') {
-                const d = target.datum() as any;
-                content = d.label === 'Origin' ? 'Event 1: Origin (0, 0)' : 'Event 2';
-            } else if (target.node()?.tagName === 'line' && target.node()?.parentElement?.classList.contains('light-cones')) {
-                const d = target.datum() as any;
-                content = d.from === 'origin' ? 'Light cone from origin' : 'Light cone from event';
+            } else if (targetElement.tagName === 'circle') {
+                const label = (targetElement as SVGCircleElement).getAttribute('data-label');
+                const x = parseFloat((targetElement as SVGCircleElement).getAttribute('data-x') || '0');
+                const y = parseFloat((targetElement as SVGCircleElement).getAttribute('data-y') || '0');
+                content = label === 'Origin'
+                    ? 'Event 1: Origin (0, 0)'
+                    : `Event 2: (${formatCoordinateD3(y / C)}, ${formatCoordinateD3(x)})`;
+            } else if (targetElement.tagName === 'line' && targetElement.parentElement?.classList.contains('light-cones')) {
+                const from = (targetElement as SVGLineElement).getAttribute('data-from');
+                content = from === 'origin' ? 'Light cone from origin' : 'Light cone from event';
             }
 
             if (content) {
                 tooltip.html(content)
-                    .style('left', `${touch.pageX + 10}px`)
-                    .style('top', `${touch.pageY + 10}px`)
+                    .style('position', 'fixed')
+                    .style('left', `${touch.clientX + 10}px`)
+                    .style('top', `${touch.clientY + 10}px`)
                     .style('opacity', '1');
 
                 // Auto-hide after 3 seconds
@@ -758,6 +786,11 @@ function setupTooltips(
         destroy() {
             clearTimeout(hideTimeout);
             tooltip.remove();
+        },
+        reattach() {
+            attachAxisTooltips();
+            attachEventTooltips();
+            attachLightConeTooltips();
         }
     };
 }
@@ -916,6 +949,9 @@ export function drawMinkowskiDiagramD3(
         renderAxes(svg, scales, data, false);
         renderEvents(svg, scales, data, false);
         renderLabels(svg, scales, data, false);
+
+        // Reattach tooltip handlers to re-rendered elements
+        tooltips.reattach();
     }, 150);
 
     window.addEventListener('resize', resizeHandler);
@@ -931,6 +967,9 @@ export function drawMinkowskiDiagramD3(
             renderAxes(svg, scales, data, true);
             renderEvents(svg, scales, data, true);
             renderLabels(svg, scales, data, true);
+
+            // Reattach tooltip handlers to updated elements
+            tooltips.reattach();
         },
 
         pause() {

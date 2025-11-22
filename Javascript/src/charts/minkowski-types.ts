@@ -28,6 +28,7 @@ export interface TooltipController {
     show(content: string, x: number, y: number): void;
     hide(): void;
     destroy(): void;
+    reattach(): void;
 }
 
 export interface AnimationController {
