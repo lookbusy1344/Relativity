@@ -736,9 +736,21 @@ function setupTooltips(
     let touchedElement: any = null;
 
     svg.on('touchstart', function(event) {
-        event.preventDefault();
         const touch = event.touches[0];
         const targetElement = event.target as SVGElement;
+
+        // Check if touch is on an interactive element
+        const isInteractiveElement = 
+            (targetElement.tagName === 'line' && targetElement.parentElement?.classList.contains('axes')) ||
+            (targetElement.tagName === 'circle') ||
+            (targetElement.tagName === 'line' && targetElement.parentElement?.classList.contains('light-cones'));
+
+        // Only prevent default for interactive elements, allow scrolling otherwise
+        if (!isInteractiveElement) {
+            return;
+        }
+
+        event.preventDefault();
 
         if (touchedElement === event.target) {
             // Second tap - hide tooltip
