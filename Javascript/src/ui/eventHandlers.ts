@@ -260,6 +260,8 @@ export function createSpacetimeIntervalHandler(
     getResultType: () => HTMLElement | null,
     getResultDeltaT: () => HTMLElement | null,
     getResultDeltaX: () => HTMLElement | null,
+    getResultMinSep: () => HTMLElement | null,
+    getResultVelocity: () => HTMLElement | null,
     onDiagramDrawn?: (container: HTMLElement, data: MinkowskiData, controller: ReturnType<typeof drawMinkowskiDiagramD3>) => void
 ): () => void {
     return () => {
@@ -270,8 +272,11 @@ export function createSpacetimeIntervalHandler(
         const resultType = getResultType();
         const resultDeltaT = getResultDeltaT();
         const resultDeltaX = getResultDeltaX();
+        const resultMinSep = getResultMinSep();
+        const resultVelocity = getResultVelocity();
         if (!time2Input || !x2Input || !velocityInput ||
-            !resultSquared || !resultType || !resultDeltaT || !resultDeltaX) return;
+            !resultSquared || !resultType || !resultDeltaT || !resultDeltaX ||
+            !resultMinSep || !resultVelocity) return;
 
         // Event 1 is always at (0, 0)
         const t1 = new Decimal(0);
@@ -298,15 +303,33 @@ export function createSpacetimeIntervalHandler(
         if (intervalSquared.abs().lt(tolerance)) {
             // Lightlike interval
             setElement(resultType, "Lightlike: Light-speed connection", "");
+            setElement(resultMinSep, "0", "");
+            setElement(resultVelocity, "1c", "");
         } else if (intervalSquared.gt(0)) {
             // Timelike interval - causally connected
             const properTime = intervalSquared.sqrt().div(rl.c);
             setElement(resultType, `Timelike: ${rl.formatSignificant(properTime, "0", 3)} s - Events are causally connected`, "");
+            
+            // For timelike: minimum separation is proper time (in frame where events occur at same place)
+            setElement(resultMinSep, rl.formatSignificant(properTime, "0", 3), "s");
+            
+            // Required velocity: v = Δx/Δt
+            const requiredVel = deltaX.div(deltaT);
+            const requiredVelC = requiredVel.div(rl.c);
+            setElement(resultVelocity, rl.formatSignificant(requiredVelC, "9", 3), "c");
         } else {
             // Spacelike interval - not causally connected
             const properDistanceM = intervalSquared.abs().sqrt();
             const properDistanceKm = properDistanceM.div(1000);
             setElement(resultType, `Spacelike: ${rl.formatSignificant(properDistanceKm, "0", 1)} km - Events cannot be causally connected`, "");
+            
+            // For spacelike: minimum separation is proper distance (in frame where events are simultaneous)
+            setElement(resultMinSep, rl.formatSignificant(properDistanceKm, "0", 3), "km");
+            
+            // Required velocity to make events simultaneous: v = c²Δt/Δx
+            const requiredVel = rl.c.pow(2).mul(deltaT).div(deltaX);
+            const requiredVelC = requiredVel.div(rl.c);
+            setElement(resultVelocity, rl.formatSignificant(requiredVelC, "9", 3), "c");
         }
 
         // Calculate Lorentz transformation
