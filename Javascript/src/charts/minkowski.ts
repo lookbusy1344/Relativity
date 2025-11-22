@@ -1039,7 +1039,7 @@ export function drawMinkowskiDiagramD3(
         .style('cursor', 'pointer')
         .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
         .style('transition', 'all 200ms')
-        .style('visibility', 'visible')
+        .style('display', 'block')
         .text('⏸ Pause Animation')
         .on('mouseenter', function() {
             select(this)
@@ -1068,7 +1068,7 @@ export function drawMinkowskiDiagramD3(
         .style('cursor', 'pointer')
         .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
         .style('transition', 'all 200ms')
-        .style('visibility', 'hidden')
+        .style('display', 'none')
         .text('▶ Resume Animation')
         .on('mouseenter', function() {
             select(this)
@@ -1117,8 +1117,8 @@ export function drawMinkowskiDiagramD3(
     pauseButton.on('click', () => {
         animation.pause();
         isPlaying = false;
-        pauseButton.style('visibility', 'hidden');
-        resumeButton.style('visibility', 'visible');
+        pauseButton.style('display', 'none');
+        resumeButton.style('display', 'block');
         sliderContainer.style('display', 'flex');
         // Snap axes and simultaneity lines to their correct final positions
         renderAxes(svg, scales, data, false);
@@ -1139,8 +1139,8 @@ export function drawMinkowskiDiagramD3(
     resumeButton.on('click', () => {
         animation.play();
         isPlaying = true;
-        pauseButton.style('visibility', 'visible');
-        resumeButton.style('visibility', 'hidden');
+        pauseButton.style('display', 'block');
+        resumeButton.style('display', 'none');
         sliderContainer.style('display', 'none');
     });
 
@@ -1199,8 +1199,8 @@ export function drawMinkowskiDiagramD3(
         pause() {
             isPlaying = false;
             animation.pause();
-            pauseButton.style('visibility', 'hidden');
-            resumeButton.style('visibility', 'visible');
+            pauseButton.style('display', 'none');
+            resumeButton.style('display', 'block');
             sliderContainer.style('display', 'flex');
             // Snap axes and simultaneity lines to their correct final positions
             renderAxes(svg, scales, data, false);
@@ -1221,8 +1221,8 @@ export function drawMinkowskiDiagramD3(
         play() {
             isPlaying = true;
             animation.play();
-            pauseButton.style('visibility', 'visible');
-            resumeButton.style('visibility', 'hidden');
+            pauseButton.style('display', 'block');
+            resumeButton.style('display', 'none');
             sliderContainer.style('display', 'none');
         },
 
