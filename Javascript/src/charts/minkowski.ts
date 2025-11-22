@@ -630,16 +630,43 @@ function renderLabels(
         }
     });
 
-    // Velocity label (bottom-right corner)
-    labelsGroup.selectAll('text.velocity-label')
-        .data([{ beta: beta }])
+    // Velocity and separation labels (bottom-right corner)
+    const labelGroup = labelsGroup.selectAll('g.velocity-info')
+        .data([{ beta, ctPrime, xPrime }])
+        .join('g')
+        .attr('class', 'velocity-info');
+
+    labelGroup.selectAll('text.velocity-label')
+        .data(d => [d])
         .join('text')
         .attr('class', 'velocity-label header')
         .attr('x', size - 15)
-        .attr('y', size - 35)
+        .attr('y', size - 60)
         .attr('text-anchor', 'end')
         .attr('fill', D3_COLORS.quantumGreen)
         .text(d => `Moving frame ${d.beta.toFixed(2)}c`);
+
+    labelGroup.selectAll('text.separation-time')
+        .data(d => [d])
+        .join('text')
+        .attr('class', 'separation-time')
+        .attr('x', size - 15)
+        .attr('y', size - 45)
+        .attr('text-anchor', 'end')
+        .attr('fill', D3_COLORS.quantumGreen)
+        .style('font-size', '11px')
+        .text(d => `Δt' = ${(d.ctPrime / C).toFixed(1)} s`);
+
+    labelGroup.selectAll('text.separation-distance')
+        .data(d => [d])
+        .join('text')
+        .attr('class', 'separation-distance')
+        .attr('x', size - 15)
+        .attr('y', size - 30)
+        .attr('text-anchor', 'end')
+        .attr('fill', D3_COLORS.quantumGreen)
+        .style('font-size', '11px')
+        .text(d => `Δx' = ${d.xPrime.toFixed(1)} km`);
 }
 
 /**
@@ -833,6 +860,7 @@ function startFrameAnimation(
     let isPaused = false;
     let totalPausedTime = 0;
     let pauseStartTime = 0;
+    let manualPosition: number | null = null; // null = auto, 0-1 = manual
 
     const ct = data.time * C;
     const x = data.distance;
@@ -840,12 +868,8 @@ function startFrameAnimation(
     const beta = data.velocity;
     const targetAngle = Math.atan(beta);
 
-    const animationTimer = timer(() => {
-        if (isPaused) return;
-
-        const elapsed = Date.now() - startTime - totalPausedTime;
-        const t = (elapsed % LOOP_DURATION) / LOOP_DURATION; // 0 to 1
-
+    // Function to update frame based on position t (0-1)
+    const updateFrame = (t: number) => {
         // Smooth interpolation: 0-0.5 = orthogonal→tilted, 0.5-1 = tilted→orthogonal
         let p: number;
         if (t < 0.5) {
@@ -905,10 +929,26 @@ function startFrameAnimation(
                 .attr('y2', scales.yScale(ct + simLength * cosCurrent));
         }
 
-        // Update velocity label with interpolated velocity
+        // Update velocity label with interpolated velocity and transformed coordinates
         const currentBeta = Math.tan(currentAngle);
+        const currentGamma = 1 / Math.sqrt(1 - currentBeta * currentBeta);
+        const currentCtPrime = currentGamma * (ct - currentBeta * x);
+        const currentXPrime = currentGamma * (x - currentBeta * ct);
+
         svg.select('.velocity-label')
             .text(`Moving frame ${currentBeta.toFixed(2)}c`);
+        svg.select('.separation-time')
+            .text(`Δt' = ${(currentCtPrime / C).toFixed(1)} s`);
+        svg.select('.separation-distance')
+            .text(`Δx' = ${currentXPrime.toFixed(1)} km`);
+    };
+
+    const animationTimer = timer(() => {
+        if (isPaused || manualPosition !== null) return;
+
+        const elapsed = Date.now() - startTime - totalPausedTime;
+        const t = (elapsed % LOOP_DURATION) / LOOP_DURATION; // 0 to 1
+        updateFrame(t);
     });
 
     return {
@@ -922,10 +962,15 @@ function startFrameAnimation(
             if (isPaused) {
                 totalPausedTime += Date.now() - pauseStartTime;
                 isPaused = false;
+                manualPosition = null;
             }
         },
         stop() {
             animationTimer.stop();
+        },
+        setPosition(t: number) {
+            manualPosition = t;
+            updateFrame(t);
         }
     };
 }
@@ -957,14 +1002,24 @@ export function drawMinkowskiDiagramD3(
     // Setup tooltips
     const tooltips = setupTooltips(svg, container);
 
-    // Create animation control button
-    const controlButton = select(container)
-        .append('button')
-        .attr('class', 'minkowski-animation-control')
+    // Create control container
+    const controlContainer = select(container)
+        .append('div')
+        .attr('class', 'minkowski-controls')
         .style('position', 'absolute')
         .style('bottom', '10px')
         .style('left', '50%')
         .style('transform', 'translateX(-50%)')
+        .style('display', 'flex')
+        .style('flex-direction', 'column')
+        .style('align-items', 'center')
+        .style('gap', '8px')
+        .style('z-index', '1000');
+
+    // Create toggle button
+    const toggleButton = controlContainer
+        .append('button')
+        .attr('class', 'minkowski-toggle-button')
         .style('background', D3_COLORS.tooltipBg)
         .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
         .style('color', D3_COLORS.plasmaWhite)
@@ -973,10 +1028,9 @@ export function drawMinkowskiDiagramD3(
         .style('font-family', "'IBM Plex Mono', monospace")
         .style('font-size', '12px')
         .style('cursor', 'pointer')
-        .style('z-index', '1000')
         .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
         .style('transition', 'all 200ms')
-        .text('⏸ Pause Animation')
+        .text('Toggle Animation')
         .on('mouseenter', function() {
             select(this)
                 .style('background', D3_COLORS.tooltipBorder)
@@ -988,28 +1042,62 @@ export function drawMinkowskiDiagramD3(
                 .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`);
         });
 
+    // Create slider for manual position control (hidden initially)
+    const sliderContainer = controlContainer
+        .append('div')
+        .style('display', 'none')
+        .style('align-items', 'center')
+        .style('gap', '8px');
+
+    sliderContainer.append('label')
+        .style('color', D3_COLORS.quantumGreen)
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '11px')
+        .text('Position:');
+
+    sliderContainer
+        .append('input')
+        .attr('type', 'range')
+        .attr('min', '0')
+        .attr('max', '50')
+        .attr('value', '0')
+        .style('width', '200px')
+        .style('cursor', 'pointer')
+        .on('input', function() {
+            const value = parseFloat((this as HTMLInputElement).value) / 50;
+            animation.setPosition(value);
+        });
+
     // Start auto-play frame animation
     let animation = startFrameAnimation(svg, scales, data, () => {
         // Animation update callback (currently unused)
     });
     let isPlaying = true;
 
-    // Add click handler for control button
-    controlButton.on('click', () => {
+    // Add click handler for toggle button
+    toggleButton.on('click', () => {
         if (isPlaying) {
             animation.pause();
             isPlaying = false;
-            controlButton.text('▶ Resume Animation');
+            sliderContainer.style('display', 'flex');
             // Snap axes and simultaneity lines to their correct final positions
             renderAxes(svg, scales, data, false);
             renderSimultaneityLines(svg, scales, data, false);
-            // Update velocity label to show target velocity
+            // Update labels to show target velocity and separations
+            const beta = data.velocity;
+            const gamma = 1 / Math.sqrt(1 - beta * beta);
+            const ct = data.time * C;
+            const x = data.distance;
+            const ctPrime = gamma * (ct - beta * x);
+            const xPrime = gamma * (x - beta * ct);
             svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
+            svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(1)} s`);
+            svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(1)} km`);
             tooltips.reattach();
         } else {
             animation.play();
             isPlaying = true;
-            controlButton.text('⏸ Pause Animation');
+            sliderContainer.style('display', 'none');
         }
     });
 
@@ -1044,15 +1132,20 @@ export function drawMinkowskiDiagramD3(
             data = newData;
             scales = createScales(data, size);
 
+            const wasPlaying = isPlaying;
+
             // Stop old animation and restart with new data to prevent glitches
             animation.stop();
             animation = startFrameAnimation(svg, scales, data, () => {
                 // Animation update callback (currently unused)
             });
             
-            // If animation was paused, pause the new animation too
-            if (!isPlaying) {
+            // If animation was paused, pause the new animation too and show slider
+            if (!wasPlaying) {
                 animation.pause();
+                sliderContainer.style('display', 'flex');
+            } else {
+                sliderContainer.style('display', 'none');
             }
 
             renderLightCones(svg, scales, data, true);
@@ -1066,21 +1159,33 @@ export function drawMinkowskiDiagramD3(
         },
 
         pause() {
-            isPlaying = false;
-            animation.pause();
-            controlButton.text('▶ Resume Animation');
-            // Snap axes and simultaneity lines to their correct final positions
-            renderAxes(svg, scales, data, false);
-            renderSimultaneityLines(svg, scales, data, false);
-            // Update velocity label to show target velocity
-            svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
-            tooltips.reattach();
+            if (isPlaying) {
+                isPlaying = false;
+                animation.pause();
+                sliderContainer.style('display', 'flex');
+                // Snap axes and simultaneity lines to their correct final positions
+                renderAxes(svg, scales, data, false);
+                renderSimultaneityLines(svg, scales, data, false);
+                // Update labels to show target velocity and separations
+                const beta = data.velocity;
+                const gamma = 1 / Math.sqrt(1 - beta * beta);
+                const ct = data.time * C;
+                const x = data.distance;
+                const ctPrime = gamma * (ct - beta * x);
+                const xPrime = gamma * (x - beta * ct);
+                svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
+                svg.select('.separation-time').text(`Δt' = ${(ctPrime / C).toFixed(1)} s`);
+                svg.select('.separation-distance').text(`Δx' = ${xPrime.toFixed(1)} km`);
+                tooltips.reattach();
+            }
         },
 
         play() {
-            isPlaying = true;
-            animation.play();
-            controlButton.text('⏸ Pause Animation');
+            if (!isPlaying) {
+                isPlaying = true;
+                animation.play();
+                sliderContainer.style('display', 'none');
+            }
         },
 
         destroy() {
@@ -1088,7 +1193,7 @@ export function drawMinkowskiDiagramD3(
             document.removeEventListener('visibilitychange', visibilityChangeHandler);
             tooltips.destroy();
             animation.stop();
-            controlButton.remove();
+            controlContainer.remove();
             svg.remove();
         }
     };

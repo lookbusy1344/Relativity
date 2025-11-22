@@ -35,4 +35,5 @@ export interface AnimationController {
     pause(): void;
     play(): void;
     stop(): void;
+    setPosition(t: number): void;
 }
