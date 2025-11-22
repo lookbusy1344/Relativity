@@ -655,7 +655,7 @@ function renderLabels(
         .attr('text-anchor', 'end')
         .attr('fill', D3_COLORS.quantumGreen)
         .style('font-size', '11px')
-        .text(d => `Δt' = ${(d.ctPrime / C).toFixed(3)} s`);
+        .text(d => `Δt' = ${(d.ctPrime / C).toFixed(1)} s`);
 
     labelGroup.selectAll('text.separation-distance')
         .data(d => [d])
@@ -666,7 +666,7 @@ function renderLabels(
         .attr('text-anchor', 'end')
         .attr('fill', D3_COLORS.quantumGreen)
         .style('font-size', '11px')
-        .text(d => `Δx' = ${d.xPrime.toFixed(3)} km`);
+        .text(d => `Δx' = ${d.xPrime.toFixed(1)} km`);
 }
 
 /**
@@ -941,9 +941,9 @@ function startFrameAnimation(
         svg.select('.velocity-label')
             .text(`Moving frame ${currentBeta.toFixed(2)}c`);
         svg.select('.separation-time')
-            .text(`Δt' = ${(currentCtPrime / C).toFixed(3)} s`);
+            .text(`Δt' = ${(currentCtPrime / C).toFixed(1)} s`);
         svg.select('.separation-distance')
-            .text(`Δx' = ${currentXPrime.toFixed(3)} km`);
+            .text(`Δx' = ${currentXPrime.toFixed(1)} km`);
     });
 
     return {
