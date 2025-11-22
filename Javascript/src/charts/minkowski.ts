@@ -337,6 +337,7 @@ function renderAxes(
         .data(allAxes)
         .join('line')
         .attr('class', d => `axis-${d.frame}`)
+        .attr('data-axis', d => d.axis)
         .attr('stroke', d => d.color)
         .attr('stroke-width', 3)
         .attr('marker-end', d => d.frame === 'original' ? 'url(#arrowBlue)' : 'url(#arrowGreen)')
@@ -382,8 +383,8 @@ function renderSimultaneityLines(
 
     const lineData = [
         // Original frame
-        { x1: -extent, y1: ct, x2: extent, y2: ct, color: D3_COLORS.electricBlue, frame: 'original' },
-        { x1: x, y1: -extent, x2: x, y2: extent, color: D3_COLORS.electricBlue, frame: 'original' },
+        { x1: -extent, y1: ct, x2: extent, y2: ct, color: D3_COLORS.electricBlue, frame: 'original', line: 'simultaneity' },
+        { x1: x, y1: -extent, x2: x, y2: extent, color: D3_COLORS.electricBlue, frame: 'original', line: 'position' },
         // Moving frame
         {
             x1: x - extent / cosAngle * cosAngle,
@@ -391,7 +392,8 @@ function renderSimultaneityLines(
             x2: x + extent / cosAngle * cosAngle,
             y2: ct + extent / cosAngle * sinAngle,
             color: D3_COLORS.quantumGreen,
-            frame: 'moving'
+            frame: 'moving',
+            line: 'simultaneity'
         },
         {
             x1: x - extent / cosAngle * sinAngle,
@@ -399,7 +401,8 @@ function renderSimultaneityLines(
             x2: x + extent / cosAngle * sinAngle,
             y2: ct + extent / cosAngle * cosAngle,
             color: D3_COLORS.quantumGreen,
-            frame: 'moving'
+            frame: 'moving',
+            line: 'position'
         }
     ];
 
@@ -407,6 +410,7 @@ function renderSimultaneityLines(
         .data(lineData)
         .join('line')
         .attr('class', d => `simultaneity-${d.frame}`)
+        .attr('data-line', d => d.line)
         .attr('stroke', d => `${d.color}${D3_COLORS.simultaneity}`)
         .attr('stroke-width', 1.5)
         .attr('stroke-dasharray', '3,3');
@@ -760,12 +764,12 @@ function setupTooltips(
 
 /**
  * Start auto-play frame animation
- * Continuously interpolates between original and moving frame perspectives
+ * Animates moving frame axes between orthogonal and tilted positions
  */
 function startFrameAnimation(
     svg: Selection<SVGSVGElement, unknown, null, undefined>,
-    _scales: ScaleSet,
-    _data: MinkowskiData,
+    scales: ScaleSet,
+    data: MinkowskiData,
     _onUpdate: () => void
 ): AnimationController {
     const LOOP_DURATION = 4000; // 4 seconds total loop
@@ -773,13 +777,19 @@ function startFrameAnimation(
     let isPaused = false;
     let pausedTime = 0;
 
+    const ct = data.time * C;
+    const x = data.distance;
+    const extent = scales.maxCoord;
+    const beta = data.velocity;
+    const targetAngle = Math.atan(beta);
+
     const animationTimer = timer(() => {
         if (isPaused) return;
 
         const elapsed = Date.now() - startTime - pausedTime;
         const t = (elapsed % LOOP_DURATION) / LOOP_DURATION; // 0 to 1
 
-        // Smooth interpolation: 0-0.5 = original→moving, 0.5-1 = moving→original
+        // Smooth interpolation: 0-0.5 = orthogonal→tilted, 0.5-1 = tilted→orthogonal
         let p: number;
         if (t < 0.5) {
             // First half: ease into moving frame (0 → 1)
@@ -790,28 +800,53 @@ function startFrameAnimation(
             p = 1 - p;
         }
 
-        // Update axis emphasis (more pronounced)
-        svg.selectAll('.axis-original')
-            .style('opacity', 1 - p * 0.5)
-            .style('stroke-width', 3 - p * 1);
+        // Interpolate angle from 0 (orthogonal) to targetAngle (tilted)
+        const currentAngle = targetAngle * p;
+        const cosCurrent = Math.cos(currentAngle);
+        const sinCurrent = Math.sin(currentAngle);
 
-        svg.selectAll('.axis-moving')
-            .style('opacity', 0.5 + p * 0.5)
-            .style('stroke-width', 2 + p * 1);
+        // Animate ct' axis (interpolate between vertical and tilted)
+        const ctPrimeLength = extent / (cosCurrent || 0.01); // Avoid division by zero
+        svg.selectAll('.axis-moving').filter(function() {
+            return (this as SVGLineElement).getAttribute('data-axis') === 'ct\'';
+        })
+            .attr('x1', scales.xScale(-ctPrimeLength * sinCurrent))
+            .attr('y1', scales.yScale(-ctPrimeLength * cosCurrent))
+            .attr('x2', scales.xScale(ctPrimeLength * sinCurrent))
+            .attr('y2', scales.yScale(ctPrimeLength * cosCurrent));
 
-        // Update label prominence (more pronounced)
-        svg.selectAll('.label-original')
-            .style('opacity', 1 - p * 0.6);
+        // Animate x' axis (interpolate between horizontal and tilted)
+        const xPrimeLength = extent / (cosCurrent || 0.01);
+        svg.selectAll('.axis-moving').filter(function() {
+            return (this as SVGLineElement).getAttribute('data-axis') === 'x\'';
+        })
+            .attr('x1', scales.xScale(-xPrimeLength * cosCurrent))
+            .attr('y1', scales.yScale(-xPrimeLength * sinCurrent))
+            .attr('x2', scales.xScale(xPrimeLength * cosCurrent))
+            .attr('y2', scales.yScale(xPrimeLength * sinCurrent));
 
-        svg.selectAll('.label-moving')
-            .style('opacity', 0.4 + p * 0.6);
+        // Animate moving frame simultaneity lines if event exists
+        if (ct !== 0 || x !== 0) {
+            const simLength = extent / (cosCurrent || 0.01);
 
-        // Update simultaneity line emphasis (more pronounced)
-        svg.selectAll('.simultaneity-original')
-            .style('opacity', 0.5 - p * 0.3);
+            // Simultaneity line (parallel to x' axis)
+            svg.selectAll('.simultaneity-moving').filter(function() {
+                return (this as SVGLineElement).getAttribute('data-line') === 'simultaneity';
+            })
+                .attr('x1', scales.xScale(x - simLength * cosCurrent))
+                .attr('y1', scales.yScale(ct - simLength * sinCurrent))
+                .attr('x2', scales.xScale(x + simLength * cosCurrent))
+                .attr('y2', scales.yScale(ct + simLength * sinCurrent));
 
-        svg.selectAll('.simultaneity-moving')
-            .style('opacity', 0.2 + p * 0.3);
+            // Position line (parallel to ct' axis)
+            svg.selectAll('.simultaneity-moving').filter(function() {
+                return (this as SVGLineElement).getAttribute('data-line') === 'position';
+            })
+                .attr('x1', scales.xScale(x - simLength * sinCurrent))
+                .attr('y1', scales.yScale(ct - simLength * cosCurrent))
+                .attr('x2', scales.xScale(x + simLength * sinCurrent))
+                .attr('y2', scales.yScale(ct + simLength * cosCurrent));
+        }
     });
 
     return {
