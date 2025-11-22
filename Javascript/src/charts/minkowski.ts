@@ -629,6 +629,17 @@ function renderLabels(
                 .text('(Connected by light signal)');
         }
     });
+
+    // Velocity label (bottom-right corner)
+    labelsGroup.selectAll('text.velocity-label')
+        .data([{ beta: beta }])
+        .join('text')
+        .attr('class', 'velocity-label header')
+        .attr('x', size - 15)
+        .attr('y', size - 35)
+        .attr('text-anchor', 'end')
+        .attr('fill', D3_COLORS.quantumGreen)
+        .text(d => `Moving frame ${d.beta.toFixed(2)}c`);
 }
 
 /**
@@ -880,6 +891,11 @@ function startFrameAnimation(
                 .attr('x2', scales.xScale(x + simLength * sinCurrent))
                 .attr('y2', scales.yScale(ct + simLength * cosCurrent));
         }
+
+        // Update velocity label with interpolated velocity
+        const currentBeta = Math.tan(currentAngle);
+        svg.select('.velocity-label')
+            .text(`Moving frame ${currentBeta.toFixed(2)}c`);
     });
 
     return {
@@ -971,6 +987,8 @@ export function drawMinkowskiDiagramD3(
             // Snap axes and simultaneity lines to their correct final positions
             renderAxes(svg, scales, data, false);
             renderSimultaneityLines(svg, scales, data, false);
+            // Update velocity label to show target velocity
+            svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
             tooltips.reattach();
         } else {
             animation.play();
@@ -1027,6 +1045,8 @@ export function drawMinkowskiDiagramD3(
             // Snap axes and simultaneity lines to their correct final positions
             renderAxes(svg, scales, data, false);
             renderSimultaneityLines(svg, scales, data, false);
+            // Update velocity label to show target velocity
+            svg.select('.velocity-label').text(`Moving frame ${data.velocity.toFixed(2)}c`);
             tooltips.reattach();
         },
 
