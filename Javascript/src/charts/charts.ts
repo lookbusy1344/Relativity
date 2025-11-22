@@ -52,10 +52,11 @@ function createArrowIndicators(
     pointStyles: ('triangle' | 'circle')[];
     pointRotations: number[];
 } {
-    const pointRadii = data.map((_, i) => arrowIndices.indexOf(i) !== -1 ? 4 : 0);
-    const pointStyles = data.map((_, i) => arrowIndices.indexOf(i) !== -1 ? 'triangle' as const : 'circle' as const);
+    const arrowSet = new Set(arrowIndices);
+    const pointRadii = data.map((_, i) => arrowSet.has(i) ? 4 : 0);
+    const pointStyles = data.map((_, i) => arrowSet.has(i) ? 'triangle' as const : 'circle' as const);
     const pointRotations = data.map((_, i) => {
-        if (arrowIndices.indexOf(i) === -1) return 0;
+        if (!arrowSet.has(i)) return 0;
         const idx = arrowIndices.indexOf(i);
         if (idx === arrowIndices.length - 1) return 0;
         const nextArrowIdx = arrowIndices[idx + 1];

@@ -462,7 +462,7 @@ export function pionRocketFuelFraction(
  * @param thrustTime Duration of thrust in seconds
  * @param accel Constant proper acceleration (m/s²)
  * @param efficiencies Array of efficiency values (0-1)
- * @returns Array of fuel fractions (as percentages 0-100) for each efficiency level
+ * @returns Array of fuel fractions as percentages (0-100) for each efficiency level
  */
 export function pionRocketFuelFractionsMultiple(
     thrustTime: NumberInput,
