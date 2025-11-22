@@ -1040,7 +1040,7 @@ export function drawMinkowskiDiagramD3(
         .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
         .style('transition', 'all 200ms')
         .style('display', 'block')
-        .text('⏸ Pause Animation')
+        .text('Pause')
         .on('mouseenter', function() {
             select(this)
                 .style('background', D3_COLORS.tooltipBorder)
@@ -1069,7 +1069,7 @@ export function drawMinkowskiDiagramD3(
         .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
         .style('transition', 'all 200ms')
         .style('display', 'none')
-        .text('▶ Resume Animation')
+        .text('Resume')
         .on('mouseenter', function() {
             select(this)
                 .style('background', D3_COLORS.tooltipBorder)
