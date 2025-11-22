@@ -286,6 +286,17 @@ export function createSpacetimeIntervalHandler(
         const x2Km = rl.ensure(x2Input.value ?? 0);
         const velocityC = rl.ensure(velocityInput.value ?? 0);
 
+        // Validate velocity is in valid range (-1.0 < v < 1.0)
+        if (velocityC.lte(-1) || velocityC.gte(1)) {
+            setElement(resultSquared, "Invalid velocity", "");
+            setElement(resultType, "Velocity must be > -1.0 and < 1.0", "");
+            setElement(resultDeltaT, "-", "");
+            setElement(resultDeltaX, "-", "");
+            setElement(resultMinSep, "-", "");
+            setElement(resultVelocity, "-", "");
+            return;
+        }
+
         // Convert km to m for calculations
         const x2 = x2Km.mul(1000);
 
