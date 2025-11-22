@@ -870,8 +870,16 @@ function startFrameAnimation(
 
     // Function to update frame based on position t (0-1)
     const updateFrame = (t: number) => {
-        // Smooth interpolation from 0 to 1: orthogonal→tilted
-        const p = (1 - Math.cos(t * Math.PI)) / 2;
+        // Smooth interpolation: 0-0.5 = orthogonal→tilted, 0.5-1 = tilted→orthogonal
+        let p: number;
+        if (t < 0.5) {
+            // First half: ease into moving frame (0 → 1)
+            p = (1 - Math.cos(t * 2 * Math.PI)) / 2;
+        } else {
+            // Second half: ease back to original frame (1 → 0)
+            p = (1 - Math.cos((t - 0.5) * 2 * Math.PI)) / 2;
+            p = 1 - p;
+        }
 
         // Interpolate angle from 0 (orthogonal) to targetAngle (tilted)
         const currentAngle = targetAngle * p;
@@ -1090,12 +1098,12 @@ export function drawMinkowskiDiagramD3(
         .append('input')
         .attr('type', 'range')
         .attr('min', '0')
-        .attr('max', '100')
+        .attr('max', '50')
         .attr('value', '0')
         .style('width', '200px')
         .style('cursor', 'pointer')
         .on('input', function() {
-            const value = parseFloat((this as HTMLInputElement).value) / 100;
+            const value = parseFloat((this as HTMLInputElement).value) / 50;
             animation.setPosition(value);
         });
 
