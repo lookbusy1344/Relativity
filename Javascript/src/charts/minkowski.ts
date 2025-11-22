@@ -1044,6 +1044,17 @@ export function drawMinkowskiDiagramD3(
             data = newData;
             scales = createScales(data, size);
 
+            // Stop old animation and restart with new data to prevent glitches
+            animation.stop();
+            animation = startFrameAnimation(svg, scales, data, () => {
+                // Animation update callback (currently unused)
+            });
+            
+            // If animation was paused, pause the new animation too
+            if (!isPlaying) {
+                animation.pause();
+            }
+
             renderLightCones(svg, scales, data, true);
             renderSimultaneityLines(svg, scales, data, true);
             renderAxes(svg, scales, data, true);
