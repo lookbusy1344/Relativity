@@ -114,6 +114,36 @@ function createMassRemainingDatasets(
     }];
 }
 
+/**
+ * Create dual-time dataset configuration (proper time vs coordinate time)
+ */
+function createDualTimeDatasets(
+    properTimeData: { x: number; y: number }[],
+    coordTimeData: { x: number; y: number }[],
+    properLabel: string,
+    coordLabel: string
+): any[] {
+    return [{
+        label: properLabel,
+        data: properTimeData,
+        borderColor: '#00d9ff',
+        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0
+    }, {
+        label: coordLabel,
+        data: coordTimeData,
+        borderColor: '#00ff9f',
+        backgroundColor: 'rgba(0, 255, 159, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0
+    }];
+}
+
 function createChartOptions(config: ChartStyleConfig): ChartOptions {
     const baseOptions: ChartOptions = {
         responsive: true,
@@ -240,25 +270,12 @@ export function updateAccelCharts(
     newRegistry = updateChart(
         newRegistry,
         'accelVelocityChart',
-        [{
-            label: 'Velocity vs Proper Time',
-            data: data.properTimeVelocity,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Velocity vs Coordinate Time',
-            data: data.coordTimeVelocity,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeVelocity,
+            data.coordTimeVelocity,
+            'Velocity vs Proper Time',
+            'Velocity vs Coordinate Time'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -272,25 +289,12 @@ export function updateAccelCharts(
     newRegistry = updateChart(
         newRegistry,
         'accelLorentzChart',
-        [{
-            label: 'Time Dilation vs Proper Time (1/γ)',
-            data: data.properTimeTimeDilation,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Time Dilation vs Coordinate Time (1/γ)',
-            data: data.coordTimeTimeDilation,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeTimeDilation,
+            data.coordTimeTimeDilation,
+            'Time Dilation vs Proper Time (1/γ)',
+            'Time Dilation vs Coordinate Time (1/γ)'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -305,25 +309,12 @@ export function updateAccelCharts(
     newRegistry = updateChart(
         newRegistry,
         'accelRapidityChart',
-        [{
-            label: 'Rapidity vs Proper Time',
-            data: data.properTimeRapidity,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Rapidity vs Coordinate Time',
-            data: data.coordTimeRapidity,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeRapidity,
+            data.coordTimeRapidity,
+            'Rapidity vs Proper Time',
+            'Rapidity vs Coordinate Time'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -394,25 +385,12 @@ export function updateFlipBurnCharts(
     newRegistry = updateChart(
         newRegistry,
         'flipVelocityChart',
-        [{
-            label: 'Velocity vs Proper Time',
-            data: data.properTimeVelocity,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Velocity vs Coordinate Time',
-            data: data.coordTimeVelocity,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeVelocity,
+            data.coordTimeVelocity,
+            'Velocity vs Proper Time',
+            'Velocity vs Coordinate Time'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -426,25 +404,12 @@ export function updateFlipBurnCharts(
     newRegistry = updateChart(
         newRegistry,
         'flipLorentzChart',
-        [{
-            label: 'Time Dilation vs Proper Time (1/γ)',
-            data: data.properTimeLorentz,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Time Dilation vs Coordinate Time (1/γ)',
-            data: data.coordTimeLorentz,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeLorentz,
+            data.coordTimeLorentz,
+            'Time Dilation vs Proper Time (1/γ)',
+            'Time Dilation vs Coordinate Time (1/γ)'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
@@ -459,25 +424,12 @@ export function updateFlipBurnCharts(
     newRegistry = updateChart(
         newRegistry,
         'flipRapidityChart',
-        [{
-            label: 'Rapidity vs Proper Time',
-            data: data.properTimeRapidity,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }, {
-            label: 'Rapidity vs Coordinate Time',
-            data: data.coordTimeRapidity,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeRapidity,
+            data.coordTimeRapidity,
+            'Rapidity vs Proper Time',
+            'Rapidity vs Coordinate Time'
+        ),
         {
             primaryColor: '#00d9ff',
             secondaryColor: '#00ff9f',
