@@ -1,14 +1,7 @@
 // D3 imports for new implementation
-// Imports will be used in subsequent tasks
 import { select, Selection } from 'd3-selection';
-// @ts-expect-error - Imports will be used in subsequent tasks
-import { scaleLinear } from 'd3-scale';
-// @ts-expect-error - Imports will be used in subsequent tasks
-import { transition } from 'd3-transition';
 import { easeCubicInOut } from 'd3-ease';
-// @ts-expect-error - timer will be used in subsequent tasks
 import { timer } from 'd3-timer';
-import type { Timer } from 'd3-timer';
 // Imports will be used in subsequent tasks
 import { COLORS as D3_COLORS } from './minkowski-colors';
 import type {
@@ -342,6 +335,7 @@ function renderAxes(
     const axisLines = axesGroup.selectAll('line')
         .data(allAxes)
         .join('line')
+        .attr('class', d => `axis-${d.frame}`)
         .attr('stroke', d => d.color)
         .attr('stroke-width', 3)
         .attr('marker-end', d => d.frame === 'original' ? 'url(#arrowBlue)' : 'url(#arrowGreen)')
@@ -411,6 +405,7 @@ function renderSimultaneityLines(
     const lines = simGroup.selectAll('line')
         .data(lineData)
         .join('line')
+        .attr('class', d => `simultaneity-${d.frame}`)
         .attr('stroke', d => `${d.color}${D3_COLORS.simultaneity}`)
         .attr('stroke-width', 1.5)
         .attr('stroke-dasharray', '3,3');
@@ -547,7 +542,7 @@ function renderLabels(
             dx: 12,
             dy: -25,
             color: D3_COLORS.electricBlue,
-            class: 'label'
+            class: 'label label-original'
         });
         labelData.push({
             text: `(ct'=${formatCoordinateD3(ctPrime)}, x'=${formatCoordinateD3(xPrime)})`,
@@ -556,7 +551,7 @@ function renderLabels(
             dx: 12,
             dy: -8,
             color: D3_COLORS.quantumGreen,
-            class: 'label'
+            class: 'label label-moving'
         });
     }
 
@@ -763,6 +758,78 @@ function setupTooltips(
 }
 
 /**
+ * Start auto-play frame animation
+ * Continuously interpolates between original and moving frame perspectives
+ */
+function startFrameAnimation(
+    svg: Selection<SVGSVGElement, unknown, null, undefined>,
+    _scales: ScaleSet,
+    _data: MinkowskiData,
+    _onUpdate: () => void
+): AnimationController {
+    const LOOP_DURATION = 4000; // 4 seconds total loop
+    let startTime = Date.now();
+    let isPaused = false;
+    let pausedTime = 0;
+
+    const animationTimer = timer(() => {
+        if (isPaused) return;
+
+        const elapsed = Date.now() - startTime - pausedTime;
+        const t = (elapsed % LOOP_DURATION) / LOOP_DURATION; // 0 to 1
+
+        // Smooth interpolation: 0-0.5 = original→moving, 0.5-1 = moving→original
+        let p: number;
+        if (t < 0.5) {
+            // First half: ease into moving frame (0 → 1)
+            p = (1 - Math.cos(t * 2 * Math.PI)) / 2;
+        } else {
+            // Second half: ease back to original frame (1 → 0)
+            p = (1 - Math.cos((t - 0.5) * 2 * Math.PI)) / 2;
+            p = 1 - p;
+        }
+
+        // Update axis emphasis
+        svg.selectAll('.axis-original')
+            .style('opacity', 1 - p * 0.3)
+            .style('stroke-width', 3 - p * 0.5);
+
+        svg.selectAll('.axis-moving')
+            .style('opacity', 0.7 + p * 0.3)
+            .style('stroke-width', 2.5 + p * 0.5);
+
+        // Update label prominence
+        svg.selectAll('.label-original')
+            .style('opacity', 1 - p * 0.4);
+
+        svg.selectAll('.label-moving')
+            .style('opacity', 0.7 + p * 0.3);
+
+        // Update simultaneity line emphasis
+        svg.selectAll('.simultaneity-original')
+            .style('opacity', 0.5 - p * 0.2);
+
+        svg.selectAll('.simultaneity-moving')
+            .style('opacity', 0.3 + p * 0.2);
+    });
+
+    return {
+        pause() {
+            isPaused = true;
+        },
+        play() {
+            if (isPaused) {
+                pausedTime += Date.now() - startTime;
+                isPaused = false;
+            }
+        },
+        stop() {
+            animationTimer.stop();
+        }
+    };
+}
+
+/**
  * Main function: Draw Minkowski spacetime diagram (D3 version)
  *
  * @param container - HTML element to render into
@@ -789,12 +856,21 @@ export function drawMinkowskiDiagramD3(
     // Setup tooltips
     const tooltips = setupTooltips(svg, container);
 
-    // Animation state
-    let animationTimer: Timer | null = null;
-    // @ts-expect-error - For future feature (frame animation)
+    // Start auto-play frame animation
+    let animation = startFrameAnimation(svg, scales, data, () => {
+        // Animation update callback (currently unused)
+    });
     let isPlaying = true;
 
-    // TODO: Add auto-play frame animation in next task
+    // Pause animation when tab is hidden
+    const visibilityChangeHandler = () => {
+        if (document.hidden) {
+            animation.pause();
+        } else if (isPlaying) {
+            animation.play();
+        }
+    };
+    document.addEventListener('visibilitychange', visibilityChangeHandler);
 
     // Resize handler
     const resizeHandler = debounce(() => {
@@ -823,22 +899,19 @@ export function drawMinkowskiDiagramD3(
 
         pause() {
             isPlaying = false;
-            if (animationTimer) {
-                (animationTimer as Timer).stop();
-            }
+            animation.pause();
         },
 
         play() {
             isPlaying = true;
-            // TODO: Restart animation
+            animation.play();
         },
 
         destroy() {
             window.removeEventListener('resize', resizeHandler);
+            document.removeEventListener('visibilitychange', visibilityChangeHandler);
             tooltips.destroy();
-            if (animationTimer) {
-                (animationTimer as Timer).stop();
-            }
+            animation.stop();
             svg.remove();
         }
     };
