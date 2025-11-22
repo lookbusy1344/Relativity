@@ -156,4 +156,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
+
+    // Handle tab changes - trigger calculation when spacetime tab is opened
+    const spacetimeTab = document.getElementById('spacetime-tab');
+    if (spacetimeTab) {
+        spacetimeTab.addEventListener('shown.bs.tab', () => {
+            // Check if the diagram hasn't been generated yet
+            if (!minkowskiState.controller) {
+                // Trigger the spacetime calculation
+                const spacetimeButton = getButtonElement('spacetimeButton');
+                spacetimeButton?.click();
+            }
+        });
+    }
 });
