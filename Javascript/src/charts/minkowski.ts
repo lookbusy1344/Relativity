@@ -666,7 +666,6 @@ function setupTooltips(
                             axis === 'ct\'' ? 'ct\' axis - Moving Frame (time)' :
                             'x\' axis - Moving Frame (space)';
 
-            const rect = container.getBoundingClientRect();
             tooltip.html(axisName)
                 .style('position', 'fixed')
                 .style('left', `${event.clientX + 10}px`)
@@ -925,11 +924,59 @@ export function drawMinkowskiDiagramD3(
     // Setup tooltips
     const tooltips = setupTooltips(svg, container);
 
+    // Create animation control button
+    const controlButton = select(container)
+        .append('button')
+        .attr('class', 'minkowski-animation-control')
+        .style('position', 'absolute')
+        .style('bottom', '10px')
+        .style('left', '50%')
+        .style('transform', 'translateX(-50%)')
+        .style('background', D3_COLORS.tooltipBg)
+        .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
+        .style('color', D3_COLORS.plasmaWhite)
+        .style('padding', '8px 16px')
+        .style('border-radius', '4px')
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '12px')
+        .style('cursor', 'pointer')
+        .style('z-index', '1000')
+        .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
+        .style('transition', 'all 200ms')
+        .text('⏸ Pause Animation')
+        .on('mouseenter', function() {
+            select(this)
+                .style('background', D3_COLORS.tooltipBorder)
+                .style('box-shadow', `0 0 15px ${D3_COLORS.tooltipBorder}80`);
+        })
+        .on('mouseleave', function() {
+            select(this)
+                .style('background', D3_COLORS.tooltipBg)
+                .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`);
+        });
+
     // Start auto-play frame animation
     let animation = startFrameAnimation(svg, scales, data, () => {
         // Animation update callback (currently unused)
     });
     let isPlaying = true;
+
+    // Add click handler for control button
+    controlButton.on('click', () => {
+        if (isPlaying) {
+            animation.pause();
+            isPlaying = false;
+            controlButton.text('▶ Resume Animation');
+            // Snap axes and simultaneity lines to their correct final positions
+            renderAxes(svg, scales, data, false);
+            renderSimultaneityLines(svg, scales, data, false);
+            tooltips.reattach();
+        } else {
+            animation.play();
+            isPlaying = true;
+            controlButton.text('⏸ Pause Animation');
+        }
+    });
 
     // Pause animation when tab is hidden
     const visibilityChangeHandler = () => {
@@ -975,11 +1022,17 @@ export function drawMinkowskiDiagramD3(
         pause() {
             isPlaying = false;
             animation.pause();
+            controlButton.text('▶ Resume Animation');
+            // Snap axes and simultaneity lines to their correct final positions
+            renderAxes(svg, scales, data, false);
+            renderSimultaneityLines(svg, scales, data, false);
+            tooltips.reattach();
         },
 
         play() {
             isPlaying = true;
             animation.play();
+            controlButton.text('⏸ Pause Animation');
         },
 
         destroy() {
@@ -987,6 +1040,7 @@ export function drawMinkowskiDiagramD3(
             document.removeEventListener('visibilitychange', visibilityChangeHandler);
             tooltips.destroy();
             animation.stop();
+            controlButton.remove();
             svg.remove();
         }
     };
