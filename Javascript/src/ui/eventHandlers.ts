@@ -108,14 +108,8 @@ export function createAccelHandler(
             const relDistKm = relDist.div(1000);
 
             // Calculate fuel fractions at all efficiencies
-            const fuelFraction40 = rl.pionRocketFuelFraction(secs, accel, 0.4);
-            const fuelPercent40 = fuelFraction40.mul(100);
-            const fuelFraction50 = rl.pionRocketFuelFraction(secs, accel, 0.5);
-            const fuelPercent50 = fuelFraction50.mul(100);
-            const fuelFraction60 = rl.pionRocketFuelFraction(secs, accel, 0.6);
-            const fuelPercent60 = fuelFraction60.mul(100);
-            const fuelFraction70 = rl.pionRocketFuelFraction(secs, accel, 0.7);
-            const fuelPercent70 = fuelFraction70.mul(100);
+            const [fuelPercent40, fuelPercent50, fuelPercent60, fuelPercent70] = 
+                rl.pionRocketFuelFractionsMultiple(secs, accel, [0.4, 0.5, 0.6, 0.7]);
 
             if (resultA1) setElement(resultA1, rl.formatSignificant(relVelKm, "9", 3), "km/s");
             if (resultA2) setElement(resultA2, rl.formatSignificant(relDistKm, "9", 3), "km");
@@ -173,14 +167,8 @@ export function createFlipBurnHandler(
             const sec = rl.formatSignificant(rl.one.mul(lorentz), "0", 2);
 
             // Calculate fuel fractions at all efficiencies
-            const fuelFraction40 = rl.pionRocketFuelFraction(res.properTime, accel, 0.4);
-            const fuelPercent40 = fuelFraction40.mul(100);
-            const fuelFraction50 = rl.pionRocketFuelFraction(res.properTime, accel, 0.5);
-            const fuelPercent50 = fuelFraction50.mul(100);
-            const fuelFraction60 = rl.pionRocketFuelFraction(res.properTime, accel, 0.6);
-            const fuelPercent60 = fuelFraction60.mul(100);
-            const fuelFraction70 = rl.pionRocketFuelFraction(res.properTime, accel, 0.7);
-            const fuelPercent70 = fuelFraction70.mul(100);
+            const [fuelPercent40, fuelPercent50, fuelPercent60, fuelPercent70] = 
+                rl.pionRocketFuelFractionsMultiple(res.properTime, accel, [0.4, 0.5, 0.6, 0.7]);
 
             if (resultFlip1) setElement(resultFlip1, rl.formatSignificant(properTime, "0", 2), "yrs");
             if (resultFlip2) setElement(resultFlip2, rl.formatSignificant(peak, "9", 2), "c");
