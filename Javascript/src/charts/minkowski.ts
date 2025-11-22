@@ -1132,15 +1132,20 @@ export function drawMinkowskiDiagramD3(
             data = newData;
             scales = createScales(data, size);
 
+            const wasPlaying = isPlaying;
+
             // Stop old animation and restart with new data to prevent glitches
             animation.stop();
             animation = startFrameAnimation(svg, scales, data, () => {
                 // Animation update callback (currently unused)
             });
             
-            // If animation was paused, pause the new animation too
-            if (!isPlaying) {
+            // If animation was paused, pause the new animation too and show slider
+            if (!wasPlaying) {
                 animation.pause();
+                sliderContainer.style('display', 'flex');
+            } else {
+                sliderContainer.style('display', 'none');
             }
 
             renderLightCones(svg, scales, data, true);
