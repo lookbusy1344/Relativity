@@ -230,6 +230,7 @@ function renderLightCones(
     const ct = data.time * C;
     const x = data.distance;
     const extent = scales.maxCoord;
+    const largeExtent = extent * 2; // Use a larger extent for event cone
 
     const lightConesGroup = svg.select('g.light-cones');
     const backgroundGroup = svg.select('g.background');
@@ -252,8 +253,8 @@ function renderLightCones(
 
     // Event light cone fill data
     const eventFillData = (ct !== 0 || x !== 0) ? [
-        { points: [[x, ct], [x + extent, ct + extent], [x + extent, ct - extent]], class: 'future' },
-        { points: [[x, ct], [x - extent, ct - extent], [x - extent, ct + extent]], class: 'past' }
+        { points: [[x, ct], [x + largeExtent, ct + largeExtent], [x + largeExtent, ct - largeExtent]], class: 'future' },
+        { points: [[x, ct], [x - largeExtent, ct - largeExtent], [x - largeExtent, ct + largeExtent]], class: 'past' }
     ] : [];
 
     backgroundGroup.selectAll('polygon.event-cone-fill')
@@ -274,8 +275,8 @@ function renderLightCones(
 
     if (ct !== 0 || x !== 0) {
         lineData.push(
-            { x1: x - extent, y1: ct - extent, x2: x + extent, y2: ct + extent, from: 'event' },
-            { x1: x - extent, y1: ct + extent, x2: x + extent, y2: ct - extent, from: 'event' }
+            { x1: x - largeExtent, y1: ct - largeExtent, x2: x + largeExtent, y2: ct + largeExtent, from: 'event' },
+            { x1: x - largeExtent, y1: ct + largeExtent, x2: x + largeExtent, y2: ct - largeExtent, from: 'event' }
         );
     }
 
