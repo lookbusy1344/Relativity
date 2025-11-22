@@ -123,9 +123,15 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getResultElement('resultSpacetimeDeltaX'),
             () => getResultElement('resultSpacetimeMinSep'),
             () => getResultElement('resultSpacetimeVelocity'),
-            (_container, data, controller) => {
+            (container, data, _controller) => {
+                if (minkowskiState.controller) {
+                    // Update existing diagram
+                    minkowskiState.controller.update(data);
+                } else {
+                    // Create new diagram
+                    minkowskiState.controller = drawMinkowskiDiagramD3(container, data);
+                }
                 minkowskiState.lastData = data;
-                minkowskiState.controller = controller;
             }
         )
     );

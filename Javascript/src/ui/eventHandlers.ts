@@ -368,11 +368,10 @@ export function createSpacetimeIntervalHandler(
                 intervalType
             };
 
-            const controller = drawMinkowskiDiagramD3(container, diagramData);
-
             // Notify caller that diagram was drawn (for resize handling)
+            // The callback will handle creating or updating the diagram
             if (onDiagramDrawn) {
-                onDiagramDrawn(container, diagramData, controller);
+                onDiagramDrawn(container, diagramData, null as any);
             }
         }
     };
