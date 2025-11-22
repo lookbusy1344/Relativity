@@ -20,14 +20,14 @@
         "decimal.js": "^10.6.0"
     },
     "devDependencies": {
-        "@types/d3-ease": "^3",
-        "@types/d3-scale": "^4",
-        "@types/d3-selection": "^3",
-        "@types/d3-timer": "^3",
-        "@types/d3-transition": "^3",
+        "@types/d3-ease": "^3.0.2",
+        "@types/d3-scale": "^4.0.9",
+        "@types/d3-selection": "^3.0.11",
+        "@types/d3-timer": "^3.0.2",
+        "@types/d3-transition": "^3.0.9",
         "esbuild": "^0.27.0",
         "typescript": "^5.9.3",
-        "vite": "^7.2.2"
+        "vite": "^7.2.4"
     },
     "resolutions": {
         "glob": "^11.1.0"
