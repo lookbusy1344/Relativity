@@ -20,6 +20,8 @@ The maths needed for special relativity is not difficult, there's nothing more c
 
 [Spacetime intervals, invariant intervals between events](https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb)
 
+[A few notes on antimatter rocket propulsion](https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb)
+
 ## Web-based calculator
 
 There is also a web-based Javascript calculator with visualizations, available here https://lookbusy1344.github.io/Relativity/
