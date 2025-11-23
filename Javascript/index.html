@@ -1063,7 +1063,7 @@
 
 					<div class="calc-section">
 						<div class="calc-label">
-							Charged-pion rocket - Constant 1g Acceleration
+							Charged-pion rocket at 1g
 							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
 						</div>
 						<div class="input-group-custom">
@@ -1088,6 +1088,31 @@
 						<div style="margin-top: 1rem;">
 							<div class="result-item-label">Time at constant 1g</div>
 							<div class="result-box" id="resultPionAccel">-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Fuel Fraction Calculator at 1g
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Thrust Time (days)</div>
+								<input type="number" id="fuelFractionTimeInput" placeholder="e.g., 365" value="365"
+									class="form-control" step="1" min="0">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Nozzle Efficiency (%)</div>
+								<input type="number" id="fuelFractionEffInput" placeholder="e.g., 85" value="85"
+									class="form-control" step="1" min="0" max="100">
+							</div>
+							<button type="button" class="btn-calculate" id="fuelFractionButton"
+								>Calculate</button>
+						</div>
+						<div style="margin-top: 1rem;">
+							<div class="result-item-label">Fuel Fraction</div>
+							<div class="result-box" id="resultFuelFraction">-</div>
 						</div>
 					</div>
 

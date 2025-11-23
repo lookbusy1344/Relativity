@@ -8,6 +8,7 @@ import {
     createFlipBurnHandler,
     createAddVelocitiesHandler,
     createPionAccelTimeHandler,
+    createPionFuelFractionHandler,
     createSpacetimeIntervalHandler
 } from './ui/eventHandlers';
 import { type ChartRegistry } from './charts/charts';
@@ -108,6 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getInputElement('pionDryMassInput'),
             () => getInputElement('pionEfficiencyInput'),
             () => getResultElement('resultPionAccel')
+        )
+    );
+
+    // Pion rocket fuel fraction
+    getButtonElement('fuelFractionButton')?.addEventListener('click',
+        createPionFuelFractionHandler(
+            () => getInputElement('fuelFractionTimeInput'),
+            () => getInputElement('fuelFractionEffInput'),
+            () => getResultElement('resultFuelFraction')
         )
     );
 

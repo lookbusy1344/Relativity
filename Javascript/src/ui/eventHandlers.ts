@@ -240,6 +240,29 @@ export function createPionAccelTimeHandler(
     };
 }
 
+export function createPionFuelFractionHandler(
+    getThrustTimeInput: () => HTMLInputElement | null,
+    getEfficiencyInput: () => HTMLInputElement | null,
+    getResult: () => HTMLElement | null
+): () => void {
+    return () => {
+        const thrustTimeInput = getThrustTimeInput();
+        const efficiencyInput = getEfficiencyInput();
+        const result = getResult();
+        if (!thrustTimeInput || !efficiencyInput || !result) return;
+
+        const thrustTimeDays = rl.ensure(thrustTimeInput.value ?? 365);
+        const thrustTimeSeconds = thrustTimeDays.mul(60 * 60 * 24);
+        const efficiencyPercent = rl.ensure(efficiencyInput.value ?? 85);
+        const efficiency = efficiencyPercent.div(100);
+
+        const fuelFraction = rl.pionRocketFuelFraction(thrustTimeSeconds, rl.g, efficiency);
+        const fuelFractionPercent = fuelFraction.mul(100);
+
+        setElement(result, rl.formatSignificant(fuelFractionPercent, "9", 2), "%");
+    };
+}
+
 export function createSpacetimeIntervalHandler(
     getTime2Input: () => HTMLInputElement | null,
     getX2Input: () => HTMLInputElement | null,
