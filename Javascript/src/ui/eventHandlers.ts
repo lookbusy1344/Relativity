@@ -115,10 +115,10 @@ export function createAccelHandler(
             if (resultA2) setElement(resultA2, rl.formatSignificant(relDistKm, "9", 3), "km");
             if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
             if (resultA2b) setElement(resultA2b, rl.formatSignificant(relDistC, "0", 3), "ly");
-            if (resultAFuel40) setElement(resultAFuel40, rl.formatSignificant(fuelPercent70, "0", 8), "%");
-            if (resultAFuel) setElement(resultAFuel, rl.formatSignificant(fuelPercent75, "0", 8), "%");
-            if (resultAFuel60) setElement(resultAFuel60, rl.formatSignificant(fuelPercent80, "0", 8), "%");
-            if (resultAFuel70) setElement(resultAFuel70, rl.formatSignificant(fuelPercent85, "0", 8), "%");
+            if (resultAFuel40) setElement(resultAFuel40, rl.formatSignificant(fuelPercent70, "9", 3), "%");
+            if (resultAFuel) setElement(resultAFuel, rl.formatSignificant(fuelPercent75, "9", 3), "%");
+            if (resultAFuel60) setElement(resultAFuel60, rl.formatSignificant(fuelPercent80, "9", 3), "%");
+            if (resultAFuel70) setElement(resultAFuel70, rl.formatSignificant(fuelPercent85, "9", 3), "%");
 
             // Update charts
             const durationDays = parseFloat(timeInput.value ?? '365');
@@ -176,10 +176,10 @@ export function createFlipBurnHandler(
             if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
             if (resultFlip5) setElement(resultFlip5, `1m becomes ${metre}m`, "");
             if (resultFlip6) setElement(resultFlip6, `1s becomes ${sec}s`, "");
-            if (resultFlipFuel40) setElement(resultFlipFuel40, rl.formatSignificant(fuelPercent70, "0", 8), "%");
-            if (resultFlipFuel) setElement(resultFlipFuel, rl.formatSignificant(fuelPercent75, "0", 8), "%");
-            if (resultFlipFuel60) setElement(resultFlipFuel60, rl.formatSignificant(fuelPercent80, "0", 8), "%");
-            if (resultFlipFuel70) setElement(resultFlipFuel70, rl.formatSignificant(fuelPercent85, "0", 8), "%");
+            if (resultFlipFuel40) setElement(resultFlipFuel40, rl.formatSignificant(fuelPercent70, "9", 3), "%");
+            if (resultFlipFuel) setElement(resultFlipFuel, rl.formatSignificant(fuelPercent75, "9", 3), "%");
+            if (resultFlipFuel60) setElement(resultFlipFuel60, rl.formatSignificant(fuelPercent80, "9", 3), "%");
+            if (resultFlipFuel70) setElement(resultFlipFuel70, rl.formatSignificant(fuelPercent85, "9", 3), "%");
 
             // Update charts
             const data = generateFlipBurnChartData(accelG, distanceLightYears);
