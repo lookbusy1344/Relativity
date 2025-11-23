@@ -199,7 +199,8 @@ if __name__ == "__main__":
     t = pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency=0.85)
     years = t / rl.seconds_per_year
     print(
-        f"Dry mass {float(dry_mass):.0f}, fuel mass {float(fuel_mass):.0f} means {float(years):.2f} years at 1g with 85% nozzle efficiency"
+        f"Dry mass {float(dry_mass):.0f}, fuel mass {float(fuel_mass):.0f} means {float(years):.2f} years at 1g "
+        f"(85% nozzle efficiency, ~57% total system efficiency)"
     )
 
     # Calculate propellant fraction for 3.52 years of 1g acceleration at 85% nozzle efficiency
@@ -207,5 +208,6 @@ if __name__ == "__main__":
     secs = rl.seconds_per_year * years
     f = pion_rocket_fuel_fraction(secs, None, 0.85)
     print(
-        f"Propellant mass fraction: {float(f) * 100:.4f}% for {float(years)} years of 1g acceleration at 85% nozzle efficiency"
+        f"Propellant mass fraction: {float(f) * 100:.4f}% for {float(years)} years of 1g "
+        f"(85% nozzle efficiency, ~57% total system efficiency)"
     )
