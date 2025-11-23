@@ -395,25 +395,38 @@ export function spacetimeInterval3d(event1: Interval, event2: Interval): Decimal
 /**
  * Compute the time (in seconds) that a rocket can maintain constant proper acceleration
  * using matter-antimatter annihilation with charged-pion exhaust.
+ * 
+ * Physics: Matter-antimatter annihilation produces ~1/3 each of π⁺, π⁻, and π⁰.
+ * Only charged pions (π⁺, π⁻) can be magnetically redirected for thrust.
+ * Neutral pions (π⁰) decay immediately to gamma rays that cannot be directed,
+ * representing unavoidable ~33% energy loss.
+ * 
  * @param fuelMass Combined matter + antimatter mass (kg) that will be annihilated
  * @param dryMass Dry mass of the spacecraft after all fuel is gone (kg)
- * @param efficiency Fraction of usable annihilation energy channelled into directed charged-pion thrust (default 1.0 = ideal)
+ * @param nozzleEfficiency Magnetic nozzle effectiveness at directing charged pions (0–1).
+ *                         Default = 0.85 (realistic for magnetic nozzles).
+ *                         Note: Total system efficiency ≈ (2/3) × nozzleEfficiency ≈ 0.567 at default.
  * @param accel Acceleration to maintain (m/s²). Default = 1g (9.80665 m/s²)
  * @returns Acceleration time in seconds as a Decimal
  */
 export function pionRocketAccelTime(
     fuelMass: NumberInput,
     dryMass: NumberInput,
-    efficiency: NumberInput = 0.6,
+    nozzleEfficiency: NumberInput = 0.85,
     accel: NumberInput = g
 ): Decimal {
     const fuelD = check(fuelMass, "Invalid fuel mass");
     const dryD = check(dryMass, "Invalid dry mass");
-    const effD = check(efficiency, "Invalid efficiency");
+    const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
     const accelD = check(accel, "Invalid acceleration");
 
-    // Charged pion exhaust velocity (~0.94c)
-    const ve = c.mul(0.94).mul(effD);
+    // Charged pion fraction: ~2/3 of energy goes to charged pions (π⁺, π⁻)
+    // The remaining ~1/3 goes to neutral pions (π⁰) which cannot be directed
+    const chargedFraction = new Decimal(2).div(3);
+    
+    // Effective exhaust velocity accounting for both charged fraction and nozzle efficiency
+    // Base pion velocity ~0.94c, reduced by charged fraction and nozzle efficiency
+    const ve = c.mul(0.94).mul(chargedFraction).mul(nozzleEffD);
 
     const m0 = dryD.plus(fuelD);
     const mf = dryD;
@@ -429,22 +442,34 @@ export function pionRocketAccelTime(
 /**
  * Compute the propellant mass fraction required for a charged-pion antimatter rocket
  * to maintain constant proper acceleration for a given time.
+ * 
+ * Physics: Matter-antimatter annihilation produces ~1/3 each of π⁺, π⁻, and π⁰.
+ * Only charged pions (π⁺, π⁻) can be magnetically redirected for thrust.
+ * Neutral pions (π⁰) decay immediately to gamma rays that cannot be directed,
+ * representing unavoidable ~33% energy loss.
+ * 
  * @param thrustTime Duration of thrust in seconds
  * @param accel Constant proper acceleration (m/s²). Default = 1g
- * @param efficiency Fraction of charged-pion kinetic energy effectively directed into thrust (0-1). Typical magnetic-nozzle values: ~0.6-0.8
+ * @param nozzleEfficiency Magnetic nozzle effectiveness at directing charged pions (0–1).
+ *                         Default = 0.85 (realistic for magnetic nozzles).
+ *                         Note: Total system efficiency ≈ (2/3) × nozzleEfficiency ≈ 0.567 at default.
  * @returns Propellant mass fraction (fuel_mass / initial_mass), range 0.0 to 1.0
  */
 export function pionRocketFuelFraction(
     thrustTime: NumberInput,
     accel: NumberInput = g,
-    efficiency: NumberInput = 0.6
+    nozzleEfficiency: NumberInput = 0.85
 ): Decimal {
     const timeD = check(thrustTime, "Invalid thrust time");
     const accelD = check(accel, "Invalid acceleration");
-    const effD = check(efficiency, "Invalid efficiency");
+    const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
 
-    // Charged pion exhaust velocity (~0.94c)
-    const ve = c.mul(0.94).mul(effD);
+    // Charged pion fraction: ~2/3 of energy goes to charged pions (π⁺, π⁻)
+    // The remaining ~1/3 goes to neutral pions (π⁰) which cannot be directed
+    const chargedFraction = new Decimal(2).div(3);
+    
+    // Effective exhaust velocity accounting for both charged fraction and nozzle efficiency
+    const ve = c.mul(0.94).mul(chargedFraction).mul(nozzleEffD);
 
     if (ve.lte(0)) {
         return new Decimal(0);
@@ -458,19 +483,19 @@ export function pionRocketFuelFraction(
 }
 
 /**
- * Calculate fuel fractions at multiple efficiency levels
+ * Calculate fuel fractions at multiple nozzle efficiency levels
  * @param thrustTime Duration of thrust in seconds
  * @param accel Constant proper acceleration (m/s²)
- * @param efficiencies Array of efficiency values (0-1)
- * @returns Array of fuel fractions as percentages (0-100) for each efficiency level
+ * @param nozzleEfficiencies Array of nozzle efficiency values (0-1)
+ * @returns Array of fuel fractions as percentages (0-100) for each nozzle efficiency level
  */
 export function pionRocketFuelFractionsMultiple(
     thrustTime: NumberInput,
     accel: NumberInput,
-    efficiencies: number[]
+    nozzleEfficiencies: number[]
 ): Decimal[] {
-    return efficiencies.map(eff => 
-        pionRocketFuelFraction(thrustTime, accel, eff).mul(100)
+    return nozzleEfficiencies.map(nozzleEff => 
+        pionRocketFuelFraction(thrustTime, accel, nozzleEff).mul(100)
     );
 }
 

@@ -89,14 +89,14 @@ function createArrowIndicators(
  * Create standard mass remaining dataset configuration for fuel charts
  */
 function createMassRemainingDatasets(
-    data40: { x: number; y: number }[],
-    data50: { x: number; y: number }[],
-    data60: { x: number; y: number }[],
-    data70: { x: number; y: number }[]
+    data70: { x: number; y: number }[],
+    data75: { x: number; y: number }[],
+    data80: { x: number; y: number }[],
+    data85: { x: number; y: number }[]
 ): ChartDataset[] {
     return [{
-        label: '40% Efficiency',
-        data: data40,
+        label: '70% Nozzle Efficiency',
+        data: data70,
         borderColor: '#ff5555',
         backgroundColor: 'rgba(255, 85, 85, 0.1)',
         borderWidth: 2,
@@ -104,8 +104,8 @@ function createMassRemainingDatasets(
         tension: 0.4,
         pointRadius: 0
     }, {
-        label: '50% Efficiency',
-        data: data50,
+        label: '75% Nozzle Efficiency',
+        data: data75,
         borderColor: '#ffaa00',
         backgroundColor: 'rgba(255, 170, 0, 0.1)',
         borderWidth: 2,
@@ -113,8 +113,8 @@ function createMassRemainingDatasets(
         tension: 0.4,
         pointRadius: 0
     }, {
-        label: '60% Efficiency',
-        data: data60,
+        label: '80% Nozzle Efficiency',
+        data: data80,
         borderColor: '#00ff9f',
         backgroundColor: 'rgba(0, 255, 159, 0.1)',
         borderWidth: 2,
@@ -122,8 +122,8 @@ function createMassRemainingDatasets(
         tension: 0.4,
         pointRadius: 0
     }, {
-        label: '70% Efficiency',
-        data: data70,
+        label: '85% Nozzle Efficiency',
+        data: data85,
         borderColor: '#aa55ff',
         backgroundColor: 'rgba(170, 85, 255, 0.1)',
         borderWidth: 2,
