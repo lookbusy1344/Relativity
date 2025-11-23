@@ -107,18 +107,18 @@ export function createAccelHandler(
             const relVelKm = relVel.div(1000);
             const relDistKm = relDist.div(1000);
 
-            // Calculate fuel fractions at all efficiencies
-            const [fuelPercent40, fuelPercent50, fuelPercent60, fuelPercent70] = 
-                rl.pionRocketFuelFractionsMultiple(secs, accel, [0.4, 0.5, 0.6, 0.7]);
+            // Calculate fuel fractions at all nozzle efficiencies
+            const [fuelPercent70, fuelPercent75, fuelPercent80, fuelPercent85] = 
+                rl.pionRocketFuelFractionsMultiple(secs, accel, [0.7, 0.75, 0.8, 0.85]);
 
             if (resultA1) setElement(resultA1, rl.formatSignificant(relVelKm, "9", 3), "km/s");
             if (resultA2) setElement(resultA2, rl.formatSignificant(relDistKm, "9", 3), "km");
             if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
             if (resultA2b) setElement(resultA2b, rl.formatSignificant(relDistC, "0", 3), "ly");
-            if (resultAFuel40) setElement(resultAFuel40, rl.formatSignificant(fuelPercent40, "0", 8), "%");
-            if (resultAFuel) setElement(resultAFuel, rl.formatSignificant(fuelPercent50, "0", 8), "%");
-            if (resultAFuel60) setElement(resultAFuel60, rl.formatSignificant(fuelPercent60, "0", 8), "%");
-            if (resultAFuel70) setElement(resultAFuel70, rl.formatSignificant(fuelPercent70, "0", 8), "%");
+            if (resultAFuel40) setElement(resultAFuel40, rl.formatSignificant(fuelPercent70, "0", 8), "%");
+            if (resultAFuel) setElement(resultAFuel, rl.formatSignificant(fuelPercent75, "0", 8), "%");
+            if (resultAFuel60) setElement(resultAFuel60, rl.formatSignificant(fuelPercent80, "0", 8), "%");
+            if (resultAFuel70) setElement(resultAFuel70, rl.formatSignificant(fuelPercent85, "0", 8), "%");
 
             // Update charts
             const durationDays = parseFloat(timeInput.value ?? '365');
@@ -166,9 +166,9 @@ export function createFlipBurnHandler(
             const metre = rl.formatSignificant(rl.one.div(lorentz), "0", 2);
             const sec = rl.formatSignificant(rl.one.mul(lorentz), "0", 2);
 
-            // Calculate fuel fractions at all efficiencies
-            const [fuelPercent40, fuelPercent50, fuelPercent60, fuelPercent70] = 
-                rl.pionRocketFuelFractionsMultiple(res.properTime, accel, [0.4, 0.5, 0.6, 0.7]);
+            // Calculate fuel fractions at all nozzle efficiencies
+            const [fuelPercent70, fuelPercent75, fuelPercent80, fuelPercent85] = 
+                rl.pionRocketFuelFractionsMultiple(res.properTime, accel, [0.7, 0.75, 0.8, 0.85]);
 
             if (resultFlip1) setElement(resultFlip1, rl.formatSignificant(properTime, "0", 2), "yrs");
             if (resultFlip2) setElement(resultFlip2, rl.formatSignificant(peak, "9", 2), "c");
@@ -176,10 +176,10 @@ export function createFlipBurnHandler(
             if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
             if (resultFlip5) setElement(resultFlip5, `1m becomes ${metre}m`, "");
             if (resultFlip6) setElement(resultFlip6, `1s becomes ${sec}s`, "");
-            if (resultFlipFuel40) setElement(resultFlipFuel40, rl.formatSignificant(fuelPercent40, "0", 8), "%");
-            if (resultFlipFuel) setElement(resultFlipFuel, rl.formatSignificant(fuelPercent50, "0", 8), "%");
-            if (resultFlipFuel60) setElement(resultFlipFuel60, rl.formatSignificant(fuelPercent60, "0", 8), "%");
-            if (resultFlipFuel70) setElement(resultFlipFuel70, rl.formatSignificant(fuelPercent70, "0", 8), "%");
+            if (resultFlipFuel40) setElement(resultFlipFuel40, rl.formatSignificant(fuelPercent70, "0", 8), "%");
+            if (resultFlipFuel) setElement(resultFlipFuel, rl.formatSignificant(fuelPercent75, "0", 8), "%");
+            if (resultFlipFuel60) setElement(resultFlipFuel60, rl.formatSignificant(fuelPercent80, "0", 8), "%");
+            if (resultFlipFuel70) setElement(resultFlipFuel70, rl.formatSignificant(fuelPercent85, "0", 8), "%");
 
             // Update charts
             const data = generateFlipBurnChartData(accelG, distanceLightYears);
