@@ -1,8 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Project Overview
+# Project Overview
 
 This is a Python project for special relativity calculations and educational content, featuring Jupyter notebooks and two main libraries for physics simulations. The project uses arbitrary precision mathematics via mpmath for high-precision relativistic calculations.
 

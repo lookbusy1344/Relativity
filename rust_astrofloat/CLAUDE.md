@@ -1,8 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Project Overview
+# Project Overview
 
 This is a high-precision special relativity calculation library written in Rust, using the `astro-float` crate for arbitrary precision arithmetic. The project provides relativistic physics calculations including Lorentz factors, relativistic velocities, time dilation, length contraction, and spacetime intervals.
 

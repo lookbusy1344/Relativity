@@ -1,8 +1,4 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Development Commands
+# Development Commands
 
 - **Build**: `cargo build` - Compile the project
 - **Build (release)**: `cargo build --release` - Optimized release build with aggressive optimizations (LTO, codegen-units=1, stripped)
