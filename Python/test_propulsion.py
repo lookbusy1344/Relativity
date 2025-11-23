@@ -73,7 +73,9 @@ class TestPropulsion(unittest.TestCase):
         dry_mass = 500.0
         nozzle_efficiency = 0.85
 
-        result = propulsion.pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency)
+        result = propulsion.pion_rocket_accel_time(
+            fuel_mass, dry_mass, nozzle_efficiency
+        )
 
         # Result should be mpmath type
         self.assertIsInstance(result, mp.mpf)
@@ -97,7 +99,9 @@ class TestPropulsion(unittest.TestCase):
         dry_mass = rl.ensure("500")
         nozzle_efficiency = rl.ensure("0.85")
 
-        result = propulsion.pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency)
+        result = propulsion.pion_rocket_accel_time(
+            fuel_mass, dry_mass, nozzle_efficiency
+        )
 
         # Result should be mpmath type
         self.assertIsInstance(result, mp.mpf)
@@ -134,7 +138,9 @@ class TestPropulsion(unittest.TestCase):
         thrust_time = 365.25 * 86400  # 1 year in seconds
         nozzle_efficiency = 0.85
 
-        result = propulsion.pion_rocket_fuel_fraction(thrust_time, None, nozzle_efficiency)
+        result = propulsion.pion_rocket_fuel_fraction(
+            thrust_time, None, nozzle_efficiency
+        )
 
         # Result should be mpmath type
         self.assertIsInstance(result, mp.mpf)
@@ -150,7 +156,9 @@ class TestPropulsion(unittest.TestCase):
         thrust_time = years * 365.25 * 86400
         nozzle_efficiency = 0.85
 
-        result = propulsion.pion_rocket_fuel_fraction(thrust_time, None, nozzle_efficiency)
+        result = propulsion.pion_rocket_fuel_fraction(
+            thrust_time, None, nozzle_efficiency
+        )
 
         # Should be approximately 99.8910% with new physics model
         self.assertAlmostEqual(float(result) * 100, 99.8910, places=3)
@@ -166,7 +174,9 @@ class TestPropulsion(unittest.TestCase):
         thrust_time = rl.ensure("31557600")  # 1 year in seconds
         nozzle_efficiency = rl.ensure("0.85")
 
-        result = propulsion.pion_rocket_fuel_fraction(thrust_time, None, nozzle_efficiency)
+        result = propulsion.pion_rocket_fuel_fraction(
+            thrust_time, None, nozzle_efficiency
+        )
 
         # Result should be mpmath type
         self.assertIsInstance(result, mp.mpf)
@@ -182,7 +192,9 @@ class TestPropulsion(unittest.TestCase):
         nozzle_efficiency = 0.85
 
         # Calculate time for pion rocket
-        accel_time = propulsion.pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency)
+        accel_time = propulsion.pion_rocket_accel_time(
+            fuel_mass, dry_mass, nozzle_efficiency
+        )
 
         # Calculate fuel fraction for that time
         fuel_fraction = propulsion.pion_rocket_fuel_fraction(
@@ -220,7 +232,9 @@ class TestPropulsion(unittest.TestCase):
         dry_mass = rl.ensure("500.987654321098765")
         nozzle_efficiency = rl.ensure("0.8567890123456789")
 
-        result = propulsion.pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency)
+        result = propulsion.pion_rocket_accel_time(
+            fuel_mass, dry_mass, nozzle_efficiency
+        )
 
         # Result should be mpmath type with high precision
         self.assertIsInstance(result, mp.mpf)
@@ -237,7 +251,9 @@ class TestPropulsion(unittest.TestCase):
         nozzle_efficiency = 1.0  # Perfect nozzle to isolate charged fraction effect
 
         # With perfect nozzle, effective efficiency should be 2/3
-        result = propulsion.pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency)
+        result = propulsion.pion_rocket_accel_time(
+            fuel_mass, dry_mass, nozzle_efficiency
+        )
 
         # Expected time with 2/3 charged fraction
         # ve = 0.94c * (2/3) * 1.0
@@ -257,11 +273,13 @@ class TestPropulsion(unittest.TestCase):
         nozzle_efficiency = 0.85
 
         # Calculate time with new model
-        result = propulsion.pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency)
+        result = propulsion.pion_rocket_accel_time(
+            fuel_mass, dry_mass, nozzle_efficiency
+        )
 
         # Total system efficiency should be approximately (2/3) × 0.85 ≈ 0.5667
         total_efficiency = (2.0 / 3.0) * 0.85
-        
+
         # Verify by calculating what the time would be with the old model (no charged fraction)
         # and checking it's proportionally reduced
         ve_old_model = rl.ensure("0.94") * rl.c * rl.ensure(str(total_efficiency))

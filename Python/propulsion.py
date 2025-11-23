@@ -87,7 +87,7 @@ def pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency=0.85, g=None):
     # Charged pion fraction: ~2/3 of energy goes to charged pions (π⁺, π⁻)
     # The remaining ~1/3 goes to neutral pions (π⁰) which cannot be directed
     charged_fraction = rl.ensure("2") / rl.ensure("3")
-    
+
     # Effective exhaust velocity accounting for both charged fraction and nozzle efficiency
     # Base pion velocity ~0.94c, reduced by charged fraction and nozzle efficiency
     ve = rl.ensure("0.94") * rl.c * charged_fraction * nozzle_efficiency
@@ -175,7 +175,7 @@ def pion_rocket_fuel_fraction(thrust_time, acceleration=None, nozzle_efficiency=
     # Charged pion fraction: ~2/3 of energy goes to charged pions (π⁺, π⁻)
     # The remaining ~1/3 goes to neutral pions (π⁰) which cannot be directed
     charged_fraction = rl.ensure("2") / rl.ensure("3")
-    
+
     # Effective exhaust velocity accounting for both charged fraction and nozzle efficiency
     ve = rl.ensure("0.94") * rl.c * charged_fraction * nozzle_efficiency
 
