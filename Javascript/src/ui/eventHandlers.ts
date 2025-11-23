@@ -231,7 +231,13 @@ export function createPionAccelTimeHandler(
 
         const fuelMass = rl.ensure(fuelMassInput.value ?? 0);
         const dryMass = rl.ensure(dryMassInput.value ?? 0);
-        const efficiency = rl.ensure(efficiencyInput.value ?? 0.6);
+        const efficiency = rl.ensure(efficiencyInput.value ?? 0.85);
+
+        // Validate efficiency range
+        if (efficiency.lt(0.01) || efficiency.gt(1.0)) {
+            setElement(result, "Efficiency must be between 0.01 and 1.0", "");
+            return;
+        }
 
         const accelTimeSeconds = rl.pionRocketAccelTime(fuelMass, dryMass, efficiency);
         const accelTimeDays = accelTimeSeconds.div(60 * 60 * 24);
@@ -253,8 +259,13 @@ export function createPionFuelFractionHandler(
 
         const thrustTimeDays = rl.ensure(thrustTimeInput.value ?? 365);
         const thrustTimeSeconds = thrustTimeDays.mul(60 * 60 * 24);
-        const efficiencyPercent = rl.ensure(efficiencyInput.value ?? 85);
-        const efficiency = efficiencyPercent.div(100);
+        const efficiency = rl.ensure(efficiencyInput.value ?? 0.85);
+
+        // Validate efficiency range
+        if (efficiency.lt(0.01) || efficiency.gt(1.0)) {
+            setElement(result, "Efficiency must be between 0.01 and 1.0", "");
+            return;
+        }
 
         const fuelFraction = rl.pionRocketFuelFraction(thrustTimeSeconds, rl.g, efficiency);
         const fuelFractionPercent = fuelFraction.mul(100);
