@@ -112,7 +112,7 @@ export function createAccelHandler(
                 rl.pionRocketFuelFractionsMultiple(secs, accel, [0.7, 0.75, 0.8, 0.85]);
 
             if (resultA1) setElement(resultA1, rl.formatSignificant(relVelKm, "9", 3), "km/s");
-            if (resultA2) setElement(resultA2, rl.formatSignificant(relDistKm, "9", 3), "km");
+            if (resultA2) setElement(resultA2, rl.formatSignificant(relDistKm, "0", 1), "km");
             if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
             if (resultA2b) setElement(resultA2b, rl.formatSignificant(relDistC, "0", 3), "ly");
             if (resultAFuel40) setElement(resultAFuel40, rl.formatSignificant(fuelPercent70, "9", 3), "%");
