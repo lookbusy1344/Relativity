@@ -483,19 +483,19 @@ export function pionRocketFuelFraction(
 }
 
 /**
- * Calculate fuel fractions at multiple efficiency levels
+ * Calculate fuel fractions at multiple nozzle efficiency levels
  * @param thrustTime Duration of thrust in seconds
  * @param accel Constant proper acceleration (m/s²)
- * @param efficiencies Array of efficiency values (0-1)
- * @returns Array of fuel fractions as percentages (0-100) for each efficiency level
+ * @param nozzleEfficiencies Array of nozzle efficiency values (0-1)
+ * @returns Array of fuel fractions as percentages (0-100) for each nozzle efficiency level
  */
 export function pionRocketFuelFractionsMultiple(
     thrustTime: NumberInput,
     accel: NumberInput,
-    efficiencies: number[]
+    nozzleEfficiencies: number[]
 ): Decimal[] {
-    return efficiencies.map(eff => 
-        pionRocketFuelFraction(thrustTime, accel, eff).mul(100)
+    return nozzleEfficiencies.map(nozzleEff => 
+        pionRocketFuelFraction(thrustTime, accel, nozzleEff).mul(100)
     );
 }
 
