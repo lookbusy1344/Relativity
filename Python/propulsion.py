@@ -46,7 +46,9 @@ def photon_rocket_accel_time(fuel_mass, dry_mass, efficiency=1.0, g=None):
     return (efficiency * rl.c / g) * mp.log(M0 / Mf)
 
 
-def pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency=0.85, g=None):
+def pion_rocket_accel_time(
+    fuel_mass, dry_mass, nozzle_efficiency=0.85, charged_fraction=0.4, g=None
+):
     """
     Compute the time (in seconds) that a rocket can maintain constant
     proper acceleration g using matter–antimatter annihilation with
@@ -57,6 +59,12 @@ def pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency=0.85, g=None):
     kinetic energy that can be magnetically redirected for thrust. The remaining
     ~60% goes to neutral pions (which decay to gamma rays), pion rest mass energy,
     and other particles that cannot be efficiently directed.
+
+    Assumptions:
+    - Charged pions have ~0.94c exhaust speed before decay.
+    - Nozzle efficiency reduces axial momentum (collimation), not particle speed.
+    - charged_fraction (~0.40) represents usable annihilation energy in charged pions;
+      it scales available thrust/power, not exhaust speed.
 
     References:
     - NASA studies: https://ntrs.nasa.gov/api/citations/20200001904/downloads/20200001904.pdf
@@ -69,9 +77,12 @@ def pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency=0.85, g=None):
         dry_mass : mpmath number or float
             Final spacecraft mass after fuel is gone (kg).
         nozzle_efficiency : mpmath number or float
-            Magnetic nozzle effectiveness at directing charged pions (0–1).
+            Magnetic nozzle effectiveness at collimating charged pions (0–1).
             Default = 0.85 (realistic for magnetic nozzles).
-            Note: Total system efficiency ≈ 0.40 × nozzle_efficiency ≈ 0.34 at default.
+        charged_fraction : mpmath number or float
+            Fraction of annihilation energy in charged pions (0–1).
+            Default = 0.4 (40%, from NASA experimental studies).
+            Note: Total system efficiency ≈ charged_fraction × nozzle_efficiency ≈ 0.34 at defaults.
         g : mpmath number or float or None
             Acceleration to maintain (m/s^2). Default = None (uses 1g from relativity_lib).
 
@@ -83,6 +94,7 @@ def pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency=0.85, g=None):
     fuel_mass = rl.ensure(fuel_mass)
     dry_mass = rl.ensure(dry_mass)
     nozzle_efficiency = rl.ensure(nozzle_efficiency)
+    charged_fraction = rl.ensure(charged_fraction)
 
     # Use relativity_lib's g if not provided
     if g is None:
@@ -90,21 +102,21 @@ def pion_rocket_accel_time(fuel_mass, dry_mass, nozzle_efficiency=0.85, g=None):
     else:
         g = rl.ensure(g)
 
-    # Charged pion fraction: ~40% of annihilation energy appears as charged pion
-    # kinetic energy (from NASA experimental studies of proton-antiproton annihilation)
-    charged_fraction = mp.mpf("0.4")
+    # Charged pion exhaust velocity (actual particle velocity, not including energy fraction)
+    # Nozzle efficiency affects momentum collimation
+    ve = mp.mpf("0.94") * rl.c * nozzle_efficiency
 
-    # Effective exhaust velocity accounting for both charged fraction and nozzle efficiency
-    # Base pion velocity ~0.94c, reduced by charged fraction and nozzle efficiency
-    ve = mp.mpf("0.94") * rl.c * charged_fraction * nozzle_efficiency
+    # Apply charged fraction as thrust efficiency: only this fraction of fuel energy
+    # becomes usable momentum at velocity ve
+    ve_effective = ve * charged_fraction
 
     M0 = dry_mass + fuel_mass
     Mf = dry_mass
 
-    if M0 <= Mf or ve <= rl.zero:
+    if M0 <= Mf or ve_effective <= rl.zero:
         return rl.zero
 
-    return (ve / g) * mp.log(M0 / Mf)
+    return (ve_effective / g) * mp.log(M0 / Mf)
 
 
 def photon_rocket_fuel_fraction(thrust_time, acceleration=None, efficiency=0.4):
@@ -143,7 +155,9 @@ def photon_rocket_fuel_fraction(thrust_time, acceleration=None, efficiency=0.4):
     return rl.one - (rl.one / mass_ratio)
 
 
-def pion_rocket_fuel_fraction(thrust_time, acceleration=None, nozzle_efficiency=0.85):
+def pion_rocket_fuel_fraction(
+    thrust_time, acceleration=None, nozzle_efficiency=0.85, charged_fraction=0.4
+):
     """
     Compute the propellant mass fraction required for a charged-pion
     antimatter rocket to maintain constant proper acceleration for a
@@ -154,6 +168,12 @@ def pion_rocket_fuel_fraction(thrust_time, acceleration=None, nozzle_efficiency=
     kinetic energy that can be magnetically redirected for thrust. The remaining
     ~60% goes to neutral pions (which decay to gamma rays), pion rest mass energy,
     and other particles that cannot be efficiently directed.
+
+    Assumptions:
+    - Charged pions have ~0.94c exhaust speed before decay.
+    - Nozzle efficiency reduces axial momentum (collimation), not particle speed.
+    - charged_fraction (~0.40) represents usable annihilation energy in charged pions;
+      it scales available thrust/power, not exhaust speed.
 
     References:
     - NASA studies: https://ntrs.nasa.gov/api/citations/20200001904/downloads/20200001904.pdf
@@ -166,9 +186,12 @@ def pion_rocket_fuel_fraction(thrust_time, acceleration=None, nozzle_efficiency=
         acceleration : mpmath number or float or None
             Constant proper acceleration (m/s²). Default = None (uses 1g from relativity_lib).
         nozzle_efficiency : mpmath number or float
-            Magnetic nozzle effectiveness at directing charged pions (0–1).
+            Magnetic nozzle effectiveness at collimating charged pions (0–1).
             Default = 0.85 (realistic for magnetic nozzles).
-            Note: Total system efficiency ≈ 0.40 × nozzle_efficiency ≈ 0.34 at default.
+        charged_fraction : mpmath number or float
+            Fraction of annihilation energy in charged pions (0–1).
+            Default = 0.4 (40%, from NASA experimental studies).
+            Note: Total system efficiency ≈ charged_fraction × nozzle_efficiency ≈ 0.34 at defaults.
 
     Returns:
         mpmath number : Propellant fraction = fuel_mass / initial_mass (0–1).
@@ -177,6 +200,7 @@ def pion_rocket_fuel_fraction(thrust_time, acceleration=None, nozzle_efficiency=
     # Convert inputs to mpmath
     thrust_time = rl.ensure(thrust_time)
     nozzle_efficiency = rl.ensure(nozzle_efficiency)
+    charged_fraction = rl.ensure(charged_fraction)
 
     # Use relativity_lib's g if not provided
     if acceleration is None:
@@ -184,18 +208,19 @@ def pion_rocket_fuel_fraction(thrust_time, acceleration=None, nozzle_efficiency=
     else:
         acceleration = rl.ensure(acceleration)
 
-    # Charged pion fraction: ~40% of annihilation energy appears as charged pion
-    # kinetic energy (from NASA experimental studies of proton-antiproton annihilation)
-    charged_fraction = mp.mpf("0.4")
+    # Charged pion exhaust velocity (actual particle velocity, not including energy fraction)
+    # Nozzle efficiency affects momentum collimation
+    ve = mp.mpf("0.94") * rl.c * nozzle_efficiency
 
-    # Effective exhaust velocity accounting for both charged fraction and nozzle efficiency
-    ve = mp.mpf("0.94") * rl.c * charged_fraction * nozzle_efficiency
+    # Apply charged fraction as thrust efficiency: only this fraction of fuel energy
+    # becomes usable momentum at velocity ve
+    ve_effective = ve * charged_fraction
 
-    if ve <= rl.zero:
+    if ve_effective <= rl.zero:
         return rl.zero
 
-    # M0/Mf = exp(a t / v_e)
-    mass_ratio = mp.exp(acceleration * thrust_time / ve)
+    # M0/Mf = exp(a t / v_e_effective)
+    mass_ratio = mp.exp(acceleration * thrust_time / ve_effective)
 
     # fuel fraction = 1 − Mf/M0 = 1 − 1/mass_ratio
     return rl.one - (rl.one / mass_ratio)

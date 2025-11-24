@@ -402,6 +402,12 @@ export function spacetimeInterval3d(event1: Interval, event2: Interval): Decimal
  * ~60% goes to neutral pions (which decay to gamma rays), pion rest mass energy,
  * and other particles that cannot be efficiently directed.
  *
+ * Assumptions:
+ * - Charged pions have ~0.94c exhaust speed before decay.
+ * - Nozzle efficiency reduces axial momentum (collimation), not particle speed.
+ * - chargedFraction (~0.40) represents usable annihilation energy in charged pions;
+ *   it scales available thrust/power, not exhaust speed.
+ *
  * References:
  * - NASA studies: https://ntrs.nasa.gov/api/citations/20200001904/downloads/20200001904.pdf
  * - NASA contractor report: https://ntrs.nasa.gov/api/citations/19890018329/downloads/19890018329.pdf
@@ -409,9 +415,11 @@ export function spacetimeInterval3d(event1: Interval, event2: Interval): Decimal
  *
  * @param fuelMass Combined matter + antimatter mass (kg) that will be annihilated
  * @param dryMass Dry mass of the spacecraft after all fuel is gone (kg)
- * @param nozzleEfficiency Magnetic nozzle effectiveness at directing charged pions (0–1).
+ * @param nozzleEfficiency Magnetic nozzle effectiveness at collimating charged pions (0–1).
  *                         Default = 0.85 (realistic for magnetic nozzles).
- *                         Note: Total system efficiency ≈ 0.40 × nozzleEfficiency ≈ 0.34 at default.
+ * @param chargedFraction Fraction of annihilation energy in charged pions (0–1).
+ *                        Default = 0.4 (40%, from NASA experimental studies).
+ *                        Note: Total system efficiency ≈ chargedFraction × nozzleEfficiency ≈ 0.34 at defaults.
  * @param accel Acceleration to maintain (m/s²). Default = 1g (9.80665 m/s²)
  * @returns Acceleration time in seconds as a Decimal
  */
@@ -419,30 +427,32 @@ export function pionRocketAccelTime(
     fuelMass: NumberInput,
     dryMass: NumberInput,
     nozzleEfficiency: NumberInput = 0.85,
+    chargedFraction: NumberInput = 0.4,
     accel: NumberInput = g
 ): Decimal {
     const fuelD = check(fuelMass, "Invalid fuel mass");
     const dryD = check(dryMass, "Invalid dry mass");
     const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
+    const chargedFractionD = check(chargedFraction, "Invalid charged fraction");
     const accelD = check(accel, "Invalid acceleration");
 
-    // Charged pion fraction: ~40% of annihilation energy appears as charged pion
-    // kinetic energy (from NASA experimental studies of proton-antiproton annihilation)
-    const chargedFraction = new Decimal(0.4);
+    // Charged pion exhaust velocity (actual particle velocity, not including energy fraction)
+    // Nozzle efficiency affects momentum collimation
+    const ve = c.mul(0.94).mul(nozzleEffD);
 
-    // Effective exhaust velocity accounting for both charged fraction and nozzle efficiency
-    // Base pion velocity ~0.94c, reduced by charged fraction and nozzle efficiency
-    const ve = c.mul(0.94).mul(chargedFraction).mul(nozzleEffD);
+    // Apply charged fraction as thrust efficiency: only this fraction of fuel energy
+    // becomes usable momentum at velocity ve
+    const veEffective = ve.mul(chargedFractionD);
 
     const m0 = dryD.plus(fuelD);
     const mf = dryD;
 
-    if (m0.lte(mf) || ve.lte(0)) {
+    if (m0.lte(mf) || veEffective.lte(0)) {
         return new Decimal(0);
     }
 
-    // t = (v_e / a) * ln(M0/Mf)
-    return ve.div(accelD).mul(m0.div(mf).ln());
+    // t = (v_e_effective / a) * ln(M0/Mf)
+    return veEffective.div(accelD).mul(m0.div(mf).ln());
 }
 
 /**
@@ -455,6 +465,12 @@ export function pionRocketAccelTime(
  * ~60% goes to neutral pions (which decay to gamma rays), pion rest mass energy,
  * and other particles that cannot be efficiently directed.
  *
+ * Assumptions:
+ * - Charged pions have ~0.94c exhaust speed before decay.
+ * - Nozzle efficiency reduces axial momentum (collimation), not particle speed.
+ * - chargedFraction (~0.40) represents usable annihilation energy in charged pions;
+ *   it scales available thrust/power, not exhaust speed.
+ *
  * References:
  * - NASA studies: https://ntrs.nasa.gov/api/citations/20200001904/downloads/20200001904.pdf
  * - NASA contractor report: https://ntrs.nasa.gov/api/citations/19890018329/downloads/19890018329.pdf
@@ -462,33 +478,38 @@ export function pionRocketAccelTime(
  *
  * @param thrustTime Duration of thrust in seconds
  * @param accel Constant proper acceleration (m/s²). Default = 1g
- * @param nozzleEfficiency Magnetic nozzle effectiveness at directing charged pions (0–1).
+ * @param nozzleEfficiency Magnetic nozzle effectiveness at collimating charged pions (0–1).
  *                         Default = 0.85 (realistic for magnetic nozzles).
- *                         Note: Total system efficiency ≈ 0.40 × nozzleEfficiency ≈ 0.34 at default.
+ * @param chargedFraction Fraction of annihilation energy in charged pions (0–1).
+ *                        Default = 0.4 (40%, from NASA experimental studies).
+ *                        Note: Total system efficiency ≈ chargedFraction × nozzleEfficiency ≈ 0.34 at defaults.
  * @returns Propellant mass fraction (fuel_mass / initial_mass), range 0.0 to 1.0
  */
 export function pionRocketFuelFraction(
     thrustTime: NumberInput,
     accel: NumberInput = g,
-    nozzleEfficiency: NumberInput = 0.85
+    nozzleEfficiency: NumberInput = 0.85,
+    chargedFraction: NumberInput = 0.4
 ): Decimal {
     const timeD = check(thrustTime, "Invalid thrust time");
     const accelD = check(accel, "Invalid acceleration");
     const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
+    const chargedFractionD = check(chargedFraction, "Invalid charged fraction");
 
-    // Charged pion fraction: ~40% of annihilation energy appears as charged pion
-    // kinetic energy (from NASA experimental studies of proton-antiproton annihilation)
-    const chargedFraction = new Decimal(0.4);
+    // Charged pion exhaust velocity (actual particle velocity, not including energy fraction)
+    // Nozzle efficiency affects momentum collimation
+    const ve = c.mul(0.94).mul(nozzleEffD);
 
-    // Effective exhaust velocity accounting for both charged fraction and nozzle efficiency
-    const ve = c.mul(0.94).mul(chargedFraction).mul(nozzleEffD);
+    // Apply charged fraction as thrust efficiency: only this fraction of fuel energy
+    // becomes usable momentum at velocity ve
+    const veEffective = ve.mul(chargedFractionD);
 
-    if (ve.lte(0)) {
+    if (veEffective.lte(0)) {
         return new Decimal(0);
     }
 
-    // Mass ratio M0/Mf = exp(a*t / v_e)
-    const massRatio = accelD.mul(timeD).div(ve).exp();
+    // Mass ratio M0/Mf = exp(a*t / v_e_effective)
+    const massRatio = accelD.mul(timeD).div(veEffective).exp();
 
     // Propellant fraction = 1 - (Mf/M0) = 1 - 1/mass_ratio
     return one.minus(one.div(massRatio));
