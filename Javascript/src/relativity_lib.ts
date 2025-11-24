@@ -395,17 +395,23 @@ export function spacetimeInterval3d(event1: Interval, event2: Interval): Decimal
 /**
  * Compute the time (in seconds) that a rocket can maintain constant proper acceleration
  * using matter-antimatter annihilation with charged-pion exhaust.
- * 
- * Physics: Matter-antimatter annihilation produces ~1/3 each of π⁺, π⁻, and π⁰.
- * Only charged pions (π⁺, π⁻) can be magnetically redirected for thrust.
- * Neutral pions (π⁰) decay immediately to gamma rays that cannot be directed,
- * representing unavoidable ~33% energy loss.
- * 
+ *
+ * Physics: Proton-antiproton annihilation produces multiple pions and other mesons.
+ * Experimental data shows ~40% of annihilation energy appears as charged pion
+ * kinetic energy that can be magnetically redirected for thrust. The remaining
+ * ~60% goes to neutral pions (which decay to gamma rays), pion rest mass energy,
+ * and other particles that cannot be efficiently directed.
+ *
+ * References:
+ * - NASA studies: https://ntrs.nasa.gov/api/citations/20200001904/downloads/20200001904.pdf
+ * - NASA contractor report: https://ntrs.nasa.gov/api/citations/19890018329/downloads/19890018329.pdf
+ * - Experimental data: https://link.springer.com/article/10.1140/epja/s10050-024-01428-x
+ *
  * @param fuelMass Combined matter + antimatter mass (kg) that will be annihilated
  * @param dryMass Dry mass of the spacecraft after all fuel is gone (kg)
  * @param nozzleEfficiency Magnetic nozzle effectiveness at directing charged pions (0–1).
  *                         Default = 0.85 (realistic for magnetic nozzles).
- *                         Note: Total system efficiency ≈ (2/3) × nozzleEfficiency ≈ 0.567 at default.
+ *                         Note: Total system efficiency ≈ 0.40 × nozzleEfficiency ≈ 0.34 at default.
  * @param accel Acceleration to maintain (m/s²). Default = 1g (9.80665 m/s²)
  * @returns Acceleration time in seconds as a Decimal
  */
@@ -420,10 +426,10 @@ export function pionRocketAccelTime(
     const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
     const accelD = check(accel, "Invalid acceleration");
 
-    // Charged pion fraction: ~2/3 of energy goes to charged pions (π⁺, π⁻)
-    // The remaining ~1/3 goes to neutral pions (π⁰) which cannot be directed
-    const chargedFraction = new Decimal(2).div(3);
-    
+    // Charged pion fraction: ~40% of annihilation energy appears as charged pion
+    // kinetic energy (from NASA experimental studies of proton-antiproton annihilation)
+    const chargedFraction = new Decimal(0.4);
+
     // Effective exhaust velocity accounting for both charged fraction and nozzle efficiency
     // Base pion velocity ~0.94c, reduced by charged fraction and nozzle efficiency
     const ve = c.mul(0.94).mul(chargedFraction).mul(nozzleEffD);
@@ -442,17 +448,23 @@ export function pionRocketAccelTime(
 /**
  * Compute the propellant mass fraction required for a charged-pion antimatter rocket
  * to maintain constant proper acceleration for a given time.
- * 
- * Physics: Matter-antimatter annihilation produces ~1/3 each of π⁺, π⁻, and π⁰.
- * Only charged pions (π⁺, π⁻) can be magnetically redirected for thrust.
- * Neutral pions (π⁰) decay immediately to gamma rays that cannot be directed,
- * representing unavoidable ~33% energy loss.
- * 
+ *
+ * Physics: Proton-antiproton annihilation produces multiple pions and other mesons.
+ * Experimental data shows ~40% of annihilation energy appears as charged pion
+ * kinetic energy that can be magnetically redirected for thrust. The remaining
+ * ~60% goes to neutral pions (which decay to gamma rays), pion rest mass energy,
+ * and other particles that cannot be efficiently directed.
+ *
+ * References:
+ * - NASA studies: https://ntrs.nasa.gov/api/citations/20200001904/downloads/20200001904.pdf
+ * - NASA contractor report: https://ntrs.nasa.gov/api/citations/19890018329/downloads/19890018329.pdf
+ * - Experimental data: https://link.springer.com/article/10.1140/epja/s10050-024-01428-x
+ *
  * @param thrustTime Duration of thrust in seconds
  * @param accel Constant proper acceleration (m/s²). Default = 1g
  * @param nozzleEfficiency Magnetic nozzle effectiveness at directing charged pions (0–1).
  *                         Default = 0.85 (realistic for magnetic nozzles).
- *                         Note: Total system efficiency ≈ (2/3) × nozzleEfficiency ≈ 0.567 at default.
+ *                         Note: Total system efficiency ≈ 0.40 × nozzleEfficiency ≈ 0.34 at default.
  * @returns Propellant mass fraction (fuel_mass / initial_mass), range 0.0 to 1.0
  */
 export function pionRocketFuelFraction(
@@ -464,10 +476,10 @@ export function pionRocketFuelFraction(
     const accelD = check(accel, "Invalid acceleration");
     const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
 
-    // Charged pion fraction: ~2/3 of energy goes to charged pions (π⁺, π⁻)
-    // The remaining ~1/3 goes to neutral pions (π⁰) which cannot be directed
-    const chargedFraction = new Decimal(2).div(3);
-    
+    // Charged pion fraction: ~40% of annihilation energy appears as charged pion
+    // kinetic energy (from NASA experimental studies of proton-antiproton annihilation)
+    const chargedFraction = new Decimal(0.4);
+
     // Effective exhaust velocity accounting for both charged fraction and nozzle efficiency
     const ve = c.mul(0.94).mul(chargedFraction).mul(nozzleEffD);
 
