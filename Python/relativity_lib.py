@@ -768,6 +768,43 @@ def printfmt_sig(
         print()
 
 
+def format_mpf_sci(x, sig=6):
+    """
+    Format an mpf number in scientific notation with specified significant figures.
+
+    Parameters:
+        x: mpmath number (or convertible to mpf)
+        sig: number of significant figures for mantissa (default 6)
+
+    Returns:
+        String in format like "1.234e+5" or "-3.14e-10"
+    """
+    x = ensure(x)
+
+    # Handle special cases
+    if mp.isnan(x):
+        return "nan"
+    if mp.isinf(x):
+        return "inf" if x > 0 else "-inf"
+    if x == 0:
+        return f"0.{'0' * (sig - 1)}e+0"
+    if sig < 1:
+        raise ValueError(f"sig must be >= 1, got {sig}")
+
+    # Extract sign and work with absolute value
+    sign = "-" if x < 0 else ""
+    x = abs(x)
+
+    # Calculate exponent and mantissa
+    e = int(mp.floor(mp.log10(x)))
+    m = x / (mp.mpf(10) ** e)  # mantissa in [1, 10)
+    m_str = mp.nstr(m, sig)
+
+    # Format with explicit sign on exponent
+    e_sign = "+" if e >= 0 else ""
+    return f"{sign}{m_str}e{e_sign}{e}"
+
+
 ## =================================================================================================
 
 # configure constants with default 50 decimal places
