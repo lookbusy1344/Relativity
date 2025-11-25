@@ -49,10 +49,12 @@ function calculateEvents(data: TwinParadoxMinkowskiData): {
         x: 0
     };
 
-    // Calculate extent with padding
+    // Calculate extent with padding - include all events
     const maxCoord = Math.max(
         Math.abs(turnaround.ct),
-        Math.abs(turnaround.x)
+        Math.abs(turnaround.x),
+        Math.abs(arrival.ct),
+        Math.abs(arrival.x)
     ) * 1.3;
 
     return { departure, turnaround, arrival, maxCoord };
