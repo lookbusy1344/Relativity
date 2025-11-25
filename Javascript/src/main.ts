@@ -107,8 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 getResultElement('resultTwins4'),
                 getResultElement('resultTwins5'),
                 getResultElement('resultTwins6'),
-                getResultElement('resultTwins7'),
-                getResultElement('resultTwinsFuel')
+                getResultElement('resultTwins7')
             ],
             chartRegistry
         )

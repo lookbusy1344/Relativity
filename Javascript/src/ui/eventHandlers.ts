@@ -197,7 +197,7 @@ export function createTwinParadoxHandler(
     return () => {
         const velocityInput = getVelocityInput();
         const timeInput = getTimeInput();
-        const [resultTwins1, resultTwins2, resultTwins3, resultTwins4, resultTwins5, resultTwins6, resultTwins7, resultTwinsFuel] = getResults();
+        const [resultTwins1, resultTwins2, resultTwins3, resultTwins4, resultTwins5, resultTwins6, resultTwins7] = getResults();
         if (!velocityInput || !timeInput) return;
 
         // Show working message
@@ -208,7 +208,6 @@ export function createTwinParadoxHandler(
         if (resultTwins5) resultTwins5.textContent = "";
         if (resultTwins6) resultTwins6.textContent = "";
         if (resultTwins7) resultTwins7.textContent = "";
-        if (resultTwinsFuel) resultTwinsFuel.textContent = "";
 
         // Allow UI to update before heavy calculation
         requestAnimationFrame(() => setTimeout(() => {
@@ -226,10 +225,6 @@ export function createTwinParadoxHandler(
             const oneWayLy = res.oneWayDistance.div(rl.lightYear);
             const totalLy = res.totalDistance.div(rl.lightYear);
 
-            // Calculate fuel fraction (traveling twin's proper time converted to seconds)
-            const properTimeSec = travelingAge.mul(rl.secondsPerYear);
-            const fuelPercent = rl.pionRocketFuelFraction(properTimeSec, rl.g, 0.85).mul(100);
-
             if (resultTwins1) setElement(resultTwins1, rl.formatSignificant(travelingAge, "0", 2), "yrs");
             if (resultTwins2) setElement(resultTwins2, rl.formatSignificant(earthAge, "0", 2), "yrs");
             if (resultTwins3) setElement(resultTwins3, rl.formatSignificant(ageDiff, "0", 2), "yrs");
@@ -237,7 +232,6 @@ export function createTwinParadoxHandler(
             if (resultTwins5) setElement(resultTwins5, `${rl.formatSignificant(rl.ensure(velocityC), "9", 3)}c (${rl.formatSignificant(velocityKm, "0", 0)} km/s)`, "");
             if (resultTwins6) setElement(resultTwins6, rl.formatSignificant(oneWayLy, "0", 3), "ly");
             if (resultTwins7) setElement(resultTwins7, rl.formatSignificant(totalLy, "0", 3), "ly");
-            if (resultTwinsFuel) setElement(resultTwinsFuel, rl.formatSignificant(fuelPercent, "9", 3), "%");
 
             // Update charts
             const data = generateTwinParadoxChartData(velocityC, properTimeYears);

@@ -907,29 +907,6 @@ export function updateTwinParadoxCharts(
         }
     );
 
-    // Time Dilation Factor Chart
-    newRegistry = updateChart(
-        newRegistry,
-        'twinsLorentzChart',
-        [{
-            label: 'Lorentz Factor (γ)',
-            data: data.timeDilationProfile,
-            borderColor: '#00ff9f',
-            backgroundColor: 'rgba(0, 255, 159, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0,
-            pointRadius: 0
-        }],
-        {
-            primaryColor: '#00ff9f',
-            secondaryColor: '#00d9ff',
-            xAxisLabel: 'Proper Time (years)',
-            yAxisLabel: 'Lorentz Factor',
-            xMax: maxProperTime
-        }
-    );
-
     // Comparative Aging (Dual Timeline) Chart
     newRegistry = updateChart(
         newRegistry,

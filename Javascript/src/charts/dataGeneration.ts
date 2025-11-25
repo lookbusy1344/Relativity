@@ -301,7 +301,6 @@ export function generateTwinParadoxChartData(
     properTimeYears: number
 ): {
     velocityProfile: ChartDataPoint[];
-    timeDilationProfile: ChartDataPoint[];
     travelingTwinAging: ChartDataPoint[];
     earthTwinAging: ChartDataPoint[];
     distanceProfile: ChartDataPoint[];
@@ -315,7 +314,6 @@ export function generateTwinParadoxChartData(
     const gamma = parseFloat(rl.lorentzFactor(velocity).toString());
 
     const velocityProfile: ChartDataPoint[] = [];
-    const timeDilationProfile: ChartDataPoint[] = [];
     const travelingTwinAging: ChartDataPoint[] = [];
     const earthTwinAging: ChartDataPoint[] = [];
     const distanceProfile: ChartDataPoint[] = [];
@@ -328,9 +326,6 @@ export function generateTwinParadoxChartData(
 
         // Velocity is constant at +v during outbound
         velocityProfile.push({ x: tau, y: velocityC });
-
-        // Time dilation factor is constant
-        timeDilationProfile.push({ x: tau, y: gamma });
 
         // Aging: traveling twin ages linearly, Earth twin ages faster
         travelingTwinAging.push({ x: tau, y: tau });
@@ -352,9 +347,6 @@ export function generateTwinParadoxChartData(
         // Velocity is constant at -v during return
         velocityProfile.push({ x: tau, y: -velocityC });
 
-        // Time dilation factor remains constant
-        timeDilationProfile.push({ x: tau, y: gamma });
-
         // Aging continues
         travelingTwinAging.push({ x: tau, y: tau });
         earthTwinAging.push({ x: tau, y: earthTime });
@@ -371,7 +363,6 @@ export function generateTwinParadoxChartData(
 
     return {
         velocityProfile,
-        timeDilationProfile,
         travelingTwinAging,
         earthTwinAging,
         distanceProfile,
