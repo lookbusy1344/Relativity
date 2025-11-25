@@ -260,7 +260,8 @@ export function renderTransformedAxes(
     labels: { ctLabel: string; xLabel: string },
     color: string,
     markerUrl: string,
-    cssClass: string
+    cssClass: string,
+    origin: { x: number; ct: number } = { x: 0, ct: 0 }
 ): void {
     const extent = scales.maxCoord;
     const angle = Math.atan(beta);
@@ -275,17 +276,17 @@ export function renderTransformedAxes(
 
     const axesData = [
         {
-            x1: -ctPrimeLength * sinAngle,
-            y1: -ctPrimeLength * cosAngle,
-            x2: ctPrimeLength * sinAngle,
-            y2: ctPrimeLength * cosAngle,
+            x1: origin.x + (-ctPrimeLength * sinAngle),
+            y1: origin.ct + (-ctPrimeLength * cosAngle),
+            x2: origin.x + (ctPrimeLength * sinAngle),
+            y2: origin.ct + (ctPrimeLength * cosAngle),
             axis: labels.ctLabel
         },
         {
-            x1: -xPrimeLength * cosAngle,
-            y1: -xPrimeLength * sinAngle,
-            x2: xPrimeLength * cosAngle,
-            y2: xPrimeLength * sinAngle,
+            x1: origin.x + (-xPrimeLength * cosAngle),
+            y1: origin.ct + (-xPrimeLength * sinAngle),
+            x2: origin.x + (xPrimeLength * cosAngle),
+            y2: origin.ct + (xPrimeLength * sinAngle),
             axis: labels.xLabel
         }
     ];

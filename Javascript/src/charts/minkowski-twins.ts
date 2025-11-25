@@ -610,19 +610,18 @@ export function drawTwinParadoxMinkowski(
         'axis-outbound'
     );
 
-    // Render inbound frame axes (amber) - negative velocity
+    // Render inbound frame axes (amber) - negative velocity, centered at turnaround
     renderTransformedAxes(
         svg, scales, -beta,
         { ctLabel: 'ct₂\'', xLabel: 'x₂\'' },
         D3_COLORS.photonGold,
         'url(#arrowAmber)',
-        'axis-inbound'
+        'axis-inbound',
+        events.turnaround
     );
 
-    // Render light cones at key events
+    // Render light cone at origin only
     renderLightCone(svg, scales, events.departure.ct, events.departure.x, events.maxCoord, 'cone-departure');
-    renderLightCone(svg, scales, events.turnaround.ct, events.turnaround.x, events.maxCoord, 'cone-turnaround');
-    renderLightCone(svg, scales, events.arrival.ct, events.arrival.x, events.maxCoord, 'cone-arrival');
 
     // Render simultaneity lines
     renderSimultaneityLines(svg, scales, events.turnaround, beta, events.maxCoord);
@@ -751,10 +750,8 @@ export function drawTwinParadoxMinkowski(
         renderTransformedAxes(svg, scales, beta, { ctLabel: 'ct₁\'', xLabel: 'x₁\'' },
             D3_COLORS.quantumGreen, 'url(#arrowGreen)', 'axis-outbound');
         renderTransformedAxes(svg, scales, -beta, { ctLabel: 'ct₂\'', xLabel: 'x₂\'' },
-            D3_COLORS.photonGold, 'url(#arrowAmber)', 'axis-inbound');
+            D3_COLORS.photonGold, 'url(#arrowAmber)', 'axis-inbound', events.turnaround);
         renderLightCone(svg, scales, events.departure.ct, events.departure.x, events.maxCoord, 'cone-departure');
-        renderLightCone(svg, scales, events.turnaround.ct, events.turnaround.x, events.maxCoord, 'cone-turnaround');
-        renderLightCone(svg, scales, events.arrival.ct, events.arrival.x, events.maxCoord, 'cone-arrival');
         renderSimultaneityLines(svg, scales, events.turnaround, beta, events.maxCoord);
         renderWorldline(svg, scales, events.departure, events.turnaround, events.arrival, false);
         renderEvents(svg, scales, events.departure, events.turnaround, events.arrival);
@@ -786,10 +783,8 @@ export function drawTwinParadoxMinkowski(
             renderTransformedAxes(svg, scales, beta, { ctLabel: 'ct₁\'', xLabel: 'x₁\'' },
                 D3_COLORS.quantumGreen, 'url(#arrowGreen)', 'axis-outbound');
             renderTransformedAxes(svg, scales, -beta, { ctLabel: 'ct₂\'', xLabel: 'x₂\'' },
-                D3_COLORS.photonGold, 'url(#arrowAmber)', 'axis-inbound');
+                D3_COLORS.photonGold, 'url(#arrowAmber)', 'axis-inbound', events.turnaround);
             renderLightCone(svg, scales, events.departure.ct, events.departure.x, events.maxCoord, 'cone-departure');
-            renderLightCone(svg, scales, events.turnaround.ct, events.turnaround.x, events.maxCoord, 'cone-turnaround');
-            renderLightCone(svg, scales, events.arrival.ct, events.arrival.x, events.maxCoord, 'cone-arrival');
             renderSimultaneityLines(svg, scales, events.turnaround, beta, events.maxCoord);
             renderWorldline(svg, scales, events.departure, events.turnaround, events.arrival, true);
             renderEvents(svg, scales, events.departure, events.turnaround, events.arrival);
