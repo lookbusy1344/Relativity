@@ -14,7 +14,6 @@ import {
     createLayerGroups,
     renderStandardAxes,
     renderTransformedAxes,
-    renderLightCone,
     createTooltip
 } from './minkowski-core';
 
