@@ -214,16 +214,21 @@ export function createTwinParadoxHandler(
             const velocityC = parseFloat(velocityInput.value ?? '0.8');
             const properTimeYears = parseFloat(timeInput.value ?? '4');
 
-            const res = rl.twinParadox(velocityC, properTimeYears);
+            // Convert UI inputs to SI units
+            const velocity = rl.c.mul(velocityC);  // m/s
+            const properTime = rl.ensure(properTimeYears).mul(rl.secondsPerYear);  // seconds
 
-            // Format results
-            const travelingAge = res.properTime;
-            const earthAge = res.earthTime;
-            const ageDiff = res.ageDifference;
+            // Call function with SI units
+            const res = rl.twinParadox(velocity, properTime);
+
+            // Convert results from SI units to display units
+            const travelingAge = res.properTime.div(rl.secondsPerYear);  // seconds to years
+            const earthAge = res.earthTime.div(rl.secondsPerYear);  // seconds to years
+            const ageDiff = res.ageDifference.div(rl.secondsPerYear);  // seconds to years
             const lorentz = res.lorentzFactor;
-            const velocityKm = res.velocity.div(1000);
-            const oneWayLy = res.oneWayDistance.div(rl.lightYear);
-            const totalLy = res.totalDistance.div(rl.lightYear);
+            const velocityKm = res.velocity.div(1000);  // m/s to km/s
+            const oneWayLy = res.oneWayDistance.div(rl.lightYear);  // meters to light years
+            const totalLy = res.totalDistance.div(rl.lightYear);  // meters to light years
 
             if (resultTwins1) setElement(resultTwins1, rl.formatSignificant(travelingAge, "0", 2), "yrs");
             if (resultTwins2) setElement(resultTwins2, rl.formatSignificant(earthAge, "0", 2), "yrs");

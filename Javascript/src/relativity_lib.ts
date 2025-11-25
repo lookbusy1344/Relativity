@@ -169,16 +169,16 @@ export function flipAndBurn(accel: NumberInput, dist: NumberInput): IFlipAndBurn
 
 /**
  * Calculate the twin paradox scenario: traveling twin at constant velocity with instant turnaround
- * @param velocityC The velocity as fraction of c (0 to 0.999)
- * @param properTimeYears The proper time in years for the traveling twin (total journey)
- * @returns ITwinParadox containing ages, distances, and Lorentz factor
+ * @param velocity The velocity in m/s
+ * @param properTime The proper time in seconds for the traveling twin (total journey)
+ * @returns ITwinParadox containing ages (seconds), distances (meters), velocity (m/s), and Lorentz factor
  */
-export function twinParadox(velocityC: NumberInput, properTimeYears: NumberInput): ITwinParadox {
-    const vC = ensure(velocityC);
-    const properTimeY = ensure(properTimeYears);
+export function twinParadox(velocity: NumberInput, properTime: NumberInput): ITwinParadox {
+    const vel = ensure(velocity);
+    const properTimeS = ensure(properTime);
 
     // Validate velocity is less than c
-    if (vC.abs().gte(one)) {
+    if (vel.abs().gte(c)) {
         return {
             properTime: DecimalNaN,
             earthTime: DecimalNaN,
@@ -190,32 +190,28 @@ export function twinParadox(velocityC: NumberInput, properTimeYears: NumberInput
         };
     }
 
-    // Convert to m/s
-    const velocity = vC.mul(c);
-
     // Calculate Lorentz factor
-    const gamma = lorentzFactor(velocity);
+    const gamma = lorentzFactor(vel);
 
     // Earth time elapsed
-    const earthTimeY = gamma.mul(properTimeY);
+    const earthTimeS = gamma.mul(properTimeS);
 
     // Age difference (Earth twin is older)
-    const ageDiff = earthTimeY.minus(properTimeY);
+    const ageDiff = earthTimeS.minus(properTimeS);
 
     // Distance calculations
     // One way distance = v * (earth_time / 2)
-    const earthTimeSec = earthTimeY.mul(secondsPerYear);
-    const oneWayDist = velocity.mul(earthTimeSec.div(2));
+    const oneWayDist = vel.mul(earthTimeS.div(2));
     const totalDist = oneWayDist.mul(2);
 
     return {
-        properTime: properTimeY,
-        earthTime: earthTimeY,
+        properTime: properTimeS,
+        earthTime: earthTimeS,
         ageDifference: ageDiff,
         lorentzFactor: gamma,
         oneWayDistance: oneWayDist,
         totalDistance: totalDist,
-        velocity: velocity
+        velocity: vel
     };
 }
 
