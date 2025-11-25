@@ -477,9 +477,27 @@ function startJourneyAnimation(
 
         // Draw light cone at current position
         const extent = scales.maxCoord;
+        const largeExtent = extent * 2;
+
+        // Light cone fill polygons (future and past)
+        const coneFillData = [
+            { points: [[currentPos.x, currentPos.ct], [currentPos.x + largeExtent, currentPos.ct + largeExtent], [currentPos.x + largeExtent, currentPos.ct - largeExtent]], class: 'future' },
+            { points: [[currentPos.x, currentPos.ct], [currentPos.x - largeExtent, currentPos.ct - largeExtent], [currentPos.x - largeExtent, currentPos.ct + largeExtent]], class: 'past' }
+        ];
+
+        animatedGroup.selectAll('polygon.cone-fill')
+            .data(coneFillData)
+            .join('polygon')
+            .attr('class', 'cone-fill')
+            .attr('points', d => d.points.map(p =>
+                `${scales.xScale(p[0])},${scales.yScale(p[1])}`
+            ).join(' '))
+            .attr('fill', `${D3_COLORS.electricBlue}${D3_COLORS.lightConeFill}`)
+            .attr('stroke', 'none');
+
+        // Light cone boundary lines
         const coneExtent = Math.min(extent, currentPos.ct); // Don't extend before t=0
 
-        // Future light cone
         animatedGroup.append('line')
             .attr('x1', scales.xScale(currentPos.x - coneExtent))
             .attr('y1', scales.yScale(currentPos.ct - coneExtent))
@@ -638,8 +656,9 @@ export function drawTwinParadoxMinkowski(
     // Create toggle button for play/pause
     const toggleButton = controlContainer
         .append('button')
-        .text('⏸ Pause')
-        .style('padding', '8px 12px')
+        .attr('class', 'minkowski-toggle-button')
+        .text('Toggle Animation')
+        .style('padding', '8px 16px')
         .style('background', D3_COLORS.tooltipBg)
         .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
         .style('color', D3_COLORS.plasmaWhite)
@@ -648,7 +667,7 @@ export function drawTwinParadoxMinkowski(
         .style('cursor', 'pointer')
         .style('border-radius', '4px')
         .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
-        .style('transition', 'all 0.2s')
+        .style('transition', 'all 200ms')
         .on('mouseenter', function() {
             select(this)
                 .style('background', D3_COLORS.tooltipBorder)
@@ -697,12 +716,10 @@ export function drawTwinParadoxMinkowski(
         if (isPlaying) {
             animation.pause();
             isPlaying = false;
-            toggleButton.text('▶ Play');
             sliderContainer.style('display', 'flex');
         } else {
             animation.play();
             isPlaying = true;
-            toggleButton.text('⏸ Pause');
             sliderContainer.style('display', 'none');
         }
     });
@@ -784,13 +801,11 @@ export function drawTwinParadoxMinkowski(
         pause() {
             animation.pause();
             isPlaying = false;
-            toggleButton.text('▶ Play');
         },
 
         play() {
             animation.play();
             isPlaying = true;
-            toggleButton.text('⏸ Pause');
         },
 
         destroy() {
