@@ -880,32 +880,9 @@ export function updateTwinParadoxCharts(
     let newRegistry = registry;
 
     // Calculate max values
-    const maxProperTime = Math.max(...data.velocityProfile.map(d => d.x));
+    const maxProperTime = Math.max(...data.travelingTwinAging.map(d => d.x));
     const maxEarthTime = Math.max(...data.earthTwinAging.map(d => d.y));
     const maxDistance = Math.max(...data.distanceProfile.map(d => d.y));
-
-    // Velocity Profile Chart
-    newRegistry = updateChart(
-        newRegistry,
-        'twinsVelocityChart',
-        [{
-            label: 'Velocity',
-            data: data.velocityProfile,
-            borderColor: '#00d9ff',
-            backgroundColor: 'rgba(0, 217, 255, 0.1)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0,
-            pointRadius: 0
-        }],
-        {
-            primaryColor: '#00d9ff',
-            secondaryColor: '#00ff9f',
-            xAxisLabel: 'Proper Time (years)',
-            yAxisLabel: 'Velocity (fraction of c)',
-            xMax: maxProperTime
-        }
-    );
 
     // Comparative Aging (Dual Timeline) Chart
     newRegistry = updateChart(
