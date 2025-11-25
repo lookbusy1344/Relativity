@@ -13,6 +13,7 @@ import {
 } from './ui/eventHandlers';
 import { type ChartRegistry } from './charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData } from './charts/minkowski';
+import { initializeFromURL, setupURLSync } from './urlState';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -179,4 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Initialize from URL parameters and set up bidirectional sync
+    initializeFromURL();
+    setupURLSync();
 });
