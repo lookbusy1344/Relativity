@@ -329,9 +329,9 @@ function renderLegend(container: HTMLElement): void {
         { color: '#00ff9f', text: 'Outbound frame (ct₁\', x₁\')', type: 'solid' },
         { color: '#ffaa00', text: 'Inbound frame (ct₂\', x₂\')', type: 'solid' },
         { color: '#e8f1f5', text: 'Traveling twin worldline', type: 'solid-thick' },
-        { color: '#00d9ff', text: 'Earth twin (stationary)', type: 'dashed' },
+        { color: '#00d9ff', text: 'Earth twin (stationary)', type: 'solid' },
         { color: '#ffaa00', text: 'Light cones (c)', type: 'dashed' },
-        { color: 'rgba(0, 217, 255, 0.5)', text: 'Simultaneity lines', type: 'dashed' },
+        { color: 'rgba(0, 217, 255, 0.5)', text: 'Simultaneity lines', type: 'solid' },
         { color: '#e8f1f5', text: 'Departure/Arrival events', type: 'circle' },
         { color: '#ffaa00', text: 'Turnaround event', type: 'circle' }
     ];
@@ -636,16 +636,19 @@ export function drawTwinParadoxMinkowski(
     // Setup tooltips
     setupTooltips(svg, container);
 
-    // Create animation controls container (top-right of diagram)
+    // Create animation controls container (bottom-middle of diagram)
     const controlContainer = select(container)
         .append('div')
+        .attr('class', 'minkowski-controls')
         .style('position', 'absolute')
-        .style('top', '10px')
-        .style('right', '10px')
+        .style('bottom', '220px')
+        .style('left', '50%')
+        .style('transform', 'translateX(-50%)')
         .style('display', 'flex')
         .style('flex-direction', 'column')
+        .style('align-items', 'center')
         .style('gap', '8px')
-        .style('z-index', '10');
+        .style('z-index', '1000');
 
     // Create toggle button for play/pause
     const toggleButton = controlContainer
