@@ -85,8 +85,7 @@ function renderWorldline(
         .join('line')
         .attr('class', 'earth-worldline')
         .attr('stroke', D3_COLORS.electricBlue)
-        .attr('stroke-width', 3)
-        .attr('stroke-dasharray', '5,5');
+        .attr('stroke-width', 3);
 
     if (withTransition) {
         earthLine.transition().duration(600).ease(easeCubicInOut)
@@ -180,7 +179,6 @@ function renderSimultaneityLines(
         .attr('data-label', d => d.label)
         .attr('stroke', d => `${d.color}${D3_COLORS.simultaneity}`)
         .attr('stroke-width', 2)
-        .attr('stroke-dasharray', '4,4')
         .attr('x1', d => scales.xScale(d.x1))
         .attr('y1', d => scales.yScale(d.y1))
         .attr('x2', d => scales.xScale(d.x2))
@@ -620,9 +618,6 @@ export function drawTwinParadoxMinkowski(
         events.turnaround
     );
 
-    // Render light cone at origin only
-    renderLightCone(svg, scales, events.departure.ct, events.departure.x, events.maxCoord, 'cone-departure');
-
     // Render simultaneity lines
     renderSimultaneityLines(svg, scales, events.turnaround, beta, events.maxCoord);
 
@@ -751,7 +746,6 @@ export function drawTwinParadoxMinkowski(
             D3_COLORS.quantumGreen, 'url(#arrowGreen)', 'axis-outbound');
         renderTransformedAxes(svg, scales, -beta, { ctLabel: 'ct₂\'', xLabel: 'x₂\'' },
             D3_COLORS.photonGold, 'url(#arrowAmber)', 'axis-inbound', events.turnaround);
-        renderLightCone(svg, scales, events.departure.ct, events.departure.x, events.maxCoord, 'cone-departure');
         renderSimultaneityLines(svg, scales, events.turnaround, beta, events.maxCoord);
         renderWorldline(svg, scales, events.departure, events.turnaround, events.arrival, false);
         renderEvents(svg, scales, events.departure, events.turnaround, events.arrival);
@@ -784,7 +778,6 @@ export function drawTwinParadoxMinkowski(
                 D3_COLORS.quantumGreen, 'url(#arrowGreen)', 'axis-outbound');
             renderTransformedAxes(svg, scales, -beta, { ctLabel: 'ct₂\'', xLabel: 'x₂\'' },
                 D3_COLORS.photonGold, 'url(#arrowAmber)', 'axis-inbound', events.turnaround);
-            renderLightCone(svg, scales, events.departure.ct, events.departure.x, events.maxCoord, 'cone-departure');
             renderSimultaneityLines(svg, scales, events.turnaround, beta, events.maxCoord);
             renderWorldline(svg, scales, events.departure, events.turnaround, events.arrival, true);
             renderEvents(svg, scales, events.departure, events.turnaround, events.arrival);
