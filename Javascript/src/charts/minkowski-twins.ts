@@ -423,42 +423,109 @@ function setupTooltips(
 }
 
 /**
- * Start animation that cycles through the three reference frames
- * Highlights Earth, Outbound, and Inbound frames in sequence
+ * Start animation showing the journey along the worldline
+ * Animates a marker along the path with light cone at current position
  */
-function startReferenceFrameAnimation(
+function startJourneyAnimation(
     svg: Selection<SVGSVGElement, unknown, null, undefined>,
-    _scales: ScaleSet,
-    _data: TwinParadoxMinkowskiData,
+    scales: ScaleSet,
+    data: TwinParadoxMinkowskiData,
+    departure: { ct: number; x: number },
+    turnaround: { ct: number; x: number },
+    arrival: { ct: number; x: number },
     _onUpdate: () => void
 ): AnimationController {
-    const LOOP_DURATION = 9000; // 9 seconds total: 3 seconds per frame
+    const LOOP_DURATION = 12000; // 12 seconds for complete journey
     let startTime = Date.now();
     let isPaused = false;
     let totalPausedTime = 0;
     let pauseStartTime = 0;
     let manualPosition: number | null = null;
 
+    // Create animated marker group
+    const animatedGroup = svg.append('g').attr('class', 'animated-journey');
+
     const updateFrame = (t: number) => {
         // t goes from 0 to 1
-        // Divide into 3 equal phases: Earth (0-0.33), Outbound (0.33-0.66), Inbound (0.66-1.0)
-        const earthOpacity = t < 0.33 ? 1.0 : t < 0.66 ? 0.5 : 0.5;
-        const outboundOpacity = t < 0.33 ? 0.5 : t < 0.66 ? 1.0 : 0.5;
-        const inboundOpacity = t < 0.33 ? 0.5 : t < 0.66 ? 0.5 : 1.0;
+        // First half (0-0.5): outbound journey from departure to turnaround
+        // Second half (0.5-1.0): return journey from turnaround to arrival
+        let currentPos: { ct: number; x: number };
+        let properTime: number;
 
-        // Update axis opacities
-        svg.selectAll('g.axes line').filter(function() {
-            const axis = (this as SVGLineElement).getAttribute('data-axis');
-            return axis === 'ct' || axis === 'x';
-        }).style('opacity', earthOpacity);
+        if (t < 0.5) {
+            // Outbound: interpolate between departure and turnaround
+            const segmentT = t * 2; // 0 to 1 within this segment
+            currentPos = {
+                ct: departure.ct + (turnaround.ct - departure.ct) * segmentT,
+                x: departure.x + (turnaround.x - departure.x) * segmentT
+            };
+            properTime = data.properTimeYears * segmentT / 2;
+        } else {
+            // Inbound: interpolate between turnaround and arrival
+            const segmentT = (t - 0.5) * 2; // 0 to 1 within this segment
+            currentPos = {
+                ct: turnaround.ct + (arrival.ct - turnaround.ct) * segmentT,
+                x: turnaround.x + (arrival.x - turnaround.x) * segmentT
+            };
+            properTime = data.properTimeYears * (0.5 + segmentT / 2);
+        }
 
-        svg.selectAll('.axis-outbound').style('opacity', outboundOpacity);
-        svg.selectAll('.axis-inbound').style('opacity', inboundOpacity);
+        const earthTime = (currentPos.ct / C) / (365.25 * 24 * 3600);
 
-        // Update simultaneity line opacities
-        svg.selectAll('.sim-earth').style('opacity', earthOpacity);
-        svg.selectAll('.sim-outbound').style('opacity', outboundOpacity);
-        svg.selectAll('.sim-inbound').style('opacity', inboundOpacity);
+        // Clear previous animated elements
+        animatedGroup.selectAll('*').remove();
+
+        // Draw light cone at current position
+        const extent = scales.maxCoord;
+        const coneExtent = Math.min(extent, currentPos.ct); // Don't extend before t=0
+
+        // Future light cone
+        animatedGroup.append('line')
+            .attr('x1', scales.xScale(currentPos.x - coneExtent))
+            .attr('y1', scales.yScale(currentPos.ct - coneExtent))
+            .attr('x2', scales.xScale(currentPos.x + coneExtent))
+            .attr('y2', scales.yScale(currentPos.ct + coneExtent))
+            .attr('stroke', `${D3_COLORS.photonGold}80`)
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '8,4');
+
+        animatedGroup.append('line')
+            .attr('x1', scales.xScale(currentPos.x - coneExtent))
+            .attr('y1', scales.yScale(currentPos.ct + coneExtent))
+            .attr('x2', scales.xScale(currentPos.x + coneExtent))
+            .attr('y2', scales.yScale(currentPos.ct - coneExtent))
+            .attr('stroke', `${D3_COLORS.photonGold}80`)
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '8,4');
+
+        // Draw position marker
+        animatedGroup.append('circle')
+            .attr('cx', scales.xScale(currentPos.x))
+            .attr('cy', scales.yScale(currentPos.ct))
+            .attr('r', 10)
+            .attr('fill', D3_COLORS.quantumGreen)
+            .attr('stroke', D3_COLORS.plasmaWhite)
+            .attr('stroke-width', 3)
+            .style('filter', 'drop-shadow(0 0 8px ' + D3_COLORS.quantumGreen + ')');
+
+        // Draw time labels next to marker
+        animatedGroup.append('text')
+            .attr('x', scales.xScale(currentPos.x) + 20)
+            .attr('y', scales.yScale(currentPos.ct) - 10)
+            .attr('fill', D3_COLORS.quantumGreen)
+            .attr('font-family', "'IBM Plex Mono', monospace")
+            .attr('font-size', '12px')
+            .attr('font-weight', 'bold')
+            .text(`τ = ${properTime.toFixed(2)} yr`);
+
+        animatedGroup.append('text')
+            .attr('x', scales.xScale(currentPos.x) + 20)
+            .attr('y', scales.yScale(currentPos.ct) + 10)
+            .attr('fill', D3_COLORS.electricBlue)
+            .attr('font-family', "'IBM Plex Mono', monospace")
+            .attr('font-size', '12px')
+            .attr('font-weight', 'bold')
+            .text(`t = ${earthTime.toFixed(2)} yr`);
     };
 
     const animationTimer = timer(() => {
@@ -485,6 +552,7 @@ function startReferenceFrameAnimation(
         },
         stop() {
             animationTimer.stop();
+            animatedGroup.remove();
         },
         setPosition(t: number) {
             manualPosition = t;
@@ -618,8 +686,8 @@ export function drawTwinParadoxMinkowski(
             animation.setPosition(value);
         });
 
-    // Start auto-play frame animation
-    let animation = startReferenceFrameAnimation(svg, scales, data, () => {
+    // Start journey animation
+    let animation = startJourneyAnimation(svg, scales, data, events.departure, events.turnaround, events.arrival, () => {
         // Animation update callback (currently unused)
     });
     let isPlaying = true;
@@ -631,13 +699,6 @@ export function drawTwinParadoxMinkowski(
             isPlaying = false;
             toggleButton.text('▶ Play');
             sliderContainer.style('display', 'flex');
-            // Reset all opacities to 1 when paused
-            svg.selectAll('g.axes line').style('opacity', 1);
-            svg.selectAll('.axis-outbound').style('opacity', 1);
-            svg.selectAll('.axis-inbound').style('opacity', 1);
-            svg.selectAll('.sim-earth').style('opacity', 1);
-            svg.selectAll('.sim-outbound').style('opacity', 1);
-            svg.selectAll('.sim-inbound').style('opacity', 1);
         } else {
             animation.play();
             isPlaying = true;
