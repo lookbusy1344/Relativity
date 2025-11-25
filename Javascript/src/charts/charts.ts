@@ -872,3 +872,203 @@ function createSpacetimeChart(
         }
     }) as Chart;
 }
+
+export function updateTwinParadoxCharts(
+    registry: ChartRegistry,
+    data: ReturnType<typeof import('./dataGeneration').generateTwinParadoxChartData>
+): ChartRegistry {
+    let newRegistry = registry;
+
+    // Calculate max values
+    const maxProperTime = Math.max(...data.velocityProfile.map(d => d.x));
+    const maxEarthTime = Math.max(...data.earthTwinAging.map(d => d.y));
+    const maxDistance = Math.max(...data.distanceProfile.map(d => d.y));
+
+    // Velocity Profile Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'twinsVelocityChart',
+        [{
+            label: 'Velocity',
+            data: data.velocityProfile,
+            borderColor: '#00d9ff',
+            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Proper Time (years)',
+            yAxisLabel: 'Velocity (fraction of c)',
+            xMax: maxProperTime
+        }
+    );
+
+    // Time Dilation Factor Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'twinsLorentzChart',
+        [{
+            label: 'Lorentz Factor (γ)',
+            data: data.timeDilationProfile,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#00ff9f',
+            secondaryColor: '#00d9ff',
+            xAxisLabel: 'Proper Time (years)',
+            yAxisLabel: 'Lorentz Factor',
+            xMax: maxProperTime
+        }
+    );
+
+    // Comparative Aging (Dual Timeline) Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'twinsAgingChart',
+        [{
+            label: 'Traveling Twin',
+            data: data.travelingTwinAging,
+            borderColor: '#00d9ff',
+            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0,
+            pointRadius: 0
+        }, {
+            label: 'Earth Twin',
+            data: data.earthTwinAging,
+            borderColor: '#00ff9f',
+            backgroundColor: 'rgba(0, 255, 159, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Proper Time - Traveling Twin (years)',
+            yAxisLabel: 'Age (years)',
+            xMax: maxProperTime,
+            yMax: maxEarthTime
+        }
+    );
+
+    // Distance from Earth Chart
+    newRegistry = updateChart(
+        newRegistry,
+        'twinsDistanceChart',
+        [{
+            label: 'Distance from Earth',
+            data: data.distanceProfile,
+            borderColor: '#ffaa00',
+            backgroundColor: 'rgba(255, 170, 0, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0,
+            pointRadius: 0
+        }],
+        {
+            primaryColor: '#ffaa00',
+            secondaryColor: '#00d9ff',
+            xAxisLabel: 'Proper Time (years)',
+            yAxisLabel: 'Distance (light years)',
+            xMax: maxProperTime,
+            yMax: maxDistance,
+            yMin: 0
+        }
+    );
+
+    // Spacetime Worldline Chart
+    const spacetimeCanvas = document.getElementById('twinsSpacetimeChart') as HTMLCanvasElement | null;
+    if (spacetimeCanvas) {
+        if (newRegistry.has('twinsSpacetime')) {
+            newRegistry.get('twinsSpacetime')?.destroy();
+        }
+
+        const ctx = spacetimeCanvas.getContext('2d');
+        if (ctx) {
+            newRegistry.set('twinsSpacetime', new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Traveling Twin Worldline',
+                        data: data.spacetimeWorldline,
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0,
+                        pointRadius: 0
+                    }, {
+                        label: 'Earth Twin Worldline',
+                        data: [
+                            { x: 0, y: 0 },
+                            { x: 0, y: maxEarthTime }
+                        ],
+                        borderColor: '#00ff9f',
+                        backgroundColor: 'rgba(0, 255, 159, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1.5,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: '#e8f1f5', font: { size: 12 } }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#00d9ff',
+                            bodyColor: '#e8f1f5',
+                            borderColor: '#00d9ff',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Distance (light years)',
+                                color: '#00d9ff',
+                                font: { size: 14 }
+                            },
+                            grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                            ticks: { color: '#e8f1f5' }
+                        },
+                        y: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Time (years)',
+                                color: '#00d9ff',
+                                font: { size: 14 }
+                            },
+                            grid: { color: 'rgba(0, 217, 255, 0.1)' },
+                            ticks: { color: '#e8f1f5' }
+                        }
+                    }
+                }
+            }) as Chart);
+        }
+    }
+
+    return newRegistry;
+}

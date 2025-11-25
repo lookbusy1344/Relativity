@@ -33,6 +33,15 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
         buttonId: 'flipButton',
         tabId: 'travel-tab'
     },
+    twins: {
+        name: 'twins',
+        params: {
+            vel: 'twinsVelocityInput',
+            time: 'twinsTimeInput'
+        },
+        buttonId: 'twinsButton',
+        tabId: 'twins-tab'
+    },
     spacetime: {
         name: 'spacetime',
         params: {
@@ -100,6 +109,7 @@ function getActiveTab(): string {
     const tabId = activeTab.getAttribute('id');
     if (tabId === 'motion-tab') return 'motion';
     if (tabId === 'travel-tab') return 'flip';
+    if (tabId === 'twins-tab') return 'twins';
     if (tabId === 'spacetime-tab') return 'spacetime';
     if (tabId === 'conversions-tab') return 'calc';
 

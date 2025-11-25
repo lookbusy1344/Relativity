@@ -6,8 +6,8 @@
 import Decimal from 'decimal.js';
 import * as rl from '../relativity_lib';
 import { setElement } from './domUtils';
-import { generateAccelChartData, generateFlipBurnChartData, generateVisualizationChartData } from '../charts/dataGeneration';
-import { updateAccelCharts, updateFlipBurnCharts, updateVisualizationCharts, type ChartRegistry } from '../charts/charts';
+import { generateAccelChartData, generateFlipBurnChartData, generateVisualizationChartData, generateTwinParadoxChartData } from '../charts/dataGeneration';
+import { updateAccelCharts, updateFlipBurnCharts, updateVisualizationCharts, updateTwinParadoxCharts, type ChartRegistry } from '../charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData } from '../charts/minkowski';
 
 export function createLorentzHandler(
@@ -184,6 +184,64 @@ export function createFlipBurnHandler(
             // Update charts
             const data = generateFlipBurnChartData(accelG, distanceLightYears);
             chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data);
+        }, 0));
+    };
+}
+
+export function createTwinParadoxHandler(
+    getVelocityInput: () => HTMLInputElement | null,
+    getTimeInput: () => HTMLInputElement | null,
+    getResults: () => (HTMLElement | null)[],
+    chartRegistry: { current: ChartRegistry }
+): () => void {
+    return () => {
+        const velocityInput = getVelocityInput();
+        const timeInput = getTimeInput();
+        const [resultTwins1, resultTwins2, resultTwins3, resultTwins4, resultTwins5, resultTwins6, resultTwins7, resultTwinsFuel] = getResults();
+        if (!velocityInput || !timeInput) return;
+
+        // Show working message
+        if (resultTwins1) resultTwins1.textContent = "Working...";
+        if (resultTwins2) resultTwins2.textContent = "";
+        if (resultTwins3) resultTwins3.textContent = "";
+        if (resultTwins4) resultTwins4.textContent = "";
+        if (resultTwins5) resultTwins5.textContent = "";
+        if (resultTwins6) resultTwins6.textContent = "";
+        if (resultTwins7) resultTwins7.textContent = "";
+        if (resultTwinsFuel) resultTwinsFuel.textContent = "";
+
+        // Allow UI to update before heavy calculation
+        requestAnimationFrame(() => setTimeout(() => {
+            const velocityC = parseFloat(velocityInput.value ?? '0.8');
+            const properTimeYears = parseFloat(timeInput.value ?? '4');
+
+            const res = rl.twinParadox(velocityC, properTimeYears);
+
+            // Format results
+            const travelingAge = res.properTime;
+            const earthAge = res.earthTime;
+            const ageDiff = res.ageDifference;
+            const lorentz = res.lorentzFactor;
+            const velocityKm = res.velocity.div(1000);
+            const oneWayLy = res.oneWayDistance.div(rl.lightYear);
+            const totalLy = res.totalDistance.div(rl.lightYear);
+
+            // Calculate fuel fraction (traveling twin's proper time converted to seconds)
+            const properTimeSec = travelingAge.mul(rl.secondsPerYear);
+            const fuelPercent = rl.pionRocketFuelFraction(properTimeSec, rl.g, 0.85).mul(100);
+
+            if (resultTwins1) setElement(resultTwins1, rl.formatSignificant(travelingAge, "0", 2), "yrs");
+            if (resultTwins2) setElement(resultTwins2, rl.formatSignificant(earthAge, "0", 2), "yrs");
+            if (resultTwins3) setElement(resultTwins3, rl.formatSignificant(ageDiff, "0", 2), "yrs");
+            if (resultTwins4) setElement(resultTwins4, rl.formatSignificant(lorentz, "0", 3), "");
+            if (resultTwins5) setElement(resultTwins5, `${rl.formatSignificant(rl.ensure(velocityC), "9", 3)}c (${rl.formatSignificant(velocityKm, "0", 0)} km/s)`, "");
+            if (resultTwins6) setElement(resultTwins6, rl.formatSignificant(oneWayLy, "0", 3), "ly");
+            if (resultTwins7) setElement(resultTwins7, rl.formatSignificant(totalLy, "0", 3), "ly");
+            if (resultTwinsFuel) setElement(resultTwinsFuel, rl.formatSignificant(fuelPercent, "9", 3), "%");
+
+            // Update charts
+            const data = generateTwinParadoxChartData(velocityC, properTimeYears);
+            chartRegistry.current = updateTwinParadoxCharts(chartRegistry.current, data);
         }, 0));
     };
 }

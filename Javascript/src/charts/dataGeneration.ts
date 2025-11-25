@@ -295,3 +295,86 @@ export function generateVisualizationChartData(
         timeDilation
     };
 }
+
+export function generateTwinParadoxChartData(
+    velocityC: number,
+    properTimeYears: number
+): {
+    velocityProfile: ChartDataPoint[];
+    timeDilationProfile: ChartDataPoint[];
+    travelingTwinAging: ChartDataPoint[];
+    earthTwinAging: ChartDataPoint[];
+    distanceProfile: ChartDataPoint[];
+    spacetimeWorldline: ChartDataPoint[];
+} {
+    const numPoints = 100;
+    const halfTime = properTimeYears / 2;
+
+    // Calculate key physics values
+    const velocity = rl.c.mul(velocityC);
+    const gamma = parseFloat(rl.lorentzFactor(velocity).toString());
+
+    const velocityProfile: ChartDataPoint[] = [];
+    const timeDilationProfile: ChartDataPoint[] = [];
+    const travelingTwinAging: ChartDataPoint[] = [];
+    const earthTwinAging: ChartDataPoint[] = [];
+    const distanceProfile: ChartDataPoint[] = [];
+    const spacetimeWorldline: ChartDataPoint[] = [];
+
+    // First half: outbound journey
+    for (let i = 0; i <= numPoints / 2; i++) {
+        const tau = (i / numPoints) * properTimeYears;  // Proper time (traveling twin's clock)
+        const earthTime = tau * gamma;  // Earth time
+
+        // Velocity is constant at +v during outbound
+        velocityProfile.push({ x: tau, y: velocityC });
+
+        // Time dilation factor is constant
+        timeDilationProfile.push({ x: tau, y: gamma });
+
+        // Aging: traveling twin ages linearly, Earth twin ages faster
+        travelingTwinAging.push({ x: tau, y: tau });
+        earthTwinAging.push({ x: tau, y: earthTime });
+
+        // Distance increases linearly
+        const distance = velocityC * earthTime;  // distance in light years (since v is in c and t in years)
+        distanceProfile.push({ x: tau, y: distance });
+
+        // Spacetime worldline: (distance, time)
+        spacetimeWorldline.push({ x: distance, y: earthTime });
+    }
+
+    // Second half: return journey
+    for (let i = Math.floor(numPoints / 2) + 1; i <= numPoints; i++) {
+        const tau = (i / numPoints) * properTimeYears;
+        const earthTime = tau * gamma;
+
+        // Velocity is constant at -v during return
+        velocityProfile.push({ x: tau, y: -velocityC });
+
+        // Time dilation factor remains constant
+        timeDilationProfile.push({ x: tau, y: gamma });
+
+        // Aging continues
+        travelingTwinAging.push({ x: tau, y: tau });
+        earthTwinAging.push({ x: tau, y: earthTime });
+
+        // Distance decreases back to zero
+        const tauSinceTurnaround = tau - halfTime;
+        const maxDistance = velocityC * halfTime * gamma;
+        const distance = maxDistance - (velocityC * tauSinceTurnaround * gamma);
+        distanceProfile.push({ x: tau, y: distance });
+
+        // Spacetime worldline: returning to origin
+        spacetimeWorldline.push({ x: distance, y: earthTime });
+    }
+
+    return {
+        velocityProfile,
+        timeDilationProfile,
+        travelingTwinAging,
+        earthTwinAging,
+        distanceProfile,
+        spacetimeWorldline
+    };
+}

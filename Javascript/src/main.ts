@@ -6,6 +6,7 @@ import {
     createVelocityFromRapidityHandler,
     createAccelHandler,
     createFlipBurnHandler,
+    createTwinParadoxHandler,
     createAddVelocitiesHandler,
     createPionAccelTimeHandler,
     createPionFuelFractionHandler,
@@ -89,6 +90,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 getResultElement('resultFlipFuel'),
                 getResultElement('resultFlipFuel60'),
                 getResultElement('resultFlipFuel70')
+            ],
+            chartRegistry
+        )
+    );
+
+    // Twin Paradox
+    getButtonElement('twinsButton')?.addEventListener('click',
+        createTwinParadoxHandler(
+            () => getInputElement('twinsVelocityInput'),
+            () => getInputElement('twinsTimeInput'),
+            () => [
+                getResultElement('resultTwins1'),
+                getResultElement('resultTwins2'),
+                getResultElement('resultTwins3'),
+                getResultElement('resultTwins4'),
+                getResultElement('resultTwins5'),
+                getResultElement('resultTwins6'),
+                getResultElement('resultTwins7'),
+                getResultElement('resultTwinsFuel')
             ],
             chartRegistry
         )

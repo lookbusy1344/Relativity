@@ -11,6 +11,16 @@ export interface IFlipAndBurn {
     coordTime: Decimal;
 }
 
+export interface ITwinParadox {
+    properTime: Decimal;
+    earthTime: Decimal;
+    ageDifference: Decimal;
+    lorentzFactor: Decimal;
+    oneWayDistance: Decimal;
+    totalDistance: Decimal;
+    velocity: Decimal;
+}
+
 // Physical constants
 export const DecimalNaN: Decimal = new Decimal(NaN);
 export const DecimalInfinity: Decimal = new Decimal(Infinity);
@@ -155,6 +165,58 @@ export function flipAndBurn(accel: NumberInput, dist: NumberInput): IFlipAndBurn
     const peakVelocity = relativisticVelocity(accelD, timeToHalfProper);
     const lorentz = lorentzFactor(peakVelocity);
     return { properTime: timeToHalfProper.mul(2), peakVelocity, lorentzFactor: lorentz, coordTime: timeToHalfCoord.mul(2) };
+}
+
+/**
+ * Calculate the twin paradox scenario: traveling twin at constant velocity with instant turnaround
+ * @param velocityC The velocity as fraction of c (0 to 0.999)
+ * @param properTimeYears The proper time in years for the traveling twin (total journey)
+ * @returns ITwinParadox containing ages, distances, and Lorentz factor
+ */
+export function twinParadox(velocityC: NumberInput, properTimeYears: NumberInput): ITwinParadox {
+    const vC = ensure(velocityC);
+    const properTimeY = ensure(properTimeYears);
+
+    // Validate velocity is less than c
+    if (vC.abs().gte(one)) {
+        return {
+            properTime: DecimalNaN,
+            earthTime: DecimalNaN,
+            ageDifference: DecimalNaN,
+            lorentzFactor: DecimalNaN,
+            oneWayDistance: DecimalNaN,
+            totalDistance: DecimalNaN,
+            velocity: DecimalNaN
+        };
+    }
+
+    // Convert to m/s
+    const velocity = vC.mul(c);
+
+    // Calculate Lorentz factor
+    const gamma = lorentzFactor(velocity);
+
+    // Earth time elapsed
+    const earthTimeY = gamma.mul(properTimeY);
+
+    // Age difference (Earth twin is older)
+    const ageDiff = earthTimeY.minus(properTimeY);
+
+    // Distance calculations
+    // One way distance = v * (earth_time / 2)
+    const earthTimeSec = earthTimeY.mul(secondsPerYear);
+    const oneWayDist = velocity.mul(earthTimeSec.div(2));
+    const totalDist = oneWayDist.mul(2);
+
+    return {
+        properTime: properTimeY,
+        earthTime: earthTimeY,
+        ageDifference: ageDiff,
+        lorentzFactor: gamma,
+        oneWayDistance: oneWayDist,
+        totalDistance: totalDist,
+        velocity: velocity
+    };
 }
 
 /**

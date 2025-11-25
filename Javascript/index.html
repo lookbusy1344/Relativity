@@ -736,7 +736,11 @@
 				</li>
 				<li class="nav-item" role="presentation">
 					<button class="nav-link" id="travel-tab" data-bs-toggle="tab" data-bs-target="#travel"
-						type="button" role="tab">Flip and Burn</button>
+						type="button" role="tab">Flip</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="twins-tab" data-bs-toggle="tab" data-bs-target="#twins"
+						type="button" role="tab">Twin Paradox</button>
 				</li>
 				<li class="nav-item" role="presentation">
 					<button class="nav-link" id="spacetime-tab" data-bs-toggle="tab"
@@ -980,6 +984,107 @@
 							<canvas id="flipSpacetimeChart"></canvas>
 						</div>
 					</div>
+					</div>
+				</div>
+
+				<!-- Twin Paradox Tab -->
+				<div class="tab-pane fade" id="twins" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">Twin Paradox Calculator</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Velocity (c)</div>
+								<input type="number" id="twinsVelocityInput" placeholder="e.g., 0.8" value="0.8"
+									class="form-control" step="0.01" min="0.001" max="0.999">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Proper Time (years)</div>
+								<input type="number" id="twinsTimeInput" placeholder="Enter years" value="4"
+									class="form-control" step="0.1" min="0.1">
+							</div>
+							<button type="button" class="btn-calculate" id="twinsButton"
+								>Calculate</button>
+						</div>
+						<div class="result-grid">
+							<div class="result-item">
+								<div class="result-item-label">Traveling Twin's Age</div>
+								<div class="result-item-value" id="resultTwins1">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Earth Twin's Age</div>
+								<div class="result-item-value" id="resultTwins2">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Age Difference</div>
+								<div class="result-item-value" id="resultTwins3">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Lorentz Factor</div>
+								<div class="result-item-value" id="resultTwins4">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Velocity</div>
+								<div class="result-item-value" id="resultTwins5">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">One-way Distance</div>
+								<div class="result-item-value" id="resultTwins6">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Total Distance</div>
+								<div class="result-item-value" id="resultTwins7">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Fuel Fraction (85% nozzle eff)</div>
+								<div class="result-item-value" id="resultTwinsFuel">-</div>
+							</div>
+						</div>
+
+						<!-- Twin Paradox Charts -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Velocity Profile
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="twinsVelocityChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Time Dilation Factor
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="twinsLorentzChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Comparative Aging (Dual Timeline)
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="twinsAgingChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Distance from Earth
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="twinsDistanceChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Spacetime Worldline
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="twinsSpacetimeChart"></canvas>
+							</div>
+						</div>
 					</div>
 				</div>
 
