@@ -2,8 +2,9 @@
 import { select, Selection } from 'd3-selection';
 import 'd3-transition';
 import { easeCubicInOut } from 'd3-ease';
+import { timer } from 'd3-timer';
 import { COLORS as D3_COLORS } from './minkowski-colors';
-import type { MinkowskiController, ScaleSet } from './minkowski-types';
+import type { MinkowskiController, ScaleSet, AnimationController } from './minkowski-types';
 import {
     C,
     debounce,
@@ -422,6 +423,77 @@ function setupTooltips(
 }
 
 /**
+ * Start animation that cycles through the three reference frames
+ * Highlights Earth, Outbound, and Inbound frames in sequence
+ */
+function startReferenceFrameAnimation(
+    svg: Selection<SVGSVGElement, unknown, null, undefined>,
+    _scales: ScaleSet,
+    _data: TwinParadoxMinkowskiData,
+    _onUpdate: () => void
+): AnimationController {
+    const LOOP_DURATION = 9000; // 9 seconds total: 3 seconds per frame
+    let startTime = Date.now();
+    let isPaused = false;
+    let totalPausedTime = 0;
+    let pauseStartTime = 0;
+    let manualPosition: number | null = null;
+
+    const updateFrame = (t: number) => {
+        // t goes from 0 to 1
+        // Divide into 3 equal phases: Earth (0-0.33), Outbound (0.33-0.66), Inbound (0.66-1.0)
+        const earthOpacity = t < 0.33 ? 1.0 : t < 0.66 ? 0.5 : 0.5;
+        const outboundOpacity = t < 0.33 ? 0.5 : t < 0.66 ? 1.0 : 0.5;
+        const inboundOpacity = t < 0.33 ? 0.5 : t < 0.66 ? 0.5 : 1.0;
+
+        // Update axis opacities
+        svg.selectAll('g.axes line').filter(function() {
+            const axis = (this as SVGLineElement).getAttribute('data-axis');
+            return axis === 'ct' || axis === 'x';
+        }).style('opacity', earthOpacity);
+
+        svg.selectAll('.axis-outbound').style('opacity', outboundOpacity);
+        svg.selectAll('.axis-inbound').style('opacity', inboundOpacity);
+
+        // Update simultaneity line opacities
+        svg.selectAll('.sim-earth').style('opacity', earthOpacity);
+        svg.selectAll('.sim-outbound').style('opacity', outboundOpacity);
+        svg.selectAll('.sim-inbound').style('opacity', inboundOpacity);
+    };
+
+    const animationTimer = timer(() => {
+        if (isPaused || manualPosition !== null) return;
+
+        const elapsed = Date.now() - startTime - totalPausedTime;
+        const t = (elapsed % LOOP_DURATION) / LOOP_DURATION;
+        updateFrame(t);
+    });
+
+    return {
+        pause() {
+            if (!isPaused) {
+                isPaused = true;
+                pauseStartTime = Date.now();
+            }
+        },
+        play() {
+            if (isPaused) {
+                totalPausedTime += Date.now() - pauseStartTime;
+                isPaused = false;
+                manualPosition = null;
+            }
+        },
+        stop() {
+            animationTimer.stop();
+        },
+        setPosition(t: number) {
+            manualPosition = t;
+            updateFrame(t);
+        }
+    };
+}
+
+/**
  * Main function: Draw Twin Paradox Minkowski diagram
  */
 export function drawTwinParadoxMinkowski(
@@ -483,6 +555,106 @@ export function drawTwinParadoxMinkowski(
 
     // Setup tooltips
     setupTooltips(svg, container);
+
+    // Create animation controls container (top-right of diagram)
+    const controlContainer = select(container)
+        .append('div')
+        .style('position', 'absolute')
+        .style('top', '10px')
+        .style('right', '10px')
+        .style('display', 'flex')
+        .style('flex-direction', 'column')
+        .style('gap', '8px')
+        .style('z-index', '10');
+
+    // Create toggle button for play/pause
+    const toggleButton = controlContainer
+        .append('button')
+        .text('⏸ Pause')
+        .style('padding', '8px 12px')
+        .style('background', D3_COLORS.tooltipBg)
+        .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
+        .style('color', D3_COLORS.plasmaWhite)
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '12px')
+        .style('cursor', 'pointer')
+        .style('border-radius', '4px')
+        .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
+        .style('transition', 'all 0.2s')
+        .on('mouseenter', function() {
+            select(this)
+                .style('background', D3_COLORS.tooltipBorder)
+                .style('box-shadow', `0 0 15px ${D3_COLORS.tooltipBorder}80`);
+        })
+        .on('mouseleave', function() {
+            select(this)
+                .style('background', D3_COLORS.tooltipBg)
+                .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`);
+        });
+
+    // Create slider for manual position control (hidden initially)
+    const sliderContainer = controlContainer
+        .append('div')
+        .style('display', 'none')
+        .style('align-items', 'center')
+        .style('gap', '8px');
+
+    sliderContainer.append('label')
+        .style('color', D3_COLORS.quantumGreen)
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '11px')
+        .text('Position:');
+
+    sliderContainer
+        .append('input')
+        .attr('type', 'range')
+        .attr('min', '0')
+        .attr('max', '50')
+        .attr('value', '0')
+        .style('width', '200px')
+        .style('cursor', 'pointer')
+        .on('input', function() {
+            const value = parseFloat((this as HTMLInputElement).value) / 50;
+            animation.setPosition(value);
+        });
+
+    // Start auto-play frame animation
+    let animation = startReferenceFrameAnimation(svg, scales, data, () => {
+        // Animation update callback (currently unused)
+    });
+    let isPlaying = true;
+
+    // Add click handler for toggle button
+    toggleButton.on('click', () => {
+        if (isPlaying) {
+            animation.pause();
+            isPlaying = false;
+            toggleButton.text('▶ Play');
+            sliderContainer.style('display', 'flex');
+            // Reset all opacities to 1 when paused
+            svg.selectAll('g.axes line').style('opacity', 1);
+            svg.selectAll('.axis-outbound').style('opacity', 1);
+            svg.selectAll('.axis-inbound').style('opacity', 1);
+            svg.selectAll('.sim-earth').style('opacity', 1);
+            svg.selectAll('.sim-outbound').style('opacity', 1);
+            svg.selectAll('.sim-inbound').style('opacity', 1);
+        } else {
+            animation.play();
+            isPlaying = true;
+            toggleButton.text('⏸ Pause');
+            sliderContainer.style('display', 'none');
+        }
+    });
+
+    // Pause animation when tab is hidden
+    const visibilityChangeHandler = () => {
+        if (document.hidden) {
+            animation.pause();
+        } else if (isPlaying) {
+            animation.play();
+        }
+    };
+    document.addEventListener('visibilitychange', visibilityChangeHandler);
 
     // Resize handler
     const resizeHandler = debounce(() => {
@@ -549,15 +721,21 @@ export function drawTwinParadoxMinkowski(
         },
 
         pause() {
-            // No animation in Twin Paradox diagram
+            animation.pause();
+            isPlaying = false;
+            toggleButton.text('▶ Play');
         },
 
         play() {
-            // No animation in Twin Paradox diagram
+            animation.play();
+            isPlaying = true;
+            toggleButton.text('⏸ Pause');
         },
 
         destroy() {
+            animation.stop();
             window.removeEventListener('resize', resizeHandler);
+            document.removeEventListener('visibilitychange', visibilityChangeHandler);
             select(container).selectAll('*').remove();
         }
     };
