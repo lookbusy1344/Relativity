@@ -767,6 +767,18 @@ export function drawTwinParadoxMinkowski(
             events = calculateEvents(twinsData);
             scales = createScaleSet(events.maxCoord, size);
 
+            // Stop old animation and start new one with updated data
+            const wasPlaying = isPlaying;
+            animation.stop();
+            animation = startJourneyAnimation(svg, scales, twinsData, events.departure, events.turnaround, events.arrival, () => {
+                // Animation update callback (currently unused)
+            });
+            if (!wasPlaying) {
+                animation.pause();
+                isPlaying = false;
+                sliderContainer.style('display', 'flex');
+            }
+
             // Clear and re-render
             svg.select('g.axes').selectAll('*').remove();
             svg.select('g.light-cones').selectAll('*').remove();
