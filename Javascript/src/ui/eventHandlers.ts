@@ -236,7 +236,7 @@ export function createTwinParadoxHandler(
             if (resultTwins2) setElement(resultTwins2, rl.formatSignificant(earthAge, "0", 2), "yrs");
             if (resultTwins3) setElement(resultTwins3, rl.formatSignificant(ageDiff, "0", 2), "yrs");
             if (resultTwins4) setElement(resultTwins4, rl.formatSignificant(lorentz, "0", 3), "");
-            if (resultTwins5) setElement(resultTwins5, `${rl.formatSignificant(rl.ensure(velocityC), "9", 3)}c (${rl.formatSignificant(velocityKm, "0", 0)} km/s)`, "");
+            if (resultTwins5) setElement(resultTwins5, `${rl.formatSignificant(rl.ensure(velocityC), "9", 3)}c (${rl.formatSignificant(velocityKm, "9", 1)} km/s)`, "");
             if (resultTwins6) setElement(resultTwins6, rl.formatSignificant(oneWayLy, "0", 3), "ly");
             if (resultTwins7) setElement(resultTwins7, rl.formatSignificant(totalLy, "0", 3), "ly");
 
