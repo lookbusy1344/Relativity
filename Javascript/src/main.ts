@@ -14,6 +14,7 @@ import {
 } from './ui/eventHandlers';
 import { type ChartRegistry } from './charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData } from './charts/minkowski';
+import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData } from './charts/minkowski-twins';
 import { initializeFromURL, setupURLSync } from './urlState';
 
 // Register Chart.js components
@@ -26,6 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const minkowskiState: {
         lastData: MinkowskiData | null,
         controller: ReturnType<typeof drawMinkowskiDiagramD3> | null
+    } = {
+        lastData: null,
+        controller: null
+    };
+
+    // Store Twin Paradox Minkowski diagram controller and data for updates
+    const twinsMinkowskiState: {
+        lastData: TwinParadoxMinkowskiData | null,
+        controller: ReturnType<typeof drawTwinParadoxMinkowski> | null
     } = {
         lastData: null,
         controller: null
@@ -109,7 +119,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 getResultElement('resultTwins6'),
                 getResultElement('resultTwins7')
             ],
-            chartRegistry
+            chartRegistry,
+            (container, data, _controller) => {
+                if (twinsMinkowskiState.controller) {
+                    // Update existing diagram
+                    (twinsMinkowskiState.controller as any).update(data);
+                } else {
+                    // Create new diagram
+                    twinsMinkowskiState.controller = drawTwinParadoxMinkowski(container, data);
+                }
+                twinsMinkowskiState.lastData = data;
+            }
         )
     );
 
@@ -180,6 +200,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update Minkowski diagram if it exists
             if (minkowskiState.controller && minkowskiState.lastData) {
                 minkowskiState.controller.update(minkowskiState.lastData);
+            }
+
+            // Update Twin Paradox Minkowski diagram if it exists
+            if (twinsMinkowskiState.controller && twinsMinkowskiState.lastData) {
+                (twinsMinkowskiState.controller as any).update(twinsMinkowskiState.lastData);
             }
         }, 700);
     };

@@ -9,6 +9,7 @@ import { setElement } from './domUtils';
 import { generateAccelChartData, generateFlipBurnChartData, generateVisualizationChartData, generateTwinParadoxChartData } from '../charts/dataGeneration';
 import { updateAccelCharts, updateFlipBurnCharts, updateVisualizationCharts, updateTwinParadoxCharts, type ChartRegistry } from '../charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData } from '../charts/minkowski';
+import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData } from '../charts/minkowski-twins';
 
 export function createLorentzHandler(
     getInput: () => HTMLInputElement | null,
@@ -192,7 +193,8 @@ export function createTwinParadoxHandler(
     getVelocityInput: () => HTMLInputElement | null,
     getTimeInput: () => HTMLInputElement | null,
     getResults: () => (HTMLElement | null)[],
-    chartRegistry: { current: ChartRegistry }
+    chartRegistry: { current: ChartRegistry },
+    onDiagramDrawn?: (container: HTMLElement, data: TwinParadoxMinkowskiData, controller: ReturnType<typeof drawTwinParadoxMinkowski>) => void
 ): () => void {
     return () => {
         const velocityInput = getVelocityInput();
@@ -241,6 +243,20 @@ export function createTwinParadoxHandler(
             // Update charts
             const data = generateTwinParadoxChartData(velocityC, properTimeYears);
             chartRegistry.current = updateTwinParadoxCharts(chartRegistry.current, data);
+
+            // Draw Minkowski diagram
+            const container = document.getElementById('twinsMinkowskiContainer');
+            if (container && onDiagramDrawn) {
+                const minkowskiData: TwinParadoxMinkowskiData = {
+                    velocityC,
+                    properTimeYears,
+                    earthTimeYears: parseFloat(earthAge.toString()),
+                    distanceLY: parseFloat(oneWayLy.toString()),
+                    gamma: parseFloat(lorentz.toString())
+                };
+
+                onDiagramDrawn(container, minkowskiData, null as any);
+            }
         }, 0));
     };
 }

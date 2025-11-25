@@ -965,87 +965,8 @@ export function updateTwinParadoxCharts(
         }
     );
 
-    // Spacetime Worldline Chart
-    const spacetimeCanvas = document.getElementById('twinsSpacetimeChart') as HTMLCanvasElement | null;
-    if (spacetimeCanvas) {
-        if (newRegistry.has('twinsSpacetime')) {
-            newRegistry.get('twinsSpacetime')?.destroy();
-        }
-
-        const ctx = spacetimeCanvas.getContext('2d');
-        if (ctx) {
-            newRegistry.set('twinsSpacetime', new Chart(ctx, {
-                type: 'line',
-                data: {
-                    datasets: [{
-                        label: 'Traveling Twin Worldline',
-                        data: data.spacetimeWorldline,
-                        borderColor: '#00d9ff',
-                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0,
-                        pointRadius: 0
-                    }, {
-                        label: 'Earth Twin Worldline',
-                        data: [
-                            { x: 0, y: 0 },
-                            { x: 0, y: maxEarthTime }
-                        ],
-                        borderColor: '#00ff9f',
-                        backgroundColor: 'rgba(0, 255, 159, 0.1)',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0,
-                        pointRadius: 0,
-                        borderDash: [5, 5]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 1.5,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            labels: { color: '#e8f1f5', font: { size: 12 } }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#00d9ff',
-                            bodyColor: '#e8f1f5',
-                            borderColor: '#00d9ff',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            title: {
-                                display: true,
-                                text: 'Distance (light years)',
-                                color: '#00d9ff',
-                                font: { size: 14 }
-                            },
-                            grid: { color: 'rgba(0, 217, 255, 0.1)' },
-                            ticks: { color: '#e8f1f5' }
-                        },
-                        y: {
-                            type: 'linear',
-                            title: {
-                                display: true,
-                                text: 'Time (years)',
-                                color: '#00d9ff',
-                                font: { size: 14 }
-                            },
-                            grid: { color: 'rgba(0, 217, 255, 0.1)' },
-                            ticks: { color: '#e8f1f5' }
-                        }
-                    }
-                }
-            }) as Chart);
-        }
-    }
+    // Spacetime worldline now rendered with Minkowski diagram (D3)
+    // See minkowski-twins.ts
 
     return newRegistry;
 }

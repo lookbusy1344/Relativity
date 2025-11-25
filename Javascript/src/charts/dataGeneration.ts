@@ -304,7 +304,6 @@ export function generateTwinParadoxChartData(
     travelingTwinAging: ChartDataPoint[];
     earthTwinAging: ChartDataPoint[];
     distanceProfile: ChartDataPoint[];
-    spacetimeWorldline: ChartDataPoint[];
 } {
     const numPoints = 100;
     const halfTime = properTimeYears / 2;
@@ -317,7 +316,6 @@ export function generateTwinParadoxChartData(
     const travelingTwinAging: ChartDataPoint[] = [];
     const earthTwinAging: ChartDataPoint[] = [];
     const distanceProfile: ChartDataPoint[] = [];
-    const spacetimeWorldline: ChartDataPoint[] = [];
 
     // First half: outbound journey
     for (let i = 0; i <= numPoints / 2; i++) {
@@ -334,9 +332,6 @@ export function generateTwinParadoxChartData(
         // Distance increases linearly
         const distance = velocityC * earthTime;  // distance in light years (since v is in c and t in years)
         distanceProfile.push({ x: tau, y: distance });
-
-        // Spacetime worldline: (distance, time)
-        spacetimeWorldline.push({ x: distance, y: earthTime });
     }
 
     // Second half: return journey
@@ -356,16 +351,12 @@ export function generateTwinParadoxChartData(
         const maxDistance = velocityC * halfTime * gamma;
         const distance = maxDistance - (velocityC * tauSinceTurnaround * gamma);
         distanceProfile.push({ x: tau, y: distance });
-
-        // Spacetime worldline: returning to origin
-        spacetimeWorldline.push({ x: distance, y: earthTime });
     }
 
     return {
         velocityProfile,
         travelingTwinAging,
         earthTwinAging,
-        distanceProfile,
-        spacetimeWorldline
+        distanceProfile
     };
 }
