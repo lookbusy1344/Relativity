@@ -712,12 +712,12 @@ export function drawTwinParadoxMinkowski(
         }
     });
 
-    // Create velocity slider control (bottom-left of diagram)
+    // Create velocity slider control (top of diagram, below title)
     const velocitySliderContainer = select(container)
         .append('div')
         .attr('class', 'minkowski-velocity-slider')
         .style('position', 'absolute')
-        .style('bottom', '220px')
+        .style('top', '50px')
         .style('left', '20px')
         .style('display', 'flex')
         .style('align-items', 'center')

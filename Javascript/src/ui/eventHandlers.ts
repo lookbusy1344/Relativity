@@ -195,24 +195,26 @@ export function createTwinParadoxHandler(
     getResults: () => (HTMLElement | null)[],
     chartRegistry: { current: ChartRegistry },
     onDiagramDrawn?: (container: HTMLElement, data: TwinParadoxMinkowskiData, controller: ReturnType<typeof drawTwinParadoxMinkowski>) => void
-): () => void {
-    return () => {
+): (silent?: boolean) => void {
+    return (silent = false) => {
         const velocityInput = getVelocityInput();
         const timeInput = getTimeInput();
         const [resultTwins1, resultTwins2, resultTwins3, resultTwins4, resultTwins5, resultTwins6, resultTwins7] = getResults();
         if (!velocityInput || !timeInput) return;
 
-        // Show working message
-        if (resultTwins1) resultTwins1.textContent = "Working...";
-        if (resultTwins2) resultTwins2.textContent = "";
-        if (resultTwins3) resultTwins3.textContent = "";
-        if (resultTwins4) resultTwins4.textContent = "";
-        if (resultTwins5) resultTwins5.textContent = "";
-        if (resultTwins6) resultTwins6.textContent = "";
-        if (resultTwins7) resultTwins7.textContent = "";
+        // Show working message (unless silent mode)
+        if (!silent) {
+            if (resultTwins1) resultTwins1.textContent = "Working...";
+            if (resultTwins2) resultTwins2.textContent = "";
+            if (resultTwins3) resultTwins3.textContent = "";
+            if (resultTwins4) resultTwins4.textContent = "";
+            if (resultTwins5) resultTwins5.textContent = "";
+            if (resultTwins6) resultTwins6.textContent = "";
+            if (resultTwins7) resultTwins7.textContent = "";
+        }
 
-        // Allow UI to update before heavy calculation
-        requestAnimationFrame(() => setTimeout(() => {
+        // Allow UI to update before heavy calculation (skip delay in silent mode)
+        const execute = () => {
             const velocityC = parseFloat(velocityInput.value ?? '0.8');
             const properTimeYears = parseFloat(timeInput.value ?? '4');
 
@@ -257,7 +259,13 @@ export function createTwinParadoxHandler(
 
                 onDiagramDrawn(container, minkowskiData, null as any);
             }
-        }, 0));
+        };
+
+        if (silent) {
+            execute();
+        } else {
+            requestAnimationFrame(() => setTimeout(execute, 0));
+        }
     };
 }
 

@@ -130,8 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const velocityInput = getInputElement('twinsVelocityInput');
                     if (velocityInput) {
                         velocityInput.value = newVelocityC.toString();
-                        // Trigger calculation with new velocity
-                        twinsCalculateHandler();
+                        // Trigger calculation with new velocity (silent mode to avoid flicker)
+                        twinsCalculateHandler(true);
                     }
                 });
             }
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     );
 
-    getButtonElement('twinsButton')?.addEventListener('click', twinsCalculateHandler);
+    getButtonElement('twinsButton')?.addEventListener('click', () => twinsCalculateHandler());
 
     // Bidirectional sync: input field -> slider
     getInputElement('twinsVelocityInput')?.addEventListener('input', (event) => {
