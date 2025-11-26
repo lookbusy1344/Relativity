@@ -266,16 +266,6 @@ function renderLabels(
         .attr('fill', d => d.color)
         .text(d => d.text);
 
-    // Title (top left)
-    labelsGroup.selectAll('text.title')
-        .data([{ text: 'TWIN PARADOX - Minkowski Diagram' }])
-        .join('text')
-        .attr('class', 'title header')
-        .attr('x', 15)
-        .attr('y', 25)
-        .attr('fill', D3_COLORS.plasmaWhite)
-        .text(d => d.text);
-
     // Legend for simultaneity jump (top right)
     const ageDifference = data.earthTimeYears - data.properTimeYears;
     labelsGroup.selectAll('text.legend')
