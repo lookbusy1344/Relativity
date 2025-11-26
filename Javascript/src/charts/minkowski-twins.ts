@@ -719,15 +719,6 @@ export function drawTwinParadoxMinkowski(
         .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
         .style('z-index', '1000');
 
-    // Label
-    velocitySliderContainer.append('label')
-        .style('color', D3_COLORS.electricBlue)
-        .style('font-family', "'IBM Plex Mono', monospace")
-        .style('font-size', '11px')
-        .style('font-weight', '600')
-        .style('white-space', 'nowrap')
-        .text('Velocity:');
-
     // Value display
     const velocityValueDisplay = velocitySliderContainer.append('span')
         .attr('class', 'velocity-value-display')
