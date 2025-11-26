@@ -882,7 +882,6 @@ export function updateTwinParadoxCharts(
     // Calculate max values
     const maxProperTime = Math.max(...data.travelingTwinAging.map(d => d.x));
     const maxEarthTime = Math.max(...data.earthTwinAging.map(d => d.y));
-    const maxDistance = Math.max(...data.distanceProfile.map(d => d.y));
 
     // Comparative Aging (Dual Timeline) Chart
     newRegistry = updateChart(
@@ -921,23 +920,17 @@ export function updateTwinParadoxCharts(
     newRegistry = updateChart(
         newRegistry,
         'twinsDistanceChart',
-        [{
-            label: 'Distance from Earth',
-            data: data.distanceProfile,
-            borderColor: '#ffaa00',
-            backgroundColor: 'rgba(255, 170, 0, 0.1)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0,
-            pointRadius: 0
-        }],
+        createDualTimeDatasets(
+            data.properTimeDistance,
+            data.coordTimeDistance,
+            'Distance vs Proper Time',
+            'Distance vs Coordinate Time'
+        ),
         {
-            primaryColor: '#ffaa00',
-            secondaryColor: '#00d9ff',
-            xAxisLabel: 'Proper Time (years)',
+            primaryColor: '#00d9ff',
+            secondaryColor: '#00ff9f',
+            xAxisLabel: 'Time (years)',
             yAxisLabel: 'Distance (light years)',
-            xMax: maxProperTime,
-            yMax: maxDistance,
             yMin: 0
         }
     );
