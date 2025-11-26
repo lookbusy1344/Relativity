@@ -417,7 +417,7 @@ export function createSpacetimeIntervalHandler(
         if (intervalSquared.abs().lt(tolerance)) {
             // Lightlike interval
             setElement(resultType, "Lightlike: Light-speed connection", "");
-            setElement(resultMinSep, "0", "");
+            setElement(resultMinSep, "N/A (lightlike)", "");
             setElement(resultVelocity, "1c", "");
         } else if (intervalSquared.gt(0)) {
             // Timelike interval - causally connected
