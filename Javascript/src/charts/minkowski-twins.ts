@@ -571,10 +571,12 @@ function startJourneyAnimation(
  */
 export function drawTwinParadoxMinkowski(
     container: HTMLElement,
-    data: TwinParadoxMinkowskiData
+    data: TwinParadoxMinkowskiData,
+    onVelocityChange?: (velocityC: number) => void
 ): MinkowskiController {
     const size = 900;
     const beta = data.velocityC;
+    let isSliderUpdate = false;
 
     // Calculate key events
     let events = calculateEvents(data);
@@ -710,6 +712,63 @@ export function drawTwinParadoxMinkowski(
         }
     });
 
+    // Create velocity slider control (bottom-left of diagram)
+    const velocitySliderContainer = select(container)
+        .append('div')
+        .attr('class', 'minkowski-velocity-slider')
+        .style('position', 'absolute')
+        .style('bottom', '220px')
+        .style('left', '20px')
+        .style('display', 'flex')
+        .style('align-items', 'center')
+        .style('gap', '8px')
+        .style('padding', '8px 12px')
+        .style('background', D3_COLORS.tooltipBg)
+        .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
+        .style('border-radius', '4px')
+        .style('box-shadow', `0 0 10px ${D3_COLORS.tooltipBorder}60`)
+        .style('z-index', '1000');
+
+    // Label
+    velocitySliderContainer.append('label')
+        .style('color', D3_COLORS.electricBlue)
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '11px')
+        .style('font-weight', '600')
+        .style('white-space', 'nowrap')
+        .text('Velocity:');
+
+    // Value display
+    const velocityValueDisplay = velocitySliderContainer.append('span')
+        .attr('class', 'velocity-value-display')
+        .style('color', D3_COLORS.plasmaWhite)
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '11px')
+        .style('font-weight', '600')
+        .style('min-width', '45px')
+        .style('text-align', 'right')
+        .text(`${data.velocityC.toFixed(2)}c`);
+
+    // Slider input
+    const velocitySlider = velocitySliderContainer
+        .append('input')
+        .attr('type', 'range')
+        .attr('min', '0.001')
+        .attr('max', '0.999')
+        .attr('step', '0.05')
+        .attr('value', data.velocityC.toString())
+        .attr('class', 'velocity-slider-input')
+        .style('width', '200px')
+        .style('cursor', 'pointer')
+        .on('input', function() {
+            const newVelocityC = parseFloat((this as HTMLInputElement).value);
+            velocityValueDisplay.text(`${newVelocityC.toFixed(2)}c`);
+            if (onVelocityChange) {
+                isSliderUpdate = true;
+                onVelocityChange(newVelocityC);
+            }
+        });
+
     // Pause animation when tab is hidden
     const visibilityChangeHandler = () => {
         if (document.hidden) {
@@ -788,6 +847,18 @@ export function drawTwinParadoxMinkowski(
             renderLabels(svg, scales, twinsData, events.departure, events.turnaround, events.arrival, size);
             renderLegend(container);
             setupTooltips(svg, container);
+
+            // Update velocity slider to match new data (unless update came from slider)
+            if (!isSliderUpdate) {
+                velocitySlider.property('value', twinsData.velocityC);
+                velocityValueDisplay.text(`${twinsData.velocityC.toFixed(2)}c`);
+            }
+            isSliderUpdate = false;
+        },
+
+        updateSlider(velocityC: number) {
+            velocitySlider.property('value', velocityC);
+            velocityValueDisplay.text(`${velocityC.toFixed(2)}c`);
         },
 
         pause() {

@@ -106,32 +106,49 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Twin Paradox
-    getButtonElement('twinsButton')?.addEventListener('click',
-        createTwinParadoxHandler(
-            () => getInputElement('twinsVelocityInput'),
-            () => getInputElement('twinsTimeInput'),
-            () => [
-                getResultElement('resultTwins1'),
-                getResultElement('resultTwins2'),
-                getResultElement('resultTwins3'),
-                getResultElement('resultTwins4'),
-                getResultElement('resultTwins5'),
-                getResultElement('resultTwins6'),
-                getResultElement('resultTwins7')
-            ],
-            chartRegistry,
-            (container, data, _controller) => {
-                if (twinsMinkowskiState.controller) {
-                    // Update existing diagram
-                    (twinsMinkowskiState.controller as any).update(data);
-                } else {
-                    // Create new diagram
-                    twinsMinkowskiState.controller = drawTwinParadoxMinkowski(container, data);
-                }
-                twinsMinkowskiState.lastData = data;
+    const twinsCalculateHandler = createTwinParadoxHandler(
+        () => getInputElement('twinsVelocityInput'),
+        () => getInputElement('twinsTimeInput'),
+        () => [
+            getResultElement('resultTwins1'),
+            getResultElement('resultTwins2'),
+            getResultElement('resultTwins3'),
+            getResultElement('resultTwins4'),
+            getResultElement('resultTwins5'),
+            getResultElement('resultTwins6'),
+            getResultElement('resultTwins7')
+        ],
+        chartRegistry,
+        (container, data, _controller) => {
+            if (twinsMinkowskiState.controller) {
+                // Update existing diagram
+                (twinsMinkowskiState.controller as any).update(data);
+            } else {
+                // Create new diagram with velocity change callback
+                twinsMinkowskiState.controller = drawTwinParadoxMinkowski(container, data, (newVelocityC) => {
+                    // Update input field
+                    const velocityInput = getInputElement('twinsVelocityInput');
+                    if (velocityInput) {
+                        velocityInput.value = newVelocityC.toString();
+                        // Trigger calculation with new velocity
+                        twinsCalculateHandler();
+                    }
+                });
             }
-        )
+            twinsMinkowskiState.lastData = data;
+        }
     );
+
+    getButtonElement('twinsButton')?.addEventListener('click', twinsCalculateHandler);
+
+    // Bidirectional sync: input field -> slider
+    getInputElement('twinsVelocityInput')?.addEventListener('input', (event) => {
+        const velocityInput = event.target as HTMLInputElement;
+        const newVelocityC = parseFloat(velocityInput.value);
+        if (!isNaN(newVelocityC) && twinsMinkowskiState.controller?.updateSlider) {
+            twinsMinkowskiState.controller.updateSlider(newVelocityC);
+        }
+    });
 
     // Add velocities
     getButtonElement('addButton')?.addEventListener('click',

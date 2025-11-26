@@ -13,6 +13,7 @@ export interface MinkowskiData {
 
 export interface MinkowskiController {
     update(data: MinkowskiData): void;  // Update with new data
+    updateSlider?(velocityC: number): void;  // Update velocity slider (Twin Paradox only)
     pause(): void;                       // Pause auto-play animation
     play(): void;                        // Resume auto-play animation
     destroy(): void;                     // Cleanup and remove
