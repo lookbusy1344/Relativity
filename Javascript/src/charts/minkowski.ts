@@ -322,8 +322,8 @@ function renderAxes(
 
     // Original frame axes (orthogonal)
     const originalAxes = [
-        { x1: 0, y1: -extent, x2: 0, y2: extent, color: D3_COLORS.electricBlue, frame: 'original', axis: 'ct' },
-        { x1: -extent, y1: 0, x2: extent, y2: 0, color: D3_COLORS.electricBlue, frame: 'original', axis: 'x' }
+        { x1: 0, y1: -extent, x2: 0, y2: extent, color: D3_COLORS.electricBlue, frame: 'original', axis: 'ct', isTimeAxis: true },
+        { x1: -extent, y1: 0, x2: extent, y2: 0, color: D3_COLORS.electricBlue, frame: 'original', axis: 'x', isTimeAxis: false }
     ];
 
     // Moving frame axes (tilted)
@@ -338,7 +338,8 @@ function renderAxes(
             y2: ctPrimeLength * cosAngle,
             color: D3_COLORS.quantumGreen,
             frame: 'moving',
-            axis: 'ct\''
+            axis: 'ct\'',
+            isTimeAxis: true
         },
         {
             x1: -xPrimeLength * cosAngle,
@@ -347,7 +348,8 @@ function renderAxes(
             y2: xPrimeLength * sinAngle,
             color: D3_COLORS.quantumGreen,
             frame: 'moving',
-            axis: 'x\''
+            axis: 'x\'',
+            isTimeAxis: false
         }
     ];
 
@@ -360,6 +362,7 @@ function renderAxes(
         .attr('data-axis', d => d.axis)
         .attr('stroke', d => d.color)
         .attr('stroke-width', 3)
+        .attr('stroke-dasharray', d => d.isTimeAxis ? '10,5' : null)
         .attr('marker-end', d => d.frame === 'original' ? 'url(#arrowBlue)' : 'url(#arrowGreen)')
         .style('cursor', 'pointer');
 

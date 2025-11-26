@@ -231,8 +231,8 @@ export function renderStandardAxes(
     const axesGroup = svg.select('g.axes');
 
     const axesData = [
-        { x1: 0, y1: -extent, x2: 0, y2: extent, axis: labels.ctLabel },
-        { x1: -extent, y1: 0, x2: extent, y2: 0, axis: labels.xLabel }
+        { x1: 0, y1: -extent, x2: 0, y2: extent, axis: labels.ctLabel, isTimeAxis: true },
+        { x1: -extent, y1: 0, x2: extent, y2: 0, axis: labels.xLabel, isTimeAxis: false }
     ];
 
     axesGroup.selectAll('line.axis-standard')
@@ -242,6 +242,7 @@ export function renderStandardAxes(
         .attr('data-axis', d => d.axis)
         .attr('stroke', D3_COLORS.electricBlue)
         .attr('stroke-width', 3)
+        .attr('stroke-dasharray', d => d.isTimeAxis ? '10,5' : null)
         .attr('marker-start', 'url(#arrowBlue)')
         .attr('marker-end', 'url(#arrowBlue)')
         .attr('x1', d => scales.xScale(d.x1))
@@ -281,14 +282,16 @@ export function renderTransformedAxes(
             y1: origin.ct + (-ctPrimeLength * cosAngle),
             x2: origin.x + (ctPrimeLength * sinAngle),
             y2: origin.ct + (ctPrimeLength * cosAngle),
-            axis: labels.ctLabel
+            axis: labels.ctLabel,
+            isTimeAxis: true
         },
         {
             x1: origin.x + (-xPrimeLength * cosAngle),
             y1: origin.ct + (-xPrimeLength * sinAngle),
             x2: origin.x + (xPrimeLength * cosAngle),
             y2: origin.ct + (xPrimeLength * sinAngle),
-            axis: labels.xLabel
+            axis: labels.xLabel,
+            isTimeAxis: false
         }
     ];
 
@@ -299,6 +302,7 @@ export function renderTransformedAxes(
         .attr('data-axis', d => d.axis)
         .attr('stroke', color)
         .attr('stroke-width', 3)
+        .attr('stroke-dasharray', d => d.isTimeAxis ? '10,5' : null)
         .attr('marker-start', markerUrl)
         .attr('marker-end', markerUrl)
         .attr('x1', d => scales.xScale(d.x1))
