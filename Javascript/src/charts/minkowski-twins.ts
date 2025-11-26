@@ -523,24 +523,14 @@ function startJourneyAnimation(
             .attr('stroke-width', 3)
             .style('filter', 'drop-shadow(0 0 8px ' + D3_COLORS.quantumGreen + ')');
 
-        // Draw time labels next to marker
-        animatedGroup.append('text')
-            .attr('x', scales.xScale(currentPos.x) + 20)
-            .attr('y', scales.yScale(currentPos.ct) - 10)
-            .attr('fill', D3_COLORS.quantumGreen)
-            .attr('font-family', "'IBM Plex Mono', monospace")
-            .attr('font-size', '12px')
-            .attr('font-weight', 'bold')
-            .text(`τ = ${properTime.toFixed(2)} yr`);
+        // Update time labels at bottom right
+        svg.select('g.labels').selectAll('text.info-label')
+            .filter((_, i) => i === 2)
+            .text(`Proper time: ${properTime.toFixed(2)} years`);
 
-        animatedGroup.append('text')
-            .attr('x', scales.xScale(currentPos.x) + 20)
-            .attr('y', scales.yScale(currentPos.ct) + 10)
-            .attr('fill', D3_COLORS.electricBlue)
-            .attr('font-family', "'IBM Plex Mono', monospace")
-            .attr('font-size', '12px')
-            .attr('font-weight', 'bold')
-            .text(`t = ${earthTime.toFixed(2)} yr`);
+        svg.select('g.labels').selectAll('text.info-label')
+            .filter((_, i) => i === 3)
+            .text(`Earth time: ${earthTime.toFixed(2)} years`);
     };
 
     const animationTimer = timer(() => {
