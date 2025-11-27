@@ -53,6 +53,9 @@ const EVENT_LABELS = ['A', 'B', 'C', 'D'];
 const EVENT_RADIUS = 8;
 const CLICK_TOLERANCE = 15;
 
+// Fixed scale for train example: ct = 2 * C ≈ 599584.916 km, with 1.3 multiplier
+const TRAIN_EXAMPLE_SCALE = 2 * C * 1.3;
+
 /**
  * Create Einstein's train example
  */
@@ -155,8 +158,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
     };
 
     // Calculate initial scales based on train example
-    const maxCoord = Math.max(...state.events.map(e => Math.max(Math.abs(e.ct), Math.abs(e.x)))) * 1.3;
-    scales = createScaleSet(maxCoord, size);
+    scales = createScaleSet(TRAIN_EXAMPLE_SCALE, size);
 
     /**
      * Render grid
@@ -668,9 +670,8 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         state.gamma = 1;
         state.referenceEventId = 'A';
 
-        // Recalculate scales based on the new train example events
-        const maxCoord = Math.max(...state.events.map(e => Math.max(Math.abs(e.ct), Math.abs(e.x)))) * 1.3;
-        scales = createScaleSet(maxCoord, size);
+        // Apply fixed scale for the train example
+        scales = createScaleSet(TRAIN_EXAMPLE_SCALE, size);
 
         render();
         updateTimeSeparations();
