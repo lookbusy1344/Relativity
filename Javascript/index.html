@@ -774,6 +774,52 @@
 				min-width: 0 !important;
 			}
 		}
+
+		/* Twin paradox diagram responsive layout */
+		@media (max-width: 768px) {
+			/* Move velocity slider below diagram on small screens */
+			.minkowski-velocity-slider {
+				position: static !important;
+				margin: 1rem auto 0 auto !important;
+				width: 100% !important;
+				justify-content: center !important;
+			}
+
+			/* Make slider narrower on small screens */
+			.minkowski-velocity-slider .velocity-slider-input {
+				width: 150px !important;
+			}
+
+			/* Move animation controls below diagram */
+			.minkowski-controls {
+				position: static !important;
+				transform: none !important;
+				margin: 1rem auto 0 auto !important;
+				width: 100% !important;
+			}
+		}
+
+		@media (max-width: 480px) {
+			/* Further adjustments for very small screens */
+			.minkowski-velocity-slider {
+				gap: 6px !important;
+				padding: 6px 10px !important;
+			}
+
+			.minkowski-velocity-slider span,
+			.minkowski-velocity-slider label {
+				font-size: 10px !important;
+			}
+
+			.minkowski-velocity-slider .velocity-slider-input {
+				width: 120px !important;
+			}
+
+			.minkowski-toggle-button {
+				padding: 6px 12px !important;
+				font-size: 11px !important;
+			}
+		}
 	</style>
 </head>
 
