@@ -10,7 +10,8 @@ import {
     lorentzTransform,
     createScaleSet,
     setupSVG,
-    createAxisDefinitions
+    createAxisDefinitions,
+    debounce
 } from './minkowski-core';
 import { updateURL } from '../urlState';
 
@@ -966,6 +967,13 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
     // Start animation
     startAnimation();
 
+    // Resize handler for orientation changes and window resizing
+    const resizeHandler = debounce(() => {
+        render();
+    }, 150);
+
+    window.addEventListener('resize', resizeHandler);
+
     // Return controller interface with extended methods
     return {
         update: () => render(),
@@ -998,6 +1006,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         clearAll,
         destroy: () => {
             stopAnimation();
+            window.removeEventListener('resize', resizeHandler);
             svg.selectAll('*').remove();
             svg.on('click', null);
         }

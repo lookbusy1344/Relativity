@@ -711,6 +711,69 @@
 				font-size: 0.75rem;
 			}
 		}
+
+		/* Simultaneity diagram responsive layout */
+		@media (max-width: 768px) {
+			/* Move controls below diagram on small screens */
+			.simultaneity-controls {
+				position: static !important;
+				transform: none !important;
+				margin: 1rem auto 0 auto !important;
+				width: 100% !important;
+			}
+
+			/* Stack time and space displays below diagram */
+			.simultaneity-time-display,
+			.simultaneity-space-display {
+				position: static !important;
+				margin: 0.75rem auto !important;
+				width: calc(100% - 2rem) !important;
+				max-width: 100% !important;
+			}
+
+			/* Ensure diagram container has space for controls below */
+			#simultaneityContainer {
+				padding-bottom: 0 !important;
+			}
+
+			/* Make slider narrower on small screens */
+			.simultaneity-controls input[type="range"] {
+				width: 150px !important;
+			}
+		}
+
+		@media (max-width: 480px) {
+			/* Further adjustments for very small screens */
+			.simultaneity-controls {
+				gap: 6px !important;
+			}
+
+			.simultaneity-controls > div {
+				padding: 6px 10px !important;
+				font-size: 10px !important;
+			}
+
+			.simultaneity-controls label,
+			.simultaneity-controls span {
+				font-size: 10px !important;
+			}
+
+			.simultaneity-controls input[type="range"] {
+				width: 120px !important;
+			}
+
+			.simultaneity-toggle-button {
+				padding: 6px 12px !important;
+				font-size: 11px !important;
+			}
+
+			.simultaneity-time-display,
+			.simultaneity-space-display {
+				font-size: 10px !important;
+				padding: 6px 10px !important;
+				min-width: 0 !important;
+			}
+		}
 	</style>
 </head>
 
