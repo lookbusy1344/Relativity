@@ -260,10 +260,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Small delay to ensure tab is fully visible
                     setTimeout(() => {
                         simultaneityState.controller = createSimultaneityDiagram(container);
-                        // Restore velocity from slider if set
-                        const slider = simVelocitySlider;
-                        if (slider && parseFloat(slider.value) !== 0) {
-                            simultaneityState.controller?.updateSlider?.(parseFloat(slider.value));
+                        // Restore velocity from text input if set
+                        const input = document.getElementById('simVelocityInput') as HTMLInputElement;
+                        if (input && parseFloat(input.value) !== 0) {
+                            simultaneityState.controller?.updateSlider?.(parseFloat(input.value));
                         }
                     }, 100);
                 }
@@ -272,29 +272,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Simultaneity controls
-    const simVelocitySlider = document.getElementById('simVelocitySlider') as HTMLInputElement;
+    const simVelocityInput = document.getElementById('simVelocityInput') as HTMLInputElement;
+    const simCalculateButton = document.getElementById('simCalculateButton');
     const simResetButton = document.getElementById('simResetButton');
     const simClearButton = document.getElementById('simClearButton');
 
-    if (simVelocitySlider) {
-        simVelocitySlider.addEventListener('input', (event) => {
-            const target = event.target as HTMLInputElement;
-            let velocity = parseFloat(target.value);
+    // Function to update velocity from text input
+    const updateVelocityFromInput = () => {
+        if (!simVelocityInput) return;
 
-            // Snap to zero if close
-            if (Math.abs(velocity) < 0.05) {
-                velocity = 0;
-                target.value = '0';
-            }
+        let velocity = parseFloat(simVelocityInput.value);
 
-            // Update velocity display (created by controller when tab opens)
-            const simVelocityValue = document.getElementById('simVelocityValue');
-            if (simVelocityValue) {
-                simVelocityValue.textContent = `v = ${velocity.toFixed(2)}c`;
-            }
+        // Validate and clamp velocity
+        if (isNaN(velocity)) {
+            velocity = 0;
+        } else {
+            velocity = Math.max(-0.99, Math.min(0.99, velocity));
+        }
 
-            if (simultaneityState.controller?.updateSlider) {
-                simultaneityState.controller.updateSlider(velocity);
+        // Update input field with clamped value
+        simVelocityInput.value = velocity.toString();
+
+        if (simultaneityState.controller?.updateSlider) {
+            simultaneityState.controller.updateSlider(velocity);
+        }
+    };
+
+    // Calculate button click handler
+    if (simCalculateButton) {
+        simCalculateButton.addEventListener('click', updateVelocityFromInput);
+    }
+
+    // Allow Enter key to trigger calculation
+    if (simVelocityInput) {
+        simVelocityInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                updateVelocityFromInput();
             }
         });
     }
@@ -303,13 +316,9 @@ document.addEventListener('DOMContentLoaded', () => {
         simResetButton.addEventListener('click', () => {
             if (simultaneityState.controller && 'reset' in simultaneityState.controller) {
                 (simultaneityState.controller as any).reset();
-                // Reset slider
-                if (simVelocitySlider) {
-                    simVelocitySlider.value = '0';
-                    const simVelocityValue = document.getElementById('simVelocityValue');
-                    if (simVelocityValue) {
-                        simVelocityValue.textContent = 'v = 0.00c';
-                    }
+                // Reset text input
+                if (simVelocityInput) {
+                    simVelocityInput.value = '0';
                 }
             }
         });

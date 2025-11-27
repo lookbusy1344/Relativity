@@ -634,6 +634,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateTemporalOrderings();
         render();
         updateTimeSeparations();
+
+        // Update velocity label on slider
+        velocityLabel.text(`${velocity.toFixed(2)}c`);
     }
 
     /**
@@ -683,9 +686,60 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         .style('left', '50%')
         .style('transform', 'translateX(-50%)')
         .style('display', 'flex')
+        .style('flex-direction', 'column')
         .style('align-items', 'center')
         .style('gap', '8px')
         .style('z-index', '1000');
+
+    // Create velocity slider container
+    const sliderContainer = controlContainer
+        .append('div')
+        .style('display', 'flex')
+        .style('align-items', 'center')
+        .style('gap', '8px')
+        .style('padding', '8px 12px')
+        .style('background', 'rgba(10, 14, 39, 0.9)')
+        .style('border', '1px solid rgba(0, 217, 255, 0.4)')
+        .style('border-radius', '4px')
+        .style('box-shadow', '0 0 10px rgba(0, 217, 255, 0.3)');
+
+    sliderContainer.append('label')
+        .style('color', '#00d9ff')
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '11px')
+        .style('font-weight', '600')
+        .text('Velocity:');
+
+    const velocitySlider = sliderContainer
+        .append('input')
+        .attr('type', 'range')
+        .attr('id', 'simVelocitySlider')
+        .attr('min', '-0.99')
+        .attr('max', '0.99')
+        .attr('step', '0.01')
+        .attr('value', '0')
+        .style('width', '200px')
+        .style('cursor', 'pointer')
+        .on('input', function() {
+            const velocity = parseFloat((this as HTMLInputElement).value);
+            updateVelocity(velocity);
+
+            // Update text input if it exists
+            const textInput = document.getElementById('simVelocityInput') as HTMLInputElement;
+            if (textInput) {
+                textInput.value = velocity.toString();
+            }
+        });
+
+    const velocityLabel = sliderContainer
+        .append('span')
+        .style('color', '#e8f1f5')
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '11px')
+        .style('font-weight', '600')
+        .style('min-width', '50px')
+        .style('text-align', 'right')
+        .text('0.00c');
 
     // Create Play/Pause button
     const playPauseButton = controlContainer
@@ -799,7 +853,13 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
     // Return controller interface with extended methods
     return {
         update: () => render(),
-        updateSlider: updateVelocity,
+        updateSlider: (velocity: number) => {
+            // Clamp velocity to valid range
+            const clampedVelocity = Math.max(-0.99, Math.min(0.99, velocity));
+            velocitySlider.property('value', clampedVelocity);
+            velocityLabel.text(`${clampedVelocity.toFixed(2)}c`);
+            updateVelocity(clampedVelocity);
+        },
         pause: () => {
             stopAnimation();
             playPauseButton.text('▶ Play');
@@ -810,6 +870,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         },
         reset: () => {
             reset();
+            // Reset slider and label
+            velocitySlider.property('value', 0);
+            velocityLabel.text('0.00c');
             // Ensure animation is running after reset
             if (!state.isAnimating) {
                 startAnimation();

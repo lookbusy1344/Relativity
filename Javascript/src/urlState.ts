@@ -55,9 +55,9 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
     simultaneity: {
         name: 'simultaneity',
         params: {
-            vel: 'simVelocitySlider'
+            vel: 'simVelocityInput'
         },
-        buttonId: '',  // No button, slider-driven
+        buttonId: '',  // No button, input-driven
         tabId: 'simultaneity-tab'
     },
     calc: {
@@ -175,16 +175,6 @@ export function initializeFromURL(): void {
                 calcButton.click();
             }
         }, 300);
-    }
-
-    // For simultaneity tab, trigger slider input event to update visualization
-    if (tabParam === 'simultaneity' && hasValidParams) {
-        setTimeout(() => {
-            const slider = document.getElementById('simVelocitySlider') as HTMLInputElement;
-            if (slider) {
-                slider.dispatchEvent(new Event('input'));
-            }
-        }, 500);
     }
 }
 

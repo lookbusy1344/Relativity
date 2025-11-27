@@ -1083,12 +1083,13 @@
 
 						<!-- Controls -->
 						<div class="input-group-custom">
-							<div style="flex: 2; min-width: 250px;">
+							<div style="flex: 1; min-width: 150px;">
 								<div class="input-label">Velocity (fraction of c)</div>
-								<input type="range" id="simVelocitySlider"
-									   min="-0.9" max="0.9" step="0.01" value="0"
-									   class="form-control" style="padding: 0;">
+								<input type="number" id="simVelocityInput"
+									   min="-0.99" max="0.99" step="0.01" value="0"
+									   class="form-control" placeholder="e.g., 0.5">
 							</div>
+							<button type="button" class="btn-calculate" id="simCalculateButton">Calculate</button>
 							<button type="button" class="btn-calculate" id="simResetButton">Reset</button>
 							<button type="button" class="btn-calculate" id="simClearButton">Clear All</button>
 						</div>
