@@ -594,6 +594,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 
         updateTemporalOrderings();
         render();
+        updateTimeSeparations();
     }
 
     /**
@@ -621,6 +622,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 
         updateTemporalOrderings();
         render();
+        updateTimeSeparations();
     }
 
     /**
@@ -631,6 +633,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         state.gamma = calculateGamma(velocity);
         updateTemporalOrderings();
         render();
+        updateTimeSeparations();
     }
 
     /**
@@ -642,6 +645,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         state.gamma = 1;
         state.referenceEventId = 'A';
         render();
+        updateTimeSeparations();
     }
 
     /**
@@ -651,6 +655,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         state.events = [];
         state.referenceEventId = null;
         render();
+        updateTimeSeparations();
     }
 
     /**
@@ -716,6 +721,77 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
                 playPauseButton.text('⏸ Pause');
             }
         });
+
+    // Create time separation display container (bottom-right of diagram)
+    const timeSeparationContainer = select(container as any)
+        .append('div')
+        .attr('class', 'simultaneity-time-display')
+        .style('position', 'absolute')
+        .style('bottom', '50px')
+        .style('right', '20px')
+        .style('padding', '8px 12px')
+        .style('background', 'rgba(10, 14, 39, 0.9)')
+        .style('border', '1px solid rgba(0, 217, 255, 0.4)')
+        .style('border-radius', '4px')
+        .style('box-shadow', '0 0 10px rgba(0, 217, 255, 0.3)')
+        .style('z-index', '1000')
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '11px')
+        .style('color', '#e8f1f5')
+        .style('min-width', '180px');
+
+    // Function to update time separation display
+    function updateTimeSeparations(): void {
+        if (state.events.length === 0) {
+            timeSeparationContainer.style('display', 'none');
+            return;
+        }
+
+        timeSeparationContainer.style('display', 'block');
+
+        const refEvent = state.events.find(e => e.isReference);
+        if (!refEvent) {
+            timeSeparationContainer.html('<div style="color: #ffaa00;">No reference event</div>');
+            return;
+        }
+
+        // Calculate time separations in moving frame
+        const separations: string[] = [];
+        separations.push(`<div style="font-weight: bold; margin-bottom: 4px; color: #00d9ff;">Time in frame (v=${state.velocity.toFixed(2)}c):</div>`);
+
+        state.events.forEach(event => {
+            if (event.id === refEvent.id) return; // Skip reference event
+
+            // Transform both events to moving frame
+            const eventPrime = lorentzTransform(event.ct, event.x, state.velocity);
+            const refPrime = lorentzTransform(refEvent.ct, refEvent.x, state.velocity);
+            const deltaCtPrime = eventPrime.ctPrime - refPrime.ctPrime;
+
+            // Convert to time (ct is in km, so divide by c to get seconds)
+            const deltaTime = deltaCtPrime / C;
+
+            // Format with appropriate units
+            let timeStr: string;
+            if (Math.abs(deltaTime) < 0.001) {
+                timeStr = '≈ 0 s (simultaneous)';
+            } else if (Math.abs(deltaTime) < 1) {
+                timeStr = `${(deltaTime * 1000).toFixed(2)} ms`;
+            } else {
+                timeStr = `${deltaTime.toFixed(3)} s`;
+            }
+
+            const color = event.temporalOrder === 'future' ? '#00ff9f' :
+                         event.temporalOrder === 'past' ? '#ffaa00' : '#e8f1f5';
+
+            const sign = deltaTime >= 0 ? '+' : '';
+            separations.push(`<div style="color: ${color}; margin: 2px 0;">Event ${event.id}: ${sign}${timeStr}</div>`);
+        });
+
+        timeSeparationContainer.html(separations.join(''));
+    }
+
+    // Initial update
+    updateTimeSeparations();
 
     // Start animation
     startAnimation();
