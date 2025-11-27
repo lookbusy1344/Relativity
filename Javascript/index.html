@@ -777,12 +777,24 @@
 
 		/* Twin paradox diagram responsive layout */
 		@media (max-width: 768px) {
-			/* Move velocity slider below diagram on small screens */
+			/* Use flexbox to reorder elements on mobile */
+			#twinsMinkowskiContainer {
+				display: flex !important;
+				flex-direction: column !important;
+			}
+
+			/* SVG stays at top */
+			#twinsMinkowskiContainer > svg {
+				order: 1;
+			}
+
+			/* Velocity slider comes second */
 			.minkowski-velocity-slider {
 				position: static !important;
 				margin: 1rem auto 0 auto !important;
 				width: 100% !important;
 				justify-content: center !important;
+				order: 2;
 			}
 
 			/* Make slider narrower on small screens */
@@ -790,12 +802,18 @@
 				width: 150px !important;
 			}
 
-			/* Move animation controls below diagram */
+			/* Animation controls come third */
 			.minkowski-controls {
 				position: static !important;
 				transform: none !important;
 				margin: 1rem auto 0 auto !important;
 				width: 100% !important;
+				order: 3;
+			}
+
+			/* Legend comes last */
+			.twins-legend {
+				order: 4;
 			}
 		}
 
