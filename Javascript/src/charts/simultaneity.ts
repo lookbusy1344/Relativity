@@ -12,6 +12,7 @@ import {
     setupSVG,
     createAxisDefinitions
 } from './minkowski-core';
+import { updateURL } from '../urlState';
 
 /**
  * Event data structure
@@ -595,6 +596,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateTemporalOrderings();
         render();
         updateTimeSeparations();
+
+        // Update URL to persist events
+        updateURL();
     }
 
     /**
@@ -623,6 +627,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateTemporalOrderings();
         render();
         updateTimeSeparations();
+
+        // Update URL to persist events
+        updateURL();
     }
 
     /**
@@ -649,6 +656,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         state.referenceEventId = 'A';
         render();
         updateTimeSeparations();
+
+        // Update URL to persist events
+        updateURL();
     }
 
     /**
@@ -659,6 +669,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         state.referenceEventId = null;
         render();
         updateTimeSeparations();
+
+        // Update URL to persist events
+        updateURL();
     }
 
     /**
@@ -710,6 +723,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         .style('font-weight', '600')
         .text('Velocity:');
 
+    // Debounce timer for URL updates
+    let urlUpdateTimer: number | undefined;
+
     const velocitySlider = sliderContainer
         .append('input')
         .attr('type', 'range')
@@ -729,6 +745,12 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             if (textInput) {
                 textInput.value = velocity.toString();
             }
+
+            // Debounced URL update (wait 500ms after user stops moving slider)
+            clearTimeout(urlUpdateTimer);
+            urlUpdateTimer = window.setTimeout(() => {
+                updateURL();
+            }, 500);
         });
 
     const velocityLabel = sliderContainer
@@ -846,6 +868,32 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 
     // Initial update
     updateTimeSeparations();
+
+    // Expose getEvents callback for URL encoding
+    (window as any).getSimultaneityEvents = () => state.events;
+
+    // Check for pending events from URL and restore them
+    if ((window as any).pendingSimultaneityEvents) {
+        const pendingEvents = (window as any).pendingSimultaneityEvents;
+        delete (window as any).pendingSimultaneityEvents;
+
+        // Restore events (limit to 4, assign IDs)
+        state.events = pendingEvents.slice(0, 4).map((e: any, i: number) => ({
+            id: EVENT_LABELS[i],
+            ct: e.ct,
+            x: e.x,
+            isReference: i === 0,
+            temporalOrder: 'simultaneous' as const
+        }));
+
+        if (state.events.length > 0) {
+            state.referenceEventId = state.events[0].id;
+        }
+
+        updateTemporalOrderings();
+        render();
+        updateTimeSeparations();
+    }
 
     // Start animation
     startAnimation();
