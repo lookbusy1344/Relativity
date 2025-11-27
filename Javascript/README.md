@@ -11,10 +11,17 @@ TypeScript-based special relativity calculator with a web interface. Implements 
 - Relativistic velocity addition and kinematics
 - Flip-and-burn spaceship maneuvers
 - Spacetime intervals and four-momentum calculations
-- Twin paradox calculations and visualizations
-- Interactive Minkowski spacetime diagrams (D3.js)
+- Twin paradox calculations and visualizations with animated Minkowski diagrams
+- **Relativity of Simultaneity** - Interactive visualization demonstrating how simultaneity changes between reference frames
+  - Click to place/remove events on spacetime diagram (max 4)
+  - Pre-loaded with Einstein's train thought experiment
+  - Animated timeline with event flashing
+  - Time and spatial separation displays
+  - Smooth D3 transitions between reference frames
+- Interactive Minkowski spacetime diagrams (D3.js) with animations
 - Real-time chart visualizations (Chart.js) for velocity, distance, and time
 - URL state management for sharing calculations via deep links
+- Fully responsive mobile interface
 - Interactive web interface with real-time results
 
 ## Project Structure
@@ -27,14 +34,22 @@ src/
 ├── ui/
 │   ├── domUtils.ts             # DOM element access utilities
 │   └── eventHandlers.ts        # Event handler factory functions
-└── charts/
-    ├── charts.ts               # Chart.js chart management
-    ├── dataGeneration.ts       # Physics data generation for charts
-    ├── minkowski.ts            # D3-based Minkowski diagram (spacetime)
-    ├── minkowski-twins.ts      # D3-based twin paradox diagram
-    ├── minkowski-core.ts       # Shared D3 utilities
-    ├── minkowski-types.ts      # TypeScript interfaces
-    └── minkowski-colors.ts     # Color palette constants
+├── charts/
+│   ├── charts.ts               # Chart.js chart management
+│   ├── dataGeneration.ts       # Physics data generation for charts
+│   ├── minkowski.ts            # D3-based Minkowski diagram (spacetime)
+│   ├── minkowski-twins.ts      # D3-based twin paradox diagram with animation
+│   ├── simultaneity.ts         # D3-based simultaneity visualization
+│   ├── minkowski-core.ts       # Shared D3 utilities
+│   ├── minkowski-types.ts      # TypeScript interfaces
+│   └── minkowski-colors.ts     # Color palette constants
+└── styles/
+    ├── variables.css           # CSS custom properties for theming
+    ├── animations.css          # Keyframe animations
+    ├── layout.css              # Base layout and global styles
+    ├── header.css              # Header and navigation components
+    ├── calculator.css          # Calculator UI components
+    └── responsive.css          # Media queries for all breakpoints
 
 index.html               # Web interface with Bootstrap tabs
 vite.config.ts          # Vite build configuration
@@ -61,10 +76,20 @@ The physics engine uses Decimal.js for floating-point precision, avoiding standa
 - `dataGeneration.ts` - Converts physics calculations to chart-ready data
 - Minkowski spacetime diagrams (D3.js-based):
   - `minkowski.ts` - Standard two-event Minkowski diagram (public API)
-  - `minkowski-twins.ts` - Twin paradox diagram with dual reference frames
-  - `minkowski-core.ts` - Shared utilities and rendering functions for both diagrams
+  - `minkowski-twins.ts` - Twin paradox diagram with dual reference frames and animation
+  - `simultaneity.ts` - Interactive simultaneity visualization with event placement
+  - `minkowski-core.ts` - Shared utilities and rendering functions for all diagrams
   - `minkowski-types.ts` - TypeScript interfaces (imported via public APIs)
   - `minkowski-colors.ts` - Color palette constants
+
+### Styles (`styles/`)
+- Modular CSS architecture extracted from inline styles
+- `variables.css` - Theming constants and custom properties
+- `animations.css` - All keyframe animations for UI elements
+- `layout.css` - Base layout and global styles
+- `header.css` - Header and navigation component styles
+- `calculator.css` - Calculator UI component styles
+- `responsive.css` - Mobile-first responsive design (768px+ breakpoints)
 
 ### URL State (`urlState.ts`)
 - Bidirectional sync between URL parameters and calculator inputs
@@ -156,6 +181,8 @@ Run configurations are stored in `.idea/runConfigurations/`:
 - The project uses ES2015 modules with strict TypeScript configuration
 - All physics calculations use Decimal.js to avoid floating-point precision errors
 - Input validation ensures velocities don't exceed the speed of light
-- Charts use Chart.js; Minkowski diagrams use D3.js for interactivity
+- Charts use Chart.js; Minkowski diagrams use D3.js for interactivity and smooth animations
 - URL state sync enables deep linking for sharing specific calculations
+- Modular CSS architecture with separation of concerns (830+ lines extracted from inline styles)
+- Fully responsive design with mobile-optimized layouts for all visualizations
 - The web interface is hosted at: https://lookbusy1344.github.io/Relativity/

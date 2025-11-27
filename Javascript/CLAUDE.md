@@ -37,14 +37,22 @@ src/
 ├── ui/
 │   ├── domUtils.ts             # DOM element access utilities
 │   └── eventHandlers.ts        # Event handler factory functions
-└── charts/
-    ├── charts.ts               # Chart.js chart management
-    ├── dataGeneration.ts       # Physics data generation for charts
-    ├── minkowski.ts            # D3-based Minkowski diagram (spacetime)
-    ├── minkowski-twins.ts      # D3-based twin paradox diagram
-    ├── minkowski-core.ts       # Shared D3 utilities
-    ├── minkowski-types.ts      # TypeScript interfaces
-    └── minkowski-colors.ts     # Color palette constants
+├── charts/
+│   ├── charts.ts               # Chart.js chart management
+│   ├── dataGeneration.ts       # Physics data generation for charts
+│   ├── minkowski.ts            # D3-based Minkowski diagram (spacetime)
+│   ├── minkowski-twins.ts      # D3-based twin paradox diagram with animation
+│   ├── simultaneity.ts         # D3-based simultaneity visualization
+│   ├── minkowski-core.ts       # Shared D3 utilities
+│   ├── minkowski-types.ts      # TypeScript interfaces
+│   └── minkowski-colors.ts     # Color palette constants
+└── styles/
+    ├── variables.css           # CSS custom properties for theming
+    ├── animations.css          # Keyframe animations
+    ├── layout.css              # Base layout and global styles
+    ├── header.css              # Header and navigation components
+    ├── calculator.css          # Calculator UI components
+    └── responsive.css          # Media queries for all breakpoints
 ```
 
 - `index.html` - Web interface with Bootstrap tabs
@@ -70,10 +78,20 @@ src/
 - `dataGeneration.ts` - Converts physics calculations to chart-ready data
 - Minkowski spacetime diagrams (D3.js-based):
   - `minkowski.ts` - Standard two-event Minkowski diagram (public API)
-  - `minkowski-twins.ts` - Twin paradox diagram with dual reference frames
-  - `minkowski-core.ts` - Shared utilities and rendering functions for both diagrams
+  - `minkowski-twins.ts` - Twin paradox diagram with dual reference frames, animation, and play/pause controls
+  - `simultaneity.ts` - Interactive simultaneity visualization with event placement, animated timeline, and temporal ordering
+  - `minkowski-core.ts` - Shared utilities and rendering functions for all diagrams
   - `minkowski-types.ts` - TypeScript interfaces (imported via public APIs)
   - `minkowski-colors.ts` - Color palette constants
+
+### Styles (`styles/`)
+- Modular CSS architecture extracted from inline styles (830+ lines refactored)
+- `variables.css` - CSS custom properties for theming
+- `animations.css` - All keyframe animations for UI elements
+- `layout.css` - Base layout and global styles
+- `header.css` - Header and navigation component styles
+- `calculator.css` - Calculator UI component styles
+- `responsive.css` - Mobile-first responsive design with breakpoints for all visualizations
 
 ### URL State (`urlState.ts`)
 - Bidirectional sync between URL parameters and calculator inputs
@@ -93,6 +111,35 @@ src/
 - The project uses ES2015 modules with strict TypeScript configuration
 - All physics calculations use Decimal.js to avoid floating-point precision errors
 - Input validation ensures velocities don't exceed the speed of light
-- Charts use Chart.js; Minkowski diagrams use D3.js for interactivity
-- URL state sync enables deep linking for sharing specific calculations
+- Charts use Chart.js; Minkowski diagrams use D3.js for interactivity and smooth animations
+- URL state sync enables deep linking for sharing specific calculations (including simultaneity events)
+- Modular CSS architecture with clear separation of concerns
+- Fully responsive design with mobile-optimized layouts for all visualizations
 - The web interface is hosted at: https://lookbusy1344.github.io/Relativity/
+
+## Recent Major Features
+
+### Relativity of Simultaneity (Nov 2025)
+Interactive visualization demonstrating how simultaneity changes between reference frames:
+- Click-to-place event system (max 4 events)
+- Pre-loaded with Einstein's train thought experiment
+- Animated "now" line sweeping through diagram with event flashing
+- Real-time temporal and spatial separation displays
+- Smooth D3 transitions when changing reference frames
+- URL persistence for sharing specific event configurations
+- Mobile-responsive with controls repositioned below diagram on small screens
+
+### Twin Paradox Enhancements (Nov 2025)
+- Interactive velocity slider embedded in diagram
+- Animated worldline with play/pause controls
+- Light cones visualization at origin and turnaround
+- Reference frame animation showing perspective switches
+- Mobile-optimized layout with stacked controls
+
+### CSS Architecture Refactoring (Nov 2025)
+Extracted 830+ lines of inline CSS into modular files:
+- Improved maintainability through separation of concerns
+- Theme variables in dedicated file
+- Centralized animation definitions
+- Responsive breakpoints consolidated
+- Better organization for future styling changes
