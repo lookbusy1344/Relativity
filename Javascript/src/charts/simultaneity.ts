@@ -667,6 +667,11 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         state.velocity = 0;
         state.gamma = 1;
         state.referenceEventId = 'A';
+
+        // Recalculate scales based on the new train example events
+        const maxCoord = Math.max(...state.events.map(e => Math.max(Math.abs(e.ct), Math.abs(e.x)))) * 1.3;
+        scales = createScaleSet(maxCoord, size);
+
         render();
         updateTimeSeparations();
         updateSpatialSeparations();
