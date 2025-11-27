@@ -42,7 +42,6 @@ interface SimultaneityState {
 interface LayerGroups {
     grid: Selection<SVGGElement, unknown, null, undefined>;
     axes: Selection<SVGGElement, unknown, null, undefined>;
-    simultaneity: Selection<SVGGElement, unknown, null, undefined>;
     nowLine: Selection<SVGGElement, unknown, null, undefined>;
     events: Selection<SVGGElement, unknown, null, undefined>;
 }
@@ -149,7 +148,6 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
     const layers: LayerGroups = {
         grid: svg.append('g').attr('class', 'grid-layer'),
         axes: svg.append('g').attr('class', 'axes-layer'),
-        simultaneity: svg.append('g').attr('class', 'simultaneity-layer'),
         nowLine: svg.append('g').attr('class', 'now-line-layer'),
         events: svg.append('g').attr('class', 'events-layer')
     };
@@ -307,53 +305,6 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             .attr('class', 'header')
             .attr('text-anchor', 'middle')
             .text(`v = ${state.velocity.toFixed(2)}c`);
-    }
-
-    /**
-     * Render simultaneity line through reference event
-     */
-    function renderSimultaneityLine(): void {
-        const refEvent = state.events.find(e => e.isReference);
-        if (!refEvent) {
-            layers.simultaneity.selectAll('*').remove();
-            return;
-        }
-
-        const beta = state.velocity;
-        const extent = scales.maxCoord;
-
-        // Line through reference event with slope = beta
-        const x1 = -extent;
-        const ct1 = refEvent.ct + beta * (x1 - refEvent.x);
-        const x2 = extent;
-        const ct2 = refEvent.ct + beta * (x2 - refEvent.x);
-
-        // Remove old line
-        layers.simultaneity.selectAll('*').remove();
-
-        // Draw gradient band
-        const bandWidth = 15;
-        layers.simultaneity.append('line')
-            .attr('x1', scales.xScale(x1))
-            .attr('y1', scales.yScale(ct1))
-            .attr('x2', scales.xScale(x2))
-            .attr('y2', scales.yScale(ct2))
-            .attr('stroke', D3_COLORS.electricBlue)
-            .attr('stroke-width', bandWidth)
-            .attr('stroke-opacity', 0.15)
-            .attr('stroke-linecap', 'round');
-
-        // Draw center line
-        layers.simultaneity.append('line')
-            .attr('x1', scales.xScale(x1))
-            .attr('y1', scales.yScale(ct1))
-            .attr('x2', scales.xScale(x2))
-            .attr('y2', scales.yScale(ct2))
-            .attr('stroke', D3_COLORS.electricBlue)
-            .attr('stroke-width', 2)
-            .attr('stroke-dasharray', '8,4')
-            .attr('opacity', 0.8)
-            .style('filter', 'drop-shadow(0 0 5px rgba(0, 217, 255, 0.5))');
     }
 
     /**
@@ -708,7 +659,6 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
     function render(): void {
         renderGrid();
         renderAxes();
-        renderSimultaneityLine();
         renderEvents();
         // Now line is rendered in animation loop
     }
