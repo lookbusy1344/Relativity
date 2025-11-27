@@ -29,11 +29,28 @@ yarn upgrade-interactive
 
 ## Project Structure
 
-- `src/main.ts` - Web interface DOM manipulation and event handlers
-- `src/relativity_lib.ts` - Core physics calculation library with high-precision Decimal arithmetic
-- `index.html` - Web interface
+```
+src/
+├── main.ts                     # Application entry point and initialization
+├── relativity_lib.ts           # Core physics calculations (Decimal.js)
+├── urlState.ts                 # URL parameter management for deep linking
+├── ui/
+│   ├── domUtils.ts             # DOM element access utilities
+│   └── eventHandlers.ts        # Event handler factory functions
+└── charts/
+    ├── charts.ts               # Chart.js chart management
+    ├── dataGeneration.ts       # Physics data generation for charts
+    ├── minkowski.ts            # D3-based Minkowski diagram (spacetime)
+    ├── minkowski-twins.ts      # D3-based twin paradox diagram
+    ├── minkowski-core.ts       # Shared D3 utilities
+    ├── minkowski-types.ts      # TypeScript interfaces
+    └── minkowski-colors.ts     # Color palette constants
+```
+
+- `index.html` - Web interface with Bootstrap tabs
 - `package.json` - Dependencies and scripts
 - `tsconfig.json` - TypeScript configuration
+- `vite.config.ts` - Vite build configuration
 
 ## Architecture
 
@@ -42,17 +59,27 @@ yarn upgrade-interactive
 - Configurable precision (default 150 decimal places)
 - Constants: speed of light (c), gravity (g), light year, etc.
 - Functions for: Lorentz factors, velocity addition, time dilation, length contraction, relativistic kinematics
-- Specialized calculations: flip-and-burn maneuvers, spacetime intervals, four-momentum
+- Specialized calculations: flip-and-burn maneuvers, spacetime intervals, four-momentum, twin paradox
 
-### Web Interface (`main.ts`) 
-- DOM event handlers for calculator inputs
-- Calls library functions and displays formatted results
-- Handles multiple calculation types: velocity conversions, relativistic motion, velocity addition
+### UI Layer (`ui/`)
+- `domUtils.ts` - Type-safe DOM element access helpers
+- `eventHandlers.ts` - Factory functions creating event handlers for each calculator section
+
+### Charts (`charts/`)
+- `charts.ts` - Chart.js chart lifecycle management and configuration
+- `dataGeneration.ts` - Converts physics calculations to chart-ready data
+- `minkowski*.ts` - D3.js-based interactive Minkowski spacetime diagrams
+
+### URL State (`urlState.ts`)
+- Bidirectional sync between URL parameters and calculator inputs
+- Deep linking support for sharing calculations
 
 ## Key Dependencies
 
 - `decimal.js` - High-precision decimal arithmetic for accurate physics calculations
-- `typescript` - Type safety
+- `chart.js` - Data visualization for velocity, distance, and time charts
+- `d3-*` - D3.js modules for interactive Minkowski spacetime diagrams
+- `typescript` - Type safety with strict configuration
 - `vite` - Build tool and dev server
 - `esbuild` - Fast bundling
 
@@ -61,4 +88,6 @@ yarn upgrade-interactive
 - The project uses ES2015 modules with strict TypeScript configuration
 - All physics calculations use Decimal.js to avoid floating-point precision errors
 - Input validation ensures velocities don't exceed the speed of light
+- Charts use Chart.js; Minkowski diagrams use D3.js for interactivity
+- URL state sync enables deep linking for sharing specific calculations
 - The web interface is hosted at: https://lookbusy1344.github.io/Relativity/

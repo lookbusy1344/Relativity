@@ -3,62 +3,18 @@ import { select, Selection } from 'd3-selection';
 import 'd3-transition'; // Enables .transition() method on selections
 import { easeCubicInOut } from 'd3-ease';
 import { timer } from 'd3-timer';
-// Imports will be used in subsequent tasks
 import { COLORS as D3_COLORS } from './minkowski-colors';
 import type {
     MinkowskiController,
     ScaleSet,
     TooltipController,
-    AnimationController
+    AnimationController,
+    MinkowskiData
 } from './minkowski-types';
+import { C, debounce, formatCoordinate } from './minkowski-core';
 
-export interface MinkowskiData {
-    time: number;           // Time coordinate in seconds
-    distance: number;       // Distance coordinate in km
-    velocity: number;       // Relative velocity as fraction of c
-    deltaTPrime: number;    // Transformed time coordinate
-    deltaXPrime: number;    // Transformed distance coordinate
-    intervalType: string;   // "timelike", "spacelike", or "lightlike"
-}
-
-// Re-export types for use in subsequent tasks
-export type {
-    MinkowskiController,
-    ScaleSet,
-    TooltipController,
-    AnimationController
-};
-
-// ============================================================================
-// D3 Implementation (New) - Being progressively added
-// ============================================================================
-
-// Speed of light constant
-const C = 299792.458; // km/s
-
-/**
- * Debounce helper for resize events
- */
-function debounce<T extends (...args: any[]) => any>(
-    func: T,
-    wait: number
-): (...args: Parameters<T>) => void {
-    let timeout: number | undefined;
-    return (...args: Parameters<T>) => {
-        clearTimeout(timeout);
-        timeout = window.setTimeout(() => func(...args), wait);
-    };
-}
-
-/**
- * Format coordinate value for display
- */
-function formatCoordinateD3(value: number): string {
-    if (Math.abs(value) < 0.001 || Math.abs(value) > 10000) {
-        return value.toExponential(2);
-    }
-    return value.toFixed(2);
-}
+// Re-export types for use in other modules
+export type { MinkowskiData, MinkowskiController, ScaleSet, TooltipController, AnimationController };
 
 /**
  * Create coordinate scales for spacetime diagram
@@ -567,7 +523,7 @@ function renderLabels(
 
     if (ct !== 0 || x !== 0) {
         labelData.push({
-            text: `(ct=${formatCoordinateD3(ct)}, x=${formatCoordinateD3(x)})`,
+            text: `(ct=${formatCoordinate(ct)}, x=${formatCoordinate(x)})`,
             x: x,
             y: ct,
             dx: 12,
@@ -576,7 +532,7 @@ function renderLabels(
             class: 'label label-original'
         });
         labelData.push({
-            text: `(ct'=${formatCoordinateD3(ctPrime)}, x'=${formatCoordinateD3(xPrime)})`,
+            text: `(ct'=${formatCoordinate(ctPrime)}, x'=${formatCoordinate(xPrime)})`,
             x: x,
             y: ct,
             dx: 12,
@@ -743,7 +699,7 @@ function setupTooltips(
 
             const content = label === 'Origin'
                 ? 'Event 1: Origin (0, 0)'
-                : `Event 2: (${formatCoordinateD3(y / C)}, ${formatCoordinateD3(x)})`;
+                : `Event 2: (${formatCoordinate(y / C)}, ${formatCoordinate(x)})`;
 
             tooltip.html(content)
                 .style('position', 'fixed')
@@ -819,7 +775,7 @@ function setupTooltips(
                 const y = parseFloat((targetElement as SVGCircleElement).getAttribute('data-y') || '0');
                 content = label === 'Origin'
                     ? 'Event 1: Origin (0, 0)'
-                    : `Event 2: (${formatCoordinateD3(y / C)}, ${formatCoordinateD3(x)})`;
+                    : `Event 2: (${formatCoordinate(y / C)}, ${formatCoordinate(x)})`;
             } else if (targetElement.tagName === 'line' && targetElement.parentElement?.classList.contains('light-cones')) {
                 const from = (targetElement as SVGLineElement).getAttribute('data-from');
                 content = from === 'origin' ? 'Light cone from origin' : 'Light cone from event';
