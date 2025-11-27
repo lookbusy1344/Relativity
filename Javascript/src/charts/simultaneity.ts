@@ -484,7 +484,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
      * Start animation
      */
     function startAnimation(): void {
-        if (!state.isAnimating && animationFrameId === null) {
+        if (animationFrameId === null) {
             state.isAnimating = true;
             lastTimestamp = 0;
             animationFrameId = requestAnimationFrame(animate);
