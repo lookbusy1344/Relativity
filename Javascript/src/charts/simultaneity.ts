@@ -32,6 +32,8 @@ interface SimultaneityState {
     velocity: number;
     gamma: number;
     referenceEventId: string | null;
+    isAnimating: boolean;
+    animationProgress: number; // 0 to 1
 }
 
 /**
@@ -41,6 +43,7 @@ interface LayerGroups {
     grid: Selection<SVGGElement, unknown, null, undefined>;
     axes: Selection<SVGGElement, unknown, null, undefined>;
     simultaneity: Selection<SVGGElement, unknown, null, undefined>;
+    nowLine: Selection<SVGGElement, unknown, null, undefined>;
     events: Selection<SVGGElement, unknown, null, undefined>;
 }
 
@@ -131,8 +134,12 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         events: createTrainExample(),
         velocity: 0,
         gamma: 1,
-        referenceEventId: 'A'
+        referenceEventId: 'A',
+        isAnimating: true,
+        animationProgress: 0
     };
+    let animationFrameId: number | null = null;
+    let lastTimestamp = 0;
 
     // Setup SVG
     const svg = setupSVG(container, size);
@@ -143,6 +150,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         grid: svg.append('g').attr('class', 'grid-layer'),
         axes: svg.append('g').attr('class', 'axes-layer'),
         simultaneity: svg.append('g').attr('class', 'simultaneity-layer'),
+        nowLine: svg.append('g').attr('class', 'now-line-layer'),
         events: svg.append('g').attr('class', 'events-layer')
     };
 
@@ -346,6 +354,153 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             .attr('stroke-dasharray', '8,4')
             .attr('opacity', 0.8)
             .style('filter', 'drop-shadow(0 0 5px rgba(0, 217, 255, 0.5))');
+    }
+
+    /**
+     * Render animated "now" line
+     */
+    function renderNowLine(): void {
+        const beta = state.velocity;
+        const extent = scales.maxCoord;
+
+        // Calculate current "now" position based on animation progress
+        const currentCt = -scales.maxCoord + (state.animationProgress * 2 * scales.maxCoord);
+
+        // Line parallel to simultaneity line (horizontal in moving frame)
+        const x1 = -extent;
+        const ct1 = currentCt + beta * x1;
+        const x2 = extent;
+        const ct2 = currentCt + beta * x2;
+
+        layers.nowLine.selectAll('*').remove();
+
+        // Draw glowing "now" line
+        layers.nowLine.append('line')
+            .attr('x1', scales.xScale(x1))
+            .attr('y1', scales.yScale(ct1))
+            .attr('x2', scales.xScale(x2))
+            .attr('y2', scales.yScale(ct2))
+            .attr('stroke', D3_COLORS.quantumGreen)
+            .attr('stroke-width', 3)
+            .attr('stroke-opacity', 0.8)
+            .style('filter', 'drop-shadow(0 0 10px rgba(6, 255, 165, 0.8))');
+
+        // Add "NOW" label
+        const labelX = scales.xScale(extent * 0.85);
+        const labelY = scales.yScale(currentCt + beta * extent * 0.85);
+
+        layers.nowLine.append('text')
+            .attr('x', labelX)
+            .attr('y', labelY - 10)
+            .attr('fill', D3_COLORS.quantumGreen)
+            .attr('class', 'label')
+            .attr('text-anchor', 'end')
+            .attr('font-weight', 'bold')
+            .text('NOW');
+    }
+
+    /**
+     * Check if now line is crossing an event and flash it
+     */
+    function checkEventFlashes(): void {
+        const beta = state.velocity;
+        const currentCt = -scales.maxCoord + (state.animationProgress * 2 * scales.maxCoord);
+
+        state.events.forEach(event => {
+            // Calculate the ct coordinate of the now line at this event's x position
+            const nowCtAtEventX = currentCt + beta * event.x;
+
+            // Check if we just crossed this event (within a small threshold)
+            const distance = Math.abs(nowCtAtEventX - event.ct);
+            const threshold = scales.maxCoord * 0.02; // 2% of max coord
+
+            if (distance < threshold) {
+                // Flash this event
+                flashEvent(event.id);
+            }
+        });
+    }
+
+    /**
+     * Flash an event
+     */
+    function flashEvent(eventId: string): void {
+        const eventGroup = layers.events.selectAll<SVGGElement, SimultaneityEvent>('g.event')
+            .filter(d => d.id === eventId);
+
+        if (eventGroup.empty()) return;
+
+        const circle = eventGroup.select('circle');
+
+        // Pulse animation
+        circle.transition()
+            .duration(150)
+            .attr('r', EVENT_RADIUS * 2)
+            .style('filter', 'drop-shadow(0 0 20px currentColor)')
+            .transition()
+            .duration(150)
+            .attr('r', EVENT_RADIUS)
+            .style('filter', d => {
+                const color = getEventColor(d.temporalOrder, d.isReference);
+                return `drop-shadow(0 0 8px ${color})`;
+            });
+    }
+
+    /**
+     * Animation loop
+     */
+    function animate(timestamp: number): void {
+        if (!state.isAnimating) {
+            animationFrameId = null;
+            return;
+        }
+
+        if (lastTimestamp === 0) {
+            lastTimestamp = timestamp;
+        }
+
+        const deltaTime = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+
+        // Update progress (complete cycle in 5 seconds)
+        const speed = 1 / 5000; // 1 cycle per 5 seconds
+        state.animationProgress += deltaTime * speed;
+
+        if (state.animationProgress >= 1) {
+            state.animationProgress = 0; // Loop back to start
+        }
+
+        // Render now line
+        renderNowLine();
+
+        // Check for event flashes
+        checkEventFlashes();
+
+        // Continue animation
+        animationFrameId = requestAnimationFrame(animate);
+    }
+
+    /**
+     * Start animation
+     */
+    function startAnimation(): void {
+        if (!state.isAnimating && animationFrameId === null) {
+            state.isAnimating = true;
+            lastTimestamp = 0;
+            animationFrameId = requestAnimationFrame(animate);
+        }
+    }
+
+    /**
+     * Stop animation
+     */
+    function stopAnimation(): void {
+        state.isAnimating = false;
+        if (animationFrameId !== null) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        layers.nowLine.selectAll('*').remove();
     }
 
     /**
@@ -555,6 +710,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         renderAxes();
         renderSimultaneityLine();
         renderEvents();
+        // Now line is rendered in animation loop
     }
 
     // Attach click handler
@@ -563,15 +719,23 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
     // Initial render
     render();
 
+    // Start animation
+    startAnimation();
+
     // Return controller interface with extended methods
     return {
         update: () => render(),
         updateSlider: updateVelocity,
-        pause: () => {},
-        play: () => {},
+        pause: () => {
+            stopAnimation();
+        },
+        play: () => {
+            startAnimation();
+        },
         reset,
         clearAll,
         destroy: () => {
+            stopAnimation();
             svg.selectAll('*').remove();
             svg.on('click', null);
         }
