@@ -68,7 +68,12 @@ src/
 ### Charts (`charts/`)
 - `charts.ts` - Chart.js chart lifecycle management and configuration
 - `dataGeneration.ts` - Converts physics calculations to chart-ready data
-- `minkowski*.ts` - D3.js-based interactive Minkowski spacetime diagrams
+- Minkowski spacetime diagrams (D3.js-based):
+  - `minkowski.ts` - Standard two-event Minkowski diagram (public API)
+  - `minkowski-twins.ts` - Twin paradox diagram with dual reference frames
+  - `minkowski-core.ts` - Shared utilities and rendering functions for both diagrams
+  - `minkowski-types.ts` - TypeScript interfaces (imported via public APIs)
+  - `minkowski-colors.ts` - Color palette constants
 
 ### URL State (`urlState.ts`)
 - Bidirectional sync between URL parameters and calculator inputs

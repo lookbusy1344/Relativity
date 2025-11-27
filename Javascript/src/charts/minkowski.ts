@@ -13,7 +13,11 @@ import type {
 } from './minkowski-types';
 import { C, debounce, formatCoordinate } from './minkowski-core';
 
-// Re-export types for use in other modules
+/**
+ * Re-export types for external use. This module serves as the public API for
+ * the standard Minkowski diagram - consumers should import types from here
+ * rather than directly from minkowski-types.ts.
+ */
 export type { MinkowskiData, MinkowskiController, ScaleSet, TooltipController, AnimationController };
 
 /**
