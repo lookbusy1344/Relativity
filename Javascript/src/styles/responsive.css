@@ -1,0 +1,368 @@
+/* Tablet and smaller */
+@media (max-width: 768px) {
+	.main-container {
+		padding: 1rem 0.75rem;
+	}
+
+	.header {
+		padding: 1.5rem 1rem;
+		margin-bottom: 1rem;
+	}
+
+	.github-link {
+		position: static;
+		margin: 0 auto 1rem;
+		font-size: 0.75rem;
+		padding: 0.4rem 0.75rem;
+	}
+
+	.github-link svg {
+		width: 18px;
+		height: 18px;
+	}
+
+	.header h1 {
+		font-size: 1.5rem;
+		letter-spacing: 1px;
+	}
+
+	.header .subtitle {
+		font-size: 0.8rem;
+	}
+
+	.speed-of-light {
+		padding: 0.4rem 1rem;
+		font-size: 0.85rem;
+		margin-top: 0.75rem;
+	}
+
+	/* Horizontal scrollable tabs */
+	.nav-tabs {
+		padding: 0.5rem 0.5rem 0 0.5rem;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
+
+	.nav-tabs::-webkit-scrollbar {
+		display: none;
+	}
+
+	.nav-tabs .nav-link {
+		padding: 0.6rem 1rem;
+		font-size: 0.65rem;
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
+	.tab-content {
+		padding: 1rem;
+	}
+
+	.calc-section {
+		padding: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	.calc-label {
+		font-size: 0.85rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.input-group-custom {
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.input-group-custom > div {
+		min-width: 100% !important;
+	}
+
+	.btn-calculate {
+		width: 100%;
+		padding: 0.875rem 1.5rem;
+		font-size: 0.9rem;
+	}
+
+	.result-box {
+		width: 100%;
+		min-height: calc(1.5em + 0.75rem * 2 + 2px);
+		height: auto;
+	}
+
+	.result-grid {
+		grid-template-columns: 1fr 1fr;
+		gap: 0.75rem;
+	}
+
+	.result-item {
+		padding: 0.75rem;
+	}
+
+	.result-item-label {
+		font-size: 0.65rem;
+	}
+
+	.result-item-value {
+		font-size: 0.95rem;
+		word-break: break-all;
+	}
+
+	/* Chart containers */
+	canvas {
+		max-height: 250px;
+	}
+
+	/* Simultaneity diagram responsive layout */
+	.simultaneity-controls {
+		position: static !important;
+		transform: none !important;
+		margin: 1rem auto 0 auto !important;
+		width: 100% !important;
+	}
+
+	.simultaneity-time-display,
+	.simultaneity-space-display {
+		position: static !important;
+		margin: 0.75rem auto !important;
+		width: calc(100% - 2rem) !important;
+		max-width: 100% !important;
+	}
+
+	#simultaneityContainer {
+		padding-bottom: 0 !important;
+	}
+
+	.simultaneity-controls input[type="range"] {
+		width: 150px !important;
+	}
+
+	/* Twin paradox diagram responsive layout */
+	#twinsMinkowskiContainer {
+		display: flex !important;
+		flex-direction: column !important;
+	}
+
+	#twinsMinkowskiContainer > svg {
+		order: 1;
+	}
+
+	.minkowski-velocity-slider {
+		position: static !important;
+		margin: 1rem auto 0 auto !important;
+		width: 100% !important;
+		justify-content: center !important;
+		order: 2;
+	}
+
+	.minkowski-velocity-slider .velocity-slider-input {
+		width: 150px !important;
+	}
+
+	.minkowski-controls {
+		position: static !important;
+		transform: none !important;
+		margin: 1rem auto 0 auto !important;
+		width: 100% !important;
+		order: 3;
+	}
+
+	.twins-legend {
+		order: 4;
+	}
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+	.main-container {
+		padding: 0.5rem;
+	}
+
+	.header {
+		padding: 1rem 0.75rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.github-link {
+		font-size: 0.7rem;
+		padding: 0.35rem 0.65rem;
+	}
+
+	.github-link svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	.header h1 {
+		font-size: 1.1rem;
+		letter-spacing: 0.5px;
+	}
+
+	.header .subtitle {
+		font-size: 0.7rem;
+		margin-bottom: 0.25rem;
+	}
+
+	.speed-of-light {
+		padding: 0.3rem 0.8rem;
+		font-size: 0.75rem;
+		margin-top: 0.5rem;
+	}
+
+	.nav-tabs .nav-link {
+		padding: 0.5rem 0.75rem;
+		font-size: 0.6rem;
+	}
+
+	.tab-content {
+		padding: 0.75rem;
+	}
+
+	.calc-section {
+		padding: 0.75rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.calc-label {
+		font-size: 0.75rem;
+	}
+
+	.calc-label::before {
+		font-size: 1rem;
+		margin-right: 0.35rem;
+	}
+
+	.input-label {
+		font-size: 0.65rem;
+	}
+
+	.form-control {
+		padding: 0.6rem 0.75rem;
+		font-size: 0.9rem;
+	}
+
+	.btn-calculate {
+		padding: 0.75rem 1rem;
+		font-size: 0.8rem;
+	}
+
+	.result-grid {
+		grid-template-columns: 1fr;
+		gap: 0.5rem;
+	}
+
+	.result-item {
+		padding: 0.6rem;
+	}
+
+	.result-item-label {
+		font-size: 0.6rem;
+		margin-bottom: 0.35rem;
+	}
+
+	.result-item-value {
+		font-size: 0.85rem;
+	}
+
+	/* Hide extra efficiency items on mobile */
+	.hide-on-mobile {
+		display: none;
+	}
+
+	/* Smaller chart containers for phones */
+	canvas {
+		max-height: 200px;
+	}
+
+	/* Reduce chart container padding */
+	[style*="padding: 1rem"] {
+		padding: 0.5rem !important;
+	}
+
+	/* Simultaneity diagram further adjustments */
+	.simultaneity-controls {
+		gap: 6px !important;
+	}
+
+	.simultaneity-controls > div {
+		padding: 6px 10px !important;
+		font-size: 10px !important;
+	}
+
+	.simultaneity-controls label,
+	.simultaneity-controls span {
+		font-size: 10px !important;
+	}
+
+	.simultaneity-controls input[type="range"] {
+		width: 120px !important;
+	}
+
+	.simultaneity-toggle-button {
+		padding: 6px 12px !important;
+		font-size: 11px !important;
+	}
+
+	.simultaneity-time-display,
+	.simultaneity-space-display {
+		font-size: 10px !important;
+		padding: 6px 10px !important;
+		min-width: 0 !important;
+	}
+
+	/* Twin paradox diagram further adjustments */
+	.minkowski-velocity-slider {
+		gap: 6px !important;
+		padding: 6px 10px !important;
+	}
+
+	.minkowski-velocity-slider span,
+	.minkowski-velocity-slider label {
+		font-size: 10px !important;
+	}
+
+	.minkowski-velocity-slider .velocity-slider-input {
+		width: 120px !important;
+	}
+
+	.minkowski-toggle-button {
+		padding: 6px 12px !important;
+		font-size: 11px !important;
+	}
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+	.header h1 {
+		font-size: 0.95rem;
+	}
+
+	.header .subtitle {
+		font-size: 0.6rem;
+	}
+
+	.speed-of-light {
+		font-size: 0.65rem;
+		padding: 0.25rem 0.6rem;
+	}
+
+	.nav-tabs .nav-link {
+		padding: 0.4rem 0.6rem;
+		font-size: 0.55rem;
+	}
+
+	.calc-label {
+		font-size: 0.7rem;
+	}
+
+	.form-control {
+		font-size: 0.85rem;
+	}
+
+	.btn-calculate {
+		font-size: 0.75rem;
+	}
+}

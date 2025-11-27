@@ -1,0 +1,12 @@
+:root {
+	--space-black: #0a0e27;
+	--deep-navy: #141b34;
+	--panel-gray: #1a2238;
+	--electric-cyan: #00d9ff;
+	--scientific-green: #00ff9f;
+	--amber-alert: #ffaa00;
+	--soft-white: #e8f1f5;
+	--grid-color: rgba(0, 217, 255, 0.15);
+	--glow-cyan: rgba(0, 217, 255, 0.5);
+	--glow-green: rgba(0, 255, 159, 0.4);
+}
