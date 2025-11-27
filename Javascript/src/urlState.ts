@@ -52,6 +52,14 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
         buttonId: 'spacetimeButton',
         tabId: 'spacetime-tab'
     },
+    simultaneity: {
+        name: 'simultaneity',
+        params: {
+            vel: 'simVelocityInput'
+        },
+        buttonId: '',  // No button, input-driven
+        tabId: 'simultaneity-tab'
+    },
     calc: {
         name: 'calc',
         params: {
@@ -111,6 +119,7 @@ function getActiveTab(): string {
     if (tabId === 'travel-tab') return 'flip';
     if (tabId === 'twins-tab') return 'twins';
     if (tabId === 'spacetime-tab') return 'spacetime';
+    if (tabId === 'simultaneity-tab') return 'simultaneity';
     if (tabId === 'conversions-tab') return 'calc';
 
     return 'motion';
@@ -144,6 +153,12 @@ export function initializeFromURL(): void {
         return;
     }
 
+    // Handle simultaneity tab separately due to events
+    if (tabParam === 'simultaneity') {
+        initializeSimultaneityFromURL(urlParams, tabConfig);
+        return;
+    }
+
     // Populate input fields from URL params
     let hasValidParams = false;
     for (const [paramName, inputId] of Object.entries(tabConfig.params)) {
@@ -158,7 +173,7 @@ export function initializeFromURL(): void {
     }
 
     // Trigger calculation if we had valid parameters
-    if (hasValidParams) {
+    if (hasValidParams && tabConfig.buttonId) {
         // Wait for tab transition and rendering to complete
         setTimeout(() => {
             const calcButton = document.getElementById(tabConfig.buttonId);
@@ -225,6 +240,42 @@ function initializeCalcFromURL(urlParams: URLSearchParams): void {
 }
 
 /**
+ * Initialize simultaneity tab from URL parameters
+ */
+function initializeSimultaneityFromURL(urlParams: URLSearchParams, tabConfig: TabConfig): void {
+    // Populate velocity input
+    for (const [paramName, inputId] of Object.entries(tabConfig.params)) {
+        const paramValue = urlParams.get(paramName);
+        if (paramValue && isValidNumber(paramValue)) {
+            const input = document.getElementById(inputId) as HTMLInputElement;
+            if (input) {
+                input.value = paramValue;
+            }
+        }
+    }
+
+    // Parse events from URL
+    const eventsParam = urlParams.get('events');
+    if (eventsParam) {
+        try {
+            // Decode events from: ct1,x1;ct2,x2;...
+            const eventPairs = eventsParam.split(';');
+            const events = eventPairs.map(pair => {
+                const [ct, x] = pair.split(',').map(parseFloat);
+                return { ct, x };
+            }).filter(e => !isNaN(e.ct) && !isNaN(e.x));
+
+            if (events.length > 0) {
+                // Store events in global for controller to pick up
+                (window as any).pendingSimultaneityEvents = events;
+            }
+        } catch (e) {
+            console.error('Failed to parse simultaneity events from URL:', e);
+        }
+    }
+}
+
+/**
  * Update URL to reflect current application state
  */
 export function updateURL(): void {
@@ -238,6 +289,8 @@ export function updateURL(): void {
     // Handle calc tab separately
     if (activeTab === 'calc') {
         updateCalcURL(params);
+    } else if (activeTab === 'simultaneity') {
+        updateSimultaneityURL(params, tabConfig);
     } else {
         // Add non-default parameters
         for (const [paramName, inputId] of Object.entries(tabConfig.params)) {
@@ -283,15 +336,51 @@ function updateCalcURL(params: URLSearchParams): void {
 }
 
 /**
+ * Update URL for simultaneity tab (needs to encode events)
+ */
+function updateSimultaneityURL(params: URLSearchParams, tabConfig: TabConfig): void {
+    // Add velocity parameter
+    for (const [paramName, inputId] of Object.entries(tabConfig.params)) {
+        const input = document.getElementById(inputId) as HTMLInputElement;
+        if (!input) continue;
+
+        const currentValue = input.value;
+        const defaultValue = getDefaultValue(inputId);
+
+        if (currentValue !== defaultValue && isValidNumber(currentValue)) {
+            params.set(paramName, currentValue);
+        }
+    }
+
+    // Encode events from the diagram
+    // Access events via global callback (set by simultaneity controller)
+    if (typeof (window as any).getSimultaneityEvents === 'function') {
+        const events = (window as any).getSimultaneityEvents();
+        if (events && events.length > 0) {
+            // Check if events match the default train example (don't encode defaults)
+            const isDefaultTrainExample = events.length === 2 &&
+                Math.abs(events[0].ct - 599584.92) < 1 && Math.abs(events[0].x - (-300000)) < 1 &&
+                Math.abs(events[1].ct - 599584.92) < 1 && Math.abs(events[1].x - 300000) < 1;
+
+            if (!isDefaultTrainExample) {
+                // Encode events as: ct1,x1;ct2,x2;...
+                const encoded = events.map((e: any) => `${e.ct.toFixed(2)},${e.x.toFixed(2)}`).join(';');
+                params.set('events', encoded);
+            }
+        }
+    }
+}
+
+/**
  * Set up bidirectional URL synchronization
  */
 export function setupURLSync(): void {
     let debounceTimer: number | undefined;
 
     // Update URL when inputs change (debounced for text inputs)
-    const allInputs = document.querySelectorAll('input[type="number"]');
+    const allInputs = document.querySelectorAll('input[type="number"], input[type="range"]');
     allInputs.forEach(input => {
-        // Debounced update on input (while typing)
+        // Debounced update on input (while typing/dragging)
         input.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = window.setTimeout(() => {
@@ -299,7 +388,7 @@ export function setupURLSync(): void {
             }, 500);
         });
 
-        // Immediate update on change (blur, enter key)
+        // Immediate update on change (blur, enter key, slider release)
         input.addEventListener('change', () => {
             clearTimeout(debounceTimer);
             updateURL();

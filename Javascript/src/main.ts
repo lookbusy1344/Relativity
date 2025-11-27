@@ -15,6 +15,7 @@ import {
 import { type ChartRegistry } from './charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData } from './charts/minkowski';
 import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData } from './charts/minkowski-twins';
+import { createSimultaneityDiagram } from './charts/simultaneity';
 import { initializeFromURL, setupURLSync } from './urlState';
 
 // Register Chart.js components
@@ -38,6 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
         controller: ReturnType<typeof drawTwinParadoxMinkowski> | null
     } = {
         lastData: null,
+        controller: null
+    };
+
+    // Store Simultaneity diagram controller
+    const simultaneityState: {
+        controller: ReturnType<typeof createSimultaneityDiagram> | null
+    } = {
         controller: null
     };
 
@@ -238,6 +246,88 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Trigger the spacetime calculation
                 const spacetimeButton = getButtonElement('spacetimeButton');
                 spacetimeButton?.click();
+            }
+        });
+    }
+
+    // Handle simultaneity tab - initialize diagram when opened
+    const simultaneityTab = document.getElementById('simultaneity-tab');
+    if (simultaneityTab) {
+        simultaneityTab.addEventListener('shown.bs.tab', () => {
+            if (!simultaneityState.controller) {
+                const container = document.getElementById('simultaneityContainer');
+                if (container) {
+                    // Small delay to ensure tab is fully visible
+                    setTimeout(() => {
+                        simultaneityState.controller = createSimultaneityDiagram(container);
+                        // Restore velocity from text input if set
+                        const input = document.getElementById('simVelocityInput') as HTMLInputElement;
+                        if (input && parseFloat(input.value) !== 0) {
+                            simultaneityState.controller?.updateSlider?.(parseFloat(input.value));
+                        }
+                    }, 100);
+                }
+            }
+        });
+    }
+
+    // Simultaneity controls
+    const simVelocityInput = document.getElementById('simVelocityInput') as HTMLInputElement;
+    const simCalculateButton = document.getElementById('simCalculateButton');
+    const simResetButton = document.getElementById('simResetButton');
+    const simClearButton = document.getElementById('simClearButton');
+
+    // Function to update velocity from text input
+    const updateVelocityFromInput = () => {
+        if (!simVelocityInput) return;
+
+        let velocity = parseFloat(simVelocityInput.value);
+
+        // Validate and clamp velocity
+        if (isNaN(velocity)) {
+            velocity = 0;
+        } else {
+            velocity = Math.max(-0.99, Math.min(0.99, velocity));
+        }
+
+        // Update input field with clamped value
+        simVelocityInput.value = velocity.toString();
+
+        if (simultaneityState.controller?.updateSlider) {
+            simultaneityState.controller.updateSlider(velocity);
+        }
+    };
+
+    // Calculate button click handler
+    if (simCalculateButton) {
+        simCalculateButton.addEventListener('click', updateVelocityFromInput);
+    }
+
+    // Allow Enter key to trigger calculation
+    if (simVelocityInput) {
+        simVelocityInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                updateVelocityFromInput();
+            }
+        });
+    }
+
+    if (simResetButton) {
+        simResetButton.addEventListener('click', () => {
+            if (simultaneityState.controller && 'reset' in simultaneityState.controller) {
+                (simultaneityState.controller as any).reset();
+                // Reset text input
+                if (simVelocityInput) {
+                    simVelocityInput.value = '0';
+                }
+            }
+        });
+    }
+
+    if (simClearButton) {
+        simClearButton.addEventListener('click', () => {
+            if (simultaneityState.controller && 'clearAll' in simultaneityState.controller) {
+                (simultaneityState.controller as any).clearAll();
             }
         });
     }
