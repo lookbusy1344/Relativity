@@ -596,6 +596,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateTemporalOrderings();
         render();
         updateTimeSeparations();
+        updateSpatialSeparations();
 
         // Update URL to persist events
         updateURL();
@@ -627,6 +628,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateTemporalOrderings();
         render();
         updateTimeSeparations();
+        updateSpatialSeparations();
 
         // Update URL to persist events
         updateURL();
@@ -641,6 +643,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateTemporalOrderings();
         render();
         updateTimeSeparations();
+        updateSpatialSeparations();
 
         // Update velocity label on slider
         velocityLabel.text(`${velocity.toFixed(2)}c`);
@@ -656,6 +659,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         state.referenceEventId = 'A';
         render();
         updateTimeSeparations();
+        updateSpatialSeparations();
 
         // Update URL to persist events
         updateURL();
@@ -669,6 +673,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         state.referenceEventId = null;
         render();
         updateTimeSeparations();
+        updateSpatialSeparations();
 
         // Update URL to persist events
         updateURL();
@@ -816,6 +821,24 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         .style('color', '#e8f1f5')
         .style('min-width', '180px');
 
+    // Create spatial separation display container (bottom-left of diagram)
+    const spatialSeparationContainer = select(container as any)
+        .append('div')
+        .attr('class', 'simultaneity-space-display')
+        .style('position', 'absolute')
+        .style('bottom', '50px')
+        .style('left', '20px')
+        .style('padding', '8px 12px')
+        .style('background', 'rgba(10, 14, 39, 0.9)')
+        .style('border', '1px solid rgba(0, 217, 255, 0.4)')
+        .style('border-radius', '4px')
+        .style('box-shadow', '0 0 10px rgba(0, 217, 255, 0.3)')
+        .style('z-index', '1000')
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '11px')
+        .style('color', '#e8f1f5')
+        .style('min-width', '180px');
+
     // Function to update time separation display
     function updateTimeSeparations(): void {
         if (state.events.length === 0) {
@@ -866,8 +889,52 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         timeSeparationContainer.html(separations.join(''));
     }
 
+    // Function to update spatial separation display
+    function updateSpatialSeparations(): void {
+        if (state.events.length === 0) {
+            spatialSeparationContainer.style('display', 'none');
+            return;
+        }
+
+        spatialSeparationContainer.style('display', 'block');
+
+        const refEvent = state.events.find(e => e.isReference);
+        if (!refEvent) {
+            spatialSeparationContainer.html('<div style="color: #ffaa00;">No reference event</div>');
+            return;
+        }
+
+        // Calculate spatial separations in moving frame
+        const separations: string[] = [];
+        separations.push(`<div style="font-weight: bold; margin-bottom: 4px; color: #00d9ff;">Space in frame (v=${state.velocity.toFixed(2)}c):</div>`);
+
+        state.events.forEach(event => {
+            if (event.id === refEvent.id) return; // Skip reference event
+
+            // Transform both events to moving frame
+            const eventPrime = lorentzTransform(event.ct, event.x, state.velocity);
+            const refPrime = lorentzTransform(refEvent.ct, refEvent.x, state.velocity);
+            const deltaXPrime = eventPrime.xPrime - refPrime.xPrime;
+
+            // Format with thousands separator
+            const formattedDistance = Math.abs(deltaXPrime).toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+
+            const color = event.temporalOrder === 'future' ? '#00ff9f' :
+                         event.temporalOrder === 'past' ? '#ffaa00' : '#e8f1f5';
+
+            const sign = deltaXPrime >= 0 ? '+' : '−';
+            separations.push(`<div style="color: ${color}; margin: 2px 0;">Event ${event.id}: ${sign}${formattedDistance} km</div>`);
+        });
+
+        spatialSeparationContainer.html(separations.join(''));
+    }
+
     // Initial update
     updateTimeSeparations();
+    updateSpatialSeparations();
 
     // Expose getEvents callback for URL encoding
     (window as any).getSimultaneityEvents = () => state.events;
@@ -893,6 +960,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateTemporalOrderings();
         render();
         updateTimeSeparations();
+        updateSpatialSeparations();
     }
 
     // Start animation
