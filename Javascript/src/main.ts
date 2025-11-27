@@ -15,6 +15,7 @@ import {
 import { type ChartRegistry } from './charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData } from './charts/minkowski';
 import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData } from './charts/minkowski-twins';
+import { createSimultaneityDiagram } from './charts/simultaneity';
 import { initializeFromURL, setupURLSync } from './urlState';
 
 // Register Chart.js components
@@ -38,6 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
         controller: ReturnType<typeof drawTwinParadoxMinkowski> | null
     } = {
         lastData: null,
+        controller: null
+    };
+
+    // Store Simultaneity diagram controller
+    const simultaneityState: {
+        controller: ReturnType<typeof createSimultaneityDiagram> | null
+    } = {
         controller: null
     };
 
@@ -238,6 +246,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Trigger the spacetime calculation
                 const spacetimeButton = getButtonElement('spacetimeButton');
                 spacetimeButton?.click();
+            }
+        });
+    }
+
+    // Handle simultaneity tab - initialize diagram when opened
+    const simultaneityTab = document.getElementById('simultaneity-tab');
+    if (simultaneityTab) {
+        simultaneityTab.addEventListener('shown.bs.tab', () => {
+            if (!simultaneityState.controller) {
+                const container = document.getElementById('simultaneityContainer');
+                if (container) {
+                    simultaneityState.controller = createSimultaneityDiagram(container);
+                }
+            }
+        });
+    }
+
+    // Simultaneity controls
+    const simVelocitySlider = document.getElementById('simVelocitySlider') as HTMLInputElement;
+    const simVelocityValue = document.getElementById('simVelocityValue');
+    const simResetButton = document.getElementById('simResetButton');
+    const simClearButton = document.getElementById('simClearButton');
+
+    if (simVelocitySlider && simVelocityValue) {
+        simVelocitySlider.addEventListener('input', (event) => {
+            const target = event.target as HTMLInputElement;
+            let velocity = parseFloat(target.value);
+
+            // Snap to zero if close
+            if (Math.abs(velocity) < 0.05) {
+                velocity = 0;
+                target.value = '0';
+            }
+
+            simVelocityValue.textContent = `v = ${velocity.toFixed(2)}c`;
+
+            if (simultaneityState.controller?.updateSlider) {
+                simultaneityState.controller.updateSlider(velocity);
+            }
+        });
+    }
+
+    if (simResetButton) {
+        simResetButton.addEventListener('click', () => {
+            if (simultaneityState.controller && 'reset' in simultaneityState.controller) {
+                (simultaneityState.controller as any).reset();
+                // Reset slider
+                if (simVelocitySlider && simVelocityValue) {
+                    simVelocitySlider.value = '0';
+                    simVelocityValue.textContent = 'v = 0.00c';
+                }
+            }
+        });
+    }
+
+    if (simClearButton) {
+        simClearButton.addEventListener('click', () => {
+            if (simultaneityState.controller && 'clearAll' in simultaneityState.controller) {
+                (simultaneityState.controller as any).clearAll();
             }
         });
     }

@@ -747,6 +747,10 @@
 						data-bs-target="#spacetime" type="button" role="tab">Spacetime</button>
 				</li>
 				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="simultaneity-tab" data-bs-toggle="tab"
+						data-bs-target="#simultaneity" type="button" role="tab">Simultaneity</button>
+				</li>
+				<li class="nav-item" role="presentation">
 					<button class="nav-link" id="conversions-tab" data-bs-toggle="tab"
 						data-bs-target="#conversions" type="button" role="tab">Calc</button>
 				</li>
@@ -1064,6 +1068,66 @@
 							</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2); width: 100%; max-width: 900px;">
 								<div id="twinsMinkowskiContainer" style="position: relative; width: 100%; max-width: 900px;"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Simultaneity Tab -->
+				<div class="tab-pane fade" id="simultaneity" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">
+							Relativity of Simultaneity
+							<a href="https://en.wikipedia.org/wiki/Relativity_of_simultaneity" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+
+						<!-- Controls -->
+						<div class="input-group-custom">
+							<div style="flex: 2; min-width: 250px;">
+								<div class="input-label">Velocity (fraction of c)</div>
+								<input type="range" id="simVelocitySlider"
+									   min="-0.9" max="0.9" step="0.01" value="0"
+									   class="form-control" style="padding: 0;">
+								<div style="text-align: center; margin-top: 0.5rem;">
+									<span id="simVelocityValue" style="color: var(--electric-cyan); font-weight: 600; font-family: 'IBM Plex Mono', monospace;">v = 0.00c</span>
+								</div>
+							</div>
+							<button type="button" class="btn-calculate" id="simResetButton">Reset</button>
+							<button type="button" class="btn-calculate" id="simClearButton">Clear All</button>
+						</div>
+
+						<!-- Instructions -->
+						<div class="result-box" style="margin-top: 1rem; text-align: center;">
+							Click to place/remove events (max 4). First event is reference.
+						</div>
+
+						<!-- Coordinate Display -->
+						<div class="result-grid" id="simCoordinateDisplay" style="margin-top: 1rem; display: none;">
+							<div class="result-item">
+								<div class="result-item-label">Event</div>
+								<div class="result-item-value" id="simEventLabel">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Rest Frame (ct, x)</div>
+								<div class="result-item-value" id="simRestCoords">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Moving Frame (ct', x')</div>
+								<div class="result-item-value" id="simMovingCoords">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Temporal Order</div>
+								<div class="result-item-value" id="simTemporalOrder">-</div>
+							</div>
+						</div>
+
+						<!-- Diagram -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Interactive Minkowski Diagram
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2); width: 100%; max-width: 900px;">
+								<div id="simultaneityContainer" style="position: relative; width: 100%; max-width: 900px;"></div>
 							</div>
 						</div>
 					</div>
