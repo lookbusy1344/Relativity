@@ -499,6 +499,12 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
                     return g;
                 },
                 update => {
+                    // Update position with transition
+                    update
+                        .transition()
+                        .duration(500)
+                        .attr('transform', d => `translate(${scales.xScale(d.x)}, ${scales.yScale(d.ct)})`);
+
                     // Update colors with transition
                     update.select('circle')
                         .transition()
