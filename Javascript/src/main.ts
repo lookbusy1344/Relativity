@@ -158,6 +158,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Handle twins tab - pre-calculate when first shown
+    const twinsTab = document.getElementById('twins-tab');
+    if (twinsTab) {
+        twinsTab.addEventListener('shown.bs.tab', () => {
+            // Check if the diagram hasn't been generated yet
+            if (!twinsMinkowskiState.controller) {
+                // Trigger the twins paradox calculation
+                const twinsButton = getButtonElement('twinsButton');
+                twinsButton?.click();
+            }
+        });
+    }
+
     // Add velocities
     getButtonElement('addButton')?.addEventListener('click',
         createAddVelocitiesHandler(
