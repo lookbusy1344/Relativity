@@ -499,6 +499,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
                     return g;
                 },
                 update => {
+                    // Ensure opacity is 1 (in case enter transition hasn't completed)
+                    update.style('opacity', 1);
+
                     // Update position with transition
                     update
                         .transition()
@@ -964,10 +967,17 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             state.referenceEventId = state.events[0].id;
         }
 
+        // Recalculate scales based on restored events
+        const maxCoord = Math.max(...state.events.map(e => Math.max(Math.abs(e.ct), Math.abs(e.x)))) * 1.3;
+        scales = createScaleSet(maxCoord, size);
+
         updateTemporalOrderings();
         render();
         updateTimeSeparations();
         updateSpatialSeparations();
+
+        // Update URL to persist restored events
+        updateURL();
     }
 
     // Start animation
