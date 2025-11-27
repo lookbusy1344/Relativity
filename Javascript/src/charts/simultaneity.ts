@@ -1,5 +1,5 @@
 // Relativity of Simultaneity Interactive Visualization
-import { Selection } from 'd3-selection';
+import { select, Selection } from 'd3-selection';
 import { pointer } from 'd3-selection';
 import 'd3-transition';
 import { COLORS as D3_COLORS } from './minkowski-colors';
@@ -669,6 +669,54 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
     // Initial render
     render();
 
+    // Create animation controls container (bottom-center of diagram)
+    const controlContainer = select(container as any)
+        .append('div')
+        .attr('class', 'simultaneity-controls')
+        .style('position', 'absolute')
+        .style('bottom', '220px')
+        .style('left', '50%')
+        .style('transform', 'translateX(-50%)')
+        .style('display', 'flex')
+        .style('align-items', 'center')
+        .style('gap', '8px')
+        .style('z-index', '1000');
+
+    // Create Play/Pause button
+    const playPauseButton = controlContainer
+        .append('button')
+        .attr('class', 'simultaneity-toggle-button')
+        .text('⏸ Pause')
+        .style('padding', '8px 16px')
+        .style('background', 'rgba(10, 14, 39, 0.9)')
+        .style('border', '1px solid rgba(0, 217, 255, 0.4)')
+        .style('color', '#e8f1f5')
+        .style('font-family', "'IBM Plex Mono', monospace")
+        .style('font-size', '12px')
+        .style('cursor', 'pointer')
+        .style('border-radius', '4px')
+        .style('box-shadow', '0 0 10px rgba(0, 217, 255, 0.3)')
+        .style('transition', 'all 200ms')
+        .on('mouseenter', function() {
+            select(this)
+                .style('background', 'rgba(0, 217, 255, 0.2)')
+                .style('box-shadow', '0 0 15px rgba(0, 217, 255, 0.5)');
+        })
+        .on('mouseleave', function() {
+            select(this)
+                .style('background', 'rgba(10, 14, 39, 0.9)')
+                .style('box-shadow', '0 0 10px rgba(0, 217, 255, 0.3)');
+        })
+        .on('click', () => {
+            if (state.isAnimating) {
+                stopAnimation();
+                playPauseButton.text('▶ Play');
+            } else {
+                startAnimation();
+                playPauseButton.text('⏸ Pause');
+            }
+        });
+
     // Start animation
     startAnimation();
 
@@ -678,11 +726,20 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateSlider: updateVelocity,
         pause: () => {
             stopAnimation();
+            playPauseButton.text('▶ Play');
         },
         play: () => {
             startAnimation();
+            playPauseButton.text('⏸ Pause');
         },
-        reset,
+        reset: () => {
+            reset();
+            // Ensure animation is running after reset
+            if (!state.isAnimating) {
+                startAnimation();
+            }
+            playPauseButton.text('⏸ Pause');
+        },
         clearAll,
         destroy: () => {
             stopAnimation();

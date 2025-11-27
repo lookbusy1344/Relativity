@@ -274,10 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Simultaneity controls
     const simVelocitySlider = document.getElementById('simVelocitySlider') as HTMLInputElement;
     const simVelocityValue = document.getElementById('simVelocityValue');
-    const simPlayPauseButton = document.getElementById('simPlayPauseButton');
     const simResetButton = document.getElementById('simResetButton');
     const simClearButton = document.getElementById('simClearButton');
-    let isSimAnimating = true;
 
     if (simVelocitySlider && simVelocityValue) {
         simVelocitySlider.addEventListener('input', (event) => {
@@ -298,21 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (simPlayPauseButton) {
-        simPlayPauseButton.addEventListener('click', () => {
-            if (simultaneityState.controller) {
-                isSimAnimating = !isSimAnimating;
-                if (isSimAnimating) {
-                    simultaneityState.controller.play();
-                    simPlayPauseButton.textContent = '⏸ Pause';
-                } else {
-                    simultaneityState.controller.pause();
-                    simPlayPauseButton.textContent = '▶ Play';
-                }
-            }
-        });
-    }
-
     if (simResetButton) {
         simResetButton.addEventListener('click', () => {
             if (simultaneityState.controller && 'reset' in simultaneityState.controller) {
@@ -321,12 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (simVelocitySlider && simVelocityValue) {
                     simVelocitySlider.value = '0';
                     simVelocityValue.textContent = 'v = 0.00c';
-                }
-                // Resume animation if paused
-                if (!isSimAnimating && simPlayPauseButton) {
-                    isSimAnimating = true;
-                    simultaneityState.controller.play();
-                    simPlayPauseButton.textContent = '⏸ Pause';
                 }
             }
         });
