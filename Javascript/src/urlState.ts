@@ -52,6 +52,14 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
         buttonId: 'spacetimeButton',
         tabId: 'spacetime-tab'
     },
+    simultaneity: {
+        name: 'simultaneity',
+        params: {
+            vel: 'simVelocitySlider'
+        },
+        buttonId: '',  // No button, slider-driven
+        tabId: 'simultaneity-tab'
+    },
     calc: {
         name: 'calc',
         params: {
@@ -111,6 +119,7 @@ function getActiveTab(): string {
     if (tabId === 'travel-tab') return 'flip';
     if (tabId === 'twins-tab') return 'twins';
     if (tabId === 'spacetime-tab') return 'spacetime';
+    if (tabId === 'simultaneity-tab') return 'simultaneity';
     if (tabId === 'conversions-tab') return 'calc';
 
     return 'motion';
@@ -158,7 +167,7 @@ export function initializeFromURL(): void {
     }
 
     // Trigger calculation if we had valid parameters
-    if (hasValidParams) {
+    if (hasValidParams && tabConfig.buttonId) {
         // Wait for tab transition and rendering to complete
         setTimeout(() => {
             const calcButton = document.getElementById(tabConfig.buttonId);
@@ -166,6 +175,16 @@ export function initializeFromURL(): void {
                 calcButton.click();
             }
         }, 300);
+    }
+
+    // For simultaneity tab, trigger slider input event to update visualization
+    if (tabParam === 'simultaneity' && hasValidParams) {
+        setTimeout(() => {
+            const slider = document.getElementById('simVelocitySlider') as HTMLInputElement;
+            if (slider) {
+                slider.dispatchEvent(new Event('input'));
+            }
+        }, 500);
     }
 }
 
@@ -289,9 +308,9 @@ export function setupURLSync(): void {
     let debounceTimer: number | undefined;
 
     // Update URL when inputs change (debounced for text inputs)
-    const allInputs = document.querySelectorAll('input[type="number"]');
+    const allInputs = document.querySelectorAll('input[type="number"], input[type="range"]');
     allInputs.forEach(input => {
-        // Debounced update on input (while typing)
+        // Debounced update on input (while typing/dragging)
         input.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = window.setTimeout(() => {
@@ -299,7 +318,7 @@ export function setupURLSync(): void {
             }, 500);
         });
 
-        // Immediate update on change (blur, enter key)
+        // Immediate update on change (blur, enter key, slider release)
         input.addEventListener('change', () => {
             clearTimeout(debounceTimer);
             updateURL();

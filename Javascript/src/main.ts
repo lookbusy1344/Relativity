@@ -257,7 +257,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!simultaneityState.controller) {
                 const container = document.getElementById('simultaneityContainer');
                 if (container) {
-                    simultaneityState.controller = createSimultaneityDiagram(container);
+                    // Small delay to ensure tab is fully visible
+                    setTimeout(() => {
+                        simultaneityState.controller = createSimultaneityDiagram(container);
+                        // Restore velocity from slider if set
+                        const slider = simVelocitySlider;
+                        if (slider && parseFloat(slider.value) !== 0) {
+                            simultaneityState.controller?.updateSlider?.(parseFloat(slider.value));
+                        }
+                    }, 100);
                 }
             }
         });
