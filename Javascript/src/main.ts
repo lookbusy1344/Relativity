@@ -273,11 +273,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Simultaneity controls
     const simVelocitySlider = document.getElementById('simVelocitySlider') as HTMLInputElement;
-    const simVelocityValue = document.getElementById('simVelocityValue');
     const simResetButton = document.getElementById('simResetButton');
     const simClearButton = document.getElementById('simClearButton');
 
-    if (simVelocitySlider && simVelocityValue) {
+    if (simVelocitySlider) {
         simVelocitySlider.addEventListener('input', (event) => {
             const target = event.target as HTMLInputElement;
             let velocity = parseFloat(target.value);
@@ -288,7 +287,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 target.value = '0';
             }
 
-            simVelocityValue.textContent = `v = ${velocity.toFixed(2)}c`;
+            // Update velocity display (created by controller when tab opens)
+            const simVelocityValue = document.getElementById('simVelocityValue');
+            if (simVelocityValue) {
+                simVelocityValue.textContent = `v = ${velocity.toFixed(2)}c`;
+            }
 
             if (simultaneityState.controller?.updateSlider) {
                 simultaneityState.controller.updateSlider(velocity);
@@ -301,9 +304,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (simultaneityState.controller && 'reset' in simultaneityState.controller) {
                 (simultaneityState.controller as any).reset();
                 // Reset slider
-                if (simVelocitySlider && simVelocityValue) {
+                if (simVelocitySlider) {
                     simVelocitySlider.value = '0';
-                    simVelocityValue.textContent = 'v = 0.00c';
+                    const simVelocityValue = document.getElementById('simVelocityValue');
+                    if (simVelocityValue) {
+                        simVelocityValue.textContent = 'v = 0.00c';
+                    }
                 }
             }
         });
