@@ -112,9 +112,11 @@ export function createAccelHandler(
         pendingRAF = requestAnimationFrame(() => {
             pendingRAF = null;
             pendingCalculation = window.setTimeout(() => {
-            const accelG = parseFloat(accelInput.value ?? '1');
-            const accel = rl.g.mul(accelG);
-            const secs = rl.ensure(timeInput.value ?? 0).mul(60 * 60 * 24);
+            // Use string values to preserve precision for Decimal.js calculations
+            const accelGStr = accelInput.value ?? '1';
+            const timeStr = timeInput.value ?? '0';
+            const accel = rl.g.mul(accelGStr);
+            const secs = rl.ensure(timeStr).mul(60 * 60 * 24);
 
             const relVel = rl.relativisticVelocity(accel, secs);
             const relDist = rl.relativisticDistance(accel, secs);
@@ -136,8 +138,9 @@ export function createAccelHandler(
             if (resultAFuel60) setElement(resultAFuel60, rl.formatSignificant(fuelPercent80, "9", 3), "%");
             if (resultAFuel70) setElement(resultAFuel70, rl.formatSignificant(fuelPercent85, "9", 3), "%");
 
-            // Update charts
-            const durationDays = parseFloat(timeInput.value ?? '365');
+            // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
+            const accelG = parseFloat(accelGStr);
+            const durationDays = parseFloat(timeStr);
             const data = generateAccelChartData(accelG, durationDays);
             chartRegistry.current = updateAccelCharts(chartRegistry.current, data);
             pendingCalculation = null;
@@ -187,10 +190,11 @@ export function createFlipBurnHandler(
         pendingRAF = requestAnimationFrame(() => {
             pendingRAF = null;
             pendingCalculation = window.setTimeout(() => {
-            const accelG = parseFloat(accelInput.value ?? '1');
-            const accel = rl.g.mul(accelG);
-            const distanceLightYears = parseFloat(distanceInput.value ?? '0');
-            const m = rl.ensure(distanceLightYears).mul(rl.lightYear);
+            // Use string values to preserve precision for Decimal.js calculations
+            const accelGStr = accelInput.value ?? '1';
+            const distanceLightYearsStr = distanceInput.value ?? '0';
+            const accel = rl.g.mul(accelGStr);
+            const m = rl.ensure(distanceLightYearsStr).mul(rl.lightYear);
             const res = rl.flipAndBurn(accel, m);
             const properTime = res.properTime.div(rl.secondsPerYear);
             const coordTime = res.coordTime.div(rl.secondsPerYear);
@@ -214,7 +218,9 @@ export function createFlipBurnHandler(
             if (resultFlipFuel60) setElement(resultFlipFuel60, rl.formatSignificant(fuelPercent80, "9", 3), "%");
             if (resultFlipFuel70) setElement(resultFlipFuel70, rl.formatSignificant(fuelPercent85, "9", 3), "%");
 
-            // Update charts
+            // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
+            const accelG = parseFloat(accelGStr);
+            const distanceLightYears = parseFloat(distanceLightYearsStr);
             const data = generateFlipBurnChartData(accelG, distanceLightYears);
             chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data);
             pendingCalculation = null;
@@ -357,8 +363,13 @@ export function createGraphUpdateHandler(
         pendingRAF = requestAnimationFrame(() => {
             pendingRAF = null;
             pendingCalculation = window.setTimeout(() => {
-            const accelG = parseFloat(accelInput.value ?? '1');
-            const durationDays = parseFloat(durationInput.value ?? '365');
+            // Use string values to preserve precision for Decimal.js calculations
+            const accelGStr = accelInput.value ?? '1';
+            const durationDaysStr = durationInput.value ?? '365';
+
+            // parseFloat is OK here as Chart.js only needs limited precision for display
+            const accelG = parseFloat(accelGStr);
+            const durationDays = parseFloat(durationDaysStr);
 
             const data = generateVisualizationChartData(accelG, durationDays);
             chartRegistry.current = updateVisualizationCharts(chartRegistry.current, data);
