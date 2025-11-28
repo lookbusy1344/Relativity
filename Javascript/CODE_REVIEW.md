@@ -11,7 +11,7 @@ The codebase demonstrates solid architectural design with functional programming
 
 **Priority Distribution:**
 - Critical: 0 issues (1 resolved)
-- High: 2 issues (1 resolved)
+- High: 1 issue (2 resolved)
 - Medium: 2 issues (2 resolved)
 
 ---
@@ -130,57 +130,61 @@ export function createAccelHandler(...): () => void {
 
 ---
 
-### 3. Type Safety Violations with `as any` Casts
+### ~~3. Type Safety Violations with `as any` Casts~~ ✅ RESOLVED
 
 **Files:** `src/main.ts:133,245,331,343`, `src/ui/eventHandlers.ts:260,488`
 **Severity:** HIGH
-
-Extensive use of `as any` bypasses TypeScript's type safety.
+**Status:** ✅ **FIXED** (2025-11-28)
 
 **Problem:**
+Controllers had different types but were stored in state objects using `ReturnType<typeof ...>`, forcing type casts to bypass incompatibilities.
+
+**Resolution:**
+- Created proper type hierarchy in `minkowski-types.ts`:
+  - `BaseController` interface with shared methods (pause, play, destroy)
+  - `MinkowskiDiagramController` for standard two-event diagrams
+  - `TwinParadoxController` for twin paradox with velocity slider
+  - `SimultaneityController` for simultaneity with reset/clearAll
+- Updated all function return types to use specific controller interfaces
+- Updated state objects in `main.ts` to use explicit controller types
+- Removed all `as any` casts from controller method calls
+- Fixed event listener type casts by using `EventHandler = EventListener | EventListenerObject`
+- Made controller parameter nullable in `eventHandlers.ts` callbacks
+- Removed `| any` hack from twin paradox controller implementation
+
+**Implementation:**
 ```typescript
-// main.ts
-(twinsMinkowskiState.controller as any).update(data);
-(twinsMinkowskiState.controller as any).update(twinsMinkowskiState.lastData);
-(simultaneityState.controller as any).reset();
-(simultaneityState.controller as any).clearAll();
-
-// eventHandlers.ts
-onDiagramDrawn(container, minkowskiData, null as any);
-onDiagramDrawn(container, diagramData, null as any);
-```
-
-**Root Cause:** Controllers have different types but are stored in the same state object. Type casts mask the incompatibility.
-
-**Impact:** Runtime errors if methods don't exist, no compile-time safety, difficult to refactor.
-
-**Fix:**
-```typescript
-// Define proper type hierarchy
-interface BaseController {
-    update(data: any): void;
+// minkowski-types.ts
+export interface BaseController {
+    pause(): void;
+    play(): void;
     destroy(): void;
 }
 
-interface TwinsController extends BaseController {
-    updateSlider?(velocity: number): void;
+export interface MinkowskiDiagramController extends BaseController {
+    update(data: MinkowskiData): void;
 }
 
-interface SimultaneityController extends BaseController {
+// minkowski-twins.ts
+export interface TwinParadoxController extends BaseController {
+    update(data: TwinParadoxMinkowskiData): void;
+    updateSlider(velocityC: number): void;
+}
+
+// simultaneity.ts
+export interface SimultaneityController extends BaseController {
+    update(): void;
+    updateSlider?(velocity: number): void;
     reset(): void;
     clearAll(): void;
 }
 
-// Use discriminated union or specific types
-const twinsMinkowskiState: {
-    controller: TwinsController | null;
-    lastData: any;
-};
-
-const simultaneityState: {
-    controller: SimultaneityController | null;
-};
+// main.ts - No more type casts needed
+twinsMinkowskiState.controller.update(data);
+simultaneityState.controller.reset();
 ```
+
+**Verification:** TypeScript compiles without errors. All controller method calls are now type-safe.
 
 ---
 
@@ -423,11 +427,11 @@ export function gammaFactor(velocity: NumberInput): Decimal {
 1. ~~Fix event listener memory leaks (#1)~~ - DONE
 2. ~~Fix resize handler leak (#7)~~ - DONE (fixed with #1)
 3. ~~Fix race condition in chart updates (#2)~~ - DONE
+4. ~~Resolve type safety violations (#3)~~ - DONE
 
 **Immediate (this sprint):**
 
 **High Priority (next sprint):**
-4. Resolve type safety violations (#3)
 5. Remove global window pollution (#4)
 
 **Medium Priority (backlog):**

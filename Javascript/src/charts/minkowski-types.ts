@@ -11,13 +11,27 @@ export interface MinkowskiData {
     intervalType: string;   // "timelike", "spacelike", or "lightlike"
 }
 
-export interface MinkowskiController {
-    update(data: MinkowskiData): void;  // Update with new data
-    updateSlider?(velocityC: number): void;  // Update velocity slider (Twin Paradox only)
-    pause(): void;                       // Pause auto-play animation
-    play(): void;                        // Resume auto-play animation
-    destroy(): void;                     // Cleanup and remove
+/**
+ * Base controller interface shared by all diagram types
+ */
+export interface BaseController {
+    pause(): void;      // Pause auto-play animation
+    play(): void;       // Resume auto-play animation
+    destroy(): void;    // Cleanup and remove
 }
+
+/**
+ * Controller for standard two-event Minkowski diagram
+ */
+export interface MinkowskiDiagramController extends BaseController {
+    update(data: MinkowskiData): void;
+}
+
+/**
+ * Kept for backwards compatibility - use MinkowskiDiagramController instead
+ * @deprecated
+ */
+export type MinkowskiController = MinkowskiDiagramController;
 
 export interface ScaleSet {
     xScale: (value: number) => number;

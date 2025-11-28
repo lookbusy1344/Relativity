@@ -13,9 +13,9 @@ import {
     createSpacetimeIntervalHandler
 } from './ui/eventHandlers';
 import { type ChartRegistry } from './charts/charts';
-import { drawMinkowskiDiagramD3, type MinkowskiData } from './charts/minkowski';
-import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData } from './charts/minkowski-twins';
-import { createSimultaneityDiagram } from './charts/simultaneity';
+import { drawMinkowskiDiagramD3, type MinkowskiData, type MinkowskiDiagramController } from './charts/minkowski';
+import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData, type TwinParadoxController } from './charts/minkowski-twins';
+import { createSimultaneityDiagram, type SimultaneityController } from './charts/simultaneity';
 import { initializeFromURL, setupURLSync } from './urlState';
 
 // Register Chart.js components
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Store Minkowski diagram controller and data for updates
     const minkowskiState: {
         lastData: MinkowskiData | null,
-        controller: ReturnType<typeof drawMinkowskiDiagramD3> | null
+        controller: MinkowskiDiagramController | null
     } = {
         lastData: null,
         controller: null
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Store Twin Paradox Minkowski diagram controller and data for updates
     const twinsMinkowskiState: {
         lastData: TwinParadoxMinkowskiData | null,
-        controller: ReturnType<typeof drawTwinParadoxMinkowski> | null
+        controller: TwinParadoxController | null
     } = {
         lastData: null,
         controller: null
@@ -44,17 +44,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Store Simultaneity diagram controller
     const simultaneityState: {
-        controller: ReturnType<typeof createSimultaneityDiagram> | null
+        controller: SimultaneityController | null
     } = {
         controller: null
     };
 
     // Store event handlers for cleanup
-    const eventHandlers: Array<{ element: Element | Window, event: string, handler: EventListener }> = [];
-    const addEventListener = (element: Element | Window | null, event: string, handler: EventListener) => {
+    type EventHandler = EventListener | EventListenerObject;
+    const eventHandlers: Array<{ element: Element | Window, event: string, handler: EventHandler }> = [];
+    const addEventListener = (element: Element | Window | null, event: string, handler: EventHandler) => {
         if (element) {
-            element.addEventListener(event, handler as any);
-            eventHandlers.push({ element, event, handler: handler as EventListener });
+            element.addEventListener(event, handler);
+            eventHandlers.push({ element, event, handler });
         }
     };
 
@@ -149,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
         (container, data, _controller) => {
             if (twinsMinkowskiState.controller) {
                 // Update existing diagram
-                (twinsMinkowskiState.controller as any).update(data);
+                twinsMinkowskiState.controller.update(data);
             } else {
                 // Create new diagram with velocity change callback
                 twinsMinkowskiState.controller = drawTwinParadoxMinkowski(container, data, (newVelocityC) => {
@@ -269,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Update Twin Paradox Minkowski diagram if it exists
             if (twinsMinkowskiState.controller && twinsMinkowskiState.lastData) {
-                (twinsMinkowskiState.controller as any).update(twinsMinkowskiState.lastData);
+                twinsMinkowskiState.controller.update(twinsMinkowskiState.lastData);
             }
         }, 700);
     };
@@ -348,8 +349,8 @@ document.addEventListener('DOMContentLoaded', () => {
     addEventListener(simVelocityInput, 'keypress', simKeypressHandler as EventListener);
 
     const simResetHandler = () => {
-        if (simultaneityState.controller && 'reset' in simultaneityState.controller) {
-            (simultaneityState.controller as any).reset();
+        if (simultaneityState.controller) {
+            simultaneityState.controller.reset();
             // Reset text input
             if (simVelocityInput) {
                 simVelocityInput.value = '0';
@@ -359,8 +360,8 @@ document.addEventListener('DOMContentLoaded', () => {
     addEventListener(simResetButton, 'click', simResetHandler);
 
     const simClearHandler = () => {
-        if (simultaneityState.controller && 'clearAll' in simultaneityState.controller) {
-            (simultaneityState.controller as any).clearAll();
+        if (simultaneityState.controller) {
+            simultaneityState.controller.clearAll();
         }
     };
     addEventListener(simClearButton, 'click', simClearHandler);
@@ -376,16 +377,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Remove all tracked event listeners
         eventHandlers.forEach(({ element, event, handler }) => {
-            element.removeEventListener(event, handler as any);
+            element.removeEventListener(event, handler);
         });
 
         // Cleanup URL sync listeners
         cleanupURLSync();
 
         // Destroy chart controllers
-        minkowskiState.controller?.destroy?.();
-        twinsMinkowskiState.controller?.destroy?.();
-        simultaneityState.controller?.destroy?.();
+        minkowskiState.controller?.destroy();
+        twinsMinkowskiState.controller?.destroy();
+        simultaneityState.controller?.destroy();
     };
 
     // Register cleanup on page unload

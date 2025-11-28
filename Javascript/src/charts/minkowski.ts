@@ -5,7 +5,7 @@ import { easeCubicInOut } from 'd3-ease';
 import { timer } from 'd3-timer';
 import { COLORS as D3_COLORS } from './minkowski-colors';
 import type {
-    MinkowskiController,
+    MinkowskiDiagramController,
     ScaleSet,
     TooltipController,
     AnimationController,
@@ -18,7 +18,7 @@ import { C, debounce, formatCoordinate } from './minkowski-core';
  * the standard Minkowski diagram - consumers should import types from here
  * rather than directly from minkowski-types.ts.
  */
-export type { MinkowskiData, MinkowskiController, ScaleSet, TooltipController, AnimationController };
+export type { MinkowskiData, MinkowskiDiagramController, ScaleSet, TooltipController, AnimationController };
 
 /**
  * Create coordinate scales for spacetime diagram
@@ -964,7 +964,7 @@ function startFrameAnimation(
 export function drawMinkowskiDiagramD3(
     container: HTMLElement,
     data: MinkowskiData
-): MinkowskiController {
+): MinkowskiDiagramController {
     const size = 900;
 
     // Setup SVG
@@ -1106,7 +1106,7 @@ export function drawMinkowskiDiagramD3(
     window.addEventListener('resize', resizeHandler);
 
     // Public controller API
-    const controller: MinkowskiController = {
+    const controller: MinkowskiDiagramController = {
         update(newData: MinkowskiData) {
             data = newData;
             scales = createScales(data, size);

@@ -228,7 +228,7 @@ export function createTwinParadoxHandler(
     getTimeInput: () => HTMLInputElement | null,
     getResults: () => (HTMLElement | null)[],
     chartRegistry: { current: ChartRegistry },
-    onDiagramDrawn?: (container: HTMLElement, data: TwinParadoxMinkowskiData, controller: ReturnType<typeof drawTwinParadoxMinkowski>) => void
+    onDiagramDrawn?: (container: HTMLElement, data: TwinParadoxMinkowskiData, controller: ReturnType<typeof drawTwinParadoxMinkowski> | null) => void
 ): (silent?: boolean) => void {
     let pendingRAF: number | null = null;
     let pendingCalculation: number | null = null;
@@ -304,7 +304,7 @@ export function createTwinParadoxHandler(
                     gamma: parseFloat(lorentz.toString())
                 };
 
-                onDiagramDrawn(container, minkowskiData, null as any);
+                onDiagramDrawn(container, minkowskiData, null);
             }
 
             pendingCalculation = null;
@@ -434,7 +434,7 @@ export function createSpacetimeIntervalHandler(
     getResultDeltaX: () => HTMLElement | null,
     getResultMinSep: () => HTMLElement | null,
     getResultVelocity: () => HTMLElement | null,
-    onDiagramDrawn?: (container: HTMLElement, data: MinkowskiData, controller: ReturnType<typeof drawMinkowskiDiagramD3>) => void
+    onDiagramDrawn?: (container: HTMLElement, data: MinkowskiData, controller: ReturnType<typeof drawMinkowskiDiagramD3> | null) => void
 ): () => void {
     return () => {
         const time2Input = getTime2Input();
@@ -554,7 +554,7 @@ export function createSpacetimeIntervalHandler(
             // Notify caller that diagram was drawn (for resize handling)
             // The callback will handle creating or updating the diagram
             if (onDiagramDrawn) {
-                onDiagramDrawn(container, diagramData, null as any);
+                onDiagramDrawn(container, diagramData, null);
             }
         }
     };

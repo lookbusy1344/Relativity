@@ -3,7 +3,7 @@ import { select, Selection } from 'd3-selection';
 import { pointer } from 'd3-selection';
 import 'd3-transition';
 import { COLORS as D3_COLORS } from './minkowski-colors';
-import type { ScaleSet } from './minkowski-types';
+import type { BaseController, ScaleSet } from './minkowski-types';
 import {
     C,
     calculateGamma,
@@ -116,16 +116,13 @@ function getEventColor(order: 'future' | 'past' | 'simultaneous', isReference: b
 }
 
 /**
- * Extended controller interface with reset and clearAll methods
+ * Controller for simultaneity diagram with event placement and animation
  */
-export interface SimultaneityController {
+export interface SimultaneityController extends BaseController {
     update(): void;
     updateSlider?(velocity: number): void;
-    pause(): void;
-    play(): void;
     reset(): void;
     clearAll(): void;
-    destroy(): void;
 }
 
 /**

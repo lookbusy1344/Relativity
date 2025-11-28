@@ -4,7 +4,7 @@ import 'd3-transition';
 import { easeCubicInOut } from 'd3-ease';
 import { timer } from 'd3-timer';
 import { COLORS as D3_COLORS } from './minkowski-colors';
-import type { MinkowskiController, ScaleSet, AnimationController } from './minkowski-types';
+import type { BaseController, ScaleSet, AnimationController } from './minkowski-types';
 import {
     C,
     debounce,
@@ -23,6 +23,14 @@ export interface TwinParadoxMinkowskiData {
     earthTimeYears: number;   // Coordinate time in years
     distanceLY: number;       // One-way distance in light years
     gamma: number;            // Lorentz factor
+}
+
+/**
+ * Controller for Twin Paradox Minkowski diagram with velocity slider
+ */
+export interface TwinParadoxController extends BaseController {
+    update(data: TwinParadoxMinkowskiData): void;
+    updateSlider(velocityC: number): void;
 }
 
 /**
@@ -563,7 +571,7 @@ export function drawTwinParadoxMinkowski(
     container: HTMLElement,
     data: TwinParadoxMinkowskiData,
     onVelocityChange?: (velocityC: number) => void
-): MinkowskiController {
+): TwinParadoxController {
     const size = 900;
     const beta = data.velocityC;
     let isSliderUpdate = false;
@@ -789,9 +797,9 @@ export function drawTwinParadoxMinkowski(
     window.addEventListener('resize', resizeHandler);
 
     // Public controller API
-    const controller = {
-        update(newData: TwinParadoxMinkowskiData | any) {
-            const twinsData = newData as TwinParadoxMinkowskiData;
+    const controller: TwinParadoxController = {
+        update(newData: TwinParadoxMinkowskiData) {
+            const twinsData = newData;
             // Re-calculate and re-render with new data
             events = calculateEvents(twinsData);
             scales = createScaleSet(events.maxCoord, size);
