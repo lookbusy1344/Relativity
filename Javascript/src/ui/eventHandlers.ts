@@ -262,12 +262,14 @@ export function createTwinParadoxHandler(
 
         // Allow UI to update before heavy calculation (skip delay in silent mode)
         const execute = () => {
-            const velocityC = parseFloat(velocityInput.value ?? '0.8');
-            const properTimeYears = parseFloat(timeInput.value ?? '4');
+            // Use string values to preserve precision for Decimal.js calculations
+            const velocityCStr = velocityInput.value ?? '0.8';
+            const properTimeYearsStr = timeInput.value ?? '4';
 
-            // Convert UI inputs to SI units
-            const velocity = rl.c.mul(velocityC);  // m/s
-            const properTime = rl.ensure(properTimeYears).mul(rl.secondsPerYear);  // seconds
+            // Convert UI inputs to SI units using string values to preserve precision
+            // parseFloat loses precision for values like 0.99999999999999999 (becomes 1.0)
+            const velocity = rl.c.mul(velocityCStr);  // m/s
+            const properTime = rl.ensure(properTimeYearsStr).mul(rl.secondsPerYear);  // seconds
 
             // Call function with SI units
             const res = rl.twinParadox(velocity, properTime);
@@ -285,20 +287,22 @@ export function createTwinParadoxHandler(
             if (resultTwins2) setElement(resultTwins2, rl.formatSignificant(earthAge, "0", 2), "yrs");
             if (resultTwins3) setElement(resultTwins3, rl.formatSignificant(ageDiff, "0", 2), "yrs");
             if (resultTwins4) setElement(resultTwins4, rl.formatSignificant(lorentz, "0", 3), "");
-            if (resultTwins5) setElement(resultTwins5, `${rl.formatSignificant(rl.ensure(velocityC), "9", 3)}c (${rl.formatSignificant(velocityKm, "9", 1)} km/s)`, "");
+            if (resultTwins5) setElement(resultTwins5, `${rl.formatSignificant(rl.ensure(velocityCStr), "9", 3)}c (${rl.formatSignificant(velocityKm, "9", 1)} km/s)`, "");
             if (resultTwins6) setElement(resultTwins6, rl.formatSignificant(oneWayLy, "0", 3), "ly");
             if (resultTwins7) setElement(resultTwins7, rl.formatSignificant(totalLy, "0", 3), "ly");
 
-            // Update charts
-            const data = generateTwinParadoxChartData(velocityC, properTimeYears);
+            // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
+            const velocityCNum = parseFloat(velocityCStr);
+            const properTimeYearsNum = parseFloat(properTimeYearsStr);
+            const data = generateTwinParadoxChartData(velocityCNum, properTimeYearsNum);
             chartRegistry.current = updateTwinParadoxCharts(chartRegistry.current, data);
 
             // Draw Minkowski diagram
             const container = document.getElementById('twinsMinkowskiContainer');
             if (container && onDiagramDrawn) {
                 const minkowskiData: TwinParadoxMinkowskiData = {
-                    velocityC,
-                    properTimeYears,
+                    velocityC: velocityCNum,
+                    properTimeYears: properTimeYearsNum,
                     earthTimeYears: parseFloat(earthAge.toString()),
                     distanceLY: parseFloat(oneWayLy.toString()),
                     gamma: parseFloat(lorentz.toString())
