@@ -11,8 +11,8 @@ The codebase demonstrates solid architectural design with functional programming
 
 **Priority Distribution:**
 - Critical: 0 issues (1 resolved)
-- High: 3 issues
-- Medium: 3 issues (1 resolved)
+- High: 2 issues (1 resolved)
+- Medium: 2 issues (2 resolved)
 
 ---
 
@@ -77,55 +77,55 @@ export function setupURLSync(): () => void {
 
 ## High Priority Issues
 
-### 2. Race Condition in Chart Registry Updates
+### ~~2. Race Condition in Chart Registry Updates~~ ✅ RESOLVED
 
-**File:** `src/ui/eventHandlers.ts:99-128`
+**Files:** `src/ui/eventHandlers.ts`
 **Severity:** HIGH
-
-Chart updates wrapped in `requestAnimationFrame(() => setTimeout(...))` can cause race conditions if user clicks calculate button rapidly.
+**Status:** ✅ **FIXED** (2025-11-28)
 
 **Problem:**
+Chart updates wrapped in `requestAnimationFrame(() => setTimeout(...))` caused race conditions when users clicked calculate buttons rapidly, leading to chart corruption and memory leaks.
+
+**Resolution:**
+- Added both `pendingRAF` and `pendingCalculation` tracking to all four affected handlers:
+  - `createAccelHandler` (lines 82-147)
+  - `createFlipBurnHandler` (lines 149-224)
+  - `createTwinParadoxHandler` (lines 226-322)
+  - `createGraphUpdateHandler` (lines 324-367)
+- Each handler cancels both pending RAF and timeout before starting new calculations
+- Preserves `requestAnimationFrame()` to ensure "Working..." message is visible before calculation starts
+- Eliminates race conditions while maintaining UI responsiveness and user feedback
+
+**Implementation:**
 ```typescript
 export function createAccelHandler(...): () => void {
+    let pendingRAF: number | null = null;
+    let pendingCalculation: number | null = null;
+
     return () => {
+        // Cancel pending calculation to prevent race condition
+        if (pendingRAF !== null) {
+            cancelAnimationFrame(pendingRAF);
+            pendingRAF = null;
+        }
+        if (pendingCalculation !== null) {
+            clearTimeout(pendingCalculation);
+            pendingCalculation = null;
+        }
+
         if (resultA1) resultA1.textContent = "Working...";
 
-        requestAnimationFrame(() => setTimeout(() => {
-            // Heavy calculations
-            chartRegistry.current = updateAccelCharts(chartRegistry.current, data);
-        }, 0));
+        // requestAnimationFrame ensures UI updates before calculation
+        pendingRAF = requestAnimationFrame(() => {
+            pendingRAF = null;
+            pendingCalculation = window.setTimeout(() => {
+                // Heavy calculations
+                chartRegistry.current = updateAccelCharts(chartRegistry.current, data);
+                pendingCalculation = null;
+            }, 0);
+        });
     };
 }
-```
-
-**Scenario:**
-1. User clicks calculate twice rapidly
-2. First calculation shows "Working...", schedules calculation A
-3. Second calculation shows "Working...", schedules calculation B
-4. Calculation A completes, updates `chartRegistry.current`
-5. Calculation B completes, updates `chartRegistry.current`
-6. **Result:** Stale charts from calculation A are destroyed but may still be referenced
-
-**Impact:** Chart corruption, memory leaks from destroyed charts, incorrect displayed data.
-
-**Fix:**
-```typescript
-let pendingCalculation: number | null = null;
-
-return () => {
-    // Cancel pending calculation
-    if (pendingCalculation !== null) {
-        clearTimeout(pendingCalculation);
-    }
-
-    if (resultA1) resultA1.textContent = "Working...";
-
-    pendingCalculation = window.setTimeout(() => {
-        // calculations
-        chartRegistry.current = updateAccelCharts(chartRegistry.current, data);
-        pendingCalculation = null;
-    }, 0);
-};
 ```
 
 ---
@@ -422,9 +422,9 @@ export function gammaFactor(velocity: NumberInput): Decimal {
 **✅ Completed:**
 1. ~~Fix event listener memory leaks (#1)~~ - DONE
 2. ~~Fix resize handler leak (#7)~~ - DONE (fixed with #1)
+3. ~~Fix race condition in chart updates (#2)~~ - DONE
 
 **Immediate (this sprint):**
-3. Fix race condition in chart updates (#2)
 
 **High Priority (next sprint):**
 4. Resolve type safety violations (#3)

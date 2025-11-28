@@ -79,11 +79,24 @@ export function createAccelHandler(
     getResults: () => (HTMLElement | null)[],
     chartRegistry: { current: ChartRegistry }
 ): () => void {
+    let pendingRAF: number | null = null;
+    let pendingCalculation: number | null = null;
+
     return () => {
         const accelInput = getAccelInput();
         const timeInput = getTimeInput();
         const [resultA1, resultA2, resultA1b, resultA2b, resultAFuel40, resultAFuel, resultAFuel60, resultAFuel70] = getResults();
         if (!accelInput || !timeInput) return;
+
+        // Cancel pending calculation to prevent race condition
+        if (pendingRAF !== null) {
+            cancelAnimationFrame(pendingRAF);
+            pendingRAF = null;
+        }
+        if (pendingCalculation !== null) {
+            clearTimeout(pendingCalculation);
+            pendingCalculation = null;
+        }
 
         // Show working message
         if (resultA1) resultA1.textContent = "Working...";
@@ -96,7 +109,9 @@ export function createAccelHandler(
         if (resultAFuel70) resultAFuel70.textContent = "";
 
         // Allow UI to update before heavy calculation
-        requestAnimationFrame(() => setTimeout(() => {
+        pendingRAF = requestAnimationFrame(() => {
+            pendingRAF = null;
+            pendingCalculation = window.setTimeout(() => {
             const accelG = parseFloat(accelInput.value ?? '1');
             const accel = rl.g.mul(accelG);
             const secs = rl.ensure(timeInput.value ?? 0).mul(60 * 60 * 24);
@@ -125,7 +140,9 @@ export function createAccelHandler(
             const durationDays = parseFloat(timeInput.value ?? '365');
             const data = generateAccelChartData(accelG, durationDays);
             chartRegistry.current = updateAccelCharts(chartRegistry.current, data);
-        }, 0));
+            pendingCalculation = null;
+            }, 0);
+        });
     };
 }
 
@@ -135,11 +152,24 @@ export function createFlipBurnHandler(
     getResults: () => (HTMLElement | null)[],
     chartRegistry: { current: ChartRegistry }
 ): () => void {
+    let pendingRAF: number | null = null;
+    let pendingCalculation: number | null = null;
+
     return () => {
         const accelInput = getAccelInput();
         const distanceInput = getDistanceInput();
         const [resultFlip1, resultFlip2, resultFlip3, resultFlip4, resultFlip5, resultFlip6, resultFlipFuel40, resultFlipFuel, resultFlipFuel60, resultFlipFuel70] = getResults();
         if (!accelInput || !distanceInput) return;
+
+        // Cancel pending calculation to prevent race condition
+        if (pendingRAF !== null) {
+            cancelAnimationFrame(pendingRAF);
+            pendingRAF = null;
+        }
+        if (pendingCalculation !== null) {
+            clearTimeout(pendingCalculation);
+            pendingCalculation = null;
+        }
 
         // Show working message
         if (resultFlip1) resultFlip1.textContent = "Working...";
@@ -154,7 +184,9 @@ export function createFlipBurnHandler(
         if (resultFlipFuel70) resultFlipFuel70.textContent = "";
 
         // Allow UI to update before heavy calculation
-        requestAnimationFrame(() => setTimeout(() => {
+        pendingRAF = requestAnimationFrame(() => {
+            pendingRAF = null;
+            pendingCalculation = window.setTimeout(() => {
             const accelG = parseFloat(accelInput.value ?? '1');
             const accel = rl.g.mul(accelG);
             const distanceLightYears = parseFloat(distanceInput.value ?? '0');
@@ -185,7 +217,9 @@ export function createFlipBurnHandler(
             // Update charts
             const data = generateFlipBurnChartData(accelG, distanceLightYears);
             chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data);
-        }, 0));
+            pendingCalculation = null;
+            }, 0);
+        });
     };
 }
 
@@ -196,11 +230,24 @@ export function createTwinParadoxHandler(
     chartRegistry: { current: ChartRegistry },
     onDiagramDrawn?: (container: HTMLElement, data: TwinParadoxMinkowskiData, controller: ReturnType<typeof drawTwinParadoxMinkowski>) => void
 ): (silent?: boolean) => void {
+    let pendingRAF: number | null = null;
+    let pendingCalculation: number | null = null;
+
     return (silent = false) => {
         const velocityInput = getVelocityInput();
         const timeInput = getTimeInput();
         const [resultTwins1, resultTwins2, resultTwins3, resultTwins4, resultTwins5, resultTwins6, resultTwins7] = getResults();
         if (!velocityInput || !timeInput) return;
+
+        // Cancel pending calculation to prevent race condition
+        if (pendingRAF !== null) {
+            cancelAnimationFrame(pendingRAF);
+            pendingRAF = null;
+        }
+        if (pendingCalculation !== null) {
+            clearTimeout(pendingCalculation);
+            pendingCalculation = null;
+        }
 
         // Show working message (unless silent mode)
         if (!silent) {
@@ -259,12 +306,17 @@ export function createTwinParadoxHandler(
 
                 onDiagramDrawn(container, minkowskiData, null as any);
             }
+
+            pendingCalculation = null;
         };
 
         if (silent) {
             execute();
         } else {
-            requestAnimationFrame(() => setTimeout(execute, 0));
+            pendingRAF = requestAnimationFrame(() => {
+                pendingRAF = null;
+                pendingCalculation = window.setTimeout(execute, 0);
+            });
         }
     };
 }
@@ -275,17 +327,32 @@ export function createGraphUpdateHandler(
     getStatus: () => HTMLElement | null,
     chartRegistry: { current: ChartRegistry }
 ): () => void {
+    let pendingRAF: number | null = null;
+    let pendingCalculation: number | null = null;
+
     return () => {
         const accelInput = getAccelInput();
         const durationInput = getDurationInput();
         const status = getStatus();
         if (!accelInput || !durationInput) return;
 
+        // Cancel pending calculation to prevent race condition
+        if (pendingRAF !== null) {
+            cancelAnimationFrame(pendingRAF);
+            pendingRAF = null;
+        }
+        if (pendingCalculation !== null) {
+            clearTimeout(pendingCalculation);
+            pendingCalculation = null;
+        }
+
         // Show working message
         if (status) status.textContent = "Working...";
 
         // Allow UI to update before heavy calculation
-        requestAnimationFrame(() => setTimeout(() => {
+        pendingRAF = requestAnimationFrame(() => {
+            pendingRAF = null;
+            pendingCalculation = window.setTimeout(() => {
             const accelG = parseFloat(accelInput.value ?? '1');
             const durationDays = parseFloat(durationInput.value ?? '365');
 
@@ -293,7 +360,9 @@ export function createGraphUpdateHandler(
             chartRegistry.current = updateVisualizationCharts(chartRegistry.current, data);
 
             if (status) status.textContent = "Done";
-        }, 0));
+            pendingCalculation = null;
+            }, 0);
+        });
     };
 }
 
