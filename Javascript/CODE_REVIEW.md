@@ -11,7 +11,7 @@ The codebase demonstrates solid architectural design with functional programming
 
 **Priority Distribution:**
 - Critical: 0 issues (1 resolved)
-- High: 1 issue (2 resolved)
+- High: 0 issues (3 resolved)
 - Medium: 2 issues (2 resolved)
 
 ---
@@ -188,12 +188,13 @@ simultaneityState.controller.reset();
 
 ---
 
-### 4. Global Window Pollution for Inter-Component Communication
+### ~~4. Global Window Pollution for Inter-Component Communication~~ ✅ RESOLVED
 
-**Files:** `src/charts/simultaneity.ts:956-961`, `src/urlState.ts:270,357-358`
+**Files:** `src/charts/simultaneity.ts`, `src/urlState.ts`, `src/charts/simultaneityState.ts`
 **Severity:** HIGH
+**Status:** ✅ **FIXED** (2025-11-28)
 
-Components communicate via global window object.
+Previously, components communicated via global window object.
 
 **Problem:**
 ```typescript
@@ -219,25 +220,56 @@ if (typeof (window as any).getSimultaneityEvents === 'function') {
 - Untestable without mocking window
 - Violates encapsulation
 
-**Fix:**
+**Resolution:**
+Created `simultaneityState.ts` module with proper encapsulation:
+- Removed `window.getSimultaneityEvents` and `window.pendingSimultaneityEvents`
+- Module stores event data internally with `getEvents()`, `setEvents()`, `setPendingEvents()`, `consumePendingEvents()`
+- Added `syncStateToModule()` helper in `simultaneity.ts` called after every state.events modification
+- Updated `urlState.ts` to use module functions instead of window globals
+- Maintains pub/sub pattern with `subscribe()` for future extensibility
+
+**Implementation:**
 ```typescript
-// simultaneityState.ts - New module-level state manager
-type EventCallback = (events: Event[]) => void;
-const listeners = new Set<EventCallback>();
-
-export function subscribeToEvents(callback: EventCallback): () => void {
-    listeners.add(callback);
-    return () => listeners.delete(callback);
+// simultaneityState.ts
+export interface SimultaneityEventData {
+    ct: number;
+    x: number;
 }
 
-export function publishEvents(events: Event[]): void {
-    listeners.forEach(cb => cb(events));
+let currentEvents: SimultaneityEventData[] = [];
+let pendingEvents: SimultaneityEventData[] | null = null;
+
+export function getEvents(): SimultaneityEventData[] {
+    return currentEvents;
 }
 
-export function getEvents(): Event[] {
-    // Return current events
+export function setEvents(events: SimultaneityEventData[]): void {
+    currentEvents = events;
+    notifySubscribers();
 }
+
+export function setPendingEvents(events: SimultaneityEventData[]): void {
+    pendingEvents = events;
+}
+
+export function consumePendingEvents(): SimultaneityEventData[] | null {
+    const events = pendingEvents;
+    pendingEvents = null;
+    return events;
+}
+
+// simultaneity.ts - Sync helper called after every state.events modification
+function syncStateToModule(events: SimultaneityEvent[]): void {
+    const eventData = events.map(e => ({ ct: e.ct, x: e.x }));
+    simultaneityState.setEvents(eventData);
+}
+
+// urlState.ts - Clean access without window globals
+const events = simultaneityState.getEvents();
+simultaneityState.setPendingEvents(events);
 ```
+
+**Verification:** TypeScript compiles without errors. Build successful. No window pollution.
 
 ---
 
@@ -428,11 +460,11 @@ export function gammaFactor(velocity: NumberInput): Decimal {
 2. ~~Fix resize handler leak (#7)~~ - DONE (fixed with #1)
 3. ~~Fix race condition in chart updates (#2)~~ - DONE
 4. ~~Resolve type safety violations (#3)~~ - DONE
+5. ~~Remove global window pollution (#4)~~ - DONE
 
 **Immediate (this sprint):**
 
 **High Priority (next sprint):**
-5. Remove global window pollution (#4)
 
 **Medium Priority (backlog):**
 6. Add input validation (#5)

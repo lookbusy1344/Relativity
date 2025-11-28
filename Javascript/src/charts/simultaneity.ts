@@ -14,6 +14,7 @@ import {
     debounce
 } from './minkowski-core';
 import { updateURL } from '../urlState';
+import * as simultaneityState from './simultaneityState';
 
 /**
  * Event data structure
@@ -80,6 +81,14 @@ function createTrainExample(): SimultaneityEvent[] {
             temporalOrder: 'simultaneous'
         }
     ];
+}
+
+/**
+ * Sync internal state.events to the state module for URL encoding
+ */
+function syncStateToModule(events: SimultaneityEvent[]): void {
+    const eventData = events.map(e => ({ ct: e.ct, x: e.x }));
+    simultaneityState.setEvents(eventData);
 }
 
 /**
@@ -597,6 +606,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         };
 
         state.events.push(newEvent);
+        syncStateToModule(state.events);
 
         if (isFirst) {
             state.referenceEventId = nextLabel;
@@ -620,6 +630,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 
         const wasReference = state.events[index].isReference;
         state.events.splice(index, 1);
+        syncStateToModule(state.events);
 
         // Reassign IDs
         state.events.forEach((e, i) => {
@@ -663,6 +674,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
      */
     function reset(): void {
         state.events = createTrainExample();
+        syncStateToModule(state.events);
         state.velocity = 0;
         state.gamma = 1;
         state.referenceEventId = 'A';
@@ -683,6 +695,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
      */
     function clearAll(): void {
         state.events = [];
+        syncStateToModule(state.events);
         state.referenceEventId = null;
         render();
         updateTimeSeparations();
@@ -949,22 +962,18 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
     updateTimeSeparations();
     updateSpatialSeparations();
 
-    // Expose getEvents callback for URL encoding
-    (window as any).getSimultaneityEvents = () => state.events;
-
     // Check for pending events from URL and restore them
-    if ((window as any).pendingSimultaneityEvents) {
-        const pendingEvents = (window as any).pendingSimultaneityEvents;
-        delete (window as any).pendingSimultaneityEvents;
-
+    const pendingEvents = simultaneityState.consumePendingEvents();
+    if (pendingEvents && pendingEvents.length > 0) {
         // Restore events (limit to 4, assign IDs)
-        state.events = pendingEvents.slice(0, 4).map((e: any, i: number) => ({
+        state.events = pendingEvents.slice(0, 4).map((e, i) => ({
             id: EVENT_LABELS[i],
             ct: e.ct,
             x: e.x,
             isReference: i === 0,
             temporalOrder: 'simultaneous' as const
         }));
+        syncStateToModule(state.events);
 
         if (state.events.length > 0) {
             state.referenceEventId = state.events[0].id;

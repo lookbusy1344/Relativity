@@ -3,6 +3,8 @@
  * Handles bidirectional synchronization between URL parameters and calculator inputs
  */
 
+import * as simultaneityState from './charts/simultaneityState';
+
 // Parameter mapping: clean URL param name -> HTML input element ID
 type ParamMap = Record<string, string>;
 
@@ -266,8 +268,8 @@ function initializeSimultaneityFromURL(urlParams: URLSearchParams, tabConfig: Ta
             }).filter(e => !isNaN(e.ct) && !isNaN(e.x));
 
             if (events.length > 0) {
-                // Store events in global for controller to pick up
-                (window as any).pendingSimultaneityEvents = events;
+                // Store events in state module for controller to pick up
+                simultaneityState.setPendingEvents(events);
             }
         } catch (e) {
             console.error('Failed to parse simultaneity events from URL:', e);
@@ -353,20 +355,18 @@ function updateSimultaneityURL(params: URLSearchParams, tabConfig: TabConfig): v
     }
 
     // Encode events from the diagram
-    // Access events via global callback (set by simultaneity controller)
-    if (typeof (window as any).getSimultaneityEvents === 'function') {
-        const events = (window as any).getSimultaneityEvents();
-        if (events && events.length > 0) {
-            // Check if events match the default train example (don't encode defaults)
-            const isDefaultTrainExample = events.length === 2 &&
-                Math.abs(events[0].ct - 599584.92) < 1 && Math.abs(events[0].x - (-300000)) < 1 &&
-                Math.abs(events[1].ct - 599584.92) < 1 && Math.abs(events[1].x - 300000) < 1;
+    // Access events via state module
+    const events = simultaneityState.getEvents();
+    if (events && events.length > 0) {
+        // Check if events match the default train example (don't encode defaults)
+        const isDefaultTrainExample = events.length === 2 &&
+            Math.abs(events[0].ct - 599584.92) < 1 && Math.abs(events[0].x - (-300000)) < 1 &&
+            Math.abs(events[1].ct - 599584.92) < 1 && Math.abs(events[1].x - 300000) < 1;
 
-            if (!isDefaultTrainExample) {
-                // Encode events as: ct1,x1;ct2,x2;...
-                const encoded = events.map((e: any) => `${e.ct.toFixed(2)},${e.x.toFixed(2)}`).join(';');
-                params.set('events', encoded);
-            }
+        if (!isDefaultTrainExample) {
+            // Encode events as: ct1,x1;ct2,x2;...
+            const encoded = events.map((e: any) => `${e.ct.toFixed(2)},${e.x.toFixed(2)}`).join(';');
+            params.set('events', encoded);
         }
     }
 }
