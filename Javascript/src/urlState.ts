@@ -373,44 +373,69 @@ function updateSimultaneityURL(params: URLSearchParams, tabConfig: TabConfig): v
 
 /**
  * Set up bidirectional URL synchronization
+ * Returns a cleanup function to remove all event listeners
  */
-export function setupURLSync(): void {
+export function setupURLSync(): () => void {
     let debounceTimer: number | undefined;
+
+    // Store handlers for cleanup
+    const handlers = new Map<Element, Map<string, EventListener>>();
+
+    const addHandler = (element: Element, event: string, handler: EventListener) => {
+        element.addEventListener(event, handler);
+        if (!handlers.has(element)) {
+            handlers.set(element, new Map());
+        }
+        handlers.get(element)!.set(event, handler);
+    };
 
     // Update URL when inputs change (debounced for text inputs)
     const allInputs = document.querySelectorAll('input[type="number"], input[type="range"]');
     allInputs.forEach(input => {
-        // Debounced update on input (while typing/dragging)
-        input.addEventListener('input', () => {
+        const inputHandler = () => {
             clearTimeout(debounceTimer);
             debounceTimer = window.setTimeout(() => {
                 updateURL();
             }, 500);
-        });
+        };
+        addHandler(input, 'input', inputHandler);
 
-        // Immediate update on change (blur, enter key, slider release)
-        input.addEventListener('change', () => {
+        const changeHandler = () => {
             clearTimeout(debounceTimer);
             updateURL();
-        });
+        };
+        addHandler(input, 'change', changeHandler);
     });
 
     // Update URL when tab changes
     const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
     tabButtons.forEach(button => {
-        button.addEventListener('shown.bs.tab', () => {
+        const tabHandler = () => {
             updateURL();
-        });
+        };
+        addHandler(button, 'shown.bs.tab', tabHandler);
     });
 
     // Update URL when calculate buttons are clicked
     const calcButtons = document.querySelectorAll('.btn-calculate');
     calcButtons.forEach(button => {
-        button.addEventListener('click', () => {
+        const clickHandler = () => {
             // Small delay to ensure inputs are settled
             setTimeout(() => {
                 updateURL();
             }, 50);
-        });
+        };
+        addHandler(button, 'click', clickHandler);
     });
+
+    // Return cleanup function
+    return () => {
+        clearTimeout(debounceTimer);
+        handlers.forEach((eventMap, element) => {
+            eventMap.forEach((handler, event) => {
+                element.removeEventListener(event, handler);
+            });
+        });
+        handlers.clear();
+    };
 }

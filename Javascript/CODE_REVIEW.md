@@ -10,64 +10,65 @@
 The codebase demonstrates solid architectural design with functional programming patterns, good separation of concerns, and high-precision physics calculations. However, there are several runtime safety concerns that could cause user-facing bugs, particularly around memory management and type safety.
 
 **Priority Distribution:**
-- Critical: 1 issue
+- Critical: 0 issues (1 resolved)
 - High: 3 issues
-- Medium: 4 issues
+- Medium: 3 issues (1 resolved)
 
 ---
 
 ## Critical Issues
 
-### 1. Memory Leaks from Event Listeners Not Cleaned Up
+### ~~1. Memory Leaks from Event Listeners Not Cleaned Up~~ ✅ RESOLVED
 
-**Files:** `src/main.ts:24-351`, `src/urlState.ts:377-415`
+**Files:** `src/main.ts`, `src/urlState.ts`
 **Severity:** CRITICAL
+**Status:** ✅ **FIXED** (2025-11-28)
 
-Multiple event listeners are registered but never removed, causing memory leaks if components are recreated or during SPA navigation.
+**Resolution:**
+- Added event handler tracking array in `main.ts` with custom `addEventListener` wrapper
+- All event listeners now stored and properly removed on cleanup
+- `setupURLSync()` now returns cleanup function that removes all URL sync listeners
+- Added cleanup function triggered on `window.beforeunload` event
+- Clears pending timeouts (resize debounce timer)
+- Destroys chart controllers on cleanup
 
-**Problem:**
+**Implementation:**
 ```typescript
-// main.ts
-document.addEventListener('DOMContentLoaded', () => {
-    getButtonElement('lorentzButton')?.addEventListener('click', ...);
-    getInputElement('twinsVelocityInput')?.addEventListener('input', ...);
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-    // 30+ more listeners
-    // NO CLEANUP CODE
-});
+// main.ts - Event handler tracking and cleanup
+const eventHandlers: Array<{ element: Element | Window, event: string, handler: EventListener }> = [];
+const addEventListener = (element: Element | Window | null, event: string, handler: EventListener) => {
+    if (element) {
+        element.addEventListener(event, handler as any);
+        eventHandlers.push({ element, event, handler: handler as EventListener });
+    }
+};
 
-// urlState.ts
-export function setupURLSync(): void {
-    const allInputs = document.querySelectorAll('input[type="number"], input[type="range"]');
-    allInputs.forEach(input => {
-        input.addEventListener('input', ...);   // NEVER REMOVED
-        input.addEventListener('change', ...);  // NEVER REMOVED
+// Cleanup function
+const cleanup = () => {
+    clearTimeout(resizeTimeout);
+    eventHandlers.forEach(({ element, event, handler }) => {
+        element.removeEventListener(event, handler as any);
     });
-    // 40+ listeners total
-}
-```
+    cleanupURLSync();
+    minkowskiState.controller?.destroy?.();
+    twinsMinkowskiState.controller?.destroy?.();
+    simultaneityState.controller?.destroy?.();
+};
 
-**Impact:** Cascading event listeners and memory consumption if tabs are dynamically recreated.
+addEventListener(window, 'beforeunload', cleanup);
 
-**Fix:**
-```typescript
-// Return cleanup function
+// urlState.ts - Returns cleanup function
 export function setupURLSync(): () => void {
-    const inputHandler = (e: Event) => { /* ... */ };
-    const changeHandler = (e: Event) => { /* ... */ };
-
-    allInputs.forEach(input => {
-        input.addEventListener('input', inputHandler);
-        input.addEventListener('change', changeHandler);
-    });
-
-    // Return cleanup function
+    const handlers = new Map<Element, Map<string, EventListener>>();
+    // ... register handlers ...
     return () => {
-        allInputs.forEach(input => {
-            input.removeEventListener('input', inputHandler);
-            input.removeEventListener('change', changeHandler);
+        clearTimeout(debounceTimer);
+        handlers.forEach((eventMap, element) => {
+            eventMap.forEach((handler, event) => {
+                element.removeEventListener(event, handler);
+            });
         });
+        handlers.clear();
     };
 }
 ```
@@ -316,40 +317,14 @@ export function checkVelocity(velocity: NumberInput): Decimal {
 
 ---
 
-### 7. Resize Handler Memory Leak
+### ~~7. Resize Handler Memory Leak~~ ✅ RESOLVED
 
-**File:** `src/main.ts:228-248`
+**File:** `src/main.ts`
 **Severity:** MEDIUM
+**Status:** ✅ **FIXED** (2025-11-28)
 
-Resize handler uses `setTimeout` stored in closure but timeout isn't cleared on cleanup.
-
-**Problem:**
-```typescript
-let resizeTimeout: number | undefined;
-const handleResize = () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = window.setTimeout(() => {
-        // Resize operations
-    }, 700);
-};
-
-window.addEventListener('resize', handleResize);
-window.addEventListener('orientationchange', handleResize);
-// NO removeEventListener or clearTimeout on page unload
-```
-
-**Impact:** If page navigation occurs while resize timeout is pending, timeout continues to hold references, causing memory leaks.
-
-**Fix:**
-```typescript
-const cleanup = () => {
-    clearTimeout(resizeTimeout);
-    window.removeEventListener('resize', handleResize);
-    window.removeEventListener('orientationchange', handleResize);
-};
-
-window.addEventListener('beforeunload', cleanup);
-```
+**Resolution:**
+Fixed as part of the comprehensive event listener cleanup (#1). The resize handler timeout is now properly cleared in the cleanup function, and the resize event listeners are tracked and removed on page unload.
 
 ---
 
@@ -444,23 +419,26 @@ export function gammaFactor(velocity: NumberInput): Decimal {
 
 ## Implementation Priority
 
+**✅ Completed:**
+1. ~~Fix event listener memory leaks (#1)~~ - DONE
+2. ~~Fix resize handler leak (#7)~~ - DONE (fixed with #1)
+
 **Immediate (this sprint):**
-1. Fix event listener memory leaks (#1)
-2. Fix race condition in chart updates (#2)
+3. Fix race condition in chart updates (#2)
 
 **High Priority (next sprint):**
-3. Resolve type safety violations (#3)
-4. Remove global window pollution (#4)
+4. Resolve type safety violations (#3)
+5. Remove global window pollution (#4)
 
 **Medium Priority (backlog):**
-5. Add input validation (#5)
-6. Standardize error handling (#6)
-7. Fix resize handler leak (#7)
+6. Add input validation (#5)
+7. Standardize error handling (#6)
+8. Remove production console errors (#8)
 
 **Code Quality (ongoing):**
-8. Extract duplicate code
-9. Document magic numbers
-10. Add JSDoc to physics functions
+9. Extract duplicate code
+10. Document magic numbers
+11. Add JSDoc to physics functions
 
 ---
 

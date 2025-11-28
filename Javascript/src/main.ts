@@ -49,8 +49,19 @@ document.addEventListener('DOMContentLoaded', () => {
         controller: null
     };
 
+    // Store event handlers for cleanup
+    const eventHandlers: Array<{ element: Element | Window, event: string, handler: EventListener }> = [];
+    const addEventListener = (element: Element | Window | null, event: string, handler: EventListener) => {
+        if (element) {
+            element.addEventListener(event, handler as any);
+            eventHandlers.push({ element, event, handler: handler as EventListener });
+        }
+    };
+
     // Lorentz factor from velocity
-    getButtonElement('lorentzButton')?.addEventListener('click',
+    addEventListener(
+        getButtonElement('lorentzButton'),
+        'click',
         createLorentzHandler(
             () => getInputElement('lorentzInput'),
             () => getResultElement('resultLorentz')
@@ -58,7 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Rapidity from velocity
-    getButtonElement('velocityButton')?.addEventListener('click',
+    addEventListener(
+        getButtonElement('velocityButton'),
+        'click',
         createRapidityFromVelocityHandler(
             () => getInputElement('velocityInput'),
             () => getResultElement('resultVelocity')
@@ -66,7 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Velocity from rapidity
-    getButtonElement('rapidityButton')?.addEventListener('click',
+    addEventListener(
+        getButtonElement('rapidityButton'),
+        'click',
         createVelocityFromRapidityHandler(
             () => getInputElement('rapidityInput'),
             () => getResultElement('resultRapidity')
@@ -74,7 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Constant acceleration
-    getButtonElement('aButton')?.addEventListener('click',
+    addEventListener(
+        getButtonElement('aButton'),
+        'click',
         createAccelHandler(
             () => getInputElement('aAccelInput'),
             () => getInputElement('aInput'),
@@ -93,7 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Flip-and-burn
-    getButtonElement('flipButton')?.addEventListener('click',
+    addEventListener(
+        getButtonElement('flipButton'),
+        'click',
         createFlipBurnHandler(
             () => getInputElement('flipAccelInput'),
             () => getInputElement('flipInput'),
@@ -147,32 +166,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     );
 
-    getButtonElement('twinsButton')?.addEventListener('click', () => twinsCalculateHandler());
+    addEventListener(getButtonElement('twinsButton'), 'click', () => twinsCalculateHandler());
 
     // Bidirectional sync: input field -> slider
-    getInputElement('twinsVelocityInput')?.addEventListener('input', (event) => {
+    const twinsInputHandler = (event: Event) => {
         const velocityInput = event.target as HTMLInputElement;
         const newVelocityC = parseFloat(velocityInput.value);
         if (!isNaN(newVelocityC) && twinsMinkowskiState.controller?.updateSlider) {
             twinsMinkowskiState.controller.updateSlider(newVelocityC);
         }
-    });
+    };
+    addEventListener(getInputElement('twinsVelocityInput'), 'input', twinsInputHandler);
 
     // Handle twins tab - pre-calculate when first shown
     const twinsTab = document.getElementById('twins-tab');
-    if (twinsTab) {
-        twinsTab.addEventListener('shown.bs.tab', () => {
-            // Check if the diagram hasn't been generated yet
-            if (!twinsMinkowskiState.controller) {
-                // Trigger the twins paradox calculation
-                const twinsButton = getButtonElement('twinsButton');
-                twinsButton?.click();
-            }
-        });
-    }
+    const twinsTabHandler = () => {
+        // Check if the diagram hasn't been generated yet
+        if (!twinsMinkowskiState.controller) {
+            // Trigger the twins paradox calculation
+            const twinsButton = getButtonElement('twinsButton');
+            twinsButton?.click();
+        }
+    };
+    addEventListener(twinsTab, 'shown.bs.tab', twinsTabHandler);
 
     // Add velocities
-    getButtonElement('addButton')?.addEventListener('click',
+    addEventListener(
+        getButtonElement('addButton'),
+        'click',
         createAddVelocitiesHandler(
             () => getInputElement('v1Input'),
             () => getInputElement('v2Input'),
@@ -181,7 +202,9 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Pion rocket acceleration time
-    getButtonElement('pionAccelButton')?.addEventListener('click',
+    addEventListener(
+        getButtonElement('pionAccelButton'),
+        'click',
         createPionAccelTimeHandler(
             () => getInputElement('pionFuelMassInput'),
             () => getInputElement('pionDryMassInput'),
@@ -191,7 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Pion rocket fuel fraction
-    getButtonElement('fuelFractionButton')?.addEventListener('click',
+    addEventListener(
+        getButtonElement('fuelFractionButton'),
+        'click',
         createPionFuelFractionHandler(
             () => getInputElement('fuelFractionTimeInput'),
             () => getInputElement('fuelFractionEffInput'),
@@ -200,7 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Spacetime interval
-    getButtonElement('spacetimeButton')?.addEventListener('click',
+    addEventListener(
+        getButtonElement('spacetimeButton'),
+        'click',
         createSpacetimeIntervalHandler(
             () => getInputElement('spacetimeTime2'),
             () => getInputElement('spacetimeX2'),
@@ -247,42 +274,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 700);
     };
 
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
+    addEventListener(window, 'resize', handleResize);
+    addEventListener(window, 'orientationchange', handleResize);
 
     // Handle tab changes - trigger calculation when spacetime tab is opened
     const spacetimeTab = document.getElementById('spacetime-tab');
-    if (spacetimeTab) {
-        spacetimeTab.addEventListener('shown.bs.tab', () => {
-            // Check if the diagram hasn't been generated yet
-            if (!minkowskiState.controller) {
-                // Trigger the spacetime calculation
-                const spacetimeButton = getButtonElement('spacetimeButton');
-                spacetimeButton?.click();
-            }
-        });
-    }
+    const spacetimeTabHandler = () => {
+        // Check if the diagram hasn't been generated yet
+        if (!minkowskiState.controller) {
+            // Trigger the spacetime calculation
+            const spacetimeButton = getButtonElement('spacetimeButton');
+            spacetimeButton?.click();
+        }
+    };
+    addEventListener(spacetimeTab, 'shown.bs.tab', spacetimeTabHandler);
 
     // Handle simultaneity tab - initialize diagram when opened
     const simultaneityTab = document.getElementById('simultaneity-tab');
-    if (simultaneityTab) {
-        simultaneityTab.addEventListener('shown.bs.tab', () => {
-            if (!simultaneityState.controller) {
-                const container = document.getElementById('simultaneityContainer');
-                if (container) {
-                    // Small delay to ensure tab is fully visible
-                    setTimeout(() => {
-                        simultaneityState.controller = createSimultaneityDiagram(container);
-                        // Restore velocity from text input if set
-                        const input = document.getElementById('simVelocityInput') as HTMLInputElement;
-                        if (input && parseFloat(input.value) !== 0) {
-                            simultaneityState.controller?.updateSlider?.(parseFloat(input.value));
-                        }
-                    }, 100);
-                }
+    const simultaneityTabHandler = () => {
+        if (!simultaneityState.controller) {
+            const container = document.getElementById('simultaneityContainer');
+            if (container) {
+                // Small delay to ensure tab is fully visible
+                setTimeout(() => {
+                    simultaneityState.controller = createSimultaneityDiagram(container);
+                    // Restore velocity from text input if set
+                    const input = document.getElementById('simVelocityInput') as HTMLInputElement;
+                    if (input && parseFloat(input.value) !== 0) {
+                        simultaneityState.controller?.updateSlider?.(parseFloat(input.value));
+                    }
+                }, 100);
             }
-        });
-    }
+        }
+    };
+    addEventListener(simultaneityTab, 'shown.bs.tab', simultaneityTabHandler);
 
     // Simultaneity controls
     const simVelocityInput = document.getElementById('simVelocityInput') as HTMLInputElement;
@@ -312,40 +337,57 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Calculate button click handler
-    if (simCalculateButton) {
-        simCalculateButton.addEventListener('click', updateVelocityFromInput);
-    }
+    addEventListener(simCalculateButton, 'click', updateVelocityFromInput);
 
     // Allow Enter key to trigger calculation
-    if (simVelocityInput) {
-        simVelocityInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                updateVelocityFromInput();
-            }
-        });
-    }
+    const simKeypressHandler = (event: KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            updateVelocityFromInput();
+        }
+    };
+    addEventListener(simVelocityInput, 'keypress', simKeypressHandler as EventListener);
 
-    if (simResetButton) {
-        simResetButton.addEventListener('click', () => {
-            if (simultaneityState.controller && 'reset' in simultaneityState.controller) {
-                (simultaneityState.controller as any).reset();
-                // Reset text input
-                if (simVelocityInput) {
-                    simVelocityInput.value = '0';
-                }
+    const simResetHandler = () => {
+        if (simultaneityState.controller && 'reset' in simultaneityState.controller) {
+            (simultaneityState.controller as any).reset();
+            // Reset text input
+            if (simVelocityInput) {
+                simVelocityInput.value = '0';
             }
-        });
-    }
+        }
+    };
+    addEventListener(simResetButton, 'click', simResetHandler);
 
-    if (simClearButton) {
-        simClearButton.addEventListener('click', () => {
-            if (simultaneityState.controller && 'clearAll' in simultaneityState.controller) {
-                (simultaneityState.controller as any).clearAll();
-            }
-        });
-    }
+    const simClearHandler = () => {
+        if (simultaneityState.controller && 'clearAll' in simultaneityState.controller) {
+            (simultaneityState.controller as any).clearAll();
+        }
+    };
+    addEventListener(simClearButton, 'click', simClearHandler);
 
     // Initialize from URL parameters and set up bidirectional sync
     initializeFromURL();
-    setupURLSync();
+    const cleanupURLSync = setupURLSync();
+
+    // Cleanup function to remove all event listeners
+    const cleanup = () => {
+        // Clear any pending resize timeout
+        clearTimeout(resizeTimeout);
+
+        // Remove all tracked event listeners
+        eventHandlers.forEach(({ element, event, handler }) => {
+            element.removeEventListener(event, handler as any);
+        });
+
+        // Cleanup URL sync listeners
+        cleanupURLSync();
+
+        // Destroy chart controllers
+        minkowskiState.controller?.destroy?.();
+        twinsMinkowskiState.controller?.destroy?.();
+        simultaneityState.controller?.destroy?.();
+    };
+
+    // Register cleanup on page unload
+    addEventListener(window, 'beforeunload', cleanup);
 });
