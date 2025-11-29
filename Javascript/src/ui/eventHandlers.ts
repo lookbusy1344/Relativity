@@ -311,7 +311,13 @@ export function createTwinParadoxHandler(
                     properTimeYears: properTimeYearsNum,
                     earthTimeYears: parseFloat(earthAge.toString()),
                     distanceLY: parseFloat(oneWayLy.toString()),
-                    gamma: parseFloat(lorentz.toString())
+                    gamma: parseFloat(lorentz.toString()),
+                    // Decimal versions for display
+                    velocityCDecimal: rl.ensure(velocityCNum),
+                    properTimeYearsDecimal: rl.ensure(properTimeYearsNum),
+                    earthTimeYearsDecimal: earthAge,
+                    distanceLYDecimal: oneWayLy,
+                    gammaDecimal: lorentz
                 };
 
                 onDiagramDrawn(container, minkowskiData, null);
@@ -563,7 +569,13 @@ export function createSpacetimeIntervalHandler(
                 velocity: velocityC.toNumber(),
                 deltaTPrime: deltaTprime.toNumber(),
                 deltaXPrime: deltaXprimeKm.toNumber(),
-                intervalType
+                intervalType,
+                // Decimal versions for display
+                timeDecimal: t2,
+                distanceDecimal: x2Km,
+                velocityDecimal: velocityC,
+                deltaTPrimeDecimal: deltaTprime,
+                deltaXPrimeDecimal: deltaXprimeKm
             };
 
             // Notify caller that diagram was drawn (for resize handling)

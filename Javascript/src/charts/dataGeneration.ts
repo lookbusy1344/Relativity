@@ -3,10 +3,23 @@
  * Converts Decimal.js results to numbers for Chart.js compatibility
  */
 
+import Decimal from 'decimal.js';
 import * as rl from '../relativity_lib';
 
-export type ChartDataPoint = { x: number; y: number };
-export type ChartDataPointWithVelocity = { x: number; y: number; velocity: number };
+export type ChartDataPoint = {
+    x: number;
+    y: number;
+    xDecimal: Decimal;
+    yDecimal: Decimal;
+};
+export type ChartDataPointWithVelocity = {
+    x: number;
+    y: number;
+    velocity: number;
+    xDecimal: Decimal;
+    yDecimal: Decimal;
+    velocityDecimal: Decimal;
+};
 
 export function generateAccelChartData(
     accelG: number,
@@ -43,44 +56,127 @@ export function generateAccelChartData(
     const spacetimeWorldline: ChartDataPointWithVelocity[] = [];
 
     for (let i = 0; i <= numPoints; i++) {
-        const tau = (i / numPoints) * durationSeconds;
-        const tauDays = tau / (60 * 60 * 24);
+        const tauDecimal = rl.ensure((i / numPoints) * durationSeconds);
+        const tauDaysDecimal = tauDecimal.div(rl.ensure(60 * 60 * 24));
+        const tauDays = tauDaysDecimal.toNumber();
 
-        const velocity = rl.relativisticVelocity(accel, tau);
-        const velocityC = parseFloat(velocity.div(rl.c).toString());
-        const rapidity = rl.rapidityFromVelocity(velocity);
-        const rapidityValue = parseFloat(rapidity.toString());
+        const velocity = rl.relativisticVelocity(accel, tauDecimal);
+        const velocityCDecimal = velocity.div(rl.c);
+        const velocityC = velocityCDecimal.toNumber();
+
+        const rapidityDecimal = rl.rapidityFromVelocity(velocity);
+        const rapidity = rapidityDecimal.toNumber();
         const lorentz = rl.lorentzFactor(velocity);
-        const timeDilation = parseFloat(rl.one.div(lorentz).toString());
+        const timeDilationDecimal = rl.one.div(lorentz);
+        const timeDilation = timeDilationDecimal.toNumber();
 
-        const t = rl.coordinateTime(accel, tau);
-        const tDays = parseFloat(t.div(rl.ensure(60 * 60 * 24)).toString());
+        const t = rl.coordinateTime(accel, tauDecimal);
+        const tDaysDecimal = t.div(rl.ensure(60 * 60 * 24));
+        const tDays = tDaysDecimal.toNumber();
 
         // Calculate mass remaining as percentage for all nozzle efficiencies
-        const fuelPercents = rl.pionRocketFuelFractionsMultiple(tau, accel, [0.7, 0.75, 0.8, 0.85]);
-        const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] = 
-            fuelPercents.map(fp => 100 - parseFloat(fp.toString()));
+        const fuelPercents = rl.pionRocketFuelFractionsMultiple(tauDecimal, accel, [0.7, 0.75, 0.8, 0.85]);
+        const [massRemaining70Decimal, massRemaining75Decimal, massRemaining80Decimal, massRemaining85Decimal] =
+            fuelPercents.map(fp => rl.ensure(100).minus(fp));
 
-        properTimeVelocity.push({ x: tauDays, y: velocityC });
-        coordTimeVelocity.push({ x: tDays, y: velocityC });
-        properTimeRapidity.push({ x: tauDays, y: rapidityValue });
-        coordTimeRapidity.push({ x: tDays, y: rapidityValue });
-        properTimeTimeDilation.push({ x: tauDays, y: timeDilation });
-        coordTimeTimeDilation.push({ x: tDays, y: timeDilation });
-        properTimeMassRemaining40.push({ x: tauDays, y: massRemaining70 });
-        properTimeMassRemaining50.push({ x: tauDays, y: massRemaining75 });
-        properTimeMassRemaining60.push({ x: tauDays, y: massRemaining80 });
-        properTimeMassRemaining70.push({ x: tauDays, y: massRemaining85 });
+        const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] =
+            [massRemaining70Decimal, massRemaining75Decimal, massRemaining80Decimal, massRemaining85Decimal]
+                .map(d => d.toNumber());
+
+        properTimeVelocity.push({
+            x: tauDays,
+            y: velocityC,
+            xDecimal: tauDaysDecimal,
+            yDecimal: velocityCDecimal
+        });
+
+        coordTimeVelocity.push({
+            x: tDays,
+            y: velocityC,
+            xDecimal: tDaysDecimal,
+            yDecimal: velocityCDecimal
+        });
+
+        properTimeRapidity.push({
+            x: tauDays,
+            y: rapidity,
+            xDecimal: tauDaysDecimal,
+            yDecimal: rapidityDecimal
+        });
+
+        coordTimeRapidity.push({
+            x: tDays,
+            y: rapidity,
+            xDecimal: tDaysDecimal,
+            yDecimal: rapidityDecimal
+        });
+
+        properTimeTimeDilation.push({
+            x: tauDays,
+            y: timeDilation,
+            xDecimal: tauDaysDecimal,
+            yDecimal: timeDilationDecimal
+        });
+
+        coordTimeTimeDilation.push({
+            x: tDays,
+            y: timeDilation,
+            xDecimal: tDaysDecimal,
+            yDecimal: timeDilationDecimal
+        });
+        properTimeMassRemaining40.push({
+            x: tauDays,
+            y: massRemaining70,
+            xDecimal: tauDaysDecimal,
+            yDecimal: massRemaining70Decimal
+        });
+
+        properTimeMassRemaining50.push({
+            x: tauDays,
+            y: massRemaining75,
+            xDecimal: tauDaysDecimal,
+            yDecimal: massRemaining75Decimal
+        });
+
+        properTimeMassRemaining60.push({
+            x: tauDays,
+            y: massRemaining80,
+            xDecimal: tauDaysDecimal,
+            yDecimal: massRemaining80Decimal
+        });
+
+        properTimeMassRemaining70.push({
+            x: tauDays,
+            y: massRemaining85,
+            xDecimal: tauDaysDecimal,
+            yDecimal: massRemaining85Decimal
+        });
 
         // Calculate distance for phase space plots
-        const distance = rl.relativisticDistance(accel, tau);
-        const distanceLy = parseFloat(distance.div(rl.lightYear).toString());
+        const distance = rl.relativisticDistance(accel, tauDecimal);
+        const distanceLyDecimal = distance.div(rl.lightYear);
+        const distanceLy = distanceLyDecimal.toNumber();
 
         // Position-velocity phase space
-        positionVelocity.push({ x: distanceLy, y: velocityC });
+        positionVelocity.push({
+            x: distanceLy,
+            y: velocityC,
+            xDecimal: distanceLyDecimal,
+            yDecimal: velocityCDecimal
+        });
 
         // Spacetime worldline (coord time vs distance) with velocity for gradient
-        spacetimeWorldline.push({ x: tDays / 365.25, y: distanceLy, velocity: velocityC });
+        const tYearsDecimal = tDaysDecimal.div(rl.ensure(365.25));
+        const tYears = tYearsDecimal.toNumber();
+
+        spacetimeWorldline.push({
+            x: tYears,
+            y: distanceLy,
+            velocity: velocityC,
+            xDecimal: tYearsDecimal,
+            yDecimal: distanceLyDecimal,
+            velocityDecimal: velocityCDecimal
+        });
     }
 
     return {
@@ -140,44 +236,125 @@ export function generateFlipBurnChartData(
     // Acceleration phase (0 to half proper time)
     for (let i = 0; i <= numPointsPerPhase; i++) {
         const tau = halfProperTimeSeconds.mul(i / numPointsPerPhase);
-        const tauYears = parseFloat(tau.div(rl.secondsPerYear).toString());
+        const tauYearsDecimal = tau.div(rl.secondsPerYear);
+        const tauYears = tauYearsDecimal.toNumber();
 
         const velocity = rl.relativisticVelocity(accel, tau);
-        const velocityC = parseFloat(velocity.div(rl.c).toString());
-        const rapidity = rl.rapidityFromVelocity(velocity);
-        const rapidityValue = parseFloat(rapidity.toString());
+        const velocityCDecimal = velocity.div(rl.c);
+        const velocityC = velocityCDecimal.toNumber();
+
+        const rapidityDecimal = rl.rapidityFromVelocity(velocity);
+        const rapidity = rapidityDecimal.toNumber();
+
         const lorentz = rl.lorentzFactor(velocity);
-        const timeDilation = parseFloat(rl.one.div(lorentz).toString());
+        const timeDilationDecimal = rl.one.div(lorentz);
+        const timeDilation = timeDilationDecimal.toNumber();
+
+        const t = rl.coordinateTime(accel, tau);
+        const tYearsDecimal = t.div(rl.secondsPerYear);
+        const tYears = tYearsDecimal.toNumber();
 
         // Calculate mass remaining (fuel burned for thrust time so far)
         const fuelPercents = rl.pionRocketFuelFractionsMultiple(tau, accel, [0.7, 0.75, 0.8, 0.85]);
-        const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] = 
-            fuelPercents.map(fp => 100 - parseFloat(fp.toString()));
+        const [massRemaining70Decimal, massRemaining75Decimal, massRemaining80Decimal, massRemaining85Decimal] =
+            fuelPercents.map(fp => rl.ensure(100).minus(fp));
 
-        properTimeVelocity.push({ x: tauYears, y: velocityC });
+        const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] =
+            [massRemaining70Decimal, massRemaining75Decimal, massRemaining80Decimal, massRemaining85Decimal]
+                .map(d => d.toNumber());
 
-        const t = rl.coordinateTime(accel, tau);
-        const tYears = parseFloat(t.div(rl.secondsPerYear).toString());
-        coordTimeVelocity.push({ x: tYears, y: velocityC });
+        properTimeVelocity.push({
+            x: tauYears,
+            y: velocityC,
+            xDecimal: tauYearsDecimal,
+            yDecimal: velocityCDecimal
+        });
 
-        properTimeRapidity.push({ x: tauYears, y: rapidityValue });
-        coordTimeRapidity.push({ x: tYears, y: rapidityValue });
-        properTimeLorentz.push({ x: tauYears, y: timeDilation });
-        coordTimeLorentz.push({ x: tYears, y: timeDilation });
-        properTimeMassRemaining40.push({ x: tauYears, y: massRemaining70 });
-        properTimeMassRemaining50.push({ x: tauYears, y: massRemaining75 });
-        properTimeMassRemaining60.push({ x: tauYears, y: massRemaining80 });
-        properTimeMassRemaining70.push({ x: tauYears, y: massRemaining85 });
+        coordTimeVelocity.push({
+            x: tYears,
+            y: velocityC,
+            xDecimal: tYearsDecimal,
+            yDecimal: velocityCDecimal
+        });
+
+        properTimeRapidity.push({
+            x: tauYears,
+            y: rapidity,
+            xDecimal: tauYearsDecimal,
+            yDecimal: rapidityDecimal
+        });
+
+        coordTimeRapidity.push({
+            x: tYears,
+            y: rapidity,
+            xDecimal: tYearsDecimal,
+            yDecimal: rapidityDecimal
+        });
+
+        properTimeLorentz.push({
+            x: tauYears,
+            y: timeDilation,
+            xDecimal: tauYearsDecimal,
+            yDecimal: timeDilationDecimal
+        });
+
+        coordTimeLorentz.push({
+            x: tYears,
+            y: timeDilation,
+            xDecimal: tYearsDecimal,
+            yDecimal: timeDilationDecimal
+        });
+
+        properTimeMassRemaining40.push({
+            x: tauYears,
+            y: massRemaining70,
+            xDecimal: tauYearsDecimal,
+            yDecimal: massRemaining70Decimal
+        });
+
+        properTimeMassRemaining50.push({
+            x: tauYears,
+            y: massRemaining75,
+            xDecimal: tauYearsDecimal,
+            yDecimal: massRemaining75Decimal
+        });
+
+        properTimeMassRemaining60.push({
+            x: tauYears,
+            y: massRemaining80,
+            xDecimal: tauYearsDecimal,
+            yDecimal: massRemaining80Decimal
+        });
+
+        properTimeMassRemaining70.push({
+            x: tauYears,
+            y: massRemaining85,
+            xDecimal: tauYearsDecimal,
+            yDecimal: massRemaining85Decimal
+        });
 
         // Calculate distance traveled so far
         const distance = rl.relativisticDistance(accel, tau);
-        const distanceLy = parseFloat(distance.div(rl.lightYear).toString());
+        const distanceLyDecimal = distance.div(rl.lightYear);
+        const distanceLy = distanceLyDecimal.toNumber();
 
         // Position-velocity phase space (acceleration phase)
-        positionVelocityAccel.push({ x: distanceLy, y: velocityC });
+        positionVelocityAccel.push({
+            x: distanceLy,
+            y: velocityC,
+            xDecimal: distanceLyDecimal,
+            yDecimal: velocityCDecimal
+        });
 
         // Spacetime worldline with velocity for gradient
-        spacetimeWorldline.push({ x: tYears, y: distanceLy, velocity: velocityC });
+        spacetimeWorldline.push({
+            x: tYears,
+            y: distanceLy,
+            velocity: velocityC,
+            xDecimal: tYearsDecimal,
+            yDecimal: distanceLyDecimal,
+            velocityDecimal: velocityCDecimal
+        });
     }
 
     // Deceleration phase - mirror the acceleration phase
@@ -185,50 +362,131 @@ export function generateFlipBurnChartData(
     for (let i = numPointsPerPhase; i >= 0; i--) {
         const tauAccel = halfProperTimeSeconds.mul(i / numPointsPerPhase);
         const tauDecel = res.properTime.sub(tauAccel);
-        const tauYears = parseFloat(tauDecel.div(rl.secondsPerYear).toString());
+        const tauYearsDecimal = tauDecel.div(rl.secondsPerYear);
+        const tauYears = tauYearsDecimal.toNumber();
 
         const velocity = rl.relativisticVelocity(accel, tauAccel);
-        const velocityC = parseFloat(velocity.div(rl.c).toString());
-        const rapidity = rl.rapidityFromVelocity(velocity);
-        const rapidityValue = parseFloat(rapidity.toString());
+        const velocityCDecimal = velocity.div(rl.c);
+        const velocityC = velocityCDecimal.toNumber();
+
+        const rapidityDecimal = rl.rapidityFromVelocity(velocity);
+        const rapidity = rapidityDecimal.toNumber();
+
         const lorentz = rl.lorentzFactor(velocity);
-        const timeDilation = parseFloat(rl.one.div(lorentz).toString());
+        const timeDilationDecimal = rl.one.div(lorentz);
+        const timeDilation = timeDilationDecimal.toNumber();
 
         // Total thrust time = half (accel) + time into decel phase
         const decelThrust = halfProperTimeSeconds.sub(tauAccel);
         const totalThrustTime = halfProperTimeSeconds.plus(decelThrust);
         const fuelPercents = rl.pionRocketFuelFractionsMultiple(totalThrustTime, accel, [0.7, 0.75, 0.8, 0.85]);
-        const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] = 
-            fuelPercents.map(fp => 100 - parseFloat(fp.toString()));
+        const [massRemaining70Decimal, massRemaining75Decimal, massRemaining80Decimal, massRemaining85Decimal] =
+            fuelPercents.map(fp => rl.ensure(100).minus(fp));
 
-        properTimeVelocity.push({ x: tauYears, y: velocityC });
+        const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] =
+            [massRemaining70Decimal, massRemaining75Decimal, massRemaining80Decimal, massRemaining85Decimal]
+                .map(d => d.toNumber());
 
         const tAccel = rl.coordinateTime(accel, tauAccel);
         const tDecel = res.coordTime.sub(tAccel);
-        const tYears = parseFloat(tDecel.div(rl.secondsPerYear).toString());
-        coordTimeVelocity.push({ x: tYears, y: velocityC });
+        const tYearsDecimal = tDecel.div(rl.secondsPerYear);
+        const tYears = tYearsDecimal.toNumber();
 
-        properTimeRapidity.push({ x: tauYears, y: rapidityValue });
-        coordTimeRapidity.push({ x: tYears, y: rapidityValue });
-        properTimeLorentz.push({ x: tauYears, y: timeDilation });
-        coordTimeLorentz.push({ x: tYears, y: timeDilation });
-        properTimeMassRemaining40.push({ x: tauYears, y: massRemaining70 });
-        properTimeMassRemaining50.push({ x: tauYears, y: massRemaining75 });
-        properTimeMassRemaining60.push({ x: tauYears, y: massRemaining80 });
-        properTimeMassRemaining70.push({ x: tauYears, y: massRemaining85 });
+        properTimeVelocity.push({
+            x: tauYears,
+            y: velocityC,
+            xDecimal: tauYearsDecimal,
+            yDecimal: velocityCDecimal
+        });
+
+        coordTimeVelocity.push({
+            x: tYears,
+            y: velocityC,
+            xDecimal: tYearsDecimal,
+            yDecimal: velocityCDecimal
+        });
+
+        properTimeRapidity.push({
+            x: tauYears,
+            y: rapidity,
+            xDecimal: tauYearsDecimal,
+            yDecimal: rapidityDecimal
+        });
+
+        coordTimeRapidity.push({
+            x: tYears,
+            y: rapidity,
+            xDecimal: tYearsDecimal,
+            yDecimal: rapidityDecimal
+        });
+
+        properTimeLorentz.push({
+            x: tauYears,
+            y: timeDilation,
+            xDecimal: tauYearsDecimal,
+            yDecimal: timeDilationDecimal
+        });
+
+        coordTimeLorentz.push({
+            x: tYears,
+            y: timeDilation,
+            xDecimal: tYearsDecimal,
+            yDecimal: timeDilationDecimal
+        });
+
+        properTimeMassRemaining40.push({
+            x: tauYears,
+            y: massRemaining70,
+            xDecimal: tauYearsDecimal,
+            yDecimal: massRemaining70Decimal
+        });
+
+        properTimeMassRemaining50.push({
+            x: tauYears,
+            y: massRemaining75,
+            xDecimal: tauYearsDecimal,
+            yDecimal: massRemaining75Decimal
+        });
+
+        properTimeMassRemaining60.push({
+            x: tauYears,
+            y: massRemaining80,
+            xDecimal: tauYearsDecimal,
+            yDecimal: massRemaining80Decimal
+        });
+
+        properTimeMassRemaining70.push({
+            x: tauYears,
+            y: massRemaining85,
+            xDecimal: tauYearsDecimal,
+            yDecimal: massRemaining85Decimal
+        });
 
         // During deceleration, distance continues increasing from halfDistance to totalDistance
         // tauAccel represents equivalent accel time for current velocity
         const remainingAccelDistance = rl.relativisticDistance(accel, tauAccel);
         const totalDistance = rl.ensure(distanceLightYears).mul(rl.lightYear);
         const currentDistance = totalDistance.minus(remainingAccelDistance);
-        const currentDistanceLy = parseFloat(currentDistance.div(rl.lightYear).toString());
+        const currentDistanceLyDecimal = currentDistance.div(rl.lightYear);
+        const currentDistanceLy = currentDistanceLyDecimal.toNumber();
 
         // Position-velocity phase space (deceleration phase - creates return path of loop)
-        positionVelocityDecel.push({ x: currentDistanceLy, y: velocityC });
+        positionVelocityDecel.push({
+            x: currentDistanceLy,
+            y: velocityC,
+            xDecimal: currentDistanceLyDecimal,
+            yDecimal: velocityCDecimal
+        });
 
         // Spacetime worldline with velocity for gradient
-        spacetimeWorldline.push({ x: tYears, y: currentDistanceLy, velocity: velocityC });
+        spacetimeWorldline.push({
+            x: tYears,
+            y: currentDistanceLy,
+            velocity: velocityC,
+            xDecimal: tYearsDecimal,
+            yDecimal: currentDistanceLyDecimal,
+            velocityDecimal: velocityCDecimal
+        });
     }
 
     return {
@@ -308,11 +566,13 @@ export function generateTwinParadoxChartData(
     coordTimeDistance: ChartDataPoint[];
 } {
     const numPoints = 100;
-    const halfTime = properTimeYears / 2;
+    const halfTimeDecimal = rl.ensure(properTimeYears / 2);
 
     // Calculate key physics values
-    const velocity = rl.c.mul(velocityC);
-    const gamma = parseFloat(rl.lorentzFactor(velocity).toString());
+    const velocityDecimal = rl.c.mul(velocityC);
+    const gammaDecimal = rl.lorentzFactor(velocityDecimal);
+
+    const velocityCDecimal = rl.ensure(velocityC);
 
     const velocityProfile: ChartDataPoint[] = [];
     const travelingTwinAging: ChartDataPoint[] = [];
@@ -323,42 +583,110 @@ export function generateTwinParadoxChartData(
 
     // First half: outbound journey
     for (let i = 0; i <= numPoints / 2; i++) {
-        const tau = (i / numPoints) * properTimeYears;  // Proper time (traveling twin's clock)
-        const earthTime = tau * gamma;  // Earth time
+        const tauDecimal = rl.ensure((i / numPoints) * properTimeYears);  // Proper time (traveling twin's clock)
+        const tau = tauDecimal.toNumber();
+        const earthTimeDecimal = tauDecimal.mul(gammaDecimal);  // Earth time
+        const earthTime = earthTimeDecimal.toNumber();
 
         // Velocity is constant at +v during outbound
-        velocityProfile.push({ x: tau, y: velocityC });
+        velocityProfile.push({
+            x: tau,
+            y: velocityC,
+            xDecimal: tauDecimal,
+            yDecimal: velocityCDecimal
+        });
 
         // Aging: traveling twin ages linearly, Earth twin ages faster
-        travelingTwinAging.push({ x: tau, y: tau });
-        earthTwinAging.push({ x: tau, y: earthTime });
+        travelingTwinAging.push({
+            x: tau,
+            y: tau,
+            xDecimal: tauDecimal,
+            yDecimal: tauDecimal
+        });
+        earthTwinAging.push({
+            x: tau,
+            y: earthTime,
+            xDecimal: tauDecimal,
+            yDecimal: earthTimeDecimal
+        });
 
         // Distance increases linearly
-        const distance = velocityC * earthTime;  // distance in light years (since v is in c and t in years)
-        distanceProfile.push({ x: tau, y: distance });
-        properTimeDistance.push({ x: tau, y: distance });
-        coordTimeDistance.push({ x: earthTime, y: distance });
+        const distanceDecimal = velocityCDecimal.mul(earthTimeDecimal);  // distance in light years (since v is in c and t in years)
+        const distance = distanceDecimal.toNumber();
+        distanceProfile.push({
+            x: tau,
+            y: distance,
+            xDecimal: tauDecimal,
+            yDecimal: distanceDecimal
+        });
+        properTimeDistance.push({
+            x: tau,
+            y: distance,
+            xDecimal: tauDecimal,
+            yDecimal: distanceDecimal
+        });
+        coordTimeDistance.push({
+            x: earthTime,
+            y: distance,
+            xDecimal: earthTimeDecimal,
+            yDecimal: distanceDecimal
+        });
     }
 
     // Second half: return journey
     for (let i = Math.floor(numPoints / 2) + 1; i <= numPoints; i++) {
-        const tau = (i / numPoints) * properTimeYears;
-        const earthTime = tau * gamma;
+        const tauDecimal = rl.ensure((i / numPoints) * properTimeYears);
+        const tau = tauDecimal.toNumber();
+        const earthTimeDecimal = tauDecimal.mul(gammaDecimal);
+        const earthTime = earthTimeDecimal.toNumber();
 
         // Velocity is constant at -v during return
-        velocityProfile.push({ x: tau, y: -velocityC });
+        const negativeVelocityCDecimal = velocityCDecimal.neg();
+        const negativeVelocityC = negativeVelocityCDecimal.toNumber();
+        velocityProfile.push({
+            x: tau,
+            y: negativeVelocityC,
+            xDecimal: tauDecimal,
+            yDecimal: negativeVelocityCDecimal
+        });
 
         // Aging continues
-        travelingTwinAging.push({ x: tau, y: tau });
-        earthTwinAging.push({ x: tau, y: earthTime });
+        travelingTwinAging.push({
+            x: tau,
+            y: tau,
+            xDecimal: tauDecimal,
+            yDecimal: tauDecimal
+        });
+        earthTwinAging.push({
+            x: tau,
+            y: earthTime,
+            xDecimal: tauDecimal,
+            yDecimal: earthTimeDecimal
+        });
 
         // Distance decreases back to zero
-        const tauSinceTurnaround = tau - halfTime;
-        const maxDistance = velocityC * halfTime * gamma;
-        const distance = maxDistance - (velocityC * tauSinceTurnaround * gamma);
-        distanceProfile.push({ x: tau, y: distance });
-        properTimeDistance.push({ x: tau, y: distance });
-        coordTimeDistance.push({ x: earthTime, y: distance });
+        const tauSinceTurnaroundDecimal = tauDecimal.minus(halfTimeDecimal);
+        const maxDistanceDecimal = velocityCDecimal.mul(halfTimeDecimal).mul(gammaDecimal);
+        const distanceDecimal = maxDistanceDecimal.minus(velocityCDecimal.mul(tauSinceTurnaroundDecimal).mul(gammaDecimal));
+        const distance = distanceDecimal.toNumber();
+        distanceProfile.push({
+            x: tau,
+            y: distance,
+            xDecimal: tauDecimal,
+            yDecimal: distanceDecimal
+        });
+        properTimeDistance.push({
+            x: tau,
+            y: distance,
+            xDecimal: tauDecimal,
+            yDecimal: distanceDecimal
+        });
+        coordTimeDistance.push({
+            x: earthTime,
+            y: distance,
+            xDecimal: earthTimeDecimal,
+            yDecimal: distanceDecimal
+        });
     }
 
     return {

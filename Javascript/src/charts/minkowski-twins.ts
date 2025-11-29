@@ -1,4 +1,5 @@
 // Twin Paradox Minkowski Diagram - Shows dual reference frames and simultaneity jump
+import Decimal from 'decimal.js';
 import { select, Selection } from 'd3-selection';
 import 'd3-transition';
 import { easeCubicInOut } from 'd3-ease';
@@ -32,6 +33,12 @@ export interface TwinParadoxMinkowskiData {
     earthTimeYears: number;   // Coordinate time in years
     distanceLY: number;       // One-way distance in light years
     gamma: number;            // Lorentz factor
+    // Decimal versions for display formatting
+    velocityCDecimal: Decimal;
+    properTimeYearsDecimal: Decimal;
+    earthTimeYearsDecimal: Decimal;
+    distanceLYDecimal: Decimal;
+    gammaDecimal: Decimal;
 }
 
 /**
@@ -265,12 +272,12 @@ function renderLabels(
         .attr('text-anchor', 'start')
         .text(d => d.text);
 
-    // Frame info (bottom right)
+    // Frame info (bottom right) - use Decimal versions for display precision
     const infoData = [
         { text: `Velocity: ${formatVelocityMs(data.velocityC)} m/s`, y: size - 75, color: D3_COLORS.plasmaWhite },
-        { text: `γ = ${rl.formatSignificant(rl.ensure(data.gamma), "0", 3)}`, y: size - 60, color: D3_COLORS.plasmaWhite },
-        { text: `Proper time: ${data.properTimeYears.toFixed(2)} years`, y: size - 45, color: D3_COLORS.quantumGreen },
-        { text: `Earth time: ${data.earthTimeYears.toFixed(2)} years`, y: size - 30, color: D3_COLORS.electricBlue }
+        { text: `γ = ${rl.formatSignificant(data.gammaDecimal, "0", 3)}`, y: size - 60, color: D3_COLORS.plasmaWhite },
+        { text: `Proper time: ${rl.formatSignificant(data.properTimeYearsDecimal, "0", 2)} years`, y: size - 45, color: D3_COLORS.quantumGreen },
+        { text: `Earth time: ${rl.formatSignificant(data.earthTimeYearsDecimal, "0", 2)} years`, y: size - 30, color: D3_COLORS.electricBlue }
     ];
 
     labelsGroup.selectAll('text.info-label')
@@ -283,10 +290,10 @@ function renderLabels(
         .attr('fill', d => d.color)
         .text(d => d.text);
 
-    // Legend for simultaneity jump (top right)
-    const ageDifference = data.earthTimeYears - data.properTimeYears;
+    // Legend for simultaneity jump (top right) - calculate from Decimal for precision
+    const ageDifferenceDecimal = data.earthTimeYearsDecimal.minus(data.properTimeYearsDecimal);
     labelsGroup.selectAll('text.legend')
-        .data([{ text: `Age difference: ${ageDifference.toFixed(2)} years` }])
+        .data([{ text: `Age difference: ${rl.formatSignificant(ageDifferenceDecimal, "0", 2)} years` }])
         .join('text')
         .attr('class', 'legend header')
         .attr('x', size - 15)
@@ -530,14 +537,16 @@ function startJourneyAnimation(
             .attr('stroke-width', 3)
             .style('filter', 'drop-shadow(0 0 8px ' + D3_COLORS.quantumGreen + ')');
 
-        // Update time labels at bottom right
+        // Update time labels at bottom right - use Decimal for consistent precision
+        const properTimeDecimal = rl.ensure(properTime);
+        const earthTimeDecimal = rl.ensure(earthTime);
         svg.select('g.labels').selectAll('text.info-label')
             .filter((_, i) => i === 2)
-            .text(`Proper time: ${properTime.toFixed(2)} years`);
+            .text(`Proper time: ${rl.formatSignificant(properTimeDecimal, "0", 2)} years`);
 
         svg.select('g.labels').selectAll('text.info-label')
             .filter((_, i) => i === 3)
-            .text(`Earth time: ${earthTime.toFixed(2)} years`);
+            .text(`Earth time: ${rl.formatSignificant(earthTimeDecimal, "0", 2)} years`);
     };
 
     const animationTimer = timer(() => {
@@ -719,6 +728,9 @@ export function drawTwinParadoxMinkowski(
         }
     });
 
+    // Debounce timer for velocity slider updates
+    let velocityUpdateTimeout: number | null = null;
+
     // Create velocity slider control (top of diagram, below title)
     const velocitySliderContainer = select(container)
         .append('div')
@@ -729,7 +741,7 @@ export function drawTwinParadoxMinkowski(
         .style('display', 'flex')
         .style('align-items', 'center')
         .style('gap', '8px')
-        .style('padding', '8px 12px')
+        .style('padding', '6px 8px')
         .style('background', D3_COLORS.tooltipBg)
         .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
         .style('border-radius', '4px')
@@ -743,9 +755,9 @@ export function drawTwinParadoxMinkowski(
         .style('font-family', "'IBM Plex Mono', monospace")
         .style('font-size', '11px')
         .style('font-weight', '600')
-        .style('min-width', '120px')
+        .style('min-width', '70px')
         .style('text-align', 'right')
-        .text(`${formatVelocityMs(data.velocityC)} m/s`);
+        .text(`v = ${rl.formatSignificant(data.velocityCDecimal, "9", 3)}c`);
 
     // Slider input
     const velocitySlider = velocitySliderContainer
@@ -753,18 +765,29 @@ export function drawTwinParadoxMinkowski(
         .attr('type', 'range')
         .attr('min', '0.001')
         .attr('max', '0.999')
-        .attr('step', '0.05')
+        .attr('step', '0.001')
         .attr('value', data.velocityC.toString())
         .attr('class', 'velocity-slider-input')
         .style('width', '200px')
         .style('cursor', 'pointer')
         .on('input', function() {
             const newVelocityC = parseFloat((this as HTMLInputElement).value);
-            velocityValueDisplay.text(`${formatVelocityMs(newVelocityC)} m/s`);
-            if (onVelocityChange) {
-                isSliderUpdate = true;
-                onVelocityChange(newVelocityC);
+            // Update display immediately for responsive feedback
+            velocityValueDisplay.text(`v = ${rl.formatSignificant(rl.ensure(newVelocityC), "9", 3)}c`);
+
+            // Clear existing timeout
+            if (velocityUpdateTimeout !== null) {
+                window.clearTimeout(velocityUpdateTimeout);
             }
+
+            // Debounce diagram update - only update after 300ms pause
+            velocityUpdateTimeout = window.setTimeout(() => {
+                if (onVelocityChange) {
+                    isSliderUpdate = true;
+                    onVelocityChange(newVelocityC);
+                }
+                velocityUpdateTimeout = null;
+            }, 300);
         });
 
     // Pause animation when tab is hidden
@@ -849,14 +872,14 @@ export function drawTwinParadoxMinkowski(
             // Update velocity slider to match new data (unless update came from slider)
             if (!isSliderUpdate) {
                 velocitySlider.property('value', twinsData.velocityC);
-                velocityValueDisplay.text(`${formatVelocityMs(twinsData.velocityC)} m/s`);
+                velocityValueDisplay.text(`v = ${rl.formatSignificant(twinsData.velocityCDecimal, "9", 3)}c`);
             }
             isSliderUpdate = false;
         },
 
         updateSlider(velocityC: number) {
             velocitySlider.property('value', velocityC);
-            velocityValueDisplay.text(`${formatVelocityMs(velocityC)} m/s`);
+            velocityValueDisplay.text(`v = ${rl.formatSignificant(rl.ensure(velocityC), "9", 3)}c`);
         },
 
         pause() {

@@ -2,6 +2,8 @@
  * TypeScript interfaces for Minkowski diagram
  */
 
+import Decimal from 'decimal.js';
+
 export interface MinkowskiData {
     time: number;           // Time coordinate in seconds
     distance: number;       // Distance coordinate in km
@@ -9,6 +11,12 @@ export interface MinkowskiData {
     deltaTPrime: number;    // Transformed time coordinate
     deltaXPrime: number;    // Transformed distance coordinate
     intervalType: string;   // "timelike", "spacelike", or "lightlike"
+    // Decimal versions for display formatting
+    timeDecimal: Decimal;
+    distanceDecimal: Decimal;
+    velocityDecimal: Decimal;
+    deltaTPrimeDecimal: Decimal;
+    deltaXPrimeDecimal: Decimal;
 }
 
 /**

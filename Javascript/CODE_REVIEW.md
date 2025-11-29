@@ -478,6 +478,61 @@ export function gammaFactor(velocity: NumberInput): Decimal {
 
 ---
 
+## Decimal.js Precision Review (Nov 2025)
+
+### Summary
+
+Reviewed the refactor_decimal branch to ensure maximum precision is preserved with Decimal.js, with a one-way conversion to floats only for charts and graphics.
+
+### Architecture Analysis
+
+The codebase correctly implements a precision-preserving architecture:
+
+**1. Core Physics Calculations (`relativity_lib.ts`)** ✅ CORRECT
+- All physics calculations use Decimal.js at 150 decimal places
+- The `ensure()` function converts all inputs to Decimal immediately
+- Physical constants (c, g, lightYear, etc.) are Decimal values
+- All returns are Decimal values
+
+**2. Event Handlers (`eventHandlers.ts`)** ✅ CORRECT
+- All result labels use `rl.formatSignificant()` with Decimal values
+- Float conversions only happen after all calculations, explicitly for chart data
+- Comments document the intentional precision reduction for charts
+
+**3. Data Generation (`dataGeneration.ts`)** ✅ CORRECT
+- `ChartDataPoint` type stores both `x: number; y: number` (for Chart.js) AND `xDecimal: Decimal; yDecimal: Decimal` (for precision)
+- All calculations done with Decimal, then `.toNumber()` called only for chart display
+
+**4. Data Interfaces** ✅ CORRECT
+- `MinkowskiData` and `TwinParadoxMinkowskiData` include both float versions (for D3/graphics) and Decimal versions (for display)
+- Labels correctly use Decimal versions via `rl.formatSignificant()`
+
+### Issues Fixed
+
+**Violations Corrected:**
+
+1. **`minkowski-twins.ts`** - Lines 279-280, 294-296, 543, 547
+   - Was: `data.properTimeYears.toFixed(2)` (float)
+   - Fixed: `rl.formatSignificant(data.properTimeYearsDecimal, "0", 2)` (Decimal)
+
+2. **`minkowski.ts`** - Lines 639, 649, 922, 924, 1075-1076, 1158-1159
+   - Was: `(d.ctPrime / C).toFixed(3)` (float)
+   - Fixed: `rl.formatSignificant(d.deltaTPrimeDecimal, "0", 3)` (Decimal)
+
+3. **`simultaneity.ts`** - Lines 914, 916
+   - Was: `deltaTime.toFixed(3)` (float)
+   - Fixed: `rl.formatSignificant(deltaTimeDecimal, "0", 3)` (Decimal)
+
+### Verification
+
+- ✅ All label strings now use `rl.formatSignificant()` with Decimal values
+- ✅ Float values are only used for chart rendering (Chart.js, D3)
+- ✅ No conversion of floats back to Decimal or to label strings
+- ✅ TypeScript compiles without errors
+- ✅ Production build succeeds
+
+---
+
 ## Notes
 
 - The codebase shows excellent architectural patterns: functional programming, separation of concerns, high-precision arithmetic

@@ -4,6 +4,7 @@
  */
 
 import * as simultaneityState from './charts/simultaneityState';
+import * as rl from './relativity_lib';
 
 // Parameter mapping: clean URL param name -> HTML input element ID
 type ParamMap = Record<string, string>;
@@ -264,7 +265,12 @@ function initializeSimultaneityFromURL(urlParams: URLSearchParams, tabConfig: Ta
             const eventPairs = eventsParam.split(';');
             const events = eventPairs.map(pair => {
                 const [ct, x] = pair.split(',').map(parseFloat);
-                return { ct, x };
+                return {
+                    ct,
+                    x,
+                    ctDecimal: rl.ensure(ct),
+                    xDecimal: rl.ensure(x)
+                };
             }).filter(e => !isNaN(e.ct) && !isNaN(e.x));
 
             if (events.length > 0) {
