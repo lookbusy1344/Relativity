@@ -3,10 +3,23 @@
  * Converts Decimal.js results to numbers for Chart.js compatibility
  */
 
+import Decimal from 'decimal.js';
 import * as rl from '../relativity_lib';
 
-export type ChartDataPoint = { x: number; y: number };
-export type ChartDataPointWithVelocity = { x: number; y: number; velocity: number };
+export type ChartDataPoint = {
+    x: number;
+    y: number;
+    xDecimal: Decimal;
+    yDecimal: Decimal;
+};
+export type ChartDataPointWithVelocity = {
+    x: number;
+    y: number;
+    velocity: number;
+    xDecimal: Decimal;
+    yDecimal: Decimal;
+    velocityDecimal: Decimal;
+};
 
 export function generateAccelChartData(
     accelG: number,
