@@ -906,14 +906,16 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             // Convert to time (ct is in km, so divide by c to get seconds)
             const deltaTime = deltaCtPrime / C;
 
-            // Format with appropriate units
+            // Format with appropriate units using Decimal for consistent precision
             let timeStr: string;
+            const deltaTimeDecimal = rl.ensure(deltaTime);
             if (Math.abs(deltaTime) < 0.001) {
                 timeStr = '≈ 0 s (simultaneous)';
             } else if (Math.abs(deltaTime) < 1) {
-                timeStr = `${(deltaTime * 1000).toFixed(2)} ms`;
+                const deltaTimeMs = deltaTimeDecimal.mul(1000);
+                timeStr = `${rl.formatSignificant(deltaTimeMs, "0", 2)} ms`;
             } else {
-                timeStr = `${deltaTime.toFixed(3)} s`;
+                timeStr = `${rl.formatSignificant(deltaTimeDecimal, "0", 3)} s`;
             }
 
             const color = event.temporalOrder === 'future' ? '#00ff9f' :

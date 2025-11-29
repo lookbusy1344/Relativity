@@ -272,12 +272,12 @@ function renderLabels(
         .attr('text-anchor', 'start')
         .text(d => d.text);
 
-    // Frame info (bottom right)
+    // Frame info (bottom right) - use Decimal versions for display precision
     const infoData = [
         { text: `Velocity: ${formatVelocityMs(data.velocityC)} m/s`, y: size - 75, color: D3_COLORS.plasmaWhite },
         { text: `γ = ${rl.formatSignificant(data.gammaDecimal, "0", 3)}`, y: size - 60, color: D3_COLORS.plasmaWhite },
-        { text: `Proper time: ${data.properTimeYears.toFixed(2)} years`, y: size - 45, color: D3_COLORS.quantumGreen },
-        { text: `Earth time: ${data.earthTimeYears.toFixed(2)} years`, y: size - 30, color: D3_COLORS.electricBlue }
+        { text: `Proper time: ${rl.formatSignificant(data.properTimeYearsDecimal, "0", 2)} years`, y: size - 45, color: D3_COLORS.quantumGreen },
+        { text: `Earth time: ${rl.formatSignificant(data.earthTimeYearsDecimal, "0", 2)} years`, y: size - 30, color: D3_COLORS.electricBlue }
     ];
 
     labelsGroup.selectAll('text.info-label')
@@ -290,10 +290,10 @@ function renderLabels(
         .attr('fill', d => d.color)
         .text(d => d.text);
 
-    // Legend for simultaneity jump (top right)
-    const ageDifference = data.earthTimeYears - data.properTimeYears;
+    // Legend for simultaneity jump (top right) - calculate from Decimal for precision
+    const ageDifferenceDecimal = data.earthTimeYearsDecimal.minus(data.properTimeYearsDecimal);
     labelsGroup.selectAll('text.legend')
-        .data([{ text: `Age difference: ${ageDifference.toFixed(2)} years` }])
+        .data([{ text: `Age difference: ${rl.formatSignificant(ageDifferenceDecimal, "0", 2)} years` }])
         .join('text')
         .attr('class', 'legend header')
         .attr('x', size - 15)
@@ -537,14 +537,16 @@ function startJourneyAnimation(
             .attr('stroke-width', 3)
             .style('filter', 'drop-shadow(0 0 8px ' + D3_COLORS.quantumGreen + ')');
 
-        // Update time labels at bottom right
+        // Update time labels at bottom right - use Decimal for consistent precision
+        const properTimeDecimal = rl.ensure(properTime);
+        const earthTimeDecimal = rl.ensure(earthTime);
         svg.select('g.labels').selectAll('text.info-label')
             .filter((_, i) => i === 2)
-            .text(`Proper time: ${properTime.toFixed(2)} years`);
+            .text(`Proper time: ${rl.formatSignificant(properTimeDecimal, "0", 2)} years`);
 
         svg.select('g.labels').selectAll('text.info-label')
             .filter((_, i) => i === 3)
-            .text(`Earth time: ${earthTime.toFixed(2)} years`);
+            .text(`Earth time: ${rl.formatSignificant(earthTimeDecimal, "0", 2)} years`);
     };
 
     const animationTimer = timer(() => {
