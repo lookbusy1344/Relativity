@@ -32,6 +32,12 @@ export interface TwinParadoxMinkowskiData {
     earthTimeYears: number;   // Coordinate time in years
     distanceLY: number;       // One-way distance in light years
     gamma: number;            // Lorentz factor
+    // Decimal versions for display formatting
+    velocityCDecimal: import('decimal.js').Decimal;
+    properTimeYearsDecimal: import('decimal.js').Decimal;
+    earthTimeYearsDecimal: import('decimal.js').Decimal;
+    distanceLYDecimal: import('decimal.js').Decimal;
+    gammaDecimal: import('decimal.js').Decimal;
 }
 
 /**
