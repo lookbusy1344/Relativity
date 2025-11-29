@@ -154,13 +154,29 @@ export function generateAccelChartData(
 
         // Calculate distance for phase space plots
         const distance = rl.relativisticDistance(accel, tauDecimal);
-        const distanceLy = parseFloat(distance.div(rl.lightYear).toString());
+        const distanceLyDecimal = distance.div(rl.lightYear);
+        const distanceLy = distanceLyDecimal.toNumber();
 
         // Position-velocity phase space
-        positionVelocity.push({ x: distanceLy, y: velocityC });
+        positionVelocity.push({
+            x: distanceLy,
+            y: velocityC,
+            xDecimal: distanceLyDecimal,
+            yDecimal: velocityCDecimal
+        });
 
         // Spacetime worldline (coord time vs distance) with velocity for gradient
-        spacetimeWorldline.push({ x: tDays / 365.25, y: distanceLy, velocity: velocityC });
+        const tYearsDecimal = tDaysDecimal.div(rl.ensure(365.25));
+        const tYears = tYearsDecimal.toNumber();
+
+        spacetimeWorldline.push({
+            x: tYears,
+            y: distanceLy,
+            velocity: velocityC,
+            xDecimal: tYearsDecimal,
+            yDecimal: distanceLyDecimal,
+            velocityDecimal: velocityCDecimal
+        });
     }
 
     return {
