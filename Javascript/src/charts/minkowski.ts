@@ -842,7 +842,7 @@ function startFrameAnimation(
     data: MinkowskiData,
     _onUpdate: () => void
 ): AnimationController {
-    const LOOP_DURATION = 4000; // 4 seconds total loop
+    const LOOP_DURATION = 16000; // 16 seconds total loop (slower for readable km indicator)
     let startTime = Date.now();
     let isPaused = false;
     let totalPausedTime = 0;
