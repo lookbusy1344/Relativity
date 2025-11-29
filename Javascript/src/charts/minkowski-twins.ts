@@ -16,6 +16,15 @@ import {
     renderTransformedAxes,
     createTooltip
 } from './minkowski-core';
+import * as rl from '../relativity_lib';
+
+/**
+ * Format velocity in m/s using Decimal.js precision
+ */
+function formatVelocityMs(velocityC: number): string {
+    const velocityMs = rl.c.mul(velocityC); // c is in m/s
+    return rl.formatSignificant(velocityMs, "9", 2);
+}
 
 export interface TwinParadoxMinkowskiData {
     velocityC: number;        // Velocity as fraction of c
@@ -258,7 +267,7 @@ function renderLabels(
 
     // Frame info (bottom right)
     const infoData = [
-        { text: `Velocity: ${data.velocityC.toFixed(3)}c`, y: size - 75, color: D3_COLORS.plasmaWhite },
+        { text: `Velocity: ${formatVelocityMs(data.velocityC)} m/s`, y: size - 75, color: D3_COLORS.plasmaWhite },
         { text: `γ = ${data.gamma.toFixed(3)}`, y: size - 60, color: D3_COLORS.plasmaWhite },
         { text: `Proper time: ${data.properTimeYears.toFixed(2)} years`, y: size - 45, color: D3_COLORS.quantumGreen },
         { text: `Earth time: ${data.earthTimeYears.toFixed(2)} years`, y: size - 30, color: D3_COLORS.electricBlue }
@@ -734,9 +743,9 @@ export function drawTwinParadoxMinkowski(
         .style('font-family', "'IBM Plex Mono', monospace")
         .style('font-size', '11px')
         .style('font-weight', '600')
-        .style('min-width', '45px')
+        .style('min-width', '120px')
         .style('text-align', 'right')
-        .text(`${data.velocityC.toFixed(2)}c`);
+        .text(`${formatVelocityMs(data.velocityC)} m/s`);
 
     // Slider input
     const velocitySlider = velocitySliderContainer
@@ -751,7 +760,7 @@ export function drawTwinParadoxMinkowski(
         .style('cursor', 'pointer')
         .on('input', function() {
             const newVelocityC = parseFloat((this as HTMLInputElement).value);
-            velocityValueDisplay.text(`${newVelocityC.toFixed(2)}c`);
+            velocityValueDisplay.text(`${formatVelocityMs(newVelocityC)} m/s`);
             if (onVelocityChange) {
                 isSliderUpdate = true;
                 onVelocityChange(newVelocityC);
@@ -840,14 +849,14 @@ export function drawTwinParadoxMinkowski(
             // Update velocity slider to match new data (unless update came from slider)
             if (!isSliderUpdate) {
                 velocitySlider.property('value', twinsData.velocityC);
-                velocityValueDisplay.text(`${twinsData.velocityC.toFixed(2)}c`);
+                velocityValueDisplay.text(`${formatVelocityMs(twinsData.velocityC)} m/s`);
             }
             isSliderUpdate = false;
         },
 
         updateSlider(velocityC: number) {
             velocitySlider.property('value', velocityC);
-            velocityValueDisplay.text(`${velocityC.toFixed(2)}c`);
+            velocityValueDisplay.text(`${formatVelocityMs(velocityC)} m/s`);
         },
 
         pause() {
