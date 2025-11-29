@@ -64,10 +64,11 @@ export function generateAccelChartData(
         const velocityCDecimal = velocity.div(rl.c);
         const velocityC = velocityCDecimal.toNumber();
 
-        const rapidity = rl.rapidityFromVelocity(velocity);
-        const rapidityValue = parseFloat(rapidity.toString());
+        const rapidityDecimal = rl.rapidityFromVelocity(velocity);
+        const rapidity = rapidityDecimal.toNumber();
         const lorentz = rl.lorentzFactor(velocity);
-        const timeDilation = parseFloat(rl.one.div(lorentz).toString());
+        const timeDilationDecimal = rl.one.div(lorentz);
+        const timeDilation = timeDilationDecimal.toNumber();
 
         const t = rl.coordinateTime(accel, tauDecimal);
         const tDaysDecimal = t.div(rl.ensure(60 * 60 * 24));
@@ -91,10 +92,34 @@ export function generateAccelChartData(
             xDecimal: tDaysDecimal,
             yDecimal: velocityCDecimal
         });
-        properTimeRapidity.push({ x: tauDays, y: rapidityValue });
-        coordTimeRapidity.push({ x: tDays, y: rapidityValue });
-        properTimeTimeDilation.push({ x: tauDays, y: timeDilation });
-        coordTimeTimeDilation.push({ x: tDays, y: timeDilation });
+
+        properTimeRapidity.push({
+            x: tauDays,
+            y: rapidity,
+            xDecimal: tauDaysDecimal,
+            yDecimal: rapidityDecimal
+        });
+
+        coordTimeRapidity.push({
+            x: tDays,
+            y: rapidity,
+            xDecimal: tDaysDecimal,
+            yDecimal: rapidityDecimal
+        });
+
+        properTimeTimeDilation.push({
+            x: tauDays,
+            y: timeDilation,
+            xDecimal: tauDaysDecimal,
+            yDecimal: timeDilationDecimal
+        });
+
+        coordTimeTimeDilation.push({
+            x: tDays,
+            y: timeDilation,
+            xDecimal: tDaysDecimal,
+            yDecimal: timeDilationDecimal
+        });
         properTimeMassRemaining40.push({ x: tauDays, y: massRemaining70 });
         properTimeMassRemaining50.push({ x: tauDays, y: massRemaining75 });
         properTimeMassRemaining60.push({ x: tauDays, y: massRemaining80 });
