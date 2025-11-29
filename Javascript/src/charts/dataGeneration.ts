@@ -56,26 +56,41 @@ export function generateAccelChartData(
     const spacetimeWorldline: ChartDataPointWithVelocity[] = [];
 
     for (let i = 0; i <= numPoints; i++) {
-        const tau = (i / numPoints) * durationSeconds;
-        const tauDays = tau / (60 * 60 * 24);
+        const tauDecimal = rl.ensure((i / numPoints) * durationSeconds);
+        const tauDaysDecimal = tauDecimal.div(rl.ensure(60 * 60 * 24));
+        const tauDays = tauDaysDecimal.toNumber();
 
-        const velocity = rl.relativisticVelocity(accel, tau);
-        const velocityC = parseFloat(velocity.div(rl.c).toString());
+        const velocity = rl.relativisticVelocity(accel, tauDecimal);
+        const velocityCDecimal = velocity.div(rl.c);
+        const velocityC = velocityCDecimal.toNumber();
+
         const rapidity = rl.rapidityFromVelocity(velocity);
         const rapidityValue = parseFloat(rapidity.toString());
         const lorentz = rl.lorentzFactor(velocity);
         const timeDilation = parseFloat(rl.one.div(lorentz).toString());
 
-        const t = rl.coordinateTime(accel, tau);
-        const tDays = parseFloat(t.div(rl.ensure(60 * 60 * 24)).toString());
+        const t = rl.coordinateTime(accel, tauDecimal);
+        const tDaysDecimal = t.div(rl.ensure(60 * 60 * 24));
+        const tDays = tDaysDecimal.toNumber();
 
         // Calculate mass remaining as percentage for all nozzle efficiencies
-        const fuelPercents = rl.pionRocketFuelFractionsMultiple(tau, accel, [0.7, 0.75, 0.8, 0.85]);
-        const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] = 
+        const fuelPercents = rl.pionRocketFuelFractionsMultiple(tauDecimal, accel, [0.7, 0.75, 0.8, 0.85]);
+        const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] =
             fuelPercents.map(fp => 100 - parseFloat(fp.toString()));
 
-        properTimeVelocity.push({ x: tauDays, y: velocityC });
-        coordTimeVelocity.push({ x: tDays, y: velocityC });
+        properTimeVelocity.push({
+            x: tauDays,
+            y: velocityC,
+            xDecimal: tauDaysDecimal,
+            yDecimal: velocityCDecimal
+        });
+
+        coordTimeVelocity.push({
+            x: tDays,
+            y: velocityC,
+            xDecimal: tDaysDecimal,
+            yDecimal: velocityCDecimal
+        });
         properTimeRapidity.push({ x: tauDays, y: rapidityValue });
         coordTimeRapidity.push({ x: tDays, y: rapidityValue });
         properTimeTimeDilation.push({ x: tauDays, y: timeDilation });
@@ -86,7 +101,7 @@ export function generateAccelChartData(
         properTimeMassRemaining70.push({ x: tauDays, y: massRemaining85 });
 
         // Calculate distance for phase space plots
-        const distance = rl.relativisticDistance(accel, tau);
+        const distance = rl.relativisticDistance(accel, tauDecimal);
         const distanceLy = parseFloat(distance.div(rl.lightYear).toString());
 
         // Position-velocity phase space
