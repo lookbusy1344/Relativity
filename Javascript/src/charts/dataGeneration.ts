@@ -566,11 +566,13 @@ export function generateTwinParadoxChartData(
     coordTimeDistance: ChartDataPoint[];
 } {
     const numPoints = 100;
-    const halfTime = properTimeYears / 2;
+    const halfTimeDecimal = rl.ensure(properTimeYears / 2);
 
     // Calculate key physics values
-    const velocity = rl.c.mul(velocityC);
-    const gamma = parseFloat(rl.lorentzFactor(velocity).toString());
+    const velocityDecimal = rl.c.mul(velocityC);
+    const gammaDecimal = rl.lorentzFactor(velocityDecimal);
+
+    const velocityCDecimal = rl.ensure(velocityC);
 
     const velocityProfile: ChartDataPoint[] = [];
     const travelingTwinAging: ChartDataPoint[] = [];
@@ -581,42 +583,110 @@ export function generateTwinParadoxChartData(
 
     // First half: outbound journey
     for (let i = 0; i <= numPoints / 2; i++) {
-        const tau = (i / numPoints) * properTimeYears;  // Proper time (traveling twin's clock)
-        const earthTime = tau * gamma;  // Earth time
+        const tauDecimal = rl.ensure((i / numPoints) * properTimeYears);  // Proper time (traveling twin's clock)
+        const tau = tauDecimal.toNumber();
+        const earthTimeDecimal = tauDecimal.mul(gammaDecimal);  // Earth time
+        const earthTime = earthTimeDecimal.toNumber();
 
         // Velocity is constant at +v during outbound
-        velocityProfile.push({ x: tau, y: velocityC });
+        velocityProfile.push({
+            x: tau,
+            y: velocityC,
+            xDecimal: tauDecimal,
+            yDecimal: velocityCDecimal
+        });
 
         // Aging: traveling twin ages linearly, Earth twin ages faster
-        travelingTwinAging.push({ x: tau, y: tau });
-        earthTwinAging.push({ x: tau, y: earthTime });
+        travelingTwinAging.push({
+            x: tau,
+            y: tau,
+            xDecimal: tauDecimal,
+            yDecimal: tauDecimal
+        });
+        earthTwinAging.push({
+            x: tau,
+            y: earthTime,
+            xDecimal: tauDecimal,
+            yDecimal: earthTimeDecimal
+        });
 
         // Distance increases linearly
-        const distance = velocityC * earthTime;  // distance in light years (since v is in c and t in years)
-        distanceProfile.push({ x: tau, y: distance });
-        properTimeDistance.push({ x: tau, y: distance });
-        coordTimeDistance.push({ x: earthTime, y: distance });
+        const distanceDecimal = velocityCDecimal.mul(earthTimeDecimal);  // distance in light years (since v is in c and t in years)
+        const distance = distanceDecimal.toNumber();
+        distanceProfile.push({
+            x: tau,
+            y: distance,
+            xDecimal: tauDecimal,
+            yDecimal: distanceDecimal
+        });
+        properTimeDistance.push({
+            x: tau,
+            y: distance,
+            xDecimal: tauDecimal,
+            yDecimal: distanceDecimal
+        });
+        coordTimeDistance.push({
+            x: earthTime,
+            y: distance,
+            xDecimal: earthTimeDecimal,
+            yDecimal: distanceDecimal
+        });
     }
 
     // Second half: return journey
     for (let i = Math.floor(numPoints / 2) + 1; i <= numPoints; i++) {
-        const tau = (i / numPoints) * properTimeYears;
-        const earthTime = tau * gamma;
+        const tauDecimal = rl.ensure((i / numPoints) * properTimeYears);
+        const tau = tauDecimal.toNumber();
+        const earthTimeDecimal = tauDecimal.mul(gammaDecimal);
+        const earthTime = earthTimeDecimal.toNumber();
 
         // Velocity is constant at -v during return
-        velocityProfile.push({ x: tau, y: -velocityC });
+        const negativeVelocityCDecimal = velocityCDecimal.neg();
+        const negativeVelocityC = negativeVelocityCDecimal.toNumber();
+        velocityProfile.push({
+            x: tau,
+            y: negativeVelocityC,
+            xDecimal: tauDecimal,
+            yDecimal: negativeVelocityCDecimal
+        });
 
         // Aging continues
-        travelingTwinAging.push({ x: tau, y: tau });
-        earthTwinAging.push({ x: tau, y: earthTime });
+        travelingTwinAging.push({
+            x: tau,
+            y: tau,
+            xDecimal: tauDecimal,
+            yDecimal: tauDecimal
+        });
+        earthTwinAging.push({
+            x: tau,
+            y: earthTime,
+            xDecimal: tauDecimal,
+            yDecimal: earthTimeDecimal
+        });
 
         // Distance decreases back to zero
-        const tauSinceTurnaround = tau - halfTime;
-        const maxDistance = velocityC * halfTime * gamma;
-        const distance = maxDistance - (velocityC * tauSinceTurnaround * gamma);
-        distanceProfile.push({ x: tau, y: distance });
-        properTimeDistance.push({ x: tau, y: distance });
-        coordTimeDistance.push({ x: earthTime, y: distance });
+        const tauSinceTurnaroundDecimal = tauDecimal.minus(halfTimeDecimal);
+        const maxDistanceDecimal = velocityCDecimal.mul(halfTimeDecimal).mul(gammaDecimal);
+        const distanceDecimal = maxDistanceDecimal.minus(velocityCDecimal.mul(tauSinceTurnaroundDecimal).mul(gammaDecimal));
+        const distance = distanceDecimal.toNumber();
+        distanceProfile.push({
+            x: tau,
+            y: distance,
+            xDecimal: tauDecimal,
+            yDecimal: distanceDecimal
+        });
+        properTimeDistance.push({
+            x: tau,
+            y: distance,
+            xDecimal: tauDecimal,
+            yDecimal: distanceDecimal
+        });
+        coordTimeDistance.push({
+            x: earthTime,
+            y: distance,
+            xDecimal: earthTimeDecimal,
+            yDecimal: distanceDecimal
+        });
     }
 
     return {
