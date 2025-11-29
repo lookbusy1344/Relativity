@@ -739,7 +739,7 @@ export function drawTwinParadoxMinkowski(
         .style('display', 'flex')
         .style('align-items', 'center')
         .style('gap', '8px')
-        .style('padding', '8px 12px')
+        .style('padding', '6px 8px')
         .style('background', D3_COLORS.tooltipBg)
         .style('border', `1px solid ${D3_COLORS.tooltipBorder}`)
         .style('border-radius', '4px')
