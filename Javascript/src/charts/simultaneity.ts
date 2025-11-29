@@ -2,6 +2,7 @@
 import { select, Selection } from 'd3-selection';
 import { pointer } from 'd3-selection';
 import 'd3-transition';
+import Decimal from 'decimal.js';
 import { COLORS as D3_COLORS } from './minkowski-colors';
 import type { BaseController, ScaleSet } from './minkowski-types';
 import {
@@ -34,6 +35,7 @@ interface SimultaneityEvent {
 interface SimultaneityState {
     events: SimultaneityEvent[];
     velocity: number;
+    velocityDecimal: Decimal;
     gamma: number;
     referenceEventId: string | null;
     isAnimating: boolean;
@@ -88,7 +90,12 @@ function createTrainExample(): SimultaneityEvent[] {
  * Sync internal state.events to the state module for URL encoding
  */
 function syncStateToModule(events: SimultaneityEvent[]): void {
-    const eventData = events.map(e => ({ ct: e.ct, x: e.x }));
+    const eventData = events.map(e => ({
+        ct: e.ct,
+        x: e.x,
+        ctDecimal: rl.ensure(e.ct),
+        xDecimal: rl.ensure(e.x)
+    }));
     simultaneityState.setEvents(eventData);
 }
 
@@ -144,6 +151,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
     let state: SimultaneityState = {
         events: createTrainExample(),
         velocity: 0,
+        velocityDecimal: rl.ensure(0),
         gamma: 1,
         referenceEventId: 'A',
         isAnimating: true,
@@ -315,7 +323,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             .attr('fill', D3_COLORS.plasmaWhite)
             .attr('class', 'header')
             .attr('text-anchor', 'middle')
-            .text(`v = ${rl.formatSignificant(rl.ensure(state.velocity), "9", 2)}c`);
+            .text(`v = ${rl.formatSignificant(state.velocityDecimal, "9", 2)}c`);
     }
 
     /**
@@ -660,6 +668,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
      */
     function updateVelocity(velocity: number): void {
         state.velocity = velocity;
+        state.velocityDecimal = rl.ensure(velocity);
         state.gamma = calculateGamma(velocity);
         updateTemporalOrderings();
         render();
@@ -667,7 +676,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateSpatialSeparations();
 
         // Update velocity label on slider
-        velocityLabel.text(`${rl.formatSignificant(rl.ensure(velocity), "9", 2)}c`);
+        velocityLabel.text(`${rl.formatSignificant(state.velocityDecimal, "9", 2)}c`);
     }
 
     /**
@@ -677,6 +686,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         state.events = createTrainExample();
         syncStateToModule(state.events);
         state.velocity = 0;
+        state.velocityDecimal = rl.ensure(0);
         state.gamma = 1;
         state.referenceEventId = 'A';
 
@@ -883,7 +893,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 
         // Calculate time separations in moving frame
         const separations: string[] = [];
-        separations.push(`<div style="font-weight: bold; margin-bottom: 4px; color: #00d9ff;">Time in frame (v=${rl.formatSignificant(rl.ensure(state.velocity), "9", 2)}c):</div>`);
+        separations.push(`<div style="font-weight: bold; margin-bottom: 4px; color: #00d9ff;">Time in frame (v=${rl.formatSignificant(state.velocityDecimal, "9", 2)}c):</div>`);
 
         state.events.forEach(event => {
             if (event.id === refEvent.id) return; // Skip reference event
@@ -933,7 +943,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 
         // Calculate spatial separations in moving frame
         const separations: string[] = [];
-        separations.push(`<div style="font-weight: bold; margin-bottom: 4px; color: #00d9ff;">Space in frame (v=${rl.formatSignificant(rl.ensure(state.velocity), "9", 2)}c):</div>`);
+        separations.push(`<div style="font-weight: bold; margin-bottom: 4px; color: #00d9ff;">Space in frame (v=${rl.formatSignificant(state.velocityDecimal, "9", 2)}c):</div>`);
 
         state.events.forEach(event => {
             if (event.id === refEvent.id) return; // Skip reference event
@@ -1009,8 +1019,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateSlider: (velocity: number) => {
             // Clamp velocity to valid range
             const clampedVelocity = Math.max(-0.99, Math.min(0.99, velocity));
+            const clampedVelocityDecimal = rl.ensure(clampedVelocity);
             velocitySlider.property('value', clampedVelocity);
-            velocityLabel.text(`${rl.formatSignificant(rl.ensure(clampedVelocity), "9", 2)}c`);
+            velocityLabel.text(`${rl.formatSignificant(clampedVelocityDecimal, "9", 2)}c`);
             updateVelocity(clampedVelocity);
         },
         pause: () => {
