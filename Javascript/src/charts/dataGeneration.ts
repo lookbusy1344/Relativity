@@ -76,8 +76,12 @@ export function generateAccelChartData(
 
         // Calculate mass remaining as percentage for all nozzle efficiencies
         const fuelPercents = rl.pionRocketFuelFractionsMultiple(tauDecimal, accel, [0.7, 0.75, 0.8, 0.85]);
+        const [massRemaining70Decimal, massRemaining75Decimal, massRemaining80Decimal, massRemaining85Decimal] =
+            fuelPercents.map(fp => rl.ensure(100).minus(fp));
+
         const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] =
-            fuelPercents.map(fp => 100 - parseFloat(fp.toString()));
+            [massRemaining70Decimal, massRemaining75Decimal, massRemaining80Decimal, massRemaining85Decimal]
+                .map(d => d.toNumber());
 
         properTimeVelocity.push({
             x: tauDays,
@@ -120,10 +124,33 @@ export function generateAccelChartData(
             xDecimal: tDaysDecimal,
             yDecimal: timeDilationDecimal
         });
-        properTimeMassRemaining40.push({ x: tauDays, y: massRemaining70 });
-        properTimeMassRemaining50.push({ x: tauDays, y: massRemaining75 });
-        properTimeMassRemaining60.push({ x: tauDays, y: massRemaining80 });
-        properTimeMassRemaining70.push({ x: tauDays, y: massRemaining85 });
+        properTimeMassRemaining40.push({
+            x: tauDays,
+            y: massRemaining70,
+            xDecimal: tauDaysDecimal,
+            yDecimal: massRemaining70Decimal
+        });
+
+        properTimeMassRemaining50.push({
+            x: tauDays,
+            y: massRemaining75,
+            xDecimal: tauDaysDecimal,
+            yDecimal: massRemaining75Decimal
+        });
+
+        properTimeMassRemaining60.push({
+            x: tauDays,
+            y: massRemaining80,
+            xDecimal: tauDaysDecimal,
+            yDecimal: massRemaining80Decimal
+        });
+
+        properTimeMassRemaining70.push({
+            x: tauDays,
+            y: massRemaining85,
+            xDecimal: tauDaysDecimal,
+            yDecimal: massRemaining85Decimal
+        });
 
         // Calculate distance for phase space plots
         const distance = rl.relativisticDistance(accel, tauDecimal);
