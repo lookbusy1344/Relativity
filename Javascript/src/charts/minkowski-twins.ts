@@ -726,6 +726,9 @@ export function drawTwinParadoxMinkowski(
         }
     });
 
+    // Debounce timer for velocity slider updates
+    let velocityUpdateTimeout: number | null = null;
+
     // Create velocity slider control (top of diagram, below title)
     const velocitySliderContainer = select(container)
         .append('div')
@@ -760,18 +763,29 @@ export function drawTwinParadoxMinkowski(
         .attr('type', 'range')
         .attr('min', '0.001')
         .attr('max', '0.999')
-        .attr('step', '0.05')
+        .attr('step', '0.001')
         .attr('value', data.velocityC.toString())
         .attr('class', 'velocity-slider-input')
         .style('width', '200px')
         .style('cursor', 'pointer')
         .on('input', function() {
             const newVelocityC = parseFloat((this as HTMLInputElement).value);
+            // Update display immediately for responsive feedback
             velocityValueDisplay.text(`v = ${rl.formatSignificant(rl.ensure(newVelocityC), "9", 3)}c`);
-            if (onVelocityChange) {
-                isSliderUpdate = true;
-                onVelocityChange(newVelocityC);
+
+            // Clear existing timeout
+            if (velocityUpdateTimeout !== null) {
+                window.clearTimeout(velocityUpdateTimeout);
             }
+
+            // Debounce diagram update - only update after 300ms pause
+            velocityUpdateTimeout = window.setTimeout(() => {
+                if (onVelocityChange) {
+                    isSliderUpdate = true;
+                    onVelocityChange(newVelocityC);
+                }
+                velocityUpdateTimeout = null;
+            }, 300);
         });
 
     // Pause animation when tab is hidden
