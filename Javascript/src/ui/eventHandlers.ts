@@ -112,9 +112,11 @@ export function createAccelHandler(
         pendingRAF = requestAnimationFrame(() => {
             pendingRAF = null;
             pendingCalculation = window.setTimeout(() => {
-            const accelG = parseFloat(accelInput.value ?? '1');
-            const accel = rl.g.mul(accelG);
-            const secs = rl.ensure(timeInput.value ?? 0).mul(60 * 60 * 24);
+            // Use string values to preserve precision for Decimal.js calculations
+            const accelGStr = accelInput.value ?? '1';
+            const timeStr = timeInput.value ?? '0';
+            const accel = rl.g.mul(accelGStr);
+            const secs = rl.ensure(timeStr).mul(60 * 60 * 24);
 
             const relVel = rl.relativisticVelocity(accel, secs);
             const relDist = rl.relativisticDistance(accel, secs);
@@ -136,8 +138,9 @@ export function createAccelHandler(
             if (resultAFuel60) setElement(resultAFuel60, rl.formatSignificant(fuelPercent80, "9", 3), "%");
             if (resultAFuel70) setElement(resultAFuel70, rl.formatSignificant(fuelPercent85, "9", 3), "%");
 
-            // Update charts
-            const durationDays = parseFloat(timeInput.value ?? '365');
+            // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
+            const accelG = parseFloat(accelGStr);
+            const durationDays = parseFloat(timeStr);
             const data = generateAccelChartData(accelG, durationDays);
             chartRegistry.current = updateAccelCharts(chartRegistry.current, data);
             pendingCalculation = null;
@@ -187,10 +190,11 @@ export function createFlipBurnHandler(
         pendingRAF = requestAnimationFrame(() => {
             pendingRAF = null;
             pendingCalculation = window.setTimeout(() => {
-            const accelG = parseFloat(accelInput.value ?? '1');
-            const accel = rl.g.mul(accelG);
-            const distanceLightYears = parseFloat(distanceInput.value ?? '0');
-            const m = rl.ensure(distanceLightYears).mul(rl.lightYear);
+            // Use string values to preserve precision for Decimal.js calculations
+            const accelGStr = accelInput.value ?? '1';
+            const distanceLightYearsStr = distanceInput.value ?? '0';
+            const accel = rl.g.mul(accelGStr);
+            const m = rl.ensure(distanceLightYearsStr).mul(rl.lightYear);
             const res = rl.flipAndBurn(accel, m);
             const properTime = res.properTime.div(rl.secondsPerYear);
             const coordTime = res.coordTime.div(rl.secondsPerYear);
@@ -214,7 +218,9 @@ export function createFlipBurnHandler(
             if (resultFlipFuel60) setElement(resultFlipFuel60, rl.formatSignificant(fuelPercent80, "9", 3), "%");
             if (resultFlipFuel70) setElement(resultFlipFuel70, rl.formatSignificant(fuelPercent85, "9", 3), "%");
 
-            // Update charts
+            // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
+            const accelG = parseFloat(accelGStr);
+            const distanceLightYears = parseFloat(distanceLightYearsStr);
             const data = generateFlipBurnChartData(accelG, distanceLightYears);
             chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data);
             pendingCalculation = null;
@@ -262,12 +268,14 @@ export function createTwinParadoxHandler(
 
         // Allow UI to update before heavy calculation (skip delay in silent mode)
         const execute = () => {
-            const velocityC = parseFloat(velocityInput.value ?? '0.8');
-            const properTimeYears = parseFloat(timeInput.value ?? '4');
+            // Use string values to preserve precision for Decimal.js calculations
+            const velocityCStr = velocityInput.value ?? '0.8';
+            const properTimeYearsStr = timeInput.value ?? '4';
 
-            // Convert UI inputs to SI units
-            const velocity = rl.c.mul(velocityC);  // m/s
-            const properTime = rl.ensure(properTimeYears).mul(rl.secondsPerYear);  // seconds
+            // Convert UI inputs to SI units using string values to preserve precision
+            // parseFloat loses precision for values like 0.99999999999999999 (becomes 1.0)
+            const velocity = rl.c.mul(velocityCStr);  // m/s
+            const properTime = rl.ensure(properTimeYearsStr).mul(rl.secondsPerYear);  // seconds
 
             // Call function with SI units
             const res = rl.twinParadox(velocity, properTime);
@@ -285,20 +293,22 @@ export function createTwinParadoxHandler(
             if (resultTwins2) setElement(resultTwins2, rl.formatSignificant(earthAge, "0", 2), "yrs");
             if (resultTwins3) setElement(resultTwins3, rl.formatSignificant(ageDiff, "0", 2), "yrs");
             if (resultTwins4) setElement(resultTwins4, rl.formatSignificant(lorentz, "0", 3), "");
-            if (resultTwins5) setElement(resultTwins5, `${rl.formatSignificant(rl.ensure(velocityC), "9", 3)}c (${rl.formatSignificant(velocityKm, "9", 1)} km/s)`, "");
+            if (resultTwins5) setElement(resultTwins5, `${rl.formatSignificant(rl.ensure(velocityCStr), "9", 3)}c (${rl.formatSignificant(velocityKm, "9", 1)} km/s)`, "");
             if (resultTwins6) setElement(resultTwins6, rl.formatSignificant(oneWayLy, "0", 3), "ly");
             if (resultTwins7) setElement(resultTwins7, rl.formatSignificant(totalLy, "0", 3), "ly");
 
-            // Update charts
-            const data = generateTwinParadoxChartData(velocityC, properTimeYears);
+            // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
+            const velocityCNum = parseFloat(velocityCStr);
+            const properTimeYearsNum = parseFloat(properTimeYearsStr);
+            const data = generateTwinParadoxChartData(velocityCNum, properTimeYearsNum);
             chartRegistry.current = updateTwinParadoxCharts(chartRegistry.current, data);
 
             // Draw Minkowski diagram
             const container = document.getElementById('twinsMinkowskiContainer');
             if (container && onDiagramDrawn) {
                 const minkowskiData: TwinParadoxMinkowskiData = {
-                    velocityC,
-                    properTimeYears,
+                    velocityC: velocityCNum,
+                    properTimeYears: properTimeYearsNum,
                     earthTimeYears: parseFloat(earthAge.toString()),
                     distanceLY: parseFloat(oneWayLy.toString()),
                     gamma: parseFloat(lorentz.toString())
@@ -353,8 +363,13 @@ export function createGraphUpdateHandler(
         pendingRAF = requestAnimationFrame(() => {
             pendingRAF = null;
             pendingCalculation = window.setTimeout(() => {
-            const accelG = parseFloat(accelInput.value ?? '1');
-            const durationDays = parseFloat(durationInput.value ?? '365');
+            // Use string values to preserve precision for Decimal.js calculations
+            const accelGStr = accelInput.value ?? '1';
+            const durationDaysStr = durationInput.value ?? '365';
+
+            // parseFloat is OK here as Chart.js only needs limited precision for display
+            const accelG = parseFloat(accelGStr);
+            const durationDays = parseFloat(durationDaysStr);
 
             const data = generateVisualizationChartData(accelG, durationDays);
             chartRegistry.current = updateVisualizationCharts(chartRegistry.current, data);
