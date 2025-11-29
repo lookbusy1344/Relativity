@@ -1,4 +1,5 @@
 // Twin Paradox Minkowski Diagram - Shows dual reference frames and simultaneity jump
+import Decimal from 'decimal.js';
 import { select, Selection } from 'd3-selection';
 import 'd3-transition';
 import { easeCubicInOut } from 'd3-ease';
@@ -33,11 +34,11 @@ export interface TwinParadoxMinkowskiData {
     distanceLY: number;       // One-way distance in light years
     gamma: number;            // Lorentz factor
     // Decimal versions for display formatting
-    velocityCDecimal: import('decimal.js').Decimal;
-    properTimeYearsDecimal: import('decimal.js').Decimal;
-    earthTimeYearsDecimal: import('decimal.js').Decimal;
-    distanceLYDecimal: import('decimal.js').Decimal;
-    gammaDecimal: import('decimal.js').Decimal;
+    velocityCDecimal: Decimal;
+    properTimeYearsDecimal: Decimal;
+    earthTimeYearsDecimal: Decimal;
+    distanceLYDecimal: Decimal;
+    gammaDecimal: Decimal;
 }
 
 /**
