@@ -909,9 +909,10 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             // Format with appropriate units using Decimal for consistent precision
             let timeStr: string;
             const deltaTimeDecimal = rl.ensure(deltaTime);
-            if (Math.abs(deltaTime) < 0.001) {
+            const tolerance = rl.ensure(0.001);
+            if (deltaTimeDecimal.abs().lt(tolerance)) {
                 timeStr = '≈ 0 s (simultaneous)';
-            } else if (Math.abs(deltaTime) < 1) {
+            } else if (deltaTimeDecimal.abs().lt(rl.one)) {
                 const deltaTimeMs = deltaTimeDecimal.mul(1000);
                 timeStr = `${rl.formatSignificant(deltaTimeMs, "0", 2)} ms`;
             } else {
@@ -921,7 +922,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             const color = event.temporalOrder === 'future' ? '#00ff9f' :
                          event.temporalOrder === 'past' ? '#ffaa00' : '#e8f1f5';
 
-            const sign = deltaTime >= 0 ? '+' : '';
+            const sign = deltaTimeDecimal.gte(0) ? '+' : '';
             separations.push(`<div style="color: ${color}; margin: 2px 0;">Event ${event.id}: ${sign}${timeStr}</div>`);
         });
 
