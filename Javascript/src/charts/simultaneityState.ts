@@ -3,9 +3,13 @@
  * Replaces global window pollution with proper module-level state
  */
 
+import Decimal from 'decimal.js';
+
 export interface SimultaneityEventData {
     ct: number;
     x: number;
+    ctDecimal: Decimal;
+    xDecimal: Decimal;
 }
 
 type EventCallback = (events: SimultaneityEventData[]) => void;
