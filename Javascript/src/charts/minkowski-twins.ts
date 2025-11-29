@@ -268,7 +268,7 @@ function renderLabels(
     // Frame info (bottom right)
     const infoData = [
         { text: `Velocity: ${formatVelocityMs(data.velocityC)} m/s`, y: size - 75, color: D3_COLORS.plasmaWhite },
-        { text: `γ = ${data.gamma.toFixed(3)}`, y: size - 60, color: D3_COLORS.plasmaWhite },
+        { text: `γ = ${rl.formatSignificant(rl.ensure(data.gamma), "0", 3)}`, y: size - 60, color: D3_COLORS.plasmaWhite },
         { text: `Proper time: ${data.properTimeYears.toFixed(2)} years`, y: size - 45, color: D3_COLORS.quantumGreen },
         { text: `Earth time: ${data.earthTimeYears.toFixed(2)} years`, y: size - 30, color: D3_COLORS.electricBlue }
     ];

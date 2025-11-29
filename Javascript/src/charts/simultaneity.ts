@@ -15,6 +15,7 @@ import {
 } from './minkowski-core';
 import { updateURL } from '../urlState';
 import * as simultaneityState from './simultaneityState';
+import * as rl from '../relativity_lib';
 
 /**
  * Event data structure
@@ -314,7 +315,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             .attr('fill', D3_COLORS.plasmaWhite)
             .attr('class', 'header')
             .attr('text-anchor', 'middle')
-            .text(`v = ${state.velocity.toFixed(2)}c`);
+            .text(`v = ${rl.formatSignificant(rl.ensure(state.velocity), "9", 2)}c`);
     }
 
     /**
@@ -666,7 +667,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
         updateSpatialSeparations();
 
         // Update velocity label on slider
-        velocityLabel.text(`${velocity.toFixed(2)}c`);
+        velocityLabel.text(`${rl.formatSignificant(rl.ensure(velocity), "9", 2)}c`);
     }
 
     /**
@@ -882,7 +883,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 
         // Calculate time separations in moving frame
         const separations: string[] = [];
-        separations.push(`<div style="font-weight: bold; margin-bottom: 4px; color: #00d9ff;">Time in frame (v=${state.velocity.toFixed(2)}c):</div>`);
+        separations.push(`<div style="font-weight: bold; margin-bottom: 4px; color: #00d9ff;">Time in frame (v=${rl.formatSignificant(rl.ensure(state.velocity), "9", 2)}c):</div>`);
 
         state.events.forEach(event => {
             if (event.id === refEvent.id) return; // Skip reference event
@@ -932,7 +933,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 
         // Calculate spatial separations in moving frame
         const separations: string[] = [];
-        separations.push(`<div style="font-weight: bold; margin-bottom: 4px; color: #00d9ff;">Space in frame (v=${state.velocity.toFixed(2)}c):</div>`);
+        separations.push(`<div style="font-weight: bold; margin-bottom: 4px; color: #00d9ff;">Space in frame (v=${rl.formatSignificant(rl.ensure(state.velocity), "9", 2)}c):</div>`);
 
         state.events.forEach(event => {
             if (event.id === refEvent.id) return; // Skip reference event
@@ -1009,7 +1010,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             // Clamp velocity to valid range
             const clampedVelocity = Math.max(-0.99, Math.min(0.99, velocity));
             velocitySlider.property('value', clampedVelocity);
-            velocityLabel.text(`${clampedVelocity.toFixed(2)}c`);
+            velocityLabel.text(`${rl.formatSignificant(rl.ensure(clampedVelocity), "9", 2)}c`);
             updateVelocity(clampedVelocity);
         },
         pause: () => {
