@@ -614,7 +614,7 @@ function renderLabels(
 
     // Velocity and separation labels (bottom-right corner)
     const labelGroup = labelsGroup.selectAll('g.velocity-info')
-        .data([{ beta, ctPrime, xPrime }])
+        .data([{ beta, ctPrime, xPrime, velocityDecimal: data.velocityDecimal }])
         .join('g')
         .attr('class', 'velocity-info');
 
@@ -626,7 +626,7 @@ function renderLabels(
         .attr('y', size - 60)
         .attr('text-anchor', 'end')
         .attr('fill', D3_COLORS.quantumGreen)
-        .text(d => `Moving frame ${rl.formatSignificant(rl.ensure(d.beta), "9", 2)}c`);
+        .text(d => `Moving frame ${rl.formatSignificant(d.velocityDecimal, "9", 2)}c`);
 
     labelGroup.selectAll('text.separation-time')
         .data(d => [d])
@@ -911,12 +911,13 @@ function startFrameAnimation(
 
         // Update velocity label with interpolated velocity and transformed coordinates
         const currentBeta = Math.tan(currentAngle);
+        const currentBetaDecimal = rl.ensure(currentBeta);
         const currentGamma = 1 / Math.sqrt(1 - currentBeta * currentBeta);
         const currentCtPrime = currentGamma * (ct - currentBeta * x);
         const currentXPrime = currentGamma * (x - currentBeta * ct);
 
         svg.select('.velocity-label')
-            .text(`Moving frame ${rl.formatSignificant(rl.ensure(currentBeta), "9", 2)}c`);
+            .text(`Moving frame ${rl.formatSignificant(currentBetaDecimal, "9", 2)}c`);
         svg.select('.separation-time')
             .text(`${(currentCtPrime / C).toFixed(3)} sec`);
         svg.select('.separation-distance')
@@ -1070,7 +1071,7 @@ export function drawMinkowskiDiagramD3(
             const x = data.distance;
             const ctPrime = gamma * (ct - beta * x);
             const xPrime = gamma * (x - beta * ct);
-            svg.select('.velocity-label').text(`Moving frame ${rl.formatSignificant(rl.ensure(data.velocity), "9", 2)}c`);
+            svg.select('.velocity-label').text(`Moving frame ${rl.formatSignificant(data.velocityDecimal, "9", 2)}c`);
             svg.select('.separation-time').text(`${(ctPrime / C).toFixed(3)} sec`);
             svg.select('.separation-distance').text(`${xPrime.toFixed(1)} km`);
             tooltips.reattach();
@@ -1153,7 +1154,7 @@ export function drawMinkowskiDiagramD3(
                 const x = data.distance;
                 const ctPrime = gamma * (ct - beta * x);
                 const xPrime = gamma * (x - beta * ct);
-                svg.select('.velocity-label').text(`Moving frame ${rl.formatSignificant(rl.ensure(data.velocity), "9", 2)}c`);
+                svg.select('.velocity-label').text(`Moving frame ${rl.formatSignificant(data.velocityDecimal, "9", 2)}c`);
                 svg.select('.separation-time').text(`${(ctPrime / C).toFixed(3)} sec`);
                 svg.select('.separation-distance').text(`${xPrime.toFixed(1)} km`);
                 tooltips.reattach();
