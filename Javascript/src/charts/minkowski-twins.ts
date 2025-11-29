@@ -753,7 +753,7 @@ export function drawTwinParadoxMinkowski(
         .style('font-family', "'IBM Plex Mono', monospace")
         .style('font-size', '11px')
         .style('font-weight', '600')
-        .style('min-width', '120px')
+        .style('min-width', '70px')
         .style('text-align', 'right')
         .text(`v = ${rl.formatSignificant(data.velocityCDecimal, "9", 3)}c`);
 
