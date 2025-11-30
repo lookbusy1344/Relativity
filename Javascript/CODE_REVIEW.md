@@ -1,541 +1,345 @@
-# Code Review: Special Relativity Calculator
+# Code Review: TypeScript Special Relativity Calculator
 
-**Review Date:** 2025-11-28
-**Project:** TypeScript-based Special Relativity Calculator
-
----
+**Review Date**: 2025-11-30
+**Reviewer**: Claude Code (Sonnet 4.5)
 
 ## Executive Summary
 
-The codebase demonstrates solid architectural design with functional programming patterns, good separation of concerns, and high-precision physics calculations. However, there are several runtime safety concerns that could cause user-facing bugs, particularly around memory management and type safety.
-
-**Priority Distribution:**
-- Critical: 0 issues (1 resolved)
-- High: 0 issues (3 resolved)
-- Medium: 2 issues (2 resolved)
+The project demonstrates solid architecture with modern TypeScript patterns and proper separation of concerns. However, critical issues exist around test coverage and edge case handling in precision-critical physics calculations.
 
 ---
 
 ## Critical Issues
 
-### ~~1. Memory Leaks from Event Listeners Not Cleaned Up~~ ✅ RESOLVED
+### 1. Complete Absence of Test Coverage
+**Confidence**: 100%
+**Files**: Project-wide
 
-**Files:** `src/main.ts`, `src/urlState.ts`
-**Severity:** CRITICAL
-**Status:** ✅ **FIXED** (2025-11-28)
+The CLAUDE.md explicitly requires "Test-Driven Development (TDD). Write tests before implementing features. Ensure all new code is covered by tests." However, there are **zero test files** in the codebase.
 
-**Resolution:**
-- Added event handler tracking array in `main.ts` with custom `addEventListener` wrapper
-- All event listeners now stored and properly removed on cleanup
-- `setupURLSync()` now returns cleanup function that removes all URL sync listeners
-- Added cleanup function triggered on `window.beforeunload` event
-- Clears pending timeouts (resize debounce timer)
-- Destroys chart controllers on cleanup
+**Impact**:
+- No validation that physics calculations are correct (Lorentz transforms, time dilation, etc.)
+- No verification that Decimal.js precision is maintained throughout
+- Edge cases not validated (velocity = c, division by zero, etc.)
+- Refactoring risks breaking functionality
 
-**Implementation:**
+**Recommendation**: Immediately add comprehensive test coverage for:
+- `relativity_lib.ts` - All physics functions with known values
+- `urlState.ts` - URL encoding/decoding logic
+- `dataGeneration.ts` - Chart data generation
+- Edge cases: v → c, zero acceleration, invalid inputs
+
+---
+
+### 2. Unsafe Division Without Zero Checks
+**Confidence**: 95%
+**Files**: `src/relativity_lib.ts`
+**Lines**: 110, 136, 149, 263, 279, 292, 315, 328, 341, 513, 570
+
+Multiple physics calculations perform division operations on Decimal values without checking for zero denominators:
+
 ```typescript
-// main.ts - Event handler tracking and cleanup
-const eventHandlers: Array<{ element: Element | Window, event: string, handler: EventListener }> = [];
-const addEventListener = (element: Element | Window | null, event: string, handler: EventListener) => {
-    if (element) {
-        element.addEventListener(event, handler as any);
-        eventHandlers.push({ element, event, handler: handler as EventListener });
-    }
-};
+// Line 315 - lorentzFactor
+return one.div(one.minus(v.pow(2).div(cSquared)).sqrt());
+// If v approaches c, sqrt argument → 0, then div by ~0
 
-// Cleanup function
-const cleanup = () => {
-    clearTimeout(resizeTimeout);
-    eventHandlers.forEach(({ element, event, handler }) => {
-        element.removeEventListener(event, handler as any);
+// Line 513 - pionRocketAccelTime
+return veEffective.div(accelD).mul(m0.div(mf).ln());
+// If accelD = 0 or veEffective = 0, division by zero
+
+// Line 328 - relativisticVelocityCoord
+return aD.mul(tD).div(one.plus(aD.mul(tD).div(c).pow(2)).sqrt());
+// Sqrt result could theoretically be 0
+```
+
+**Impact**: These can produce `Infinity` or `NaN` results that propagate through calculations, appearing in the UI as invalid values.
+
+**Recommendation**: Add validation before all division operations:
+```typescript
+export function lorentzFactor(velocity: NumberInput): Decimal {
+    const v = checkVelocity(velocity);
+    const denominator = one.minus(v.pow(2).div(cSquared)).sqrt();
+    if (denominator.isZero() || !denominator.isFinite()) {
+        return DecimalInfinity;  // or throw descriptive error
+    }
+    return one.div(denominator);
+}
+```
+
+---
+
+### 3. Sqrt of Negative Numbers Not Handled
+**Confidence**: 90%
+**Files**: `src/relativity_lib.ts`
+**Lines**: 305, 315, 328, 341, 384, 386, 400, 430, 450
+
+Square root operations don't validate that arguments are non-negative:
+
+```typescript
+// Line 305 - lengthContractionVelocity
+return lenD.mul(one.minus(v.div(c).pow(2)).sqrt());
+// If v > c (despite checkVelocity), one.minus(...) could be negative
+
+// Line 430 - spacetimeInterval1d
+return cSquared.mul(delta_ts).minus(delta_xs).sqrt();
+// For spacelike intervals, this is negative (returns NaN)
+
+// Line 400 - invariantMassFromEnergyMomentum
+return e.div(cSquared).pow(2).minus(pD.div(cSquared).pow(2)).sqrt();
+// If momentum > energy, argument is negative
+```
+
+**Impact**: Decimal.js `sqrt()` of negative numbers returns `NaN`, which propagates silently through calculations.
+
+**Recommendation**:
+```typescript
+export function spacetimeInterval1d(...): Decimal {
+    const intervalSquared = cSquared.mul(delta_ts).minus(delta_xs);
+    if (intervalSquared.isNegative()) {
+        // For spacelike intervals, return imaginary indicator or handle explicitly
+        return intervalSquared.abs().sqrt().neg(); // or throw/return special value
+    }
+    return intervalSquared.sqrt();
+}
+```
+
+---
+
+### 4. Precision Loss in Input Validation
+**Confidence**: 90%
+**Files**: `src/urlState.ts`
+**Lines**: 109
+
+```typescript
+function isValidNumber(value: string): boolean {
+    if (!value || value.trim() === '') return false;
+    const num = parseFloat(value);  // ⚠️ Loses precision
+    return !isNaN(num) && isFinite(num);
+}
+```
+
+**Issue**: `parseFloat()` truncates high-precision values before validation. A URL parameter like `"0.99999999999999999"` becomes `1.0`, which then fails validation for velocities that must be `< c`.
+
+**Evidence**: The project explicitly uses Decimal.js for 150-decimal-place precision (relativity_lib.ts:42), but URL validation uses `parseFloat`.
+
+**Recommendation**:
+```typescript
+function isValidNumber(value: string): boolean {
+    if (!value || value.trim() === '') return false;
+    try {
+        const decimal = new Decimal(value);
+        return decimal.isFinite();
+    } catch {
+        return false;
+    }
+}
+```
+
+---
+
+## Important Issues
+
+### 5. Race Condition in Event Handler Cancellation
+**Confidence**: 85%
+**Files**: `src/ui/eventHandlers.ts`
+**Lines**: 92-99, 168-175
+
+```typescript
+let pendingRAF: number | null = null;
+let pendingCalculation: number | null = null;
+
+return () => {
+    // Cancel pending calculation to prevent race condition
+    if (pendingRAF !== null) {
+        cancelAnimationFrame(pendingRAF);
+        pendingRAF = null;
+    }
+    if (pendingCalculation !== null) {
+        clearTimeout(pendingCalculation);
+        pendingCalculation = null;
+    }
+    // ... UI shows "Working..."
+    pendingRAF = requestAnimationFrame(() => {
+        pendingRAF = null;
+        pendingCalculation = window.setTimeout(() => {
+            // Heavy calculation
+        }, 0);
     });
-    cleanupURLSync();
-    minkowskiState.controller?.destroy?.();
-    twinsMinkowskiState.controller?.destroy?.();
-    simultaneityState.controller?.destroy?.();
 };
+```
 
-addEventListener(window, 'beforeunload', cleanup);
+**Issue**: Between clearing old timers and setting new ones, there's a brief window where rapid clicks could start multiple calculations. The pattern is correct but could be more robust.
 
-// urlState.ts - Returns cleanup function
+**Impact**: Low-medium. Most likely benign due to the small time window, but could theoretically cause duplicate calculations or state inconsistency.
+
+**Recommendation**: Use a calculation ID or promise to definitively cancel:
+```typescript
+let currentCalculationId = 0;
+return () => {
+    const calculationId = ++currentCalculationId;
+    // ... later in calculation
+    if (calculationId !== currentCalculationId) return; // Cancelled
+};
+```
+
+---
+
+### 6. Missing Error Boundary for Decimal.js Operations
+**Confidence**: 85%
+**Files**: `src/relativity_lib.ts`
+**Lines**: Various
+
+Most functions in `relativity_lib.ts` perform Decimal operations without try-catch blocks. While Decimal.js generally doesn't throw, some operations like `atanh(x)` where `|x| ≥ 1` can produce `NaN`/`Infinity`.
+
+**Examples**:
+```typescript
+// Line 110 - tauToVelocity
+return c.div(aD).mul(vD.div(c).atanh());
+// If vD/c >= 1, atanh returns Infinity (no error thrown but silent failure)
+
+// Line 239 - rapidityFromVelocity
+return v.div(c).atanh();
+// Same issue
+```
+
+**Impact**: Silent failures produce `NaN`/`Infinity` that display as "-" in UI, giving no feedback about what went wrong.
+
+**Recommendation**: Add validation in critical functions:
+```typescript
+export function rapidityFromVelocity(velocity: NumberInput): Decimal {
+    const v = checkVelocity(velocity);
+    const beta = v.div(c);
+    if (beta.abs().gte(one)) {
+        throw new Error('Rapidity undefined for |v| >= c');
+    }
+    return beta.atanh();
+}
+```
+
+---
+
+### 7. Inconsistent Null Handling in DOM Utils
+**Confidence**: 85%
+**Files**: `src/ui/domUtils.ts`
+**Lines**: 17-31
+
+```typescript
+export function getInputElement(id: string): HTMLInputElement | null {
+    return document.getElementById(id) as HTMLInputElement | null;
+}
+```
+
+**Issue**: Functions return `null` but callers often don't check:
+
+```typescript
+// eventHandlers.ts:116
+const accelGStr = accelInput.value ?? '1';  // ⚠️ If accelInput is null, this throws
+```
+
+**Impact**: Runtime errors if DOM elements are missing (e.g., during testing or partial page loads).
+
+**Recommendation**: Either:
+1. Make getters throw if element not found (fail-fast), OR
+2. Ensure all callers check for null with guard clauses
+
+```typescript
+export function getInputElement(id: string): HTMLInputElement {
+    const el = document.getElementById(id) as HTMLInputElement;
+    if (!el) throw new Error(`Input element #${id} not found`);
+    return el;
+}
+```
+
+---
+
+## Security & Best Practices
+
+### 8. No XSS Vulnerabilities Detected
+**Confidence**: 100%
+
+**Positive Finding**: No uses of dangerous DOM manipulation methods found. All DOM updates use `textContent` or D3's data binding, which properly escapes content. No code execution vulnerabilities detected.
+
+---
+
+### 9. URL State Management Edge Cases
+**Confidence**: 80%
+**Files**: `src/urlState.ts`
+**Lines**: 261-283
+
+```typescript
+try {
+    const eventPairs = eventsParam.split(';');
+    const events = eventPairs.map(pair => {
+        const [ct, x] = pair.split(',').map(parseFloat);  // ⚠️
+        return { ct, x, ctDecimal: rl.ensure(ct), xDecimal: rl.ensure(x) };
+    }).filter(e => !isNaN(e.ct) && !isNaN(e.x));
+} catch (e) {
+    console.error('Failed to parse simultaneity events from URL:', e);
+}
+```
+
+**Issues**:
+1. `parseFloat` precision loss (same as issue #4)
+2. Malformed URL params could create partially-valid event lists
+3. Only logs error to console - no user feedback
+
+**Recommendation**:
+- Use Decimal parsing for ct/x values
+- Validate event count matches expected format
+- Show user-friendly error message if URL parsing fails
+
+---
+
+## Performance & Architecture
+
+### 10. Debounce Timer Memory Leak (Non-Issue)
+**Confidence**: 80%
+**Files**: `src/urlState.ts`
+**Lines**: 385
+
+```typescript
 export function setupURLSync(): () => void {
-    const handlers = new Map<Element, Map<string, EventListener>>();
-    // ... register handlers ...
-    return () => {
+    let debounceTimer: number | undefined;
+
+    const inputHandler = () => {
         clearTimeout(debounceTimer);
-        handlers.forEach((eventMap, element) => {
-            eventMap.forEach((handler, event) => {
-                element.removeEventListener(event, handler);
-            });
-        });
-        handlers.clear();
+        debounceTimer = window.setTimeout(() => {
+            updateURL();
+        }, 500);
     };
-}
 ```
+
+**Initial Concern**: If page is navigated away before cleanup function is called, `debounceTimer` could fire after DOM is gone.
+
+**Verdict**: Actually handled correctly. Cleanup is registered in `main.ts:393`. This is working as designed.
 
 ---
 
-## High Priority Issues
+## Positive Findings
 
-### ~~2. Race Condition in Chart Registry Updates~~ ✅ RESOLVED
-
-**Files:** `src/ui/eventHandlers.ts`
-**Severity:** HIGH
-**Status:** ✅ **FIXED** (2025-11-28)
-
-**Problem:**
-Chart updates wrapped in `requestAnimationFrame(() => setTimeout(...))` caused race conditions when users clicked calculate buttons rapidly, leading to chart corruption and memory leaks.
-
-**Resolution:**
-- Added both `pendingRAF` and `pendingCalculation` tracking to all four affected handlers:
-  - `createAccelHandler` (lines 82-147)
-  - `createFlipBurnHandler` (lines 149-224)
-  - `createTwinParadoxHandler` (lines 226-322)
-  - `createGraphUpdateHandler` (lines 324-367)
-- Each handler cancels both pending RAF and timeout before starting new calculations
-- Preserves `requestAnimationFrame()` to ensure "Working..." message is visible before calculation starts
-- Eliminates race conditions while maintaining UI responsiveness and user feedback
-
-**Implementation:**
-```typescript
-export function createAccelHandler(...): () => void {
-    let pendingRAF: number | null = null;
-    let pendingCalculation: number | null = null;
-
-    return () => {
-        // Cancel pending calculation to prevent race condition
-        if (pendingRAF !== null) {
-            cancelAnimationFrame(pendingRAF);
-            pendingRAF = null;
-        }
-        if (pendingCalculation !== null) {
-            clearTimeout(pendingCalculation);
-            pendingCalculation = null;
-        }
-
-        if (resultA1) resultA1.textContent = "Working...";
-
-        // requestAnimationFrame ensures UI updates before calculation
-        pendingRAF = requestAnimationFrame(() => {
-            pendingRAF = null;
-            pendingCalculation = window.setTimeout(() => {
-                // Heavy calculations
-                chartRegistry.current = updateAccelCharts(chartRegistry.current, data);
-                pendingCalculation = null;
-            }, 0);
-        });
-    };
-}
-```
+1. **No XSS vulnerabilities** - Excellent use of safe DOM manipulation
+2. **Good separation of concerns** - Clean lib/UI/charts architecture
+3. **Proper use of Decimal.js** for precision throughout calculations
+4. **Clean functional style** in data generation
+5. **Good D3 practices** - No direct DOM manipulation, proper data binding
+6. **Modern TypeScript patterns** - Good use of type system
+7. **Thoughtful architecture** - URL state management, event debouncing
 
 ---
 
-### ~~3. Type Safety Violations with `as any` Casts~~ ✅ RESOLVED
+## Summary
 
-**Files:** `src/main.ts:133,245,331,343`, `src/ui/eventHandlers.ts:260,488`
-**Severity:** HIGH
-**Status:** ✅ **FIXED** (2025-11-28)
+### Critical Actions Required:
+1. **Add comprehensive test suite** (100% confidence - violates CLAUDE.md TDD requirement)
+2. **Add zero-division guards** to all Decimal.div() operations (95% confidence)
+3. **Handle negative sqrt arguments** explicitly (90% confidence)
+4. **Fix precision loss** in URL validation (90% confidence)
 
-**Problem:**
-Controllers had different types but were stored in state objects using `ReturnType<typeof ...>`, forcing type casts to bypass incompatibilities.
-
-**Resolution:**
-- Created proper type hierarchy in `minkowski-types.ts`:
-  - `BaseController` interface with shared methods (pause, play, destroy)
-  - `MinkowskiDiagramController` for standard two-event diagrams
-  - `TwinParadoxController` for twin paradox with velocity slider
-  - `SimultaneityController` for simultaneity with reset/clearAll
-- Updated all function return types to use specific controller interfaces
-- Updated state objects in `main.ts` to use explicit controller types
-- Removed all `as any` casts from controller method calls
-- Fixed event listener type casts by using `EventHandler = EventListener | EventListenerObject`
-- Made controller parameter nullable in `eventHandlers.ts` callbacks
-- Removed `| any` hack from twin paradox controller implementation
-
-**Implementation:**
-```typescript
-// minkowski-types.ts
-export interface BaseController {
-    pause(): void;
-    play(): void;
-    destroy(): void;
-}
-
-export interface MinkowskiDiagramController extends BaseController {
-    update(data: MinkowskiData): void;
-}
-
-// minkowski-twins.ts
-export interface TwinParadoxController extends BaseController {
-    update(data: TwinParadoxMinkowskiData): void;
-    updateSlider(velocityC: number): void;
-}
-
-// simultaneity.ts
-export interface SimultaneityController extends BaseController {
-    update(): void;
-    updateSlider?(velocity: number): void;
-    reset(): void;
-    clearAll(): void;
-}
-
-// main.ts - No more type casts needed
-twinsMinkowskiState.controller.update(data);
-simultaneityState.controller.reset();
-```
-
-**Verification:** TypeScript compiles without errors. All controller method calls are now type-safe.
+### Important Improvements:
+5. Strengthen race condition handling in event handlers
+6. Add error boundaries for Decimal operations
+7. Make DOM utility null handling consistent
 
 ---
 
-### ~~4. Global Window Pollution for Inter-Component Communication~~ ✅ RESOLVED
-
-**Files:** `src/charts/simultaneity.ts`, `src/urlState.ts`, `src/charts/simultaneityState.ts`
-**Severity:** HIGH
-**Status:** ✅ **FIXED** (2025-11-28)
-
-Previously, components communicated via global window object.
-
-**Problem:**
-```typescript
-// simultaneity.ts
-(window as any).getSimultaneityEvents = () => state.events;
-
-if ((window as any).pendingSimultaneityEvents) {
-    const pendingEvents = (window as any).pendingSimultaneityEvents;
-    delete (window as any).pendingSimultaneityEvents;
-}
-
-// urlState.ts
-(window as any).pendingSimultaneityEvents = events;
-
-if (typeof (window as any).getSimultaneityEvents === 'function') {
-    const events = (window as any).getSimultaneityEvents();
-}
-```
-
-**Impact:**
-- Cannot run multiple instances
-- Name collisions with other libraries
-- Untestable without mocking window
-- Violates encapsulation
-
-**Resolution:**
-Created `simultaneityState.ts` module with proper encapsulation:
-- Removed `window.getSimultaneityEvents` and `window.pendingSimultaneityEvents`
-- Module stores event data internally with `getEvents()`, `setEvents()`, `setPendingEvents()`, `consumePendingEvents()`
-- Added `syncStateToModule()` helper in `simultaneity.ts` called after every state.events modification
-- Updated `urlState.ts` to use module functions instead of window globals
-- Maintains pub/sub pattern with `subscribe()` for future extensibility
-
-**Implementation:**
-```typescript
-// simultaneityState.ts
-export interface SimultaneityEventData {
-    ct: number;
-    x: number;
-}
-
-let currentEvents: SimultaneityEventData[] = [];
-let pendingEvents: SimultaneityEventData[] | null = null;
-
-export function getEvents(): SimultaneityEventData[] {
-    return currentEvents;
-}
-
-export function setEvents(events: SimultaneityEventData[]): void {
-    currentEvents = events;
-    notifySubscribers();
-}
-
-export function setPendingEvents(events: SimultaneityEventData[]): void {
-    pendingEvents = events;
-}
-
-export function consumePendingEvents(): SimultaneityEventData[] | null {
-    const events = pendingEvents;
-    pendingEvents = null;
-    return events;
-}
-
-// simultaneity.ts - Sync helper called after every state.events modification
-function syncStateToModule(events: SimultaneityEvent[]): void {
-    const eventData = events.map(e => ({ ct: e.ct, x: e.x }));
-    simultaneityState.setEvents(eventData);
-}
-
-// urlState.ts - Clean access without window globals
-const events = simultaneityState.getEvents();
-simultaneityState.setPendingEvents(events);
-```
-
-**Verification:** TypeScript compiles without errors. Build successful. No window pollution.
-
----
-
-## Medium Priority Issues
-
-### 5. Missing Input Validation Before parseFloat
-
-**File:** `src/ui/eventHandlers.ts:100-102,158-160,218-219`
-**Severity:** MEDIUM
-
-User input is converted to numbers without validation.
-
-**Problem:**
-```typescript
-const accelG = parseFloat(accelInput.value ?? '1');
-const secs = rl.ensure(timeInput.value ?? 0).mul(60 * 60 * 24);
-const distanceLightYears = parseFloat(distanceInput.value ?? '0');
-const velocityC = parseFloat(velocityInput.value ?? '0.8');
-```
-
-**Edge Cases:**
-- `parseFloat("")` → `NaN`
-- `parseFloat("abc")` → `NaN`
-- `parseFloat("1.2.3")` → `1.2` (silently truncates)
-
-**Impact:** NaN propagates through Decimal.js calculations, produces invalid results shown to user.
-
-**Fix:**
-```typescript
-const rawValue = accelInput.value ?? '1';
-const accelG = parseFloat(rawValue);
-
-if (isNaN(accelG) || !isFinite(accelG) || accelG < 0.1) {
-    setElement(resultA1, "Invalid acceleration", "");
-    return;
-}
-```
-
----
-
-### 6. Inconsistent Error Handling in Physics Library
-
-**File:** `src/relativity_lib.ts`
-**Severity:** MEDIUM
-
-Error handling is inconsistent - some functions throw exceptions, others return `DecimalNaN`.
-
-**Problem:**
-```typescript
-// Returns NaN (line 92)
-export function checkVelocity(velocity: NumberInput): Decimal {
-    const v = ensure(velocity);
-    if (v.abs().gte(c)) {
-        return DecimalNaN;  // Returns special value
-    }
-    return v;
-}
-
-// Throws exception (line 78)
-export function check(v: NumberInput, msg: string = "Invalid number"): Decimal {
-    const v1 = ensure(v);
-    if (v1.isNaN() || !v1.isFinite()) {
-        throw new Error(msg);  // Throws
-    }
-    return v1;
-}
-```
-
-**Impact:** Callers must know which functions throw vs return NaN. Easy to miss NaN returns, leading to silent failures.
-
-**Fix:** Standardize on throwing for invalid physics inputs:
-```typescript
-export function checkVelocity(velocity: NumberInput): Decimal {
-    const v = ensure(velocity);
-    if (v.abs().gte(c)) {
-        throw new Error(`Velocity ${v.toFixed(3)}c exceeds speed of light`);
-    }
-    return v;
-}
-```
-
----
-
-### ~~7. Resize Handler Memory Leak~~ ✅ RESOLVED
-
-**File:** `src/main.ts`
-**Severity:** MEDIUM
-**Status:** ✅ **FIXED** (2025-11-28)
-
-**Resolution:**
-Fixed as part of the comprehensive event listener cleanup (#1). The resize handler timeout is now properly cleared in the cleanup function, and the resize event listeners are tracked and removed on page unload.
-
----
-
-### 8. Production Console Errors
-
-**File:** `src/urlState.ts:273`
-**Severity:** LOW-MEDIUM
-
-Errors are logged to console in production code.
-
-**Problem:**
-```typescript
-console.error('Failed to parse simultaneity events from URL:', e);
-```
-
-**Impact:** Exposes internal errors to users, lacks proper error reporting infrastructure.
-
-**Fix:** Implement proper error reporting:
-```typescript
-// errorReporting.ts
-export function reportError(message: string, error: Error, context?: any): void {
-    if (process.env.NODE_ENV === 'production') {
-        // Send to error tracking service
-    } else {
-        console.error(message, error, context);
-    }
-}
-```
-
----
-
-## Code Quality Improvements (Non-Critical)
-
-### 1. Duplicate Code in Chart Generation
-
-**File:** `src/charts/dataGeneration.ts`
-
-Acceleration and flip-burn functions share ~80% identical code for fuel calculations. Extract to shared function.
-
-**Suggestion:**
-```typescript
-function calculateFuelMass(
-    mass: Decimal,
-    velocity: Decimal,
-    exhaustVelocity: Decimal
-): Decimal {
-    // Shared rocket equation calculation
-}
-```
-
----
-
-### 2. Magic Numbers
-
-**File:** `src/charts/simultaneity.ts:57`
-
-```typescript
-const TRAIN_EXAMPLE_SCALE = 2 * C * 1.3;  // Why 1.3?
-```
-
-**Fix:** Add explanatory comment or use named constant:
-```typescript
-// Scale factor to ensure train fits comfortably in viewport with padding
-const VIEWPORT_PADDING_FACTOR = 1.3;
-const TRAIN_EXAMPLE_SCALE = 2 * C * VIEWPORT_PADDING_FACTOR;
-```
-
----
-
-### 3. Missing JSDoc Documentation
-
-Many complex physics functions lack documentation explaining the mathematics, units, and assumptions.
-
-**Example - Add documentation:**
-```typescript
-/**
- * Calculates relativistic time dilation factor (gamma).
- *
- * @param velocity - Velocity as fraction of c (0 to <1)
- * @returns Lorentz factor γ = 1/√(1 - v²/c²)
- * @throws {Error} If velocity >= c (faster than light)
- *
- * @example
- * gammaFactor(0.8) // Returns ~1.667 (time runs 1.667x slower)
- */
-export function gammaFactor(velocity: NumberInput): Decimal {
-    // ...
-}
-```
-
----
-
-## Implementation Priority
-
-**✅ Completed:**
-1. ~~Fix event listener memory leaks (#1)~~ - DONE
-2. ~~Fix resize handler leak (#7)~~ - DONE (fixed with #1)
-3. ~~Fix race condition in chart updates (#2)~~ - DONE
-4. ~~Resolve type safety violations (#3)~~ - DONE
-5. ~~Remove global window pollution (#4)~~ - DONE
-
-**Immediate (this sprint):**
-
-**High Priority (next sprint):**
-
-**Medium Priority (backlog):**
-6. Add input validation (#5)
-7. Standardize error handling (#6)
-8. Remove production console errors (#8)
-
-**Code Quality (ongoing):**
-9. Extract duplicate code
-10. Document magic numbers
-11. Add JSDoc to physics functions
-
----
-
-## Decimal.js Precision Review (Nov 2025)
-
-### Summary
-
-Reviewed the refactor_decimal branch to ensure maximum precision is preserved with Decimal.js, with a one-way conversion to floats only for charts and graphics.
-
-### Architecture Analysis
-
-The codebase correctly implements a precision-preserving architecture:
-
-**1. Core Physics Calculations (`relativity_lib.ts`)** ✅ CORRECT
-- All physics calculations use Decimal.js at 150 decimal places
-- The `ensure()` function converts all inputs to Decimal immediately
-- Physical constants (c, g, lightYear, etc.) are Decimal values
-- All returns are Decimal values
-
-**2. Event Handlers (`eventHandlers.ts`)** ✅ CORRECT
-- All result labels use `rl.formatSignificant()` with Decimal values
-- Float conversions only happen after all calculations, explicitly for chart data
-- Comments document the intentional precision reduction for charts
-
-**3. Data Generation (`dataGeneration.ts`)** ✅ CORRECT
-- `ChartDataPoint` type stores both `x: number; y: number` (for Chart.js) AND `xDecimal: Decimal; yDecimal: Decimal` (for precision)
-- All calculations done with Decimal, then `.toNumber()` called only for chart display
-
-**4. Data Interfaces** ✅ CORRECT
-- `MinkowskiData` and `TwinParadoxMinkowskiData` include both float versions (for D3/graphics) and Decimal versions (for display)
-- Labels correctly use Decimal versions via `rl.formatSignificant()`
-
-### Issues Fixed
-
-**Violations Corrected:**
-
-1. **`minkowski-twins.ts`** - Lines 279-280, 294-296, 543, 547
-   - Was: `data.properTimeYears.toFixed(2)` (float)
-   - Fixed: `rl.formatSignificant(data.properTimeYearsDecimal, "0", 2)` (Decimal)
-
-2. **`minkowski.ts`** - Lines 639, 649, 922, 924, 1075-1076, 1158-1159
-   - Was: `(d.ctPrime / C).toFixed(3)` (float)
-   - Fixed: `rl.formatSignificant(d.deltaTPrimeDecimal, "0", 3)` (Decimal)
-
-3. **`simultaneity.ts`** - Lines 914, 916
-   - Was: `deltaTime.toFixed(3)` (float)
-   - Fixed: `rl.formatSignificant(deltaTimeDecimal, "0", 3)` (Decimal)
-
-### Verification
-
-- ✅ All label strings now use `rl.formatSignificant()` with Decimal values
-- ✅ Float values are only used for chart rendering (Chart.js, D3)
-- ✅ No conversion of floats back to Decimal or to label strings
-- ✅ TypeScript compiles without errors
-- ✅ Production build succeeds
-
----
-
-## Notes
-
-- The codebase shows excellent architectural patterns: functional programming, separation of concerns, high-precision arithmetic
-- Main concerns are runtime safety (memory leaks, race conditions) and type safety
-- Most issues are fixable without major refactoring
-- Consider implementing lifecycle management for event listeners and chart controllers
+**Overall Assessment**: The architecture and code quality are good, with modern TypeScript patterns and proper separation of concerns. However, the **complete absence of tests** is a critical issue for a physics calculator. The precision-critical calculations need comprehensive validation, especially for edge cases where velocities approach *c* or inputs are at extremes.
