@@ -33,12 +33,10 @@ function createScales(data: MinkowskiData, size: number): ScaleSet {
     const ctPrime = gamma * (ct - beta * x);
     const xPrime = gamma * (x - beta * ct);
 
-    // Calculate extent with 20% padding
+    // Calculate extent with 20% padding - use only original frame for fixed scale
     const maxCoord = Math.max(
         Math.abs(ct),
-        Math.abs(x),
-        Math.abs(ctPrime),
-        Math.abs(xPrime)
+        Math.abs(x)
     ) * 1.2;
 
     const centerX = size / 2;
