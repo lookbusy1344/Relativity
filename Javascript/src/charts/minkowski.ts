@@ -653,7 +653,7 @@ function renderLabels(
         .attr('y', size - 30)
         .attr('text-anchor', 'end')
         .attr('fill', D3_COLORS.quantumGreen)
-        .text(d => `${rl.formatSignificant(d.deltaXPrimeDecimal, "0", 1)} km`);
+        .text(d => `${rl.formatSignificant(d.deltaXPrimeDecimal, "0", 0)} km`);
 }
 
 /**
@@ -931,7 +931,7 @@ function startFrameAnimation(
         svg.select('.separation-time')
             .text(`${rl.formatSignificant(currentCtPrimeDecimal, "0", 3)} sec`);
         svg.select('.separation-distance')
-            .text(`${rl.formatSignificant(currentXPrimeDecimal, "0", 1)} km`);
+            .text(`${rl.formatSignificant(currentXPrimeDecimal, "0", 0)} km`);
     };
 
     const animationTimer = timer(() => {
@@ -1077,7 +1077,7 @@ export function drawMinkowskiDiagramD3(
             // Update labels to show target velocity and separations using Decimal for precision
             svg.select('.velocity-label').text(`Moving frame ${rl.formatSignificant(data.velocityDecimal, "9", 2)}c`);
             svg.select('.separation-time').text(`${rl.formatSignificant(data.deltaTPrimeDecimal, "0", 3)} sec`);
-            svg.select('.separation-distance').text(`${rl.formatSignificant(data.deltaXPrimeDecimal, "0", 1)} km`);
+            svg.select('.separation-distance').text(`${rl.formatSignificant(data.deltaXPrimeDecimal, "0", 0)} km`);
             tooltips.reattach();
         } else {
             animation.play();
@@ -1154,7 +1154,7 @@ export function drawMinkowskiDiagramD3(
                 // Update labels to show target velocity and separations using Decimal for precision
                 svg.select('.velocity-label').text(`Moving frame ${rl.formatSignificant(data.velocityDecimal, "9", 2)}c`);
                 svg.select('.separation-time').text(`${rl.formatSignificant(data.deltaTPrimeDecimal, "0", 3)} sec`);
-                svg.select('.separation-distance').text(`${rl.formatSignificant(data.deltaXPrimeDecimal, "0", 1)} km`);
+                svg.select('.separation-distance').text(`${rl.formatSignificant(data.deltaXPrimeDecimal, "0", 0)} km`);
                 tooltips.reattach();
             }
         },

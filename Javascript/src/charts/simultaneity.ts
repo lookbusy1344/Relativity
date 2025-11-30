@@ -956,11 +956,8 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             const refPrime = lorentzTransform(refEvent.ct, refEvent.x, state.velocity);
             const deltaXPrime = eventPrime.xPrime - refPrime.xPrime;
 
-            // Format with thousands separator
-            const formattedDistance = Math.abs(deltaXPrime).toLocaleString('en-US', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            });
+            // Format as whole number with thousands separator
+            const formattedDistance = Math.round(Math.abs(deltaXPrime)).toLocaleString('en-US');
 
             const color = event.temporalOrder === 'future' ? '#00ff9f' :
                          event.temporalOrder === 'past' ? '#ffaa00' : '#e8f1f5';
