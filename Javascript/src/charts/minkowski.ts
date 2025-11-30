@@ -3,6 +3,7 @@ import { select, Selection } from 'd3-selection';
 import 'd3-transition'; // Enables .transition() method on selections
 import { easeCubicInOut } from 'd3-ease';
 import { timer } from 'd3-timer';
+import Decimal from 'decimal.js';
 import { COLORS as D3_COLORS } from './minkowski-colors';
 import type {
     MinkowskiDiagramController,
@@ -455,9 +456,13 @@ function renderEvents(
         eventColor = D3_COLORS.lightlike;
     }
 
+    // Decimal versions for tooltip display
+    const timeDecimal = data.timeDecimal;  // seconds
+    const xDecimal = data.distanceDecimal;  // km
+
     const eventData = [
-        { x: 0, y: 0, color: D3_COLORS.plasmaWhite, radius: 8, label: 'Origin' },
-        { x: x, y: ct, color: eventColor, radius: 8, label: 'Event' }
+        { x: 0, y: 0, color: D3_COLORS.plasmaWhite, radius: 8, label: 'Origin', timeDecimal: '0', xDecimal: '0' },
+        { x: x, y: ct, color: eventColor, radius: 8, label: 'Event', timeDecimal: timeDecimal.toString(), xDecimal: xDecimal.toString() }
     ];
 
     const events = eventsGroup.selectAll('circle')
@@ -466,6 +471,8 @@ function renderEvents(
         .attr('data-label', d => d.label)
         .attr('data-x', d => d.x)
         .attr('data-y', d => d.y)
+        .attr('data-time-decimal', d => d.timeDecimal)
+        .attr('data-x-decimal', d => d.xDecimal)
         .attr('r', d => d.radius)
         .attr('fill', d => d.color)
         .style('cursor', 'pointer');
@@ -489,12 +496,16 @@ function renderLabels(
     data: MinkowskiData,
     withTransition: boolean
 ): void {
+    // Float versions for D3 positioning
     const ct = data.time * C;
     const x = data.distance;
-    const beta = data.velocity;
-    const gamma = 1 / Math.sqrt(1 - beta * beta);
-    const ctPrime = gamma * (ct - beta * x);
-    const xPrime = gamma * (x - beta * ct);
+
+    // Decimal versions for precise label text
+    const c_km_per_s = rl.c.div(1000);  // Convert c from m/s to km/s
+    const ctDecimal = data.timeDecimal.mul(c_km_per_s);  // ct in km
+    const xDecimal = data.distanceDecimal;  // Already in km
+    const ctPrimeDecimal = data.deltaTPrimeDecimal.mul(c_km_per_s);  // ct' in km
+    const xPrimeDecimal = data.deltaXPrimeDecimal;  // Already in km
 
     const labelsGroup = svg.select('g.labels');
 
@@ -520,7 +531,7 @@ function renderLabels(
 
     if (ct !== 0 || x !== 0) {
         labelData.push({
-            text: `(ct=${formatCoordinate(ct)}, x=${formatCoordinate(x)})`,
+            text: `(ct=${formatCoordinate(ctDecimal)}, x=${formatCoordinate(xDecimal)})`,
             x: x,
             y: ct,
             dx: 12,
@@ -529,7 +540,7 @@ function renderLabels(
             class: 'label label-original'
         });
         labelData.push({
-            text: `(ct'=${formatCoordinate(ctPrime)}, x'=${formatCoordinate(xPrime)})`,
+            text: `(ct'=${formatCoordinate(ctPrimeDecimal)}, x'=${formatCoordinate(xPrimeDecimal)})`,
             x: x,
             y: ct,
             dx: 12,
@@ -607,9 +618,6 @@ function renderLabels(
     // Velocity and separation labels (bottom-right corner) - use Decimal versions for display precision
     const labelGroup = labelsGroup.selectAll('g.velocity-info')
         .data([{
-            beta,
-            ctPrime,
-            xPrime,
             velocityDecimal: data.velocityDecimal,
             deltaTPrimeDecimal: data.deltaTPrimeDecimal,
             deltaXPrimeDecimal: data.deltaXPrimeDecimal
@@ -698,12 +706,12 @@ function setupTooltips(
     const attachEventTooltips = () => {
         svg.selectAll('g.events circle').on('mouseenter', function(event: MouseEvent) {
             const label = (this as SVGCircleElement).getAttribute('data-label');
-            const x = parseFloat((this as SVGCircleElement).getAttribute('data-x') || '0');
-            const y = parseFloat((this as SVGCircleElement).getAttribute('data-y') || '0');
+            const timeDecimalStr = (this as SVGCircleElement).getAttribute('data-time-decimal') || '0';
+            const xDecimalStr = (this as SVGCircleElement).getAttribute('data-x-decimal') || '0';
 
             const content = label === 'Origin'
                 ? 'Event 1: Origin (0, 0)'
-                : `Event 2: (${formatCoordinate(y / C)}, ${formatCoordinate(x)})`;
+                : `Event 2: (${formatCoordinate(new Decimal(timeDecimalStr))}, ${formatCoordinate(new Decimal(xDecimalStr))})`;
 
             tooltip.html(content)
                 .style('position', 'fixed')
@@ -775,11 +783,11 @@ function setupTooltips(
                          'x\' axis - Moving Frame (space)';
             } else if (targetElement.tagName === 'circle') {
                 const label = (targetElement as SVGCircleElement).getAttribute('data-label');
-                const x = parseFloat((targetElement as SVGCircleElement).getAttribute('data-x') || '0');
-                const y = parseFloat((targetElement as SVGCircleElement).getAttribute('data-y') || '0');
+                const timeDecimalStr = (targetElement as SVGCircleElement).getAttribute('data-time-decimal') || '0';
+                const xDecimalStr = (targetElement as SVGCircleElement).getAttribute('data-x-decimal') || '0';
                 content = label === 'Origin'
                     ? 'Event 1: Origin (0, 0)'
-                    : `Event 2: (${formatCoordinate(y / C)}, ${formatCoordinate(x)})`;
+                    : `Event 2: (${formatCoordinate(new Decimal(timeDecimalStr))}, ${formatCoordinate(new Decimal(xDecimalStr))})`;
             } else if (targetElement.tagName === 'line' && targetElement.parentElement?.classList.contains('light-cones')) {
                 const from = (targetElement as SVGLineElement).getAttribute('data-from');
                 content = from === 'origin' ? 'Light cone from origin' : 'Light cone from event';

@@ -2,9 +2,16 @@
 import { select, Selection } from 'd3-selection';
 import { COLORS as D3_COLORS } from './minkowski-colors';
 import type { ScaleSet, TooltipController } from './minkowski-types';
+import Decimal from 'decimal.js';
+import * as rl from '../relativity_lib';
 
 // Speed of light constant
 export const C = 299792.458; // km/s
+
+/**
+ * Speed of light as Decimal (m/s) - re-export from relativity_lib for convenience
+ */
+export const C_DECIMAL = rl.c;
 
 /**
  * Debounce helper for resize events
@@ -21,13 +28,14 @@ export function debounce<T extends (...args: any[]) => any>(
 }
 
 /**
- * Format coordinate value for display
+ * Format coordinate value for display using Decimal precision
  */
-export function formatCoordinate(value: number): string {
-    if (Math.abs(value) < 0.001 || Math.abs(value) > 10000) {
-        return value.toExponential(2);
+export function formatCoordinate(value: Decimal): string {
+    const abs = value.abs();
+    if (abs.lt(0.001) || abs.gt(10000)) {
+        return rl.formatSignificant(value, "0", 2);
     }
-    return value.toFixed(2);
+    return rl.formatSignificant(value, "0", 2);
 }
 
 /**
