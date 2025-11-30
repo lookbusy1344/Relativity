@@ -27,12 +27,6 @@ export type { MinkowskiData, MinkowskiDiagramController, ScaleSet, TooltipContro
 function createScales(data: MinkowskiData, size: number): ScaleSet {
     const ct = data.time * C;
     const x = data.distance;
-    const beta = data.velocity;
-    const gamma = 1 / Math.sqrt(1 - beta * beta);
-
-    const ctPrime = gamma * (ct - beta * x);
-    const xPrime = gamma * (x - beta * ct);
-
     // Calculate extent with 20% padding - use only original frame for fixed scale
     const maxCoord = Math.max(
         Math.abs(ct),

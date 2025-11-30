@@ -5,6 +5,7 @@
 
 import * as simultaneityState from './charts/simultaneityState';
 import * as rl from './relativity_lib';
+import Decimal from 'decimal.js';
 
 // Parameter mapping: clean URL param name -> HTML input element ID
 type ParamMap = Record<string, string>;
@@ -102,12 +103,16 @@ function getDefaultValue(inputId: string): string {
 }
 
 /**
- * Validate a numeric input value
+ * Validate a numeric input value using Decimal.js for precision
  */
 function isValidNumber(value: string): boolean {
     if (!value || value.trim() === '') return false;
-    const num = parseFloat(value);
-    return !isNaN(num) && isFinite(num);
+    try {
+        const decimal = new Decimal(value);
+        return decimal.isFinite();
+    } catch {
+        return false;
+    }
 }
 
 /**
@@ -264,14 +269,16 @@ function initializeSimultaneityFromURL(urlParams: URLSearchParams, tabConfig: Ta
             // Decode events from: ct1,x1;ct2,x2;...
             const eventPairs = eventsParam.split(';');
             const events = eventPairs.map(pair => {
-                const [ct, x] = pair.split(',').map(parseFloat);
+                const [ctStr, xStr] = pair.split(',');
+                const ctDecimal = rl.ensure(ctStr);
+                const xDecimal = rl.ensure(xStr);
                 return {
-                    ct,
-                    x,
-                    ctDecimal: rl.ensure(ct),
-                    xDecimal: rl.ensure(x)
+                    ct: ctDecimal.toNumber(),
+                    x: xDecimal.toNumber(),
+                    ctDecimal,
+                    xDecimal
                 };
-            }).filter(e => !isNaN(e.ct) && !isNaN(e.x));
+            }).filter(e => e.ctDecimal.isFinite() && e.xDecimal.isFinite());
 
             if (events.length > 0) {
                 // Store events in state module for controller to pick up
@@ -371,7 +378,8 @@ function updateSimultaneityURL(params: URLSearchParams, tabConfig: TabConfig): v
 
         if (!isDefaultTrainExample) {
             // Encode events as: ct1,x1;ct2,x2;...
-            const encoded = events.map((e: any) => `${e.ct.toFixed(2)},${e.x.toFixed(2)}`).join(';');
+            // Use toString() to preserve full precision instead of toFixed
+            const encoded = events.map((e: any) => `${e.ct},${e.x}`).join(';');
             params.set('events', encoded);
         }
     }
