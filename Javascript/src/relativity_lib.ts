@@ -601,6 +601,11 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
         return str;
     }
 
+    // If 0 decimal places requested, return just the integer part
+    if (significantDecimalPlaces === 0) {
+        return parts[0];
+    }
+
     let decOutput = ""; // output buffer
     let sigPart = ignoreChar.length > 0; // if it's "" just used fixed number of digits;
     // loop through the decimal part, if the digit is sig just copy it over. Otherwise include digit digits
@@ -619,5 +624,5 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
         }
     }
 
-    return `${parts[0]}.${decOutput}`;
+    return decOutput.length === 0 ? parts[0] : `${parts[0]}.${decOutput}`;
 }
