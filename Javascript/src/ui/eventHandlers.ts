@@ -122,14 +122,13 @@ export function createAccelHandler(
             const relDist = rl.relativisticDistance(accel, secs);
             const relVelC = relVel.div(rl.c);
             const relDistC = relDist.div(rl.lightYear);
-            const relVelKm = relVel.div(1000);
             const relDistKm = relDist.div(1000);
 
             // Calculate fuel fractions at all nozzle efficiencies
             const [fuelPercent70, fuelPercent75, fuelPercent80, fuelPercent85] = 
                 rl.pionRocketFuelFractionsMultiple(secs, accel, [0.7, 0.75, 0.8, 0.85]);
 
-            if (resultA1) setElement(resultA1, rl.formatSignificant(relVelKm, "9", 3), "km/s");
+            if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 2), "m/s");
             if (resultA2) setElement(resultA2, rl.formatSignificant(relDistKm, "0", 1), "km");
             if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
             if (resultA2b) setElement(resultA2b, rl.formatSignificant(relDistC, "0", 3), "ly");
