@@ -604,7 +604,7 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
     // For normal case, we can use exact rounding
     const needsFullPrecision = ignoreChar.length > 0;
     const maxDecimalPlaces = needsFullPrecision
-        ? Math.max(100, significantDecimalPlaces + 50)
+        ? Math.max(precisionConfigured, significantDecimalPlaces + 50)
         : significantDecimalPlaces;
 
     const str = value.toFixed(maxDecimalPlaces);
