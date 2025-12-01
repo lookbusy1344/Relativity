@@ -29,27 +29,27 @@ describe('formatSignificant', () => {
     describe('Very large numbers', () => {
         it('should handle extremely large positive numbers in decimal notation', () => {
             // Numbers beyond JavaScript's safe integer range
-            expect(formatSignificant(new Decimal('9007199254740992.123456'))).toBe('9007199254740992.12');
-            expect(formatSignificant(new Decimal('12345678901234567890.987654321'))).toBe('12345678901234567890.99'); // rounds up
+            expect(formatSignificant(new Decimal('9007199254740992.123456'))).toBe('9,007,199,254,740,992.12');
+            expect(formatSignificant(new Decimal('12345678901234567890.987654321'))).toBe('12,345,678,901,234,567,890.99'); // rounds up
 
             // Even larger numbers - now formatted in decimal notation, not scientific
-            expect(formatSignificant(new Decimal('999999999999999999999999999999.123456789'))).toBe('999999999999999999999999999999.12');
-            expect(formatSignificant(new Decimal('1234567890123456789012345678901234567890.5555555'))).toBe('1234567890123456789012345678901234567890.56'); // rounds up
+            expect(formatSignificant(new Decimal('999999999999999999999999999999.123456789'))).toBe('999,999,999,999,999,999,999,999,999,999.12');
+            expect(formatSignificant(new Decimal('1234567890123456789012345678901234567890.5555555'))).toBe('1,234,567,890,123,456,789,012,345,678,901,234,567,890.56'); // rounds up
         });
 
         it('should handle extremely large negative numbers in decimal notation', () => {
-            expect(formatSignificant(new Decimal('-9007199254740992.123456'))).toBe('-9007199254740992.12');
-            expect(formatSignificant(new Decimal('-12345678901234567890.987654321'))).toBe('-12345678901234567890.99'); // rounds down
+            expect(formatSignificant(new Decimal('-9007199254740992.123456'))).toBe('-9,007,199,254,740,992.12');
+            expect(formatSignificant(new Decimal('-12345678901234567890.987654321'))).toBe('-12,345,678,901,234,567,890.99'); // rounds down
 
             // Very large negative numbers in decimal notation
-            expect(formatSignificant(new Decimal('-999999999999999999999999999999.123456789'))).toBe('-999999999999999999999999999999.12');
+            expect(formatSignificant(new Decimal('-999999999999999999999999999999.123456789'))).toBe('-999,999,999,999,999,999,999,999,999,999.12');
         });
 
         it('should handle numbers with many integer digits and various decimal patterns', () => {
             // These very large numbers now in decimal notation (rounding applied)
-            expect(formatSignificant(new Decimal('123456789012345678901234567890.000001'))).toBe('123456789012345678901234567890');
-            expect(formatSignificant(new Decimal('123456789012345678901234567890.999999'))).toBe('123456789012345678901234567891'); // rounds up to next integer
-            expect(formatSignificant(new Decimal('123456789012345678901234567890.123456'))).toBe('123456789012345678901234567890.12');
+            expect(formatSignificant(new Decimal('123456789012345678901234567890.000001'))).toBe('123,456,789,012,345,678,901,234,567,890');
+            expect(formatSignificant(new Decimal('123456789012345678901234567890.999999'))).toBe('123,456,789,012,345,678,901,234,567,891'); // rounds up to next integer
+            expect(formatSignificant(new Decimal('123456789012345678901234567890.123456'))).toBe('123,456,789,012,345,678,901,234,567,890.12');
         });
     });
 
@@ -85,11 +85,11 @@ describe('formatSignificant', () => {
             // These are formatted in decimal with requested precision
             const largeNum = new Decimal('1e100');
             const result = formatSignificant(largeNum, '', 5);
-            expect(result).toContain('10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000');
+            expect(result).toContain('10,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000');
 
             const mediumNum = new Decimal('1.23456e50');
             const result2 = formatSignificant(mediumNum, '', 3);
-            expect(result2).toContain('123456000000000000000000000000000000000000000000000');
+            expect(result2).toContain('123,456,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000');
         });
 
         it('should format extremely small numbers in decimal notation', () => {
@@ -105,21 +105,21 @@ describe('formatSignificant', () => {
     describe('Different significantDecimalPlaces values', () => {
         it('should handle 0 decimal places', () => {
             expect(formatSignificant(new Decimal('123.456'), '', 0)).toBe('123');
-            expect(formatSignificant(new Decimal('999.999'), '', 0)).toBe('1000'); // rounds up
+            expect(formatSignificant(new Decimal('999.999'), '', 0)).toBe('1,000'); // rounds up
             expect(formatSignificant(new Decimal('0.999'), '', 0)).toBe('1'); // rounds up
             expect(formatSignificant(new Decimal('-123.456'), '', 0)).toBe('-123');
         });
 
         it('should handle 1 decimal place', () => {
             expect(formatSignificant(new Decimal('123.456'), '', 1)).toBe('123.5'); // rounds up
-            expect(formatSignificant(new Decimal('999.999'), '', 1)).toBe('1000'); // rounds up, zero stripped
+            expect(formatSignificant(new Decimal('999.999'), '', 1)).toBe('1,000'); // rounds up, zero stripped
             expect(formatSignificant(new Decimal('0.999'), '', 1)).toBe('1'); // rounds up
         });
 
         it('should handle 5 decimal places', () => {
             expect(formatSignificant(new Decimal('123.456789012'), '', 5)).toBe('123.45679'); // rounds up
             expect(formatSignificant(new Decimal('0.123456789'), '', 5)).toBe('0.12346'); // rounds up
-            expect(formatSignificant(new Decimal('999.999999999'), '', 5)).toBe('1000'); // rounds up
+            expect(formatSignificant(new Decimal('999.999999999'), '', 5)).toBe('1,000'); // rounds up
         });
 
         it('should handle 10 decimal places', () => {
@@ -131,7 +131,7 @@ describe('formatSignificant', () => {
         it('should handle 20 decimal places with large numbers', () => {
             // Now handles in decimal notation with full precision (trailing zero stripped by Decimal)
             expect(formatSignificant(new Decimal('12345678901234567890.12345678901234567890123456'), '', 20))
-                .toBe('12345678901234567890.1234567890123456789'); // trailing 0 stripped
+                .toBe('12,345,678,901,234,567,890.1234567890123456789'); // trailing 0 stripped
         });
 
         it('should handle more decimal places than available', () => {
@@ -190,7 +190,7 @@ describe('formatSignificant', () => {
 
         it('should handle numbers with repeating patterns', () => {
             expect(formatSignificant(new Decimal('123.123123123123'))).toBe('123.12');
-            expect(formatSignificant(new Decimal('999.999999999'))).toBe('1000'); // rounds up
+            expect(formatSignificant(new Decimal('999.999999999'))).toBe('1,000'); // rounds up
             expect(formatSignificant(new Decimal('0.123123123123'))).toBe('0.12');
         });
 
@@ -221,22 +221,22 @@ describe('formatSignificant', () => {
             const largeNum = new Decimal('123456789012345678901234567890123456789.123456789');
             const result = formatSignificant(largeNum, '', 2);
             // Now formatted in decimal notation with full integer precision
-            expect(result).toBe('123456789012345678901234567890123456789.12');
+            expect(result).toBe('123,456,789,012,345,678,901,234,567,890,123,456,789.12');
         });
 
         it('should not lose precision when converting to string', () => {
             // These numbers would lose precision if converted to JavaScript numbers
             const preciseNum1 = new Decimal('9007199254740993.123456');  // Above MAX_SAFE_INTEGER
-            expect(formatSignificant(preciseNum1, '', 2)).toBe('9007199254740993.12');
+            expect(formatSignificant(preciseNum1, '', 2)).toBe('9,007,199,254,740,993.12');
 
             const preciseNum2 = new Decimal('18014398509481984.987654');  // 2^54
-            expect(formatSignificant(preciseNum2, '', 2)).toBe('18014398509481984.99'); // rounds up
+            expect(formatSignificant(preciseNum2, '', 2)).toBe('18,014,398,509,481,984.99'); // rounds up
         });
 
         it('should maintain precision with very small fractional parts on large numbers', () => {
             const num = new Decimal('999999999999999999999999999999.000000000000000001');
             // Now in decimal notation (trailing zeros after decimal limit are stripped)
-            expect(formatSignificant(num, '', 5)).toBe('999999999999999999999999999999');
+            expect(formatSignificant(num, '', 5)).toBe('999,999,999,999,999,999,999,999,999,999');
         });
     });
 
@@ -252,8 +252,8 @@ describe('formatSignificant', () => {
             const hugeInt = '1234567890'.repeat(10) + '.123456789';  // 100 digit integer
             const decimal = new Decimal(hugeInt);
             const result = formatSignificant(decimal, '', 2);
-            // Now formatted in decimal notation with full integer precision
-            expect(result).toContain('1234567890123456789012345678901234567890');
+            // Now formatted in decimal notation with full integer precision (with commas)
+            expect(result).toContain('1,234,567,890,123,456,789,012,345,678,901,234,567,890');
             expect(result.endsWith('.12')).toBe(true);
         });
 
@@ -261,9 +261,10 @@ describe('formatSignificant', () => {
             // Very large integer with very long decimal
             const extreme = '9'.repeat(50) + '.' + '1'.repeat(50);
             const decimal = new Decimal(extreme);
-            // Now formatted in decimal notation
+            // Now formatted in decimal notation (with commas)
             const result = formatSignificant(decimal, '', 5);
-            expect(result.startsWith('99999999999999999999999999999999999999999999999999')).toBe(true);
+            // Check for commas in the formatted number
+            expect(result).toContain(',');
             expect(result.includes('.11111')).toBe(true);
         });
 
@@ -277,8 +278,8 @@ describe('formatSignificant', () => {
     describe('Real-world physics calculations', () => {
         it('should handle speed of light calculations', () => {
             const c = new Decimal('299792458.0');  // m/s
-            expect(formatSignificant(c, '', 2)).toBe('299792458');  // trailing .0 stripped
-            expect(formatSignificant(c, '', 0)).toBe('299792458');
+            expect(formatSignificant(c, '', 2)).toBe('299,792,458');  // trailing .0 stripped
+            expect(formatSignificant(c, '', 0)).toBe('299,792,458');
         });
 
         it('should handle gravitational constant', () => {
@@ -295,10 +296,10 @@ describe('formatSignificant', () => {
 
         it('should handle astronomical distances', () => {
             const lightYear = new Decimal('9460730472580800.0');  // meters
-            expect(formatSignificant(lightYear, '', 2)).toBe('9460730472580800');  // trailing .0 stripped
+            expect(formatSignificant(lightYear, '', 2)).toBe('9,460,730,472,580,800');  // trailing .0 stripped
 
             const parsec = new Decimal('30856775814913673.0');  // meters
-            expect(formatSignificant(parsec, '', 0)).toBe('30856775814913673');
+            expect(formatSignificant(parsec, '', 0)).toBe('30,856,775,814,913,673');
         });
 
         it('should handle relativistic calculations', () => {
@@ -341,7 +342,7 @@ describe('formatSignificant', () => {
                 { input: '123.456', expected: '123.46' },  // rounds up
                 { input: '-123.456', expected: '-123.46' },  // rounds down
                 { input: '0.00123', expected: '0' },  // rounds to 0.00, zeros stripped
-                { input: '999999999.99999', expected: '1000000000' },  // rounds up
+                { input: '999999999.99999', expected: '1,000,000,000' },  // rounds up
                 { input: '0.999', expected: '1' },  // rounds up to 1.00, zeros stripped
                 { input: '100.001', expected: '100' },  // rounds to 100.00, zeros stripped
             ];
@@ -355,7 +356,7 @@ describe('formatSignificant', () => {
             expect(formatSignificant(new Decimal('-0.0001'), '', 2)).toBe('0');  // rounds to 0
             expect(formatSignificant(new Decimal('-0.0001'), '', 5)).toBe('-0.0001');
             expect(formatSignificant(new Decimal('-1.5'), '', 2)).toBe('-1.5');
-            expect(formatSignificant(new Decimal('-1234567890.123'), '', 2)).toBe('-1234567890.12');
+            expect(formatSignificant(new Decimal('-1234567890.123'), '', 2)).toBe('-1,234,567,890.12');
         });
     });
 });

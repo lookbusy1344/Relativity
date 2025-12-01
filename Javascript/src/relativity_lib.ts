@@ -597,7 +597,10 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
 
     // If 0 decimal places requested, return just the integer part (rounded)
     if (significantDecimalPlaces === 0) {
-        return value.toFixed(0);
+        const integerStr = value.toFixed(0);
+        // Add thousand separators
+        const result = integerStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return result === '-0' ? '0' : result;
     }
 
     // For ignoreChar case, we need full precision to scan for the character
@@ -612,7 +615,8 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
 
     // Handle integers (no decimal part)
     if (parts.length !== 2) {
-        return parts[0];
+        const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return integerPart === '-0' ? '0' : integerPart;
     }
 
     let decOutput = ""; // output buffer
@@ -643,7 +647,10 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
     // Strip trailing zeros to match Decimal.toString() behavior
     decOutput = decOutput.replace(/0+$/, '');
 
-    const result = decOutput.length === 0 ? parts[0] : `${parts[0]}.${decOutput}`;
+    // Add thousand separators (commas) to the integer part
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    const result = decOutput.length === 0 ? integerPart : `${integerPart}.${decOutput}`;
 
     // Normalize -0 to 0
     return result === '-0' ? '0' : result;
