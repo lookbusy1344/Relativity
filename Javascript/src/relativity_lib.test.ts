@@ -282,6 +282,50 @@ describe('formatSignificant', () => {
             expect(formatSignificant(c, '', 0)).toBe('299,792,458');
         });
 
+        it('should handle velocities extremely close to c in fraction form', () => {
+            // Velocity with 30+ nines (extremely close to c)
+            const v1 = new Decimal('0.999999999999999999999999999999');
+            expect(formatSignificant(v1, '9', 5)).toBe('0.999999999999999999999999999999');
+
+            // Velocity with 50+ nines
+            const v2 = new Decimal('0.99999999999999999999999999999999999999999999999999');
+            expect(formatSignificant(v2, '9', 10)).toBe('0.99999999999999999999999999999999999999999999999999');
+
+            // With additional digits after the 9's
+            const v3 = new Decimal('0.9999999999999999999999999999999987654321');
+            expect(formatSignificant(v3, '9', 5)).toBe('0.9999999999999999999999999999999987654');
+            expect(formatSignificant(v3, '9', 10)).toBe('0.9999999999999999999999999999999987654321');
+        });
+
+        it('should handle velocities in m/s extremely close to c', () => {
+            const c = new Decimal('299792458');
+
+            // 99.9% of c
+            const v1 = c.mul('0.999');
+            expect(formatSignificant(v1, '', 2)).toBe('299,492,665.54');
+            expect(formatSignificant(v1, '', 0)).toBe('299,492,666');
+
+            // 99.9999% of c (7 nines in the multiplier)
+            const v2 = c.mul('0.9999999');
+            expect(formatSignificant(v2, '', 2)).toBe('299,792,428.02');
+            expect(formatSignificant(v2, '', 5)).toBe('299,792,428.02075');
+
+            // 99.999999999% of c (12 nines)
+            const v3 = c.mul('0.999999999999');
+            expect(formatSignificant(v3, '', 2)).toBe('299,792,458');
+            expect(formatSignificant(v3, '', 10)).toBe('299,792,457.9997002075');
+
+            // Extremely close: only 1 m/s below c
+            const v4 = c.sub('1');
+            expect(formatSignificant(v4, '', 2)).toBe('299,792,457');
+            expect(formatSignificant(v4, '', 10)).toBe('299,792,457');
+
+            // Extremely close: only 0.001 m/s below c
+            const v5 = c.sub('0.001');
+            expect(formatSignificant(v5, '', 3)).toBe('299,792,457.999');
+            expect(formatSignificant(v5, '', 10)).toBe('299,792,457.999');
+        });
+
         it('should handle gravitational constant', () => {
             const G = new Decimal('0.0000000000667430');
             // Now in decimal notation with high precision
