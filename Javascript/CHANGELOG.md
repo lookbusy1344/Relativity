@@ -34,7 +34,12 @@ formatSignificant(new Decimal("1e100"))  // Returns: "10,000,000,000,000,000,000
 To handle this change:
 1. If you need scientific notation, use `Decimal.toString()` or `Decimal.toExponential()` instead
 2. If you want decimal notation but without thousand separators, you can use `Decimal.toFixed()`
-3. The new behavior is beneficial for most UI display purposes where readability is important
+3. If you need to parse the formatted string back to a number, remove commas first:
+   ```typescript
+   const formatted = formatSignificant(value); // "1,234.56"
+   const parsed = new Decimal(formatted.replace(/,/g, '')); // Remove commas before parsing
+   ```
+4. The new behavior is beneficial for most UI display purposes where readability is important
 
 **Rationale:** This change ensures:
 - Consistent formatting across all numeric ranges
