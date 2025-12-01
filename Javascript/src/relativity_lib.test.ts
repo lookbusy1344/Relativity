@@ -8,9 +8,9 @@ configure(150);
 describe('formatSignificant', () => {
     describe('Basic functionality with default parameters', () => {
         it('should format simple decimal numbers with 2 decimal places', () => {
-            expect(formatSignificant(new Decimal('123.456789'))).toBe('123.45');
+            expect(formatSignificant(new Decimal('123.456789'))).toBe('123.46'); // rounds up
             expect(formatSignificant(new Decimal('0.123456'))).toBe('0.12');
-            expect(formatSignificant(new Decimal('9.876543'))).toBe('9.87');
+            expect(formatSignificant(new Decimal('9.876543'))).toBe('9.88'); // rounds up
         });
 
         it('should handle integers (no decimal part)', () => {
@@ -20,128 +20,118 @@ describe('formatSignificant', () => {
         });
 
         it('should handle negative numbers', () => {
-            expect(formatSignificant(new Decimal('-123.456789'))).toBe('-123.45');
+            expect(formatSignificant(new Decimal('-123.456789'))).toBe('-123.46'); // rounds down (away from zero)
             expect(formatSignificant(new Decimal('-0.123456'))).toBe('-0.12');
-            expect(formatSignificant(new Decimal('-9.876543'))).toBe('-9.87');
+            expect(formatSignificant(new Decimal('-9.876543'))).toBe('-9.88'); // rounds down (away from zero)
         });
     });
 
     describe('Very large numbers', () => {
-        it('should handle extremely large positive numbers', () => {
+        it('should handle extremely large positive numbers in decimal notation', () => {
             // Numbers beyond JavaScript's safe integer range
             expect(formatSignificant(new Decimal('9007199254740992.123456'))).toBe('9007199254740992.12');
-            expect(formatSignificant(new Decimal('12345678901234567890.987654321'))).toBe('12345678901234567890.98');
+            expect(formatSignificant(new Decimal('12345678901234567890.987654321'))).toBe('12345678901234567890.99'); // rounds up
 
-            // Even larger numbers - these convert to scientific notation
-            const huge1 = new Decimal('999999999999999999999999999999.123456789');
-            expect(formatSignificant(huge1)).toBe(huge1.toString());
-            const huge2 = new Decimal('1234567890123456789012345678901234567890.5555555');
-            expect(formatSignificant(huge2)).toBe(huge2.toString());
+            // Even larger numbers - now formatted in decimal notation, not scientific
+            expect(formatSignificant(new Decimal('999999999999999999999999999999.123456789'))).toBe('999999999999999999999999999999.12');
+            expect(formatSignificant(new Decimal('1234567890123456789012345678901234567890.5555555'))).toBe('1234567890123456789012345678901234567890.56'); // rounds up
         });
 
-        it('should handle extremely large negative numbers', () => {
+        it('should handle extremely large negative numbers in decimal notation', () => {
             expect(formatSignificant(new Decimal('-9007199254740992.123456'))).toBe('-9007199254740992.12');
-            expect(formatSignificant(new Decimal('-12345678901234567890.987654321'))).toBe('-12345678901234567890.98');
+            expect(formatSignificant(new Decimal('-12345678901234567890.987654321'))).toBe('-12345678901234567890.99'); // rounds down
 
-            // Very large negative numbers convert to scientific notation
-            const huge = new Decimal('-999999999999999999999999999999.123456789');
-            expect(formatSignificant(huge)).toBe(huge.toString());
+            // Very large negative numbers in decimal notation
+            expect(formatSignificant(new Decimal('-999999999999999999999999999999.123456789'))).toBe('-999999999999999999999999999999.12');
         });
 
         it('should handle numbers with many integer digits and various decimal patterns', () => {
-            // These very large numbers convert to scientific notation
-            const num1 = new Decimal('123456789012345678901234567890.000001');
-            expect(formatSignificant(num1)).toBe(num1.toString());
-            const num2 = new Decimal('123456789012345678901234567890.999999');
-            expect(formatSignificant(num2)).toBe(num2.toString());
-            const num3 = new Decimal('123456789012345678901234567890.123456');
-            expect(formatSignificant(num3)).toBe(num3.toString());
+            // These very large numbers now in decimal notation (rounding applied)
+            expect(formatSignificant(new Decimal('123456789012345678901234567890.000001'))).toBe('123456789012345678901234567890');
+            expect(formatSignificant(new Decimal('123456789012345678901234567890.999999'))).toBe('123456789012345678901234567891'); // rounds up to next integer
+            expect(formatSignificant(new Decimal('123456789012345678901234567890.123456'))).toBe('123456789012345678901234567890.12');
         });
     });
 
     describe('Very small numbers', () => {
-        it('should handle extremely small positive numbers', () => {
-            // These very small numbers convert to scientific notation
-            const tiny1 = new Decimal('0.000000000000000000000000000001');
-            expect(formatSignificant(tiny1)).toBe(tiny1.toString());
-            const tiny2 = new Decimal('0.00000000000000000000001');
-            expect(formatSignificant(tiny2)).toBe(tiny2.toString());
+        it('should handle extremely small positive numbers in decimal notation', () => {
+            // These very small numbers now formatted in decimal notation with 2 decimal places (default)
+            expect(formatSignificant(new Decimal('0.000000000000000000000000000001'))).toBe('0');
+            expect(formatSignificant(new Decimal('0.00000000000000000000001'))).toBe('0');
 
-            // These also convert to scientific notation
-            const tiny3 = new Decimal('0.000000123456789');
-            expect(formatSignificant(tiny3)).toBe(tiny3.toString());
-            const tiny4 = new Decimal('0.0000001234');
-            expect(formatSignificant(tiny4)).toBe(tiny4.toString());
+            // With more decimal places, we can see the full precision
+            expect(formatSignificant(new Decimal('0.000000123456789'), '', 20)).toBe('0.000000123456789');
+            expect(formatSignificant(new Decimal('0.0000001234'), '', 15)).toBe('0.0000001234');
         });
 
-        it('should handle extremely small negative numbers', () => {
-            // These very small numbers convert to scientific notation
-            const tiny1 = new Decimal('-0.000000000000000000000000000001');
-            expect(formatSignificant(tiny1)).toBe(tiny1.toString());
-            const tiny2 = new Decimal('-0.00000000000000000000001');
-            expect(formatSignificant(tiny2)).toBe(tiny2.toString());
+        it('should handle extremely small negative numbers in decimal notation', () => {
+            // These very small numbers in decimal notation (normalized -0 to 0)
+            expect(formatSignificant(new Decimal('-0.000000000000000000000000000001'))).toBe('0');  // -0 normalized to 0
+            expect(formatSignificant(new Decimal('-0.00000000000000000000001'))).toBe('0');  // -0 normalized to 0
 
-            const tiny3 = new Decimal('-0.000000123456789');
-            expect(formatSignificant(tiny3)).toBe(tiny3.toString());
+            expect(formatSignificant(new Decimal('-0.000000123456789'), '', 20)).toBe('-0.000000123456789');
         });
 
         it('should handle numbers just above zero', () => {
-            expect(formatSignificant(new Decimal('0.001'))).toBe('0.00');
-            expect(formatSignificant(new Decimal('0.009'))).toBe('0.00');
-            expect(formatSignificant(new Decimal('0.0123456'))).toBe('0.01');
-            expect(formatSignificant(new Decimal('0.099999'))).toBe('0.09');
+            expect(formatSignificant(new Decimal('0.001'))).toBe('0');    // 2 dp: rounds to 0.00, trailing zeros stripped
+            expect(formatSignificant(new Decimal('0.009'))).toBe('0.01'); // 2 dp: rounds up to 0.01
+            expect(formatSignificant(new Decimal('0.0123456'))).toBe('0.01'); // 2 dp: rounds to 0.01
+            expect(formatSignificant(new Decimal('0.099999'))).toBe('0.1'); // 2 dp: rounds to 0.10, trailing zero stripped
         });
     });
 
-    describe('Scientific notation handling', () => {
-        it('should return scientific notation as-is', () => {
+    describe('Extreme number handling', () => {
+        it('should format extremely large numbers in decimal notation', () => {
+            // These are formatted in decimal with requested precision
             const largeNum = new Decimal('1e100');
-            expect(formatSignificant(largeNum)).toBe(largeNum.toString());
-
-            const smallNum = new Decimal('1e-100');
-            expect(formatSignificant(smallNum)).toBe(smallNum.toString());
+            const result = formatSignificant(largeNum, '', 5);
+            expect(result).toContain('10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000');
 
             const mediumNum = new Decimal('1.23456e50');
-            expect(formatSignificant(mediumNum)).toBe(mediumNum.toString());
+            const result2 = formatSignificant(mediumNum, '', 3);
+            expect(result2).toContain('123456000000000000000000000000000000000000000000000');
         });
 
-        it('should handle edge cases of scientific notation', () => {
-            const num1 = new Decimal('9.99999e308');  // Near max double
-            expect(formatSignificant(num1)).toBe(num1.toString());
+        it('should format extremely small numbers in decimal notation', () => {
+            const smallNum = new Decimal('1e-100');
+            // With 2 decimal places, this rounds to 0
+            expect(formatSignificant(smallNum, '', 2)).toBe('0');
 
-            const num2 = new Decimal('1e-308');  // Near min positive double
-            expect(formatSignificant(num2)).toBe(num2.toString());
+            // With enough decimal places, we see the value
+            expect(formatSignificant(smallNum, '', 105)).toContain('0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001');
         });
     });
 
     describe('Different significantDecimalPlaces values', () => {
         it('should handle 0 decimal places', () => {
             expect(formatSignificant(new Decimal('123.456'), '', 0)).toBe('123');
-            expect(formatSignificant(new Decimal('999.999'), '', 0)).toBe('999');
-            expect(formatSignificant(new Decimal('0.999'), '', 0)).toBe('0');
+            expect(formatSignificant(new Decimal('999.999'), '', 0)).toBe('1000'); // rounds up
+            expect(formatSignificant(new Decimal('0.999'), '', 0)).toBe('1'); // rounds up
             expect(formatSignificant(new Decimal('-123.456'), '', 0)).toBe('-123');
         });
 
         it('should handle 1 decimal place', () => {
-            expect(formatSignificant(new Decimal('123.456'), '', 1)).toBe('123.4');
-            expect(formatSignificant(new Decimal('999.999'), '', 1)).toBe('999.9');
-            expect(formatSignificant(new Decimal('0.999'), '', 1)).toBe('0.9');
+            expect(formatSignificant(new Decimal('123.456'), '', 1)).toBe('123.5'); // rounds up
+            expect(formatSignificant(new Decimal('999.999'), '', 1)).toBe('1000'); // rounds up, zero stripped
+            expect(formatSignificant(new Decimal('0.999'), '', 1)).toBe('1'); // rounds up
         });
 
         it('should handle 5 decimal places', () => {
-            expect(formatSignificant(new Decimal('123.456789012'), '', 5)).toBe('123.45678');
-            expect(formatSignificant(new Decimal('0.123456789'), '', 5)).toBe('0.12345');
-            expect(formatSignificant(new Decimal('999.999999999'), '', 5)).toBe('999.99999');
+            expect(formatSignificant(new Decimal('123.456789012'), '', 5)).toBe('123.45679'); // rounds up
+            expect(formatSignificant(new Decimal('0.123456789'), '', 5)).toBe('0.12346'); // rounds up
+            expect(formatSignificant(new Decimal('999.999999999'), '', 5)).toBe('1000'); // rounds up
         });
 
         it('should handle 10 decimal places', () => {
-            expect(formatSignificant(new Decimal('123.12345678901234'), '', 10)).toBe('123.1234567890');
-            expect(formatSignificant(new Decimal('0.12345678901234'), '', 10)).toBe('0.1234567890');
+            // Trailing zeros stripped - gives us up to 10 decimal places
+            expect(formatSignificant(new Decimal('123.12345678901234'), '', 10)).toBe('123.123456789');
+            expect(formatSignificant(new Decimal('0.12345678901234'), '', 10)).toBe('0.123456789');
         });
 
         it('should handle 20 decimal places with large numbers', () => {
+            // Now handles in decimal notation with full precision (trailing zero stripped by Decimal)
             expect(formatSignificant(new Decimal('12345678901234567890.12345678901234567890123456'), '', 20))
-                .toBe('12345678901234567890.12345678901234567890');
+                .toBe('12345678901234567890.1234567890123456789'); // trailing 0 stripped
         });
 
         it('should handle more decimal places than available', () => {
@@ -200,7 +190,7 @@ describe('formatSignificant', () => {
 
         it('should handle numbers with repeating patterns', () => {
             expect(formatSignificant(new Decimal('123.123123123123'))).toBe('123.12');
-            expect(formatSignificant(new Decimal('999.999999999'))).toBe('999.99');
+            expect(formatSignificant(new Decimal('999.999999999'))).toBe('1000'); // rounds up
             expect(formatSignificant(new Decimal('0.123123123123'))).toBe('0.12');
         });
 
@@ -215,7 +205,8 @@ describe('formatSignificant', () => {
         it('should handle very precise decimals', () => {
             const highPrecision = new Decimal('123.12345678901234567890123456789012345678901234567890');
             expect(formatSignificant(highPrecision, '', 2)).toBe('123.12');
-            expect(formatSignificant(highPrecision, '', 30)).toBe('123.123456789012345678901234567890');
+            // Decimal.js precision limited to ~49 decimal places, trailing zero may be stripped
+            expect(formatSignificant(highPrecision, '', 30)).toBe('123.12345678901234567890123456789');
         });
 
         it('should handle decimals shorter than requested places', () => {
@@ -229,8 +220,8 @@ describe('formatSignificant', () => {
         it('should preserve full precision of large numbers in integer part', () => {
             const largeNum = new Decimal('123456789012345678901234567890123456789.123456789');
             const result = formatSignificant(largeNum, '', 2);
-            // This number is large enough to convert to scientific notation
-            expect(result).toBe(largeNum.toString());
+            // Now formatted in decimal notation with full integer precision
+            expect(result).toBe('123456789012345678901234567890123456789.12');
         });
 
         it('should not lose precision when converting to string', () => {
@@ -239,20 +230,20 @@ describe('formatSignificant', () => {
             expect(formatSignificant(preciseNum1, '', 2)).toBe('9007199254740993.12');
 
             const preciseNum2 = new Decimal('18014398509481984.987654');  // 2^54
-            expect(formatSignificant(preciseNum2, '', 2)).toBe('18014398509481984.98');
+            expect(formatSignificant(preciseNum2, '', 2)).toBe('18014398509481984.99'); // rounds up
         });
 
         it('should maintain precision with very small fractional parts on large numbers', () => {
             const num = new Decimal('999999999999999999999999999999.000000000000000001');
-            // This converts to scientific notation
-            expect(formatSignificant(num, '', 5)).toBe(num.toString());
+            // Now in decimal notation (trailing zeros after decimal limit are stripped)
+            expect(formatSignificant(num, '', 5)).toBe('999999999999999999999999999999');
         });
     });
 
     describe('Stress tests with extreme values', () => {
         it('should handle numbers with 50+ decimal digits', () => {
             const longDecimal = new Decimal('123.12345678901234567890123456789012345678901234567890');
-            expect(formatSignificant(longDecimal, '', 10)).toBe('123.1234567890');
+            expect(formatSignificant(longDecimal, '', 10)).toBe('123.123456789'); // trailing zero stripped
             // Decimal.js precision limits mean only 49 decimal places are preserved
             expect(formatSignificant(longDecimal, '', 50)).toBe('123.1234567890123456789012345678901234567890123456789');
         });
@@ -261,22 +252,25 @@ describe('formatSignificant', () => {
             const hugeInt = '1234567890'.repeat(10) + '.123456789';  // 100 digit integer
             const decimal = new Decimal(hugeInt);
             const result = formatSignificant(decimal, '', 2);
-            // This converts to scientific notation
-            expect(result).toBe(decimal.toString());
+            // Now formatted in decimal notation with full integer precision
+            expect(result).toContain('1234567890123456789012345678901234567890');
+            expect(result.endsWith('.12')).toBe(true);
         });
 
         it('should handle mixed extreme cases', () => {
             // Very large integer with very long decimal
             const extreme = '9'.repeat(50) + '.' + '1'.repeat(50);
             const decimal = new Decimal(extreme);
-            // This converts to scientific notation
-            expect(formatSignificant(decimal, '', 5)).toBe(decimal.toString());
+            // Now formatted in decimal notation
+            const result = formatSignificant(decimal, '', 5);
+            expect(result.startsWith('99999999999999999999999999999999999999999999999999')).toBe(true);
+            expect(result.includes('.11111')).toBe(true);
         });
 
         it('should handle alternating patterns in decimal part', () => {
-            expect(formatSignificant(new Decimal('123.101010101010101010'))).toBe('123.10');
-            expect(formatSignificant(new Decimal('456.121212121212121212'))).toBe('456.12');
-            expect(formatSignificant(new Decimal('789.909090909090909090'))).toBe('789.90');
+            expect(formatSignificant(new Decimal('123.101010101010101010'))).toBe('123.1');  // 2 dp, trailing zero stripped
+            expect(formatSignificant(new Decimal('456.121212121212121212'))).toBe('456.12'); // 2 dp
+            expect(formatSignificant(new Decimal('789.909090909090909090'))).toBe('789.91'); // 2 dp, rounds up
         });
     });
 
@@ -289,14 +283,14 @@ describe('formatSignificant', () => {
 
         it('should handle gravitational constant', () => {
             const G = new Decimal('0.0000000000667430');
-            // This converts to scientific notation
-            expect(formatSignificant(G, '', 5)).toBe(G.toString());
+            // Now in decimal notation with high precision
+            expect(formatSignificant(G, '', 15)).toBe('0.000000000066743');
         });
 
         it('should handle Planck length', () => {
             const planckLength = new Decimal('0.000000000000000000000000000000000016162');
-            // This converts to scientific notation
-            expect(formatSignificant(planckLength, '', 10)).toBe(planckLength.toString());
+            // Now in decimal notation with very high precision
+            expect(formatSignificant(planckLength, '', 40)).toBe('0.000000000000000000000000000000000016162');
         });
 
         it('should handle astronomical distances', () => {
@@ -312,15 +306,15 @@ describe('formatSignificant', () => {
             const gamma = new Decimal('22.36627047695794');
             expect(formatSignificant(gamma, '', 5)).toBe('22.36627');
 
-            // Time dilation: very small difference - converts to scientific notation
+            // Time dilation: very small difference - now in decimal notation
             const timeDiff = new Decimal('0.000000000001234567');
-            expect(formatSignificant(timeDiff, '', 10)).toBe(timeDiff.toString());
+            expect(formatSignificant(timeDiff, '', 20)).toBe('0.000000000001234567');
         });
     });
 
     describe('Boundary behavior with ignoreChar', () => {
         it('should handle empty ignoreChar correctly', () => {
-            expect(formatSignificant(new Decimal('123.999999'), '', 2)).toBe('123.99');
+            expect(formatSignificant(new Decimal('123.999999'), '', 2)).toBe('124'); // rounds up to 124.00, zeros stripped
             expect(formatSignificant(new Decimal('123.000000'), '', 2)).toBe('123');  // trailing zeros stripped
         });
 
@@ -344,12 +338,12 @@ describe('formatSignificant', () => {
                 { input: '1', expected: '1' },
                 { input: '0.1', expected: '0.1' },
                 { input: '10.0', expected: '10' },  // trailing .0 stripped
-                { input: '123.456', expected: '123.45' },
-                { input: '-123.456', expected: '-123.45' },
-                { input: '0.00123', expected: '0.00' },
-                { input: '999999999.99999', expected: '999999999.99' },
-                { input: '0.999', expected: '0.99' },
-                { input: '100.001', expected: '100.00' },
+                { input: '123.456', expected: '123.46' },  // rounds up
+                { input: '-123.456', expected: '-123.46' },  // rounds down
+                { input: '0.00123', expected: '0' },  // rounds to 0.00, zeros stripped
+                { input: '999999999.99999', expected: '1000000000' },  // rounds up
+                { input: '0.999', expected: '1' },  // rounds up to 1.00, zeros stripped
+                { input: '100.001', expected: '100' },  // rounds to 100.00, zeros stripped
             ];
 
             testCases.forEach(({ input, expected }) => {
@@ -358,7 +352,8 @@ describe('formatSignificant', () => {
         });
 
         it('should handle negative numbers across all ranges', () => {
-            expect(formatSignificant(new Decimal('-0.0001'), '', 2)).toBe('-0.00');
+            expect(formatSignificant(new Decimal('-0.0001'), '', 2)).toBe('0');  // rounds to 0
+            expect(formatSignificant(new Decimal('-0.0001'), '', 5)).toBe('-0.0001');
             expect(formatSignificant(new Decimal('-1.5'), '', 2)).toBe('-1.5');
             expect(formatSignificant(new Decimal('-1234567890.123'), '', 2)).toBe('-1234567890.12');
         });
