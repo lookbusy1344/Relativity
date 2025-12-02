@@ -20,6 +20,15 @@ yarn type-check
 # Lint code
 yarn lint
 
+# Run tests (watch mode)
+yarn test
+
+# Run tests with UI
+yarn test:ui
+
+# Run tests once (for CI)
+yarn test:run
+
 # Update Yarn
 yarn set version stable
 
@@ -104,6 +113,7 @@ src/
 - `d3-*` - D3.js modules for interactive Minkowski spacetime diagrams
 - `typescript` - Type safety with strict configuration
 - `vite` - Build tool and dev server
+- `vitest` - Fast unit testing framework with watch mode and UI
 - `esbuild` - Fast bundling
 
 ## Development Notes

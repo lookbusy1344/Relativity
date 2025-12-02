@@ -1,0 +1,37 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+      - 'claude/**'
+    paths:
+      - 'Javascript/**'
+  pull_request:
+    paths:
+      - 'Javascript/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./Javascript
+        run: yarn install
+
+      - name: Run type check
+        working-directory: ./Javascript
+        run: yarn type-check
+
+      - name: Run tests
+        working-directory: ./Javascript
+        run: yarn test:run
