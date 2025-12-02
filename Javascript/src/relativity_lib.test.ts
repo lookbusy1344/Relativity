@@ -403,4 +403,38 @@ describe('formatSignificant', () => {
             expect(formatSignificant(new Decimal('-1234567890.123'), '', 2)).toBe('-1,234,567,890.12');
         });
     });
+
+    describe('Preserving trailing zeros for stable width formatting', () => {
+        it('should preserve trailing zeros when preserveTrailingZeros is true', () => {
+            // 2 decimal places - should pad with zeros
+            expect(formatSignificant(new Decimal('123'), '', 2, true)).toBe('123.00');
+            expect(formatSignificant(new Decimal('123.5'), '', 2, true)).toBe('123.50');
+            expect(formatSignificant(new Decimal('123.45'), '', 2, true)).toBe('123.45');
+            expect(formatSignificant(new Decimal('0'), '', 2, true)).toBe('0.00');
+            expect(formatSignificant(new Decimal('0.1'), '', 2, true)).toBe('0.10');
+        });
+
+        it('should preserve trailing zeros with negative numbers', () => {
+            expect(formatSignificant(new Decimal('-123'), '', 2, true)).toBe('-123.00');
+            expect(formatSignificant(new Decimal('-123.5'), '', 2, true)).toBe('-123.50');
+            expect(formatSignificant(new Decimal('-0.1'), '', 2, true)).toBe('-0.10');
+        });
+
+        it('should work with different decimal place counts', () => {
+            expect(formatSignificant(new Decimal('123.4'), '', 3, true)).toBe('123.400');
+            expect(formatSignificant(new Decimal('123'), '', 0, true)).toBe('123');
+            expect(formatSignificant(new Decimal('123.456789'), '', 4, true)).toBe('123.4568'); // rounds up
+        });
+
+        it('should preserve thousand separators with trailing zeros', () => {
+            expect(formatSignificant(new Decimal('1234567'), '', 2, true)).toBe('1,234,567.00');
+            expect(formatSignificant(new Decimal('1234567.8'), '', 2, true)).toBe('1,234,567.80');
+        });
+
+        it('should default to stripping zeros when preserveTrailingZeros is false or omitted', () => {
+            expect(formatSignificant(new Decimal('123'), '', 2, false)).toBe('123');
+            expect(formatSignificant(new Decimal('123'), '', 2)).toBe('123');
+            expect(formatSignificant(new Decimal('123.50'), '', 2)).toBe('123.5');
+        });
+    });
 });

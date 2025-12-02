@@ -621,7 +621,7 @@ export function pionRocketFuelFractionsMultiple(
  * formatSignificant(new Decimal("1e100"), "", 2)        // "10,000,000,000..." (full decimal)
  * formatSignificant(new Decimal("1234.5678"), "", 0)    // "1,235" (rounded integer)
  */
-export function formatSignificant(value: Decimal, ignoreChar: string = "", significantDecimalPlaces: number = 2): string {
+export function formatSignificant(value: Decimal, ignoreChar: string = "", significantDecimalPlaces: number = 2, preserveTrailingZeros: boolean = false): string {
     if (ignoreChar.length > 1) {
         throw new Error('ignoreChar must be a single character or empty');
     }
@@ -647,6 +647,11 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
     // Handle integers (no decimal part)
     if (parts.length !== 2) {
         const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        // If preserving trailing zeros and we want decimal places, add them
+        if (preserveTrailingZeros && significantDecimalPlaces > 0) {
+            const zeros = '0'.repeat(significantDecimalPlaces);
+            return integerPart === '-0' ? `0.${zeros}` : `${integerPart}.${zeros}`;
+        }
         return integerPart === '-0' ? '0' : integerPart;
     }
 
@@ -675,8 +680,15 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
         decOutput = parts[1];
     }
 
-    // Strip trailing zeros to match Decimal.toString() behavior
-    decOutput = decOutput.replace(/0+$/, '');
+    // Strip trailing zeros to match Decimal.toString() behavior (unless preserving)
+    if (!preserveTrailingZeros) {
+        decOutput = decOutput.replace(/0+$/, '');
+    } else {
+        // Pad with zeros if needed to reach significantDecimalPlaces
+        while (decOutput.length < significantDecimalPlaces) {
+            decOutput += '0';
+        }
+    }
 
     // Add thousand separators (commas) to the integer part
     const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');

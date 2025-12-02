@@ -276,8 +276,8 @@ function renderLabels(
     const infoData = [
         { text: `Velocity: ${formatVelocityMs(data.velocityC)} m/s`, y: size - 75, color: D3_COLORS.plasmaWhite },
         { text: `γ = ${rl.formatSignificant(data.gammaDecimal, "0", 3)}`, y: size - 60, color: D3_COLORS.plasmaWhite },
-        { text: `Proper time: ${rl.formatSignificant(data.properTimeYearsDecimal, "", 2)} years`, y: size - 45, color: D3_COLORS.quantumGreen },
-        { text: `Earth time: ${rl.formatSignificant(data.earthTimeYearsDecimal, "", 2)} years`, y: size - 30, color: D3_COLORS.electricBlue }
+        { text: `Proper time: ${rl.formatSignificant(data.properTimeYearsDecimal, "", 2, true)} years`, y: size - 45, color: D3_COLORS.quantumGreen },
+        { text: `Earth time: ${rl.formatSignificant(data.earthTimeYearsDecimal, "", 2, true)} years`, y: size - 30, color: D3_COLORS.electricBlue }
     ];
 
     labelsGroup.selectAll('text.info-label')
@@ -542,11 +542,11 @@ function startJourneyAnimation(
         const earthTimeDecimal = rl.ensure(earthTime);
         svg.select('g.labels').selectAll('text.info-label')
             .filter((_, i) => i === 2)
-            .text(`Proper time: ${rl.formatSignificant(properTimeDecimal, "", 2)} years`);
+            .text(`Proper time: ${rl.formatSignificant(properTimeDecimal, "", 2, true)} years`);
 
         svg.select('g.labels').selectAll('text.info-label')
             .filter((_, i) => i === 3)
-            .text(`Earth time: ${rl.formatSignificant(earthTimeDecimal, "", 2)} years`);
+            .text(`Earth time: ${rl.formatSignificant(earthTimeDecimal, "", 2, true)} years`);
     };
 
     const animationTimer = timer(() => {
