@@ -28,9 +28,9 @@ jobs:
         working-directory: ./Javascript
         run: yarn install
 
-      - name: Run type check
+      - name: Build project
         working-directory: ./Javascript
-        run: yarn type-check
+        run: yarn build
 
       - name: Run tests
         working-directory: ./Javascript
