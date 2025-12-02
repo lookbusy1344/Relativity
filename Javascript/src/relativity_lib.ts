@@ -590,7 +590,7 @@ export function pionRocketFuelFractionsMultiple(
     );
 }
 
-export function formatSignificant(value: Decimal, ignoreChar: string = "", significantDecimalPlaces: number = 2, showRoundingIndicator: boolean = true): string {
+export function formatSignificant(value: Decimal, ignoreChar: string = "", significantDecimalPlaces: number = 2): string {
     if (ignoreChar.length > 1) {
         throw new Error('ignoreChar must be a single character or empty');
     }
@@ -599,17 +599,8 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
     if (significantDecimalPlaces === 0) {
         const integerStr = value.toFixed(0);
         // Add thousand separators
-        let result = integerStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        result = result === '-0' ? '0' : result;
-
-        // Check for rounding
-        if (showRoundingIndicator) {
-            const resultAsDecimal = new Decimal(result.replace(/,/g, ''));
-            if (!resultAsDecimal.equals(value)) {
-                return result + ' (r)';
-            }
-        }
-        return result;
+        const result = integerStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return result === '-0' ? '0' : result;
     }
 
     // For ignoreChar case, we need full precision to scan for the character
@@ -624,17 +615,8 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
 
     // Handle integers (no decimal part)
     if (parts.length !== 2) {
-        let result = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        result = result === '-0' ? '0' : result;
-
-        // Check for rounding
-        if (showRoundingIndicator) {
-            const resultAsDecimal = new Decimal(result.replace(/,/g, ''));
-            if (!resultAsDecimal.equals(value)) {
-                return result + ' (r)';
-            }
-        }
-        return result;
+        const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return integerPart === '-0' ? '0' : integerPart;
     }
 
     let decOutput = ""; // output buffer
@@ -668,22 +650,8 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
     // Add thousand separators (commas) to the integer part
     const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-    let result = decOutput.length === 0 ? integerPart : `${integerPart}.${decOutput}`;
+    const result = decOutput.length === 0 ? integerPart : `${integerPart}.${decOutput}`;
 
     // Normalize -0 to 0
-    result = result === '-0' ? '0' : result;
-
-    // Check if rounding occurred and add indicator if requested
-    if (showRoundingIndicator) {
-        // Remove commas for comparison
-        const resultWithoutCommas = result.replace(/,/g, '');
-        const resultAsDecimal = new Decimal(resultWithoutCommas);
-
-        // If the formatted value doesn't equal the original, rounding occurred
-        if (!resultAsDecimal.equals(value)) {
-            return result + ' (r)';
-        }
-    }
-
-    return result;
+    return result === '-0' ? '0' : result;
 }
