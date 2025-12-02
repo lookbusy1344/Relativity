@@ -633,7 +633,7 @@ function renderLabels(
         .attr('y', size - 60)
         .attr('text-anchor', 'end')
         .attr('fill', D3_COLORS.quantumGreen)
-        .text(d => `Moving frame ${rl.formatSignificant(d.velocityDecimal, "9", 2)}c`);
+        .text(d => `Moving frame ${rl.formatSignificant(d.velocityDecimal, "9", 2, true)}c`);
 
     labelGroup.selectAll('text.separation-time')
         .data(d => [d])
@@ -643,7 +643,7 @@ function renderLabels(
         .attr('y', size - 45)
         .attr('text-anchor', 'end')
         .attr('fill', D3_COLORS.quantumGreen)
-        .text(d => `${rl.formatSignificant(d.deltaTPrimeDecimal, "", 3)} sec`);
+        .text(d => `${rl.formatSignificant(d.deltaTPrimeDecimal, "", 3, true)} sec`);
 
     labelGroup.selectAll('text.separation-distance')
         .data(d => [d])
@@ -927,9 +927,9 @@ function startFrameAnimation(
         const currentXPrimeDecimal = rl.ensure(currentXPrime);
 
         svg.select('.velocity-label')
-            .text(`Moving frame ${rl.formatSignificant(currentBetaDecimal, "9", 2)}c`);
+            .text(`Moving frame ${rl.formatSignificant(currentBetaDecimal, "9", 2, true)}c`);
         svg.select('.separation-time')
-            .text(`${rl.formatSignificant(currentCtPrimeDecimal, "", 3)} sec`);
+            .text(`${rl.formatSignificant(currentCtPrimeDecimal, "", 3, true)} sec`);
         svg.select('.separation-distance')
             .text(`${rl.formatSignificant(currentXPrimeDecimal, "0", 0)} km`);
     };
@@ -1075,8 +1075,8 @@ export function drawMinkowskiDiagramD3(
             renderAxes(svg, scales, data, false);
             renderSimultaneityLines(svg, scales, data, false);
             // Update labels to show target velocity and separations using Decimal for precision
-            svg.select('.velocity-label').text(`Moving frame ${rl.formatSignificant(data.velocityDecimal, "9", 2)}c`);
-            svg.select('.separation-time').text(`${rl.formatSignificant(data.deltaTPrimeDecimal, "", 3)} sec`);
+            svg.select('.velocity-label').text(`Moving frame ${rl.formatSignificant(data.velocityDecimal, "9", 2, true)}c`);
+            svg.select('.separation-time').text(`${rl.formatSignificant(data.deltaTPrimeDecimal, "", 3, true)} sec`);
             svg.select('.separation-distance').text(`${rl.formatSignificant(data.deltaXPrimeDecimal, "0", 0)} km`);
             tooltips.reattach();
         } else {
@@ -1152,8 +1152,8 @@ export function drawMinkowskiDiagramD3(
                 renderAxes(svg, scales, data, false);
                 renderSimultaneityLines(svg, scales, data, false);
                 // Update labels to show target velocity and separations using Decimal for precision
-                svg.select('.velocity-label').text(`Moving frame ${rl.formatSignificant(data.velocityDecimal, "9", 2)}c`);
-                svg.select('.separation-time').text(`${rl.formatSignificant(data.deltaTPrimeDecimal, "", 3)} sec`);
+                svg.select('.velocity-label').text(`Moving frame ${rl.formatSignificant(data.velocityDecimal, "9", 2, true)}c`);
+                svg.select('.separation-time').text(`${rl.formatSignificant(data.deltaTPrimeDecimal, "", 3, true)} sec`);
                 svg.select('.separation-distance').text(`${rl.formatSignificant(data.deltaXPrimeDecimal, "0", 0)} km`);
                 tooltips.reattach();
             }
