@@ -594,35 +594,64 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
     if (ignoreChar.length > 1) {
         throw new Error('ignoreChar must be a single character or empty');
     }
-    const str = value.toString();
-    const parts = str.split('.', 2);
-    if (str.indexOf("e") > -1 || parts.length !== 2) {
-        // scientific notation or no decimal point
-        return str;
+
+    // If 0 decimal places requested, return just the integer part (rounded)
+    if (significantDecimalPlaces === 0) {
+        const integerStr = value.toFixed(0);
+        // Add thousand separators
+        const result = integerStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return result === '-0' ? '0' : result;
     }
 
-    // If 0 decimal places requested, return just the integer part
-    if (significantDecimalPlaces === 0) {
-        return parts[0];
+    // For ignoreChar case, we need full precision to scan for the character
+    // For normal case, we can use exact rounding
+    const needsFullPrecision = ignoreChar.length > 0;
+    const maxDecimalPlaces = needsFullPrecision
+        ? Math.max(precisionConfigured, significantDecimalPlaces + 50)
+        : significantDecimalPlaces;
+
+    const str = value.toFixed(maxDecimalPlaces);
+    const parts = str.split('.', 2);
+
+    // Handle integers (no decimal part)
+    if (parts.length !== 2) {
+        const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return integerPart === '-0' ? '0' : integerPart;
     }
 
     let decOutput = ""; // output buffer
-    let sigPart = ignoreChar.length > 0; // if it's "" just used fixed number of digits;
-    // loop through the decimal part, if the digit is sig just copy it over. Otherwise include digit digits
-    for (let i = 0; i < parts[1].length; ++i) {
-        const digit = parts[1][i];
-        if (sigPart && digit === ignoreChar) {
-            // in the '9's part, just copy the digit
-            decOutput += digit;
-        } else if (significantDecimalPlaces > 0) {
-            // now include a fixed number of digits
-            sigPart = false; // we've passed the '9's
-            decOutput += digit;
-            --significantDecimalPlaces;
-        } else {
-            break;
+    let remainingPlaces = significantDecimalPlaces;
+
+    if (needsFullPrecision) {
+        // Scan for ignoreChar, then take significant digits
+        let sigPart = true;
+        for (let i = 0; i < parts[1].length; ++i) {
+            const digit = parts[1][i];
+            if (sigPart && digit === ignoreChar) {
+                // in the ignoreChar part, just copy the digit
+                decOutput += digit;
+            } else if (remainingPlaces > 0) {
+                // now include a fixed number of digits
+                sigPart = false; // we've passed the ignoreChars
+                decOutput += digit;
+                --remainingPlaces;
+            } else {
+                break;
+            }
         }
+    } else {
+        // No ignoreChar - toFixed already rounded correctly
+        decOutput = parts[1];
     }
 
-    return decOutput.length === 0 ? parts[0] : `${parts[0]}.${decOutput}`;
+    // Strip trailing zeros to match Decimal.toString() behavior
+    decOutput = decOutput.replace(/0+$/, '');
+
+    // Add thousand separators (commas) to the integer part
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    const result = decOutput.length === 0 ? integerPart : `${integerPart}.${decOutput}`;
+
+    // Normalize -0 to 0
+    return result === '-0' ? '0' : result;
 }
