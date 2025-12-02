@@ -590,6 +590,37 @@ export function pionRocketFuelFractionsMultiple(
     );
 }
 
+/**
+ * Format a Decimal value with specified decimal places and thousand separators.
+ * 
+ * **BREAKING CHANGE (v2.0.0):** This function now formats all numbers in decimal notation
+ * instead of preserving scientific notation. Previously, values like "1e100" would be
+ * returned as-is in scientific notation. Now they are expanded to full decimal format
+ * with thousand separators (e.g., "10,000,000,000...").
+ * 
+ * Features:
+ * - Rounds to specified decimal places using banker's rounding
+ * - Adds thousand separators (commas) to integer part
+ * - Strips trailing zeros from decimal part
+ * - Supports ignoreChar for selective digit formatting (useful for sequences like "0.999...")
+ * - Normalizes -0 to 0
+ * 
+ * @param value The Decimal value to format
+ * @param ignoreChar Optional single character to skip when counting significant places.
+ *                   If the decimal part starts with this character, those digits are
+ *                   copied but not counted toward the significantDecimalPlaces limit.
+ *                   Useful for formatting values like 0.9999999123 with ignoreChar='9'.
+ * @param significantDecimalPlaces Number of decimal places to include (default: 2).
+ *                                 Set to 0 to return only the integer part (rounded).
+ * @returns Formatted string with thousand separators and specified decimal places
+ * @throws Error if ignoreChar is more than one character
+ * 
+ * @example
+ * formatSignificant(new Decimal("1234.5678"))           // "1,234.57"
+ * formatSignificant(new Decimal("0.999123"), "9", 3)    // "0.999123"
+ * formatSignificant(new Decimal("1e100"), "", 2)        // "10,000,000,000..." (full decimal)
+ * formatSignificant(new Decimal("1234.5678"), "", 0)    // "1,235" (rounded integer)
+ */
 export function formatSignificant(value: Decimal, ignoreChar: string = "", significantDecimalPlaces: number = 2): string {
     if (ignoreChar.length > 1) {
         throw new Error('ignoreChar must be a single character or empty');
