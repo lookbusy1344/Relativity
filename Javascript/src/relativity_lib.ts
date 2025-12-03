@@ -35,6 +35,7 @@ export let earthMass: Decimal;
 export let solarMass: Decimal;
 export let milkyWayMass: Decimal;
 export let superclusterMass: Decimal;
+export let observableUniverseMass: Decimal;
 
 // constants for calculations
 export let one: Decimal;
@@ -62,6 +63,7 @@ export function configure(precision: number): void {
     solarMass = new Decimal("1.98892e30"); // kg
     milkyWayMass = new Decimal("1.5e12").mul(solarMass); // kg (approximately 1.5 trillion solar masses)
     superclusterMass = new Decimal("1e17").mul(solarMass); // kg (Laniakea Supercluster: ~100,000 Milky Ways)
+    observableUniverseMass = new Decimal("1e53"); // kg (observable universe: ordinary matter)
 
     cSquared = c.pow(2); // speed of light squared
     one = new Decimal(1);
@@ -712,19 +714,20 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
 }
 
 /**
- * Format a mass value with appropriate unit scaling (kg, tons, Everest masses, Moon masses, Earth masses, Solar masses, Milky Way masses, Supercluster masses)
+ * Format a mass value with appropriate unit scaling (kg, tons, Everest masses, Moon masses, Earth masses, Solar masses, Milky Way masses, Supercluster masses, Observable Universe masses)
  * Uses 0.1x thresholds for unit transitions to provide human-readable output
  *
  * @param fuelMass - The mass value in kilograms
  * @returns Formatted string with smart unit and scientific notation in parentheses
  *
  * @example
- * formatMassWithUnit(new Decimal(500))        // "500 kg (5.0e+2 kg)"
- * formatMassWithUnit(new Decimal(5000))       // "5,000 tons (5.0e+3 kg)"
- * formatMassWithUnit(everestMass)             // "1.00 Everest masses (8.10e+14 kg)"
- * formatMassWithUnit(moonMass)                // "1.00 Moon masses (7.34e+22 kg)"
- * formatMassWithUnit(earthMass)               // "1.00 Earth masses (5.97e+24 kg)"
- * formatMassWithUnit(superclusterMass)        // "1.00 Supercluster masses (1.99e+47 kg)"
+ * formatMassWithUnit(new Decimal(500))             // "500 kg (5.0e+2 kg)"
+ * formatMassWithUnit(new Decimal(5000))            // "5,000 tons (5.0e+3 kg)"
+ * formatMassWithUnit(everestMass)                  // "1.00 Everest masses (8.10e+14 kg)"
+ * formatMassWithUnit(moonMass)                     // "1.00 Moon masses (7.34e+22 kg)"
+ * formatMassWithUnit(earthMass)                    // "1.00 Earth masses (5.97e+24 kg)"
+ * formatMassWithUnit(superclusterMass)             // "1.00 Supercluster masses (1.99e+47 kg)"
+ * formatMassWithUnit(observableUniverseMass)       // "1.00 Observable Universe masses (1.00e+53 kg)"
  */
 export function formatMassWithUnit(fuelMass: Decimal): string {
     const fuelMassScientific = fuelMass.toExponential(2);
@@ -771,6 +774,12 @@ export function formatMassWithUnit(fuelMass: Decimal): string {
         return `${formatSignificant(milkyWayMasses, "", 2, true)} Milky Way masses (${fuelMassScientific} kg)`;
     }
 
-    // Show in Supercluster masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
-    return `${formatSignificant(superclusterMasses, "", 2, true)} Supercluster masses (${fuelMassScientific} kg)`;
+    const observableUniverseMasses = fuelMass.div(observableUniverseMass);
+    if (observableUniverseMasses.lt(0.1)) {
+        // Show in Supercluster masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+        return `${formatSignificant(superclusterMasses, "", 2, true)} Supercluster masses (${fuelMassScientific} kg)`;
+    }
+
+    // Show in Observable Universe masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+    return `${formatSignificant(observableUniverseMasses, "", 2, true)} Observable Universe masses (${fuelMassScientific} kg)`;
 }

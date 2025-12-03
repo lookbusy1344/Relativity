@@ -1015,5 +1015,34 @@ describe('formatMassWithUnit', () => {
             const result = rl.formatMassWithUnit(mass);
             expect(result).toContain('Supercluster masses');
         });
+
+        it('should format observable universe mass scale', () => {
+            // 1 Observable Universe mass (~1e53 kg)
+            const mass = rl.observableUniverseMass;
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('1.00 Observable Universe masses');
+            expect(result).toContain('1.00e+53 kg');
+        });
+
+        it('should use Observable Universe masses for mass at 0.1 Observable Universe masses threshold', () => {
+            const mass = rl.observableUniverseMass.mul(0.1);
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('0.10 Observable Universe masses');
+        });
+
+        it('should use Supercluster masses for mass between 0.1 Supercluster and 0.1 Observable Universe', () => {
+            // 1e50 kg is > 0.1 Supercluster (1.99e46) but < 0.1 Observable Universe (1e52)
+            const mass = new Decimal('1e50');
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('Supercluster masses');
+            expect(result).not.toContain('Observable Universe');
+        });
+
+        it('should use Observable Universe masses for extremely large masses', () => {
+            // 1e54 kg is > 0.1 Observable Universe (1e52)
+            const mass = new Decimal('1e54');
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('Observable Universe masses');
+        });
     });
 });
