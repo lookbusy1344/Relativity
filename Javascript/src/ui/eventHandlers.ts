@@ -504,6 +504,7 @@ export function createPionAccelTimeHandler(
 }
 
 export function createPionFuelFractionHandler(
+    getAccelInput: () => HTMLInputElement | null,
     getThrustTimeInput: () => HTMLInputElement | null,
     getEfficiencyInput: () => HTMLInputElement | null,
     getDryMassInput: () => HTMLInputElement | null,
@@ -511,17 +512,26 @@ export function createPionFuelFractionHandler(
     getResultMass: () => HTMLElement | null
 ): () => void {
     return () => {
+        const accelInput = getAccelInput();
         const thrustTimeInput = getThrustTimeInput();
         const efficiencyInput = getEfficiencyInput();
         const dryMassInput = getDryMassInput();
         const resultFraction = getResultFraction();
         const resultMass = getResultMass();
-        if (!thrustTimeInput || !efficiencyInput || !dryMassInput || !resultFraction || !resultMass) return;
+        if (!accelInput || !thrustTimeInput || !efficiencyInput || !dryMassInput || !resultFraction || !resultMass) return;
 
+        const accelG = rl.ensure(accelInput.value ?? 1);
         const thrustTimeDays = rl.ensure(thrustTimeInput.value ?? 365);
         const thrustTimeSeconds = thrustTimeDays.mul(60 * 60 * 24);
         const efficiency = rl.ensure(efficiencyInput.value ?? 0.85);
         const dryMass = rl.ensure(dryMassInput.value ?? 1000);
+
+        // Validate acceleration range
+        if (accelG.lt(0.01) || accelG.gt(100)) {
+            setElement(resultFraction, "Acceleration must be between 0.01 and 100 g", "");
+            setElement(resultMass, "-", "");
+            return;
+        }
 
         // Validate efficiency range
         if (efficiency.lt(0.01) || efficiency.gt(1.0)) {
@@ -537,7 +547,8 @@ export function createPionFuelFractionHandler(
             return;
         }
 
-        const fuelFraction = rl.pionRocketFuelFraction(thrustTimeSeconds, rl.g, efficiency);
+        const accel = rl.g.mul(accelG);
+        const fuelFraction = rl.pionRocketFuelFraction(thrustTimeSeconds, accel, efficiency);
         const fuelFractionPercent = fuelFraction.mul(100);
 
         // Calculate fuel mass: fuel_mass = (fuel_fraction × dry_mass) / (1 - fuel_fraction)

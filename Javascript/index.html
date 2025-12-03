@@ -544,21 +544,26 @@
 
 					<div class="calc-section">
 						<div class="calc-label">
-							Fuel Fraction Calculator at 1g
+							Fuel Fraction Calculator
 							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
 						</div>
 						<div class="input-group-custom">
-							<div style="flex: 1; min-width: 150px;">
+							<div style="flex: 1; min-width: 120px;">
+								<div class="input-label">Acceleration (g)</div>
+								<input type="number" id="fuelFractionAccelInput" placeholder="e.g., 1" value="1"
+									class="form-control" step="0.01" min="0.01" max="100">
+							</div>
+							<div style="flex: 1; min-width: 120px;">
 								<div class="input-label">Thrust Time (days)</div>
 								<input type="number" id="fuelFractionTimeInput" placeholder="e.g., 365" value="365"
 									class="form-control" step="1" min="0">
 							</div>
-							<div style="flex: 1; min-width: 150px;">
+							<div style="flex: 1; min-width: 120px;">
 								<div class="input-label">Efficiency (0-1)</div>
 								<input type="number" id="fuelFractionEffInput" placeholder="e.g., 0.85" value="0.85"
 									class="form-control" step="0.01" min="0" max="1">
 							</div>
-							<div style="flex: 1; min-width: 150px;">
+							<div style="flex: 1; min-width: 120px;">
 								<div class="input-label">Dry Mass (kg)</div>
 								<input type="number" id="fuelFractionDryMassInput" placeholder="e.g., 1000" value="1000"
 									class="form-control" step="100" min="0">
