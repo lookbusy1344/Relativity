@@ -202,6 +202,37 @@ export function createFlipBurnHandler(
             pendingCalculation = null;
         }
 
+        // Validate and clamp inputs immediately (before showing "Working...")
+        let accelGStr = accelInput.value ?? '1';
+        try {
+            const accelGDec = rl.ensure(accelGStr);
+            if (accelGDec.lt(0.1)) {
+                accelGStr = '0.1';
+                accelInput.value = '0.1';
+            } else if (accelGDec.gt(100)) {
+                accelGStr = '100';
+                accelInput.value = '100';
+            }
+        } catch {
+            accelGStr = '1';
+            accelInput.value = '1';
+        }
+
+        let distanceLightYearsStr = distanceInput.value ?? '0';
+        try {
+            const distanceLYDec = rl.ensure(distanceLightYearsStr);
+            if (distanceLYDec.lt(0.01)) {
+                distanceLightYearsStr = '0.01';
+                distanceInput.value = '0.01';
+            } else if (distanceLYDec.gt(50000000000)) {
+                distanceLightYearsStr = '50000000000';
+                distanceInput.value = '50000000000';
+            }
+        } catch {
+            distanceLightYearsStr = '4';
+            distanceInput.value = '4';
+        }
+
         // Show working message
         if (resultFlip1) resultFlip1.textContent = "Working...";
         if (resultFlip2) resultFlip2.textContent = "";
@@ -218,9 +249,7 @@ export function createFlipBurnHandler(
         pendingRAF = requestAnimationFrame(() => {
             pendingRAF = null;
             pendingCalculation = window.setTimeout(() => {
-            // Use string values to preserve precision for Decimal.js calculations
-            const accelGStr = accelInput.value ?? '1';
-            const distanceLightYearsStr = distanceInput.value ?? '0';
+            // Use validated values from above
             const accel = rl.g.mul(accelGStr);
             const m = rl.ensure(distanceLightYearsStr).mul(rl.lightYear);
             const res = rl.flipAndBurn(accel, m);
