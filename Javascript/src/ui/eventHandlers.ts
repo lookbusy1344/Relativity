@@ -98,6 +98,37 @@ export function createAccelHandler(
             pendingCalculation = null;
         }
 
+        // Validate and clamp inputs immediately (before showing "Working...")
+        let accelGStr = accelInput.value ?? '1';
+        try {
+            const accelGDec = rl.ensure(accelGStr);
+            if (accelGDec.lt(0.1)) {
+                accelGStr = '0.1';
+                accelInput.value = '0.1';
+            } else if (accelGDec.gt(100)) {
+                accelGStr = '100';
+                accelInput.value = '100';
+            }
+        } catch {
+            accelGStr = '1';
+            accelInput.value = '1';
+        }
+
+        let timeStr = timeInput.value ?? '0';
+        try {
+            const timeDaysDec = rl.ensure(timeStr);
+            if (timeDaysDec.lt(0.1)) {
+                timeStr = '0.1';
+                timeInput.value = '0.1';
+            } else if (timeDaysDec.gt(60000)) {
+                timeStr = '60000';
+                timeInput.value = '60000';
+            }
+        } catch {
+            timeStr = '365';
+            timeInput.value = '365';
+        }
+
         // Show working message
         if (resultA1) resultA1.textContent = "Working...";
         if (resultA2) resultA2.textContent = "";
@@ -112,9 +143,7 @@ export function createAccelHandler(
         pendingRAF = requestAnimationFrame(() => {
             pendingRAF = null;
             pendingCalculation = window.setTimeout(() => {
-            // Use string values to preserve precision for Decimal.js calculations
-            const accelGStr = accelInput.value ?? '1';
-            const timeStr = timeInput.value ?? '0';
+            // Use validated values from above
             const accel = rl.g.mul(accelGStr);
             const secs = rl.ensure(timeStr).mul(60 * 60 * 24);
 
