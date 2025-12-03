@@ -580,17 +580,17 @@
 							<div style="flex: 1; min-width: 150px;">
 								<div class="input-label">Time (sec)</div>
 								<input type="number" id="spacetimeTime2" placeholder="e.g., 2" value="2"
-									class="form-control">
+									class="form-control" step="0.1" min="0.1" max="1000000">
 							</div>
 							<div style="flex: 1; min-width: 150px;">
 								<div class="input-label">Distance (km)</div>
 								<input type="number" id="spacetimeX2" placeholder="e.g., 299792.458" value="299792.458"
-									class="form-control">
+									class="form-control" step="1" min="1" max="10000000000">
 							</div>
 							<div style="flex: 1; min-width: 150px;">
 								<div class="input-label">Relative Velocity (c)</div>
 								<input type="number" id="spacetimeVelocity" placeholder="e.g., 0.99" value="0.99"
-									class="form-control" step="0.1" min="-0.999" max="0.999">
+									class="form-control" step="0.01" min="-0.999" max="0.999">
 							</div>
 							<button type="button" class="btn-calculate" id="spacetimeButton"
 								>Calculate</button>

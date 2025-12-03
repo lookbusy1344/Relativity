@@ -528,24 +528,59 @@ export function createSpacetimeIntervalHandler(
             !resultSquared || !resultType || !resultDeltaT || !resultDeltaX ||
             !resultMinSep || !resultVelocity) return;
 
+        // Validate and clamp inputs
+        let t2Str = time2Input.value ?? '2';
+        try {
+            const t2Dec = rl.ensure(t2Str);
+            if (t2Dec.lt(0.1)) {
+                t2Str = '0.1';
+                time2Input.value = '0.1';
+            } else if (t2Dec.gt(1000000)) {
+                t2Str = '1000000';
+                time2Input.value = '1000000';
+            }
+        } catch {
+            t2Str = '2';
+            time2Input.value = '2';
+        }
+
+        let x2KmStr = x2Input.value ?? '299792.458';
+        try {
+            const x2KmDec = rl.ensure(x2KmStr);
+            if (x2KmDec.lt(1)) {
+                x2KmStr = '1';
+                x2Input.value = '1';
+            } else if (x2KmDec.gt(10000000000)) {
+                x2KmStr = '10000000000';
+                x2Input.value = '10000000000';
+            }
+        } catch {
+            x2KmStr = '299792.458';
+            x2Input.value = '299792.458';
+        }
+
+        let velocityCStr = velocityInput.value ?? '0.99';
+        try {
+            const velocityCDec = rl.ensure(velocityCStr);
+            if (velocityCDec.lt(-0.999)) {
+                velocityCStr = '-0.999';
+                velocityInput.value = '-0.999';
+            } else if (velocityCDec.gt(0.999)) {
+                velocityCStr = '0.999';
+                velocityInput.value = '0.999';
+            }
+        } catch {
+            velocityCStr = '0.99';
+            velocityInput.value = '0.99';
+        }
+
         // Event 1 is always at (0, 0)
         const t1 = new Decimal(0);
         const x1 = new Decimal(0);
 
-        const t2 = rl.ensure(time2Input.value ?? 0);
-        const x2Km = rl.ensure(x2Input.value ?? 0);
-        const velocityC = rl.ensure(velocityInput.value ?? 0);
-
-        // Validate velocity is in valid range (-1.0 < v < 1.0)
-        if (velocityC.lte(-1) || velocityC.gte(1)) {
-            setElement(resultSquared, "Invalid velocity", "");
-            setElement(resultType, "Velocity must be > -1.0 and < 1.0", "");
-            setElement(resultDeltaT, "-", "");
-            setElement(resultDeltaX, "-", "");
-            setElement(resultMinSep, "-", "");
-            setElement(resultVelocity, "-", "");
-            return;
-        }
+        const t2 = rl.ensure(t2Str);
+        const x2Km = rl.ensure(x2KmStr);
+        const velocityC = rl.ensure(velocityCStr);
 
         // Convert km to m for calculations
         const x2 = x2Km.mul(1000);
