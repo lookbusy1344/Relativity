@@ -180,6 +180,8 @@ export function createAccelHandler(
 export function createFlipBurnHandler(
     getAccelInput: () => HTMLInputElement | null,
     getDistanceInput: () => HTMLInputElement | null,
+    getDryMassInput: () => HTMLInputElement | null,
+    getEfficiencyInput: () => HTMLInputElement | null,
     getResults: () => (HTMLElement | null)[],
     chartRegistry: { current: ChartRegistry }
 ): () => void {
@@ -189,8 +191,10 @@ export function createFlipBurnHandler(
     return () => {
         const accelInput = getAccelInput();
         const distanceInput = getDistanceInput();
-        const [resultFlip1, resultFlip2, resultFlip3, resultFlip4, resultFlip5, resultFlip6, resultFlipFuel40, resultFlipFuel, resultFlipFuel60, resultFlipFuel70] = getResults();
-        if (!accelInput || !distanceInput) return;
+        const dryMassInput = getDryMassInput();
+        const efficiencyInput = getEfficiencyInput();
+        const [resultFlip1, resultFlip2, resultFlip3, resultFlip4, resultFlip5, resultFlip6, resultFlipFuel, resultFlipFuelFraction] = getResults();
+        if (!accelInput || !distanceInput || !dryMassInput || !efficiencyInput) return;
 
         // Cancel pending calculation to prevent race condition
         if (pendingRAF !== null) {
@@ -233,6 +237,36 @@ export function createFlipBurnHandler(
             distanceInput.value = '4';
         }
 
+        let dryMassStr = dryMassInput.value ?? '500';
+        try {
+            const dryMassDec = rl.ensure(dryMassStr);
+            if (dryMassDec.lt(1)) {
+                dryMassStr = '1';
+                dryMassInput.value = '1';
+            } else if (dryMassDec.gt(100000000)) {
+                dryMassStr = '100000000';
+                dryMassInput.value = '100000000';
+            }
+        } catch {
+            dryMassStr = '500';
+            dryMassInput.value = '500';
+        }
+
+        let efficiencyStr = efficiencyInput.value ?? '0.85';
+        try {
+            const efficiencyDec = rl.ensure(efficiencyStr);
+            if (efficiencyDec.lt(0.01)) {
+                efficiencyStr = '0.01';
+                efficiencyInput.value = '0.01';
+            } else if (efficiencyDec.gt(0.99)) {
+                efficiencyStr = '0.99';
+                efficiencyInput.value = '0.99';
+            }
+        } catch {
+            efficiencyStr = '0.85';
+            efficiencyInput.value = '0.85';
+        }
+
         // Show working message
         if (resultFlip1) resultFlip1.textContent = "Working...";
         if (resultFlip2) resultFlip2.textContent = "";
@@ -240,10 +274,8 @@ export function createFlipBurnHandler(
         if (resultFlip4) resultFlip4.textContent = "";
         if (resultFlip5) resultFlip5.textContent = "";
         if (resultFlip6) resultFlip6.textContent = "";
-        if (resultFlipFuel40) resultFlipFuel40.textContent = "";
         if (resultFlipFuel) resultFlipFuel.textContent = "";
-        if (resultFlipFuel60) resultFlipFuel60.textContent = "";
-        if (resultFlipFuel70) resultFlipFuel70.textContent = "";
+        if (resultFlipFuelFraction) resultFlipFuelFraction.textContent = "";
 
         // Allow UI to update before heavy calculation
         pendingRAF = requestAnimationFrame(() => {
@@ -260,9 +292,13 @@ export function createFlipBurnHandler(
             const metre = rl.formatSignificant(rl.one.div(lorentz), "0", 2);
             const sec = rl.formatSignificant(rl.one.mul(lorentz), "0", 2);
 
-            // Calculate fuel fractions at all nozzle efficiencies
-            const [fuelPercent70, fuelPercent75, fuelPercent80, fuelPercent85] = 
-                rl.pionRocketFuelFractionsMultiple(res.properTime, accel, [0.7, 0.75, 0.8, 0.85]);
+            // Calculate fuel mass
+            const dryMass = rl.ensure(dryMassStr);
+            const efficiency = rl.ensure(efficiencyStr);
+            const fuelFraction = rl.pionRocketFuelFraction(res.properTime, accel, efficiency);
+            const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
+            const fuelMassScientific = fuelMass.toExponential(2);
+            const fuelPercent = fuelFraction.mul(100);
 
             if (resultFlip1) setElement(resultFlip1, rl.formatSignificant(properTime, "0", 2), "yrs");
             if (resultFlip2) setElement(resultFlip2, rl.formatSignificant(peak, "9", 2), "c");
@@ -270,10 +306,8 @@ export function createFlipBurnHandler(
             if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
             if (resultFlip5) setElement(resultFlip5, `1m becomes ${metre}m`, "");
             if (resultFlip6) setElement(resultFlip6, `1s becomes ${sec}s`, "");
-            if (resultFlipFuel40) setElement(resultFlipFuel40, rl.formatSignificant(fuelPercent70, "9", 3), "%");
-            if (resultFlipFuel) setElement(resultFlipFuel, rl.formatSignificant(fuelPercent75, "9", 3), "%");
-            if (resultFlipFuel60) setElement(resultFlipFuel60, rl.formatSignificant(fuelPercent80, "9", 3), "%");
-            if (resultFlipFuel70) setElement(resultFlipFuel70, rl.formatSignificant(fuelPercent85, "9", 3), "%");
+            if (resultFlipFuel) setElement(resultFlipFuel, fuelMassScientific, "kg");
+            if (resultFlipFuelFraction) setElement(resultFlipFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
 
             // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
             const accelG = parseFloat(accelGStr);

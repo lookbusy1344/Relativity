@@ -32,7 +32,9 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
         name: 'flip',
         params: {
             accel: 'flipAccelInput',
-            dist: 'flipInput'
+            dist: 'flipInput',
+            dry: 'flipDryMassInput',
+            eff: 'flipEfficiencyInput'
         },
         buttonId: 'flipButton',
         tabId: 'travel-tab'

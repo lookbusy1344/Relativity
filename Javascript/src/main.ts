@@ -117,6 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
         createFlipBurnHandler(
             () => getInputElement('flipAccelInput'),
             () => getInputElement('flipInput'),
+            () => getInputElement('flipDryMassInput'),
+            () => getInputElement('flipEfficiencyInput'),
             () => [
                 getResultElement('resultFlip1'),
                 getResultElement('resultFlip2'),
@@ -124,10 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 getResultElement('resultFlip4'),
                 getResultElement('resultFlip5'),
                 getResultElement('resultFlip6'),
-                getResultElement('resultFlipFuel40'),
                 getResultElement('resultFlipFuel'),
-                getResultElement('resultFlipFuel60'),
-                getResultElement('resultFlipFuel70')
+                getResultElement('resultFlipFuelFraction')
             ],
             chartRegistry
         )
