@@ -297,7 +297,6 @@ export function createFlipBurnHandler(
             const efficiency = rl.ensure(efficiencyStr);
             const fuelFraction = rl.pionRocketFuelFraction(res.properTime, accel, efficiency);
             const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
-            const fuelMassScientific = fuelMass.toExponential(2);
             const fuelPercent = fuelFraction.mul(100);
 
             if (resultFlip1) setElement(resultFlip1, rl.formatSignificant(properTime, "0", 2), "yrs");
@@ -306,7 +305,7 @@ export function createFlipBurnHandler(
             if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
             if (resultFlip5) setElement(resultFlip5, `1m becomes ${metre}m`, "");
             if (resultFlip6) setElement(resultFlip6, `1s becomes ${sec}s`, "");
-            if (resultFlipFuel) setElement(resultFlipFuel, fuelMassScientific, "kg");
+            if (resultFlipFuel) setElement(resultFlipFuel, rl.formatMassWithUnit(fuelMass), "");
             if (resultFlipFuelFraction) setElement(resultFlipFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
 
             // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
@@ -589,36 +588,7 @@ export function createPionFuelFractionHandler(
         const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
 
         setElement(resultFraction, rl.formatSignificant(fuelFractionPercent, "9", 2), "%");
-
-        // Scale fuel mass to appropriate unit with 0.1x thresholds
-        const fuelMassScientific = fuelMass.toExponential(2);
-
-        if (fuelMass.lt(1000)) {
-            // Show in kg for very small masses (< 1 ton)
-            setElement(resultMass, `${rl.formatSignificant(fuelMass, "0", 2)} kg (${fuelMassScientific} kg)`, "");
-        } else {
-            const earthMasses = fuelMass.div(rl.earthMass);
-            if (earthMasses.lt(0.1)) {
-                // Show in tons for small masses (whole number)
-                const tons = fuelMass.div(1000);
-                setElement(resultMass, `${rl.formatSignificant(tons, "0", 0)} tons (${fuelMassScientific} kg)`, "");
-            } else {
-                const solarMasses = fuelMass.div(rl.solarMass);
-                if (solarMasses.lt(0.1)) {
-                    // Show in Earth masses
-                    setElement(resultMass, `${rl.formatSignificant(earthMasses, "0", 2)} Earth masses (${fuelMassScientific} kg)`, "");
-                } else {
-                    const milkyWayMasses = fuelMass.div(rl.milkyWayMass);
-                    if (milkyWayMasses.lt(0.1)) {
-                        // Show in Solar masses
-                        setElement(resultMass, `${rl.formatSignificant(solarMasses, "0", 2)} Solar masses (${fuelMassScientific} kg)`, "");
-                    } else {
-                        // Show in Milky Way masses
-                        setElement(resultMass, `${rl.formatSignificant(milkyWayMasses, "0", 2)} Milky Way masses (${fuelMassScientific} kg)`, "");
-                    }
-                }
-            }
-        }
+        setElement(resultMass, rl.formatMassWithUnit(fuelMass), "");
     };
 }
 

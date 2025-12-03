@@ -704,3 +704,46 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
     // Normalize -0 to 0
     return result === '-0' ? '0' : result;
 }
+
+/**
+ * Format a mass value with appropriate unit scaling (kg, tons, Earth masses, Solar masses, Milky Way masses)
+ * Uses 0.1x thresholds for unit transitions to provide human-readable output
+ *
+ * @param fuelMass - The mass value in kilograms
+ * @returns Formatted string with smart unit and scientific notation in parentheses
+ *
+ * @example
+ * formatMassWithUnit(new Decimal(500))        // "500 kg (5.0e+2 kg)"
+ * formatMassWithUnit(new Decimal(5000))       // "5,000 tons (5.0e+3 kg)"
+ * formatMassWithUnit(earthMass)               // "1.00 Earth masses (5.97e+24 kg)"
+ */
+export function formatMassWithUnit(fuelMass: Decimal): string {
+    const fuelMassScientific = fuelMass.toExponential(2);
+
+    if (fuelMass.lt(1000)) {
+        // Show in kg for very small masses (< 1 ton)
+        return `${formatSignificant(fuelMass, "0", 2)} kg (${fuelMassScientific} kg)`;
+    }
+
+    const earthMasses = fuelMass.div(earthMass);
+    if (earthMasses.lt(0.1)) {
+        // Show in tons for small masses (whole number)
+        const tons = fuelMass.div(1000);
+        return `${formatSignificant(tons, "0", 0)} tons (${fuelMassScientific} kg)`;
+    }
+
+    const solarMasses = fuelMass.div(solarMass);
+    if (solarMasses.lt(0.1)) {
+        // Show in Earth masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+        return `${formatSignificant(earthMasses, "", 2, true)} Earth masses (${fuelMassScientific} kg)`;
+    }
+
+    const milkyWayMasses = fuelMass.div(milkyWayMass);
+    if (milkyWayMasses.lt(0.1)) {
+        // Show in Solar masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+        return `${formatSignificant(solarMasses, "", 2, true)} Solar masses (${fuelMassScientific} kg)`;
+    }
+
+    // Show in Milky Way masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+    return `${formatSignificant(milkyWayMasses, "", 2, true)} Milky Way masses (${fuelMassScientific} kg)`;
+}

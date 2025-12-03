@@ -872,3 +872,69 @@ describe('Calc Tab Operations', () => {
         });
     });
 });
+
+describe('formatMassWithUnit', () => {
+    describe('Mass unit scaling', () => {
+        it('should format very small masses in kilograms', () => {
+            const mass = new Decimal(500);
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toBe('500 kg (5.00e+2 kg)');
+        });
+
+        it('should format small masses in tons', () => {
+            // 5,000 kg = 5 tons (< 0.1 Earth masses)
+            const mass = new Decimal(5000);
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toBe('5 tons (5.00e+3 kg)');
+        });
+
+        it('should format medium masses in Earth masses', () => {
+            // 1 Earth mass
+            const mass = rl.earthMass;
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('1.00 Earth masses');
+            expect(result).toContain('5.97e+24 kg');
+        });
+
+        it('should format large masses in Solar masses', () => {
+            // 1 Solar mass
+            const mass = rl.solarMass;
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('1.00 Solar masses');
+            expect(result).toContain('1.99e+30 kg');
+        });
+
+        it('should format very large masses in Milky Way masses', () => {
+            // 1 Milky Way mass
+            const mass = rl.milkyWayMass;
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('1.00 Milky Way masses');
+            expect(result).toContain('kg)');
+        });
+
+        it('should use tons for mass just above 1000 kg', () => {
+            // 1500 kg = 1.5 tons, rounds to 2 tons as whole number
+            const mass = new Decimal(1500);
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toBe('2 tons (1.50e+3 kg)');
+        });
+
+        it('should use Earth masses for mass at 0.1 Earth masses threshold', () => {
+            const mass = rl.earthMass.mul(0.1);
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('0.10 Earth masses');
+        });
+
+        it('should use Solar masses for mass at 0.1 Solar masses threshold', () => {
+            const mass = rl.solarMass.mul(0.1);
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('0.10 Solar masses');
+        });
+
+        it('should use Milky Way masses for mass at 0.1 Milky Way masses threshold', () => {
+            const mass = rl.milkyWayMass.mul(0.1);
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('0.10 Milky Way masses');
+        });
+    });
+});
