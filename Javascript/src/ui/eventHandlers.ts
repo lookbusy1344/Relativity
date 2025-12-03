@@ -312,6 +312,37 @@ export function createTwinParadoxHandler(
             pendingCalculation = null;
         }
 
+        // Validate and clamp inputs immediately (before showing "Working...")
+        let velocityCStr = velocityInput.value ?? '0.8';
+        try {
+            const velocityCDec = rl.ensure(velocityCStr);
+            if (velocityCDec.lt(0.001)) {
+                velocityCStr = '0.001';
+                velocityInput.value = '0.001';
+            } else if (velocityCDec.gt(0.999)) {
+                velocityCStr = '0.999';
+                velocityInput.value = '0.999';
+            }
+        } catch {
+            velocityCStr = '0.8';
+            velocityInput.value = '0.8';
+        }
+
+        let properTimeYearsStr = timeInput.value ?? '4';
+        try {
+            const properTimeYearsDec = rl.ensure(properTimeYearsStr);
+            if (properTimeYearsDec.lt(0.01)) {
+                properTimeYearsStr = '0.01';
+                timeInput.value = '0.01';
+            } else if (properTimeYearsDec.gt(1000)) {
+                properTimeYearsStr = '1000';
+                timeInput.value = '1000';
+            }
+        } catch {
+            properTimeYearsStr = '4';
+            timeInput.value = '4';
+        }
+
         // Show working message (unless silent mode)
         if (!silent) {
             if (resultTwins1) resultTwins1.textContent = "Working...";
@@ -325,9 +356,7 @@ export function createTwinParadoxHandler(
 
         // Allow UI to update before heavy calculation (skip delay in silent mode)
         const execute = () => {
-            // Use string values to preserve precision for Decimal.js calculations
-            const velocityCStr = velocityInput.value ?? '0.8';
-            const properTimeYearsStr = timeInput.value ?? '4';
+            // Use validated values from above
 
             // Convert UI inputs to SI units using string values to preserve precision
             // parseFloat loses precision for values like 0.99999999999999999 (becomes 1.0)
