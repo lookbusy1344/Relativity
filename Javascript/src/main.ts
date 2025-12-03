@@ -221,7 +221,9 @@ document.addEventListener('DOMContentLoaded', () => {
         createPionFuelFractionHandler(
             () => getInputElement('fuelFractionTimeInput'),
             () => getInputElement('fuelFractionEffInput'),
-            () => getResultElement('resultFuelFraction')
+            () => getInputElement('fuelFractionDryMassInput'),
+            () => getResultElement('resultFuelFraction'),
+            () => getResultElement('resultFuelMass')
         )
     );
 

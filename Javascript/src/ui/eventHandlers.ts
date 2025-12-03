@@ -506,28 +506,45 @@ export function createPionAccelTimeHandler(
 export function createPionFuelFractionHandler(
     getThrustTimeInput: () => HTMLInputElement | null,
     getEfficiencyInput: () => HTMLInputElement | null,
-    getResult: () => HTMLElement | null
+    getDryMassInput: () => HTMLInputElement | null,
+    getResultFraction: () => HTMLElement | null,
+    getResultMass: () => HTMLElement | null
 ): () => void {
     return () => {
         const thrustTimeInput = getThrustTimeInput();
         const efficiencyInput = getEfficiencyInput();
-        const result = getResult();
-        if (!thrustTimeInput || !efficiencyInput || !result) return;
+        const dryMassInput = getDryMassInput();
+        const resultFraction = getResultFraction();
+        const resultMass = getResultMass();
+        if (!thrustTimeInput || !efficiencyInput || !dryMassInput || !resultFraction || !resultMass) return;
 
         const thrustTimeDays = rl.ensure(thrustTimeInput.value ?? 365);
         const thrustTimeSeconds = thrustTimeDays.mul(60 * 60 * 24);
         const efficiency = rl.ensure(efficiencyInput.value ?? 0.85);
+        const dryMass = rl.ensure(dryMassInput.value ?? 1000);
 
         // Validate efficiency range
         if (efficiency.lt(0.01) || efficiency.gt(1.0)) {
-            setElement(result, "Efficiency must be between 0.01 and 1.0", "");
+            setElement(resultFraction, "Efficiency must be between 0.01 and 1.0", "");
+            setElement(resultMass, "-", "");
+            return;
+        }
+
+        // Validate dry mass
+        if (dryMass.lte(0)) {
+            setElement(resultFraction, "Dry mass must be positive", "");
+            setElement(resultMass, "-", "");
             return;
         }
 
         const fuelFraction = rl.pionRocketFuelFraction(thrustTimeSeconds, rl.g, efficiency);
         const fuelFractionPercent = fuelFraction.mul(100);
 
-        setElement(result, rl.formatSignificant(fuelFractionPercent, "9", 2), "%");
+        // Calculate fuel mass: fuel_mass = (fuel_fraction × dry_mass) / (1 - fuel_fraction)
+        const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
+
+        setElement(resultFraction, rl.formatSignificant(fuelFractionPercent, "9", 2), "%");
+        setElement(resultMass, rl.formatSignificant(fuelMass, "0", 2), "kg");
     };
 }
 
