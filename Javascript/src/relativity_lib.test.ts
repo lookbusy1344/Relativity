@@ -986,5 +986,34 @@ describe('formatMassWithUnit', () => {
             const result = rl.formatMassWithUnit(mass);
             expect(result).toContain('Moon masses');
         });
+
+        it('should format supercluster mass scale', () => {
+            // 1 Supercluster mass (Laniakea: ~1e17 solar masses)
+            const mass = rl.superclusterMass;
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('1.00 Supercluster masses');
+            expect(result).toContain('1.99e+47 kg');
+        });
+
+        it('should use Supercluster masses for mass at 0.1 Supercluster masses threshold', () => {
+            const mass = rl.superclusterMass.mul(0.1);
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('0.10 Supercluster masses');
+        });
+
+        it('should use Milky Way masses for mass between 0.1 Milky Way and 0.1 Supercluster', () => {
+            // 1e43 kg is > 0.1 Milky Way (2.98e41) but < 0.1 Supercluster (1.99e46)
+            const mass = new Decimal('1e43');
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('Milky Way masses');
+            expect(result).not.toContain('Supercluster');
+        });
+
+        it('should use Supercluster masses for very large masses', () => {
+            // 1e48 kg is > 0.1 Supercluster (1.99e46)
+            const mass = new Decimal('1e48');
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('Supercluster masses');
+        });
     });
 });

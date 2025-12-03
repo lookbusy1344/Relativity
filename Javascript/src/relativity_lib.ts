@@ -34,6 +34,7 @@ export let moonMass: Decimal;
 export let earthMass: Decimal;
 export let solarMass: Decimal;
 export let milkyWayMass: Decimal;
+export let superclusterMass: Decimal;
 
 // constants for calculations
 export let one: Decimal;
@@ -60,6 +61,7 @@ export function configure(precision: number): void {
     earthMass = new Decimal("5.972e24"); // kg
     solarMass = new Decimal("1.98892e30"); // kg
     milkyWayMass = new Decimal("1.5e12").mul(solarMass); // kg (approximately 1.5 trillion solar masses)
+    superclusterMass = new Decimal("1e17").mul(solarMass); // kg (Laniakea Supercluster: ~100,000 Milky Ways)
 
     cSquared = c.pow(2); // speed of light squared
     one = new Decimal(1);
@@ -710,7 +712,7 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
 }
 
 /**
- * Format a mass value with appropriate unit scaling (kg, tons, Everest masses, Moon masses, Earth masses, Solar masses, Milky Way masses)
+ * Format a mass value with appropriate unit scaling (kg, tons, Everest masses, Moon masses, Earth masses, Solar masses, Milky Way masses, Supercluster masses)
  * Uses 0.1x thresholds for unit transitions to provide human-readable output
  *
  * @param fuelMass - The mass value in kilograms
@@ -722,6 +724,7 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
  * formatMassWithUnit(everestMass)             // "1.00 Everest masses (8.10e+14 kg)"
  * formatMassWithUnit(moonMass)                // "1.00 Moon masses (7.34e+22 kg)"
  * formatMassWithUnit(earthMass)               // "1.00 Earth masses (5.97e+24 kg)"
+ * formatMassWithUnit(superclusterMass)        // "1.00 Supercluster masses (1.99e+47 kg)"
  */
 export function formatMassWithUnit(fuelMass: Decimal): string {
     const fuelMassScientific = fuelMass.toExponential(2);
@@ -762,6 +765,12 @@ export function formatMassWithUnit(fuelMass: Decimal): string {
         return `${formatSignificant(solarMasses, "", 2, true)} Solar masses (${fuelMassScientific} kg)`;
     }
 
-    // Show in Milky Way masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
-    return `${formatSignificant(milkyWayMasses, "", 2, true)} Milky Way masses (${fuelMassScientific} kg)`;
+    const superclusterMasses = fuelMass.div(superclusterMass);
+    if (superclusterMasses.lt(0.1)) {
+        // Show in Milky Way masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+        return `${formatSignificant(milkyWayMasses, "", 2, true)} Milky Way masses (${fuelMassScientific} kg)`;
+    }
+
+    // Show in Supercluster masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+    return `${formatSignificant(superclusterMasses, "", 2, true)} Supercluster masses (${fuelMassScientific} kg)`;
 }
