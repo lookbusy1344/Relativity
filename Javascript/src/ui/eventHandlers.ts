@@ -544,7 +544,36 @@ export function createPionFuelFractionHandler(
         const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
 
         setElement(resultFraction, rl.formatSignificant(fuelFractionPercent, "9", 2), "%");
-        setElement(resultMass, rl.formatSignificant(fuelMass, "0", 2), "kg");
+
+        // Scale fuel mass to appropriate unit with 0.1x thresholds
+        const fuelMassScientific = fuelMass.toExponential(2);
+
+        if (fuelMass.lt(1000)) {
+            // Show in kg for very small masses (< 1 ton)
+            setElement(resultMass, `${rl.formatSignificant(fuelMass, "0", 2)} kg (${fuelMassScientific} kg)`, "");
+        } else {
+            const earthMasses = fuelMass.div(rl.earthMass);
+            if (earthMasses.lt(0.1)) {
+                // Show in tons for small masses (whole number)
+                const tons = fuelMass.div(1000);
+                setElement(resultMass, `${rl.formatSignificant(tons, "0", 0)} tons (${fuelMassScientific} kg)`, "");
+            } else {
+                const solarMasses = fuelMass.div(rl.solarMass);
+                if (solarMasses.lt(0.1)) {
+                    // Show in Earth masses
+                    setElement(resultMass, `${rl.formatSignificant(earthMasses, "0", 2)} Earth masses (${fuelMassScientific} kg)`, "");
+                } else {
+                    const milkyWayMasses = fuelMass.div(rl.milkyWayMass);
+                    if (milkyWayMasses.lt(0.1)) {
+                        // Show in Solar masses
+                        setElement(resultMass, `${rl.formatSignificant(solarMasses, "0", 2)} Solar masses (${fuelMassScientific} kg)`, "");
+                    } else {
+                        // Show in Milky Way masses
+                        setElement(resultMass, `${rl.formatSignificant(milkyWayMasses, "0", 2)} Milky Way masses (${fuelMassScientific} kg)`, "");
+                    }
+                }
+            }
+        }
     };
 }
 

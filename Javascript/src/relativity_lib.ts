@@ -29,6 +29,9 @@ export let g: Decimal;
 export let lightYear: Decimal;
 export let au: Decimal;
 export let secondsPerYear: Decimal;
+export let earthMass: Decimal;
+export let solarMass: Decimal;
+export let milkyWayMass: Decimal;
 
 // constants for calculations
 export let one: Decimal;
@@ -50,6 +53,9 @@ export function configure(precision: number): void {
     lightYear = new Decimal("9460730472580800"); // meters in a light year
     au = new Decimal("149597870700"); // meters in an astronomical unit
     secondsPerYear = new Decimal(60 * 60 * 24).mul("365.25"); // seconds in a year
+    earthMass = new Decimal("5.972e24"); // kg
+    solarMass = new Decimal("1.98892e30"); // kg
+    milkyWayMass = new Decimal("1.5e12").mul(solarMass); // kg (approximately 1.5 trillion solar masses)
 
     cSquared = c.pow(2); // speed of light squared
     one = new Decimal(1);
