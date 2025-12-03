@@ -29,6 +29,8 @@ export let g: Decimal;
 export let lightYear: Decimal;
 export let au: Decimal;
 export let secondsPerYear: Decimal;
+export let everestMass: Decimal;
+export let moonMass: Decimal;
 export let earthMass: Decimal;
 export let solarMass: Decimal;
 export let milkyWayMass: Decimal;
@@ -53,6 +55,8 @@ export function configure(precision: number): void {
     lightYear = new Decimal("9460730472580800"); // meters in a light year
     au = new Decimal("149597870700"); // meters in an astronomical unit
     secondsPerYear = new Decimal(60 * 60 * 24).mul("365.25"); // seconds in a year
+    everestMass = new Decimal("8.1e14"); // kg (approximate mass of Mount Everest)
+    moonMass = new Decimal("7.342e22"); // kg (mass of the Moon)
     earthMass = new Decimal("5.972e24"); // kg
     solarMass = new Decimal("1.98892e30"); // kg
     milkyWayMass = new Decimal("1.5e12").mul(solarMass); // kg (approximately 1.5 trillion solar masses)
@@ -706,7 +710,7 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
 }
 
 /**
- * Format a mass value with appropriate unit scaling (kg, tons, Earth masses, Solar masses, Milky Way masses)
+ * Format a mass value with appropriate unit scaling (kg, tons, Everest masses, Moon masses, Earth masses, Solar masses, Milky Way masses)
  * Uses 0.1x thresholds for unit transitions to provide human-readable output
  *
  * @param fuelMass - The mass value in kilograms
@@ -715,6 +719,8 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
  * @example
  * formatMassWithUnit(new Decimal(500))        // "500 kg (5.0e+2 kg)"
  * formatMassWithUnit(new Decimal(5000))       // "5,000 tons (5.0e+3 kg)"
+ * formatMassWithUnit(everestMass)             // "1.00 Everest masses (8.10e+14 kg)"
+ * formatMassWithUnit(moonMass)                // "1.00 Moon masses (7.34e+22 kg)"
  * formatMassWithUnit(earthMass)               // "1.00 Earth masses (5.97e+24 kg)"
  */
 export function formatMassWithUnit(fuelMass: Decimal): string {
@@ -725,11 +731,23 @@ export function formatMassWithUnit(fuelMass: Decimal): string {
         return `${formatSignificant(fuelMass, "0", 2)} kg (${fuelMassScientific} kg)`;
     }
 
-    const earthMasses = fuelMass.div(earthMass);
-    if (earthMasses.lt(0.1)) {
+    const everestMasses = fuelMass.div(everestMass);
+    if (everestMasses.lt(0.1)) {
         // Show in tons for small masses (whole number)
         const tons = fuelMass.div(1000);
         return `${formatSignificant(tons, "0", 0)} tons (${fuelMassScientific} kg)`;
+    }
+
+    const moonMasses = fuelMass.div(moonMass);
+    if (moonMasses.lt(0.1)) {
+        // Show in Everest masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+        return `${formatSignificant(everestMasses, "", 2, true)} Everest masses (${fuelMassScientific} kg)`;
+    }
+
+    const earthMasses = fuelMass.div(earthMass);
+    if (earthMasses.lt(0.1)) {
+        // Show in Moon masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+        return `${formatSignificant(moonMasses, "", 2, true)} Moon masses (${fuelMassScientific} kg)`;
     }
 
     const solarMasses = fuelMass.div(solarMass);

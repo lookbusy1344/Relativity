@@ -936,5 +936,55 @@ describe('formatMassWithUnit', () => {
             const result = rl.formatMassWithUnit(mass);
             expect(result).toContain('0.10 Milky Way masses');
         });
+
+        it('should format Mount Everest mass scale', () => {
+            // 1 Mount Everest mass
+            const mass = rl.everestMass;
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('1.00 Everest masses');
+            expect(result).toContain('8.10e+14 kg');
+        });
+
+        it('should format Moon mass scale', () => {
+            // 1 Moon mass
+            const mass = rl.moonMass;
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('1.00 Moon masses');
+            expect(result).toContain('7.34e+22 kg');
+        });
+
+        it('should use Everest masses for mass at 0.1 Everest masses threshold', () => {
+            const mass = rl.everestMass.mul(0.1);
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('0.10 Everest masses');
+        });
+
+        it('should use Moon masses for mass at 0.1 Moon masses threshold', () => {
+            const mass = rl.moonMass.mul(0.1);
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('0.10 Moon masses');
+        });
+
+        it('should use tons for mass just below 0.1 Everest masses', () => {
+            // 5e13 kg is less than 0.1 Everest (8.1e13 kg)
+            const mass = new Decimal('5e13');
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('tons');
+            expect(result).not.toContain('Everest');
+        });
+
+        it('should use Everest masses for mass between 0.1 Everest and 0.1 Moon', () => {
+            // 1e15 kg is > 0.1 Everest (8.1e13) but < 0.1 Moon (7.342e21)
+            const mass = new Decimal('1e15');
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('Everest masses');
+        });
+
+        it('should use Moon masses for mass between 0.1 Moon and 0.1 Earth', () => {
+            // 1e22 kg is > 0.1 Moon (7.342e21) but < 0.1 Earth (5.972e23)
+            const mass = new Decimal('1e22');
+            const result = rl.formatMassWithUnit(mass);
+            expect(result).toContain('Moon masses');
+        });
     });
 });
