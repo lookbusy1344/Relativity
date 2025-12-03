@@ -127,6 +127,22 @@ src/
 - Fully responsive design with mobile-optimized layouts for all visualizations
 - The web interface is hosted at: https://lookbusy1344.github.io/Relativity/
 
+### Precision Handling Policy
+
+To maintain calculation accuracy throughout the application:
+
+- **Input Processing**: All user inputs must be immediately converted to `Decimal`. Never use `parseFloat()` or `Number()` on inputs before Decimal conversion.
+  - If the value is known to be a string: use `new Decimal(str)` directly
+  - If the value could be various types: use `rl.ensure(value)`
+- **Calculations**: All physics calculations must be performed entirely in Decimal.js. String values should be passed directly to Decimal constructors to preserve precision.
+- **Display**: Result labels must be converted directly from `Decimal` to strings using `rl.formatSignificant()` or similar formatting functions.
+- **Visualization Exception**: Floats via `parseFloat()` or `.toNumber()` are acceptable only for:
+  - Chart.js data points (charts/)
+  - D3.js visualizations (Minkowski diagrams)
+  - Other rendering contexts where approximation is acceptable
+
+**Rationale**: JavaScript's `Number` type uses 64-bit IEEE 754 floats, which lose precision for values requiring more than ~15-17 significant digits. Relativistic calculations often require higher precision, especially for velocities near the speed of light.
+
 ## Recent Major Features
 
 ### Relativity of Simultaneity (Nov 2025)
