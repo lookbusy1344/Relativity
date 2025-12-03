@@ -532,9 +532,9 @@ export function createSpacetimeIntervalHandler(
         let t2Str = time2Input.value ?? '2';
         try {
             const t2Dec = rl.ensure(t2Str);
-            if (t2Dec.lt(0.1)) {
-                t2Str = '0.1';
-                time2Input.value = '0.1';
+            if (t2Dec.lt(0.001)) {
+                t2Str = '0.001';
+                time2Input.value = '0.001';
             } else if (t2Dec.gt(1000000)) {
                 t2Str = '1000000';
                 time2Input.value = '1000000';
