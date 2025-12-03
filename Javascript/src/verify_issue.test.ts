@@ -31,8 +31,6 @@ describe('Issue verification - flip and burn 100000 ly', () => {
 
         // Convert to years
         const properTimeYears = res.properTime.div(rl.secondsPerYear);
-        const coordTimeYears = res.coordTime.div(rl.secondsPerYear);
-        const peakVelocityC = res.peakVelocity.div(rl.c);
 
         console.log("\nResults from flipAndBurn:");
         console.log("========================");
