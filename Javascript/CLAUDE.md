@@ -127,6 +127,24 @@ src/
 - Fully responsive design with mobile-optimized layouts for all visualizations
 - The web interface is hosted at: https://lookbusy1344.github.io/Relativity/
 
+### Testing Requirements
+
+**IMPORTANT**: After making changes to core physics calculations, always run the test suite to ensure correctness.
+
+- All core physics functions in `relativity_lib.ts` have comprehensive unit tests
+- Tests verify precision handling, edge cases, and mathematical correctness
+- Run tests before committing changes: `yarn test:run`
+- For development with auto-reload: `yarn test`
+- Tests are located in `src/relativity_lib.test.ts`
+
+**Test Coverage Includes**:
+- Lorentz factor calculations
+- Rapidity conversions (velocity ↔ rapidity)
+- Relativistic velocity addition
+- Charged-pion rocket fuel calculations
+- Round-trip conversions and precision validation
+- Edge cases (zero velocity, velocities near c, negative velocities)
+
 ### Precision Handling Policy
 
 To maintain calculation accuracy throughout the application:
