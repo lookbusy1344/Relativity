@@ -1,33 +1,32 @@
 import numpy as np
 
 
-def estimate_stars_simple(R_ly, samples=300000):
+def estimate_stars_in_sphere(R_ly, samples=300000):
     """
-    Estimate the number of stars within radius R_ly (light-years)
-    using a simple, spherically averaged Milky Way model.
-
-    Components:
-      - Thin disk (exponential)
-      - Bulge (spherical Gaussian)
-      - Halo (power-law)
+    Improved estimate of the number of stars within radius R_ly (light-years)
+    using a more realistic Milky Way model.
     """
 
-    # --- Galactic parameters ---
+    stars_in_galaxy = (
+        200_000_000_000  # Approximate total number of stars in the Milky Way
+    )
+
+    # --- Galactic parameters (updated) ---
     # Thin disk
-    rho0 = 0.004  # local density (stars/ly^3)
-    h_R = 2600  # radial scale length (ly)
-    h_z = 300  # vertical scale height (ly)
+    rho0 = 0.014  # local density (stars/ly^3)
+    h_R = 9000.0  # radial scale length (ly)
+    h_z = 300.0  # vertical scale height (ly)
 
-    # Bulge
-    rho_b = 0.05  # central bulge density (stars/ly^3)
-    r_b = 3000  # bulge scale radius (ly)
+    # Bulge (weaker + more compact)
+    rho_b = 0.5  # central bulge density (stars/ly^3)
+    r_b = 1000  # bulge scale radius (ly)
 
-    # Halo
-    rho_h = 1e-6  # normalization (stars/ly^3)
-    r_h = 10000  # reference radius (ly)
+    # Halo (weaker)
+    rho_h = 1e-7  # normalization (stars/ly^3)
+    r_h = 10000.0  # reference radius (ly)
 
     # Sun's position
-    R_sun = 27000  # ly from Galactic center
+    R_sun = 27000.0  # ly from Galactic center
 
     # --- Monte Carlo sampling inside sphere ---
     u = np.random.uniform(0, 1, samples)
@@ -48,25 +47,23 @@ def estimate_stars_simple(R_ly, samples=300000):
     r_gal = np.sqrt((R_sun + x) ** 2 + y**2 + z**2)
 
     # --- Density components ---
-    # Thin disk (spherically averaged)
     disk_density = rho0 * np.exp(-(R_gal - R_sun) / h_R) * np.exp(-np.abs(z_gal) / h_z)
-
-    # Bulge
     bulge_density = rho_b * np.exp(-((r_gal / r_b) ** 2))
-
-    # Halo
     halo_density = rho_h * (r_gal / r_h) ** (-3.5)
 
-    # Total density
     rho = disk_density + bulge_density + halo_density
 
     # Volume of sphere
     volume = (4 / 3) * np.pi * R_ly**3
 
-    return rho.mean() * volume
+    stars = rho.mean() * volume
+    fraction = stars / stars_in_galaxy
+
+    return stars, fraction
 
 
 if __name__ == "__main__":
-    print("Radius (ly) | Estimated Stars")
+    print("Radius (ly) | Estimated Stars         | Fraction of Galaxy")
     for R in [5, 10, 20, 50, 80, 100, 1000, 5000, 20000, 50000, 100000]:
-        print(f"{R:<15} | {estimate_stars_simple(R):<15}")
+        stars, frac = estimate_stars_in_sphere(R)
+        print(f"{R:<15} | {stars:<22.6g} | {frac:.3e}")
