@@ -1279,7 +1279,7 @@ describe('Spacetime Interval and Four-Momentum Functions', () => {
             const event2: [Decimal, Decimal, Decimal, Decimal] = [dt, dx, dy, dz];
             const result = rl.spacetimeInterval3d(event1, event2);
 
-            expect(Math.abs(result.toNumber())).toBeLessThan(1e5); // Close to zero
+            expect(Math.abs(result.toNumber())).toBeLessThan(1e-5); // Close to zero
         });
 
         it('equals 1d interval when dy=dz=0', () => {
