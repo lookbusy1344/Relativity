@@ -50,15 +50,15 @@ export function estimateStarsInSphere(
 	// All measurements from Sun's position at R_sun from galactic center
 
 	// Thin disk: Exponential profile ρ(R,z) = ρ₀ * exp(-R/h_R) * exp(-|z|/h_z)
-	const rhoLocal = 0.014; // Local stellar density at Sun's position (stars/ly³)
+	const rhoLocal = 0.004; // Local stellar density at Sun's position (stars/ly³)
 	const hR = 9000.0; // Radial scale length of disk (ly)
 	const hZ = 300.0; // Vertical scale height of disk (ly)
 
 	// Bulge: Gaussian spheroid centered on galaxy (~40 billion stars, 20% of galaxy)
-	const rhoBulgeCenter = 0.35; // Central bulge density (stars/ly³)
+	const rhoBulgeCenter = 0.75; // Central bulge density (stars/ly³)
 	const rBulge = 3500.0; // Bulge scale radius (ly)
 
-	// Halo: Power-law profile with core to avoid singularity at center (~40 billion stars)
+	// Halo: Power-law profile with core to avoid singularity at center (~2 billion stars, ~1% of galaxy)
 	const rhoHaloNorm = 1.5e-5; // Halo normalization constant (stars/ly³)
 	const rHalo = 25000.0; // Halo reference radius (ly)
 	const rCore = 500.0; // Core radius to prevent singularity at r=0 (ly)
@@ -156,10 +156,10 @@ function _computeStarsWithoutNormalization(
 	samplesPerShell: number
 ): StarEstimationResult {
 	// Same model parameters as main function
-	const rhoLocal = 0.014;
+	const rhoLocal = 0.004;
 	const hR = 9000.0;
 	const hZ = 300.0;
-	const rhoBulgeCenter = 0.35;
+	const rhoBulgeCenter = 0.75;
 	const rBulge = 3500.0;
 	const rhoHaloNorm = 1.5e-5;
 	const rHalo = 25000.0;
