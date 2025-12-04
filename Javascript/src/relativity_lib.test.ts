@@ -1216,6 +1216,159 @@ describe('flipAndBurn', () => {
     });
 });
 
+describe('Spacetime Interval and Four-Momentum Functions', () => {
+    describe('spacetimeInterval1d', () => {
+        it('returns zero for light-like interval', () => {
+            // Light travels 1 light-second in 1 second
+            const dt = new Decimal('1'); // 1 second
+            const dx = rl.c; // c meters
+            const event1: [number, Decimal] = [0, new Decimal('0')];
+            const event2: [Decimal, Decimal] = [dt, dx];
+            const result = rl.spacetimeInterval1d(event1, event2);
+
+            expect(result.toNumber()).toBeCloseTo(0, 5);
+        });
+
+        it('returns positive for time-like interval', () => {
+            // More time than space
+            const dt = new Decimal('10');
+            const dx = new Decimal('1');
+            const event1: [number, number] = [0, 0];
+            const event2: [Decimal, Decimal] = [dt, dx];
+            const result = rl.spacetimeInterval1d(event1, event2);
+
+            expect(result.toNumber()).toBeGreaterThan(0);
+        });
+
+        it('returns negative for space-like interval', () => {
+            // More space than time (squared values will be negative under sqrt)
+            const dt = new Decimal('1');
+            const dx = rl.c.mul(10);
+            const event1: [number, number] = [0, 0];
+            const event2: [Decimal, Decimal] = [dt, dx];
+            const result = rl.spacetimeInterval1d(event1, event2);
+
+            // Space-like interval will have (cΔt)^2 < (Δx)^2, so sqrt of negative = NaN
+            expect(result.isNaN()).toBe(true);
+        });
+
+        it('is invariant under Lorentz transformation (same interval in both frames)', () => {
+            // This is a key property - interval should be the same regardless of frame
+            const dt = new Decimal('5');
+            const dx = rl.c.mul(3);
+            const event1: [number, number] = [0, 0];
+            const event2: [Decimal, Decimal] = [dt, dx];
+            const interval = rl.spacetimeInterval1d(event1, event2);
+
+            // (c*dt)^2 - dx^2 should give consistent result
+            const expected = rl.c.pow(2).mul(dt.pow(2)).sub(dx.pow(2)).sqrt();
+            expect(interval.toNumber()).toBeCloseTo(expected.toNumber(), 0);
+        });
+    });
+
+    describe('spacetimeInterval3d', () => {
+        it('returns zero for light-like interval in any direction', () => {
+            const dt = new Decimal('1');
+            // Light travels c meters total, using Decimal for sqrt(3)
+            const sqrt3 = new Decimal('3').sqrt();
+            const component = rl.c.div(sqrt3);
+            const dx = component;
+            const dy = component;
+            const dz = component;
+            const event1: [number, number, number, number] = [0, 0, 0, 0];
+            const event2: [Decimal, Decimal, Decimal, Decimal] = [dt, dx, dy, dz];
+            const result = rl.spacetimeInterval3d(event1, event2);
+
+            expect(Math.abs(result.toNumber())).toBeLessThan(1e5); // Close to zero
+        });
+
+        it('equals 1d interval when dy=dz=0', () => {
+            const dt = new Decimal('5');
+            const dx = rl.c.mul(2);
+            const event1: [number, number] = [0, 0];
+            const event2: [Decimal, Decimal] = [dt, dx];
+
+            const interval1d = rl.spacetimeInterval1d(event1, event2);
+
+            const event1_3d: [number, number, number, number] = [0, 0, 0, 0];
+            const event2_3d: [Decimal, Decimal, Decimal, Decimal] = [dt, dx, new Decimal(0), new Decimal(0)];
+            const interval3d = rl.spacetimeInterval3d(event1_3d, event2_3d);
+
+            expect(interval3d.toNumber()).toBeCloseTo(interval1d.toNumber(), 5);
+        });
+
+        it('is symmetric in spatial dimensions', () => {
+            const dt = new Decimal('5');
+            const d = new Decimal('1000');
+
+            const event1: [number, number, number, number] = [0, 0, 0, 0];
+            const eventX: [Decimal, Decimal, number, number] = [dt, d, 0, 0];
+            const eventY: [Decimal, number, Decimal, number] = [dt, 0, d, 0];
+            const eventZ: [Decimal, number, number, Decimal] = [dt, 0, 0, d];
+
+            const intervalX = rl.spacetimeInterval3d(event1, eventX);
+            const intervalY = rl.spacetimeInterval3d(event1, eventY);
+            const intervalZ = rl.spacetimeInterval3d(event1, eventZ);
+
+            expect(intervalX.toNumber()).toBeCloseTo(intervalY.toNumber(), 10);
+            expect(intervalY.toNumber()).toBeCloseTo(intervalZ.toNumber(), 10);
+        });
+    });
+
+    describe('fourMomentum', () => {
+        it('returns tuple with energy and momentum', () => {
+            const mass = new Decimal('1'); // 1 kg
+            const velocity = rl.c.mul('0.5'); // 0.5c
+            const result = rl.fourMomentum(mass, velocity);
+
+            expect(result).toHaveLength(2);
+            expect(result[0]).toBeInstanceOf(Decimal); // energy
+            expect(result[1]).toBeInstanceOf(Decimal); // momentum
+        });
+
+        it('energy equals rest mass energy at zero velocity', () => {
+            const mass = new Decimal('1');
+            const velocity = new Decimal('0');
+            const [energy, momentum] = rl.fourMomentum(mass, velocity);
+
+            // E = mc^2 at rest
+            const restEnergy = mass.mul(rl.c.pow(2));
+            expect(energy.toNumber()).toBeCloseTo(restEnergy.toNumber(), 0);
+        });
+
+        it('momentum is zero at zero velocity', () => {
+            const mass = new Decimal('1');
+            const velocity = new Decimal('0');
+            const [energy, momentum] = rl.fourMomentum(mass, velocity);
+
+            expect(momentum.toNumber()).toBeCloseTo(0, 5);
+        });
+
+        it('energy increases with velocity', () => {
+            const mass = new Decimal('1');
+            const [energySlow, momentumSlow] = rl.fourMomentum(mass, rl.c.mul('0.1'));
+            const [energyFast, momentumFast] = rl.fourMomentum(mass, rl.c.mul('0.9'));
+
+            expect(energyFast.toNumber()).toBeGreaterThan(energySlow.toNumber());
+        });
+
+        it('satisfies invariant mass relation: E^2 = (pc)^2 + (mc^2)^2', () => {
+            const mass = new Decimal('1');
+            const velocity = rl.c.mul('0.6');
+            const [energy, momentum] = rl.fourMomentum(mass, velocity);
+
+            const E = energy;
+            const p = momentum;
+            const mc2 = mass.mul(rl.c.pow(2));
+
+            const lhs = E.pow(2);
+            const rhs = p.pow(2).mul(rl.c.pow(2)).add(mc2.pow(2));
+
+            expect(lhs.toNumber()).toBeCloseTo(rhs.toNumber(), 0);
+        });
+    });
+});
+
 describe('formatMassWithUnit', () => {
     describe('Mass unit scaling', () => {
         it('should format very small masses in kilograms', () => {
