@@ -973,6 +973,9 @@ describe('Calc Tab Operations', () => {
 });
 
 describe('Relativistic Velocity Functions', () => {
+    // Note: tauToVelocity and relativisticVelocity are inverse functions.
+    // tauToVelocity: given a velocity, returns the proper time (tau) required to reach it
+    // relativisticVelocity: given a proper time (tau), returns the velocity achieved
     describe('tauToVelocity', () => {
         it('returns zero time for zero velocity', () => {
             const velocity = new Decimal('0');
@@ -1024,7 +1027,7 @@ describe('Relativistic Velocity Functions', () => {
             const tau = new Decimal(rl.secondsPerYear);
             const velocity = rl.relativisticVelocity(rl.g, tau);
             const recoveredTau = rl.tauToVelocity(rl.g, velocity);
-            expect(recoveredTau.toNumber()).toBeCloseTo(tau.toNumber(), 0);
+            expect(recoveredTau.toNumber()).toBeCloseTo(tau.toNumber(), 5);
         });
     });
 
@@ -1046,8 +1049,8 @@ describe('Relativistic Velocity Functions', () => {
             const result = rl.relativisticDistance(rl.g, tau);
             // After 1 year at 1g, should travel roughly 0.5 light years
             const halfLightYear = rl.lightYear.div(2).toNumber();
-            expect(result.toNumber()).toBeGreaterThan(halfLightYear * 0.1);
-            expect(result.toNumber()).toBeLessThan(halfLightYear * 10);
+            expect(result.toNumber()).toBeGreaterThan(halfLightYear * 0.5);
+            expect(result.toNumber()).toBeLessThan(halfLightYear * 2);
         });
     });
 
@@ -1068,7 +1071,7 @@ describe('Relativistic Velocity Functions', () => {
             const tau = new Decimal(rl.secondsPerYear);
             const distance = rl.relativisticDistance(rl.g, tau);
             const recoveredTau = rl.relativisticTimeForDistance(rl.g, distance);
-            expect(recoveredTau.toNumber()).toBeCloseTo(tau.toNumber(), 0);
+            expect(recoveredTau.toNumber()).toBeCloseTo(tau.toNumber(), 5);
         });
     });
 });
