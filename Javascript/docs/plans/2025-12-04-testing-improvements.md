@@ -65,9 +65,10 @@
 - Task 7.1: Remove Ad-hoc Test File
 - Task 7.2: Final Test Run and Summary
 
-**Current Test Count**: 185 tests (up from 129 baseline)
-**Tests Added**: 56 new tests
-**Progress**: 4/14 tasks complete (29%)
+**Current Test Count**: 207 tests (up from 129 baseline)
+**Tests Added**: 78 new tests
+**Progress**: 5/14 tasks complete (36%)
+**Phase 1**: ✅ COMPLETE
 
 ---
 
@@ -681,7 +682,7 @@ git commit -m "test: add tests for spacetimeInterval and fourMomentum functions"
 
 ---
 
-### Task 1.5: Test Remaining Physics Functions
+### Task 1.5: Test Remaining Physics Functions ✅ COMPLETED
 
 **Files:**
 - Test: `src/relativity_lib.test.ts` (modify existing)
