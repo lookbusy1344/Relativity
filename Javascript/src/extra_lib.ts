@@ -54,11 +54,11 @@ export function estimateStarsInSphere(
 	const hR = 9000.0; // Radial scale length of disk (ly)
 	const hZ = 300.0; // Vertical scale height of disk (ly)
 
-	// Bulge: Gaussian spheroid centered on galaxy (~40 billion stars, 20% of galaxy)
-	const rhoBulgeCenter = 0.75; // Central bulge density (stars/ly³)
+	// Bulge: Gaussian spheroid centered on galaxy (~40-50 billion stars, ~20% of galaxy)
+	const rhoBulgeCenter = 0.75; // Central bulge density (stars/ly³), adjusted to maintain realistic galaxy total
 	const rBulge = 3500.0; // Bulge scale radius (ly)
 
-	// Halo: Power-law profile with core to avoid singularity at center (~2 billion stars, ~1% of galaxy)
+	// Halo: Power-law profile with core to avoid singularity at center (minor component, ~1-2% of galaxy)
 	const rhoHaloNorm = 1.5e-5; // Halo normalization constant (stars/ly³)
 	const rHalo = 25000.0; // Halo reference radius (ly)
 	const rCore = 500.0; // Core radius to prevent singularity at r=0 (ly)
