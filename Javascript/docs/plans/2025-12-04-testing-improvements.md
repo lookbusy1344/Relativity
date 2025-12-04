@@ -45,13 +45,16 @@
   - Commit: 4ba8b33 "test: add comprehensive tests for twinParadox and flipAndBurn"
   - Status: All tests passing (173 total)
 
+- **Task 1.4**: Test Spacetime Interval and Four-Momentum Functions - 13 tests added
+  - Commit: 8471b32 "test: add tests for spacetimeInterval and fourMomentum functions"
+  - Commit: de321e9 "test: tighten tolerance for light-like interval test"
+  - Status: All tests passing (185 total), tolerance improved to 1e-5
+
 ### In Progress 🔄
 
-- **Task 1.4**: Test Spacetime Interval and Four-Momentum Functions
+- **Task 1.5**: Test Remaining Physics Functions
 
 ### Pending ⏳
-
-- Task 1.5: Test Remaining Physics Functions
 - Task 2.1: Install DOM Testing Dependencies
 - Task 2.2: Create DOM Test Utilities
 - Task 3.1: Test domUtils.ts
@@ -62,9 +65,9 @@
 - Task 7.1: Remove Ad-hoc Test File
 - Task 7.2: Final Test Run and Summary
 
-**Current Test Count**: 173 tests (up from 129 baseline)
-**Tests Added**: 44 new tests
-**Progress**: 3/14 tasks complete (21%)
+**Current Test Count**: 185 tests (up from 129 baseline)
+**Tests Added**: 56 new tests
+**Progress**: 4/14 tasks complete (29%)
 
 ---
 
@@ -510,7 +513,7 @@ git commit -m "test: add comprehensive tests for twinParadox and flipAndBurn"
 
 ---
 
-### Task 1.4: Test Spacetime Interval and Four-Momentum Functions
+### Task 1.4: Test Spacetime Interval and Four-Momentum Functions ✅ COMPLETED
 
 **Files:**
 - Test: `src/relativity_lib.test.ts` (modify existing)
