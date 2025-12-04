@@ -74,3 +74,6 @@ The module provides specialized formatting functions for `BigFloat` values:
 - Extensive unit tests in `src/astro_tools.rs` validate string conversion functions
 - The project maintains compatibility with equivalent Python tools for cross-validation
 - **IMPORTANT**: Always run `cargo fmt` after making code changes to ensure consistent formatting
+
+**Security:**
+- Run `cargo audit` once a day when working on this project to check for security vulnerabilities in dependencies

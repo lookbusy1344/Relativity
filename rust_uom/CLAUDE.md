@@ -41,3 +41,6 @@ This is a Rust implementation of special relativity calculations using the `uom`
 - Standard gravity: `STANDARD_GRAVITY = 9.80665` m/s²
 
 The codebase prioritizes performance (f64 hardware floats) over arbitrary precision, making it suitable for real-time physics simulations while maintaining type safety through the `uom` crate's dimensional analysis.
+
+**Security:**
+- Run `cargo audit` once a day when working on this project to check for security vulnerabilities in dependencies
