@@ -50,9 +50,16 @@
   - Commit: de321e9 "test: tighten tolerance for light-like interval test"
   - Status: All tests passing (185 total), tolerance improved to 1e-5
 
+- **Task 1.5**: Test Remaining Physics Functions - 22 tests added
+  - Commit: 36ff113 "test: add comprehensive tests for remaining physics functions"
+  - Status: All tests passing (207 total)
+  - **Note**: Tests discovered critical bug in `invariantMassFromEnergyMomentum` implementation
+
+**Phase 1 Status**: ✅ COMPLETE (5/5 tasks, 78 tests added)
+
 ### In Progress 🔄
 
-- **Task 1.5**: Test Remaining Physics Functions
+- **Task 2.1**: Install DOM Testing Dependencies
 
 ### Pending ⏳
 - Task 2.1: Install DOM Testing Dependencies
