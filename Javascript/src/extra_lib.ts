@@ -50,12 +50,20 @@ export function estimateStarsInSphere(
 	// All measurements from Sun's position at R_sun from galactic center
 
 	// Thin disk: Exponential profile ρ(R,z) = ρ₀ * exp(-R/h_R) * exp(-|z|/h_z)
-	const rhoLocal = 0.004; // Local stellar density at Sun's position (stars/ly³)
+	// Unit conversion: Observational data shows 0.1-0.14 stars/pc³ near the Sun
+	// Converting to stars/ly³: 1 pc = 3.26156 ly, so 1 pc³ = 34.71 ly³
+	// Range: 0.10 stars/pc³ = 0.00288 stars/ly³ to 0.14 stars/pc³ = 0.00403 stars/ly³
+	// Using midpoint: 0.12 stars/pc³ = 0.00346 stars/ly³ ≈ 0.0034 stars/ly³
+	const rhoLocal = 0.0034; // Local stellar density at Sun's position (stars/ly³)
+	                          // Based on HIPPARCOS/Gaia/RECONS surveys
 	const hR = 9000.0; // Radial scale length of disk (ly)
 	const hZ = 300.0; // Vertical scale height of disk (ly)
 
 	// Bulge: Gaussian spheroid centered on galaxy (~40-50 billion stars, ~20% of galaxy)
-	const rhoBulgeCenter = 0.75; // Central bulge density (stars/ly³), adjusted to maintain realistic galaxy total
+	// Value adjusted to maintain realistic Milky Way total of ~200 billion stars
+	// while using corrected local density. The bulge is ~26,000 ly from Earth,
+	// so this adjustment has minimal effect on nearby star counts.
+	const rhoBulgeCenter = 0.75; // Central bulge density (stars/ly³)
 	const rBulge = 3500.0; // Bulge scale radius (ly)
 
 	// Halo: Power-law profile with core to avoid singularity at center (minor component, ~1-2% of galaxy)
@@ -156,7 +164,7 @@ function _computeStarsWithoutNormalization(
 	samplesPerShell: number
 ): StarEstimationResult {
 	// Same model parameters as main function
-	const rhoLocal = 0.004;
+	const rhoLocal = 0.0034;
 	const hR = 9000.0;
 	const hZ = 300.0;
 	const rhoBulgeCenter = 0.75;
