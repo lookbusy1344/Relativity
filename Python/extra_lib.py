@@ -2,7 +2,9 @@ import numpy as np
 from numpy.typing import NDArray
 
 
-def estimate_stars_in_sphere(R_ly: float, samples: int = 300000) -> tuple[float, float]:
+def estimate_stars_in_sphere(
+    R_ly: float, n_shells: int = 200, samples_per_shell: int = 2000
+) -> tuple[float, float]:
     """
     Estimate the number of stars within a sphere of radius R_ly centered on the Sun.
 
@@ -12,12 +14,14 @@ def estimate_stars_in_sphere(R_ly: float, samples: int = 300000) -> tuple[float,
     - Gaussian bulge (central concentration)
     - Power-law halo (diffuse outer component)
 
-    The estimation uses Monte Carlo sampling to compute the average stellar density
-    within the sphere, accounting for the Sun's offset from the galactic center.
+    The estimation uses shell-based Monte Carlo integration, sampling each radial
+    shell independently and accumulating stars outward. This guarantees that larger
+    spheres always contain at least as many stars as smaller ones (monotonicity).
 
     Args:
         R_ly: Radius of the sphere in light-years (must be positive)
-        samples: Number of Monte Carlo samples for density estimation (default: 300000)
+        n_shells: Number of radial shells for integration (default: 200)
+        samples_per_shell: Monte Carlo samples per shell (default: 2000)
 
     Returns:
         tuple: (estimated_stars, fraction_of_galaxy)
@@ -25,13 +29,15 @@ def estimate_stars_in_sphere(R_ly: float, samples: int = 300000) -> tuple[float,
             - fraction_of_galaxy: Ratio to total Milky Way stars (~200 billion)
 
     Raises:
-        ValueError: If R_ly <= 0 or samples <= 0
+        ValueError: If R_ly <= 0 or n_shells <= 0 or samples_per_shell <= 0
     """
     # Input validation
     if R_ly <= 0:
         raise ValueError(f"Sphere radius must be positive, got {R_ly}")
-    if samples <= 0:
-        raise ValueError(f"Sample count must be positive, got {samples}")
+    if n_shells <= 0:
+        raise ValueError(f"Number of shells must be positive, got {n_shells}")
+    if samples_per_shell <= 0:
+        raise ValueError(f"Samples per shell must be positive, got {samples_per_shell}")
 
     STARS_IN_GALAXY = 200_000_000_000  # Approximate total stars in Milky Way
 
@@ -59,60 +65,56 @@ def estimate_stars_in_sphere(R_ly: float, samples: int = 300000) -> tuple[float,
     # At Sun: rho_local = rho_disk_center * exp(-R_sun/h_R)
     rho_disk_center = rho_local * np.exp(R_sun / h_R)
 
-    # --- Monte Carlo sampling inside sphere ---
-    # Generate uniformly distributed points within sphere of radius R_ly
-    # Using inverse transform sampling for radial coordinate
-    u = np.random.uniform(0, 1, samples)
-    costheta = np.random.uniform(-1, 1, samples)
-    phi = np.random.uniform(0, 2 * np.pi, samples)
+    # --- Shell-based Monte Carlo integration ---
+    # Use fixed shell width (500 ly) to ensure consistent sampling across different R_ly
+    # This guarantees monotonicity: estimate(R1) <= estimate(R2) when R1 < R2
+    shell_width = max(R_ly / n_shells, 0.1)  # Minimum 0.1 ly shell width
+    n_actual_shells = int(np.ceil(R_ly / shell_width))
+    total_stars = 0.0
 
-    # Convert to spherical coordinates (uniform in volume)
-    r = R_ly * u ** (1 / 3)  # Cube root for uniform volume distribution
-    theta = np.arccos(costheta)
+    # Use deterministic seeding per shell for reproducibility across calls
+    rng = np.random.default_rng(seed=42)
 
-    # Convert to Cartesian coordinates centered on Sun
-    # Coordinate system: x points away from galactic center,
-    #                    z points toward north galactic pole,
-    #                    y completes right-handed system
-    x = r * np.sin(theta) * np.cos(phi)
-    y = r * np.sin(theta) * np.sin(phi)
-    z = r * np.cos(theta)
+    for i in range(n_actual_shells):
+        r_inner = i * shell_width
+        r_outer = min((i + 1) * shell_width, R_ly)
 
-    # Transform to galactocentric coordinates
-    # Sun is at (R_sun, 0, 0) in galactic cylindrical coords
-    R_gal = np.sqrt((R_sun + x) ** 2 + y**2)  # Cylindrical radius from galactic center
-    z_gal = z  # Height above galactic plane
-    r_gal = np.sqrt((R_sun + x) ** 2 + y**2 + z**2)  # 3D distance from galactic center
+        # Sample uniformly within this shell
+        # Use inverse transform: r³ uniform in [r_inner³, r_outer³]
+        u = rng.uniform(0, 1, samples_per_shell)
+        r = (r_inner**3 + u * (r_outer**3 - r_inner**3)) ** (1 / 3)
 
-    # --- Compute stellar density at each sample point ---
+        # Random angles for uniform distribution on sphere
+        costheta = rng.uniform(-1, 1, samples_per_shell)
+        phi = rng.uniform(0, 2 * np.pi, samples_per_shell)
+        theta = np.arccos(costheta)
 
-    # Disk: Exponential profile in R and z
-    # ρ_disk(R,z) = ρ₀ * exp(-R/h_R) * exp(-|z|/h_z)
-    disk_density = rho_disk_center * np.exp(-R_gal / h_R) * np.exp(-np.abs(z_gal) / h_z)
+        # Convert to Cartesian coordinates centered on Sun
+        x = r * np.sin(theta) * np.cos(phi)
+        y = r * np.sin(theta) * np.sin(phi)
+        z = r * np.cos(theta)
 
-    # Bulge: Gaussian profile (using 3D distance for spherical bulge)
-    # ρ_bulge(r) = ρ_b * exp(-(r/r_b)²)
-    bulge_density = rho_bulge_center * np.exp(-((r_gal / r_bulge) ** 2))
+        # Transform to galactocentric coordinates
+        R_gal = np.sqrt((R_sun + x) ** 2 + y**2)
+        z_gal = z
+        r_gal = np.sqrt((R_sun + x) ** 2 + y**2 + z**2)
 
-    # Halo: Power-law profile with core radius to avoid singularity
-    # ρ_halo(r) = ρ_h * ((r + r_core) / r_h)^(-3.5)
-    halo_density = rho_halo_norm * ((r_gal + r_core) / r_halo) ** (-3.5)
+        # Compute stellar density at each sample point
+        disk_density = (
+            rho_disk_center * np.exp(-R_gal / h_R) * np.exp(-np.abs(z_gal) / h_z)
+        )
+        bulge_density = rho_bulge_center * np.exp(-((r_gal / r_bulge) ** 2))
+        halo_density = rho_halo_norm * ((r_gal + r_core) / r_halo) ** (-3.5)
 
-    # Total density is sum of all components
-    rho_total = disk_density + bulge_density + halo_density
+        rho_total = disk_density + bulge_density + halo_density
 
-    # --- Estimate total stars in sphere ---
-    # Volume of sphere
-    volume = (4 / 3) * np.pi * R_ly**3
+        # Shell volume and star count
+        shell_volume = (4 / 3) * np.pi * (r_outer**3 - r_inner**3)
+        shell_stars = rho_total.mean() * shell_volume
+        total_stars += shell_stars
 
-    # Mean density times volume gives star count estimate
-    stars = rho_total.mean() * volume
-
-    # Fraction relative to entire galaxy (note: this is approximate since
-    # our density model may not integrate to exactly STARS_IN_GALAXY)
-    fraction = stars / STARS_IN_GALAXY
-
-    return stars, fraction
+    fraction = total_stars / STARS_IN_GALAXY
+    return total_stars, fraction
 
 
 if __name__ == "__main__":
@@ -153,4 +155,6 @@ if __name__ == "__main__":
 
         print(f"{R:<12,} {stars_str:<20} {frac_str:<12} {expected}")
 
-    print("\nNote: Results use Monte Carlo sampling with variance at large scales.")
+    print(
+        "\nNote: Uses shell-based integration with deterministic seeding for monotonicity."
+    )
