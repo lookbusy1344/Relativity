@@ -439,6 +439,105 @@ describe('formatSignificant', () => {
     });
 });
 
+describe('Input Validation Functions', () => {
+    describe('ensure', () => {
+        it('converts string to Decimal', () => {
+            const result = rl.ensure('123.456');
+            expect(result.toString()).toBe('123.456');
+        });
+
+        it('converts number to Decimal', () => {
+            const result = rl.ensure(42);
+            expect(result.toString()).toBe('42');
+        });
+
+        it('passes through Decimal unchanged', () => {
+            const input = new Decimal('99.99');
+            const result = rl.ensure(input);
+            expect(result).toBe(input);
+        });
+
+        it('preserves high precision strings', () => {
+            const precise = '1.2345678901234567890123456789012345678';
+            const result = rl.ensure(precise);
+            expect(result.toString()).toBe(precise);
+        });
+    });
+
+    describe('check', () => {
+        it('returns input for valid positive number', () => {
+            const input = new Decimal('100');
+            const result = rl.check(input);
+            expect(result.toString()).toBe('100');
+        });
+
+        it('returns input for valid negative number', () => {
+            const input = new Decimal('-50');
+            const result = rl.check(input);
+            expect(result.toString()).toBe('-50');
+        });
+
+        it('returns input for zero', () => {
+            const input = new Decimal('0');
+            const result = rl.check(input);
+            expect(result.toString()).toBe('0');
+        });
+
+        it('throws for NaN input', () => {
+            const input = new Decimal(NaN);
+            expect(() => rl.check(input)).toThrow('Invalid number');
+        });
+
+        it('throws for Infinity', () => {
+            const input = new Decimal(Infinity);
+            expect(() => rl.check(input)).toThrow('Invalid number');
+        });
+
+        it('throws for negative Infinity', () => {
+            const input = new Decimal(-Infinity);
+            expect(() => rl.check(input)).toThrow('Invalid number');
+        });
+    });
+
+    describe('checkVelocity', () => {
+        it('returns input for velocity less than c', () => {
+            const v = rl.c.mul('0.5'); // 0.5c in m/s
+            const result = rl.checkVelocity(v);
+            expect(result.equals(v)).toBe(true);
+        });
+
+        it('returns input for zero velocity', () => {
+            const v = new Decimal('0');
+            const result = rl.checkVelocity(v);
+            expect(result.toString()).toBe('0');
+        });
+
+        it('returns NaN for velocity equal to c', () => {
+            const v = rl.c;
+            const result = rl.checkVelocity(v);
+            expect(result.isNaN()).toBe(true);
+        });
+
+        it('returns NaN for velocity greater than c', () => {
+            const v = rl.c.mul('1.5');
+            const result = rl.checkVelocity(v);
+            expect(result.isNaN()).toBe(true);
+        });
+
+        it('returns NaN for negative velocity exceeding c', () => {
+            const v = rl.c.mul('-1.1');
+            const result = rl.checkVelocity(v);
+            expect(result.isNaN()).toBe(true);
+        });
+
+        it('allows negative velocities within bounds', () => {
+            const v = rl.c.mul('-0.9');
+            const result = rl.checkVelocity(v);
+            expect(result.equals(v)).toBe(true);
+        });
+    });
+});
+
 describe('Calc Tab Operations', () => {
     describe('lorentzFactor', () => {
         it('should calculate Lorentz factor for zero velocity', () => {
