@@ -1369,6 +1369,208 @@ describe('Spacetime Interval and Four-Momentum Functions', () => {
     });
 });
 
+describe('Remaining Physics Functions', () => {
+    describe('coordinateTime', () => {
+        it('returns zero for zero proper time', () => {
+            const tau = new Decimal('0');
+            const result = rl.coordinateTime(rl.g, tau);
+            expect(result.toNumber()).toBeCloseTo(0, 10);
+        });
+
+        it('coordinate time is greater than proper time', () => {
+            const tau = new Decimal(rl.secondsPerYear);
+            const coordTime = rl.coordinateTime(rl.g, tau);
+            expect(coordTime.toNumber()).toBeGreaterThan(tau.toNumber());
+        });
+
+        it('difference increases with proper time', () => {
+            const tau1 = new Decimal(rl.secondsPerYear);
+            const tau2 = new Decimal(rl.secondsPerYear).mul(5);
+
+            const diff1 = rl.coordinateTime(rl.g, tau1).sub(tau1);
+            const diff2 = rl.coordinateTime(rl.g, tau2).sub(tau2);
+
+            expect(diff2.toNumber()).toBeGreaterThan(diff1.toNumber());
+        });
+    });
+
+    describe('lengthContractionVelocity', () => {
+        it('returns original length at zero velocity', () => {
+            const length = new Decimal('100');
+            const velocity = new Decimal('0');
+            const result = rl.lengthContractionVelocity(length, velocity);
+
+            expect(result.toNumber()).toBeCloseTo(100, 10);
+        });
+
+        it('contracted length is less than proper length', () => {
+            const length = new Decimal('100');
+            const velocity = rl.c.mul('0.8');
+            const result = rl.lengthContractionVelocity(length, velocity);
+
+            expect(result.toNumber()).toBeLessThan(100);
+            expect(result.toNumber()).toBeGreaterThan(0);
+        });
+
+        it('contraction increases with velocity', () => {
+            const length = new Decimal('100');
+            const slow = rl.lengthContractionVelocity(length, rl.c.mul('0.5'));
+            const fast = rl.lengthContractionVelocity(length, rl.c.mul('0.9'));
+
+            expect(fast.toNumber()).toBeLessThan(slow.toNumber());
+        });
+
+        it('contracted length equals proper length / gamma', () => {
+            const length = new Decimal('100');
+            const velocity = rl.c.mul('0.6');
+            const result = rl.lengthContractionVelocity(length, velocity);
+
+            const gamma = rl.lorentzFactor(velocity);
+            const expected = length.div(gamma);
+
+            expect(result.toNumber()).toBeCloseTo(expected.toNumber(), 10);
+        });
+    });
+
+    describe('dopplerShift', () => {
+        it('returns original frequency for zero velocity', () => {
+            const frequency = new Decimal('1000');
+            const velocity = new Decimal('0');
+            const result = rl.dopplerShift(frequency, velocity);
+            expect(result.toNumber()).toBeCloseTo(1000, 10);
+        });
+
+        it('returns higher frequency for approaching source (blueshift)', () => {
+            const frequency = new Decimal('1000');
+            const velocity = rl.c.mul('0.5');
+            const result = rl.dopplerShift(frequency, velocity, true);
+            expect(result.toNumber()).toBeGreaterThan(1000);
+        });
+
+        it('returns lower frequency for receding source (redshift)', () => {
+            const frequency = new Decimal('1000');
+            const velocity = rl.c.mul('0.5');
+            const result = rl.dopplerShift(frequency, velocity, false);
+            expect(result.toNumber()).toBeLessThan(1000);
+        });
+
+        it('shift is symmetric for approach/recession at same speed', () => {
+            const frequency = new Decimal('1000');
+            const v = rl.c.mul('0.5');
+            const approaching = rl.dopplerShift(frequency, v, true);
+            const receding = rl.dopplerShift(frequency, v, false);
+
+            // Product should give original frequency squared
+            expect(approaching.mul(receding).toNumber()).toBeCloseTo(frequency.toNumber() ** 2, 0);
+        });
+    });
+
+    describe('relativisticMomentum', () => {
+        it('returns zero for zero velocity', () => {
+            const mass = new Decimal('1');
+            const velocity = new Decimal('0');
+            const result = rl.relativisticMomentum(mass, velocity);
+            expect(result.toNumber()).toBeCloseTo(0, 10);
+        });
+
+        it('momentum increases with velocity', () => {
+            const mass = new Decimal('1');
+            const slow = rl.relativisticMomentum(mass, rl.c.mul('0.1'));
+            const fast = rl.relativisticMomentum(mass, rl.c.mul('0.9'));
+            expect(fast.toNumber()).toBeGreaterThan(slow.toNumber());
+        });
+
+        it('momentum equals gamma * m * v', () => {
+            const mass = new Decimal('1');
+            const velocity = rl.c.mul('0.6');
+            const result = rl.relativisticMomentum(mass, velocity);
+
+            const gamma = rl.lorentzFactor(velocity);
+            const expected = gamma.mul(mass).mul(velocity);
+
+            expect(result.toNumber()).toBeCloseTo(expected.toNumber(), 0);
+        });
+    });
+
+    describe('relativisticEnergy', () => {
+        it('returns rest mass energy at zero velocity', () => {
+            const mass = new Decimal('1');
+            const velocity = new Decimal('0');
+            const result = rl.relativisticEnergy(mass, velocity);
+
+            const restEnergy = mass.mul(rl.c.pow(2));
+            expect(result.toNumber()).toBeCloseTo(restEnergy.toNumber(), 0);
+        });
+
+        it('energy increases with velocity', () => {
+            const mass = new Decimal('1');
+            const slow = rl.relativisticEnergy(mass, rl.c.mul('0.1'));
+            const fast = rl.relativisticEnergy(mass, rl.c.mul('0.9'));
+            expect(fast.toNumber()).toBeGreaterThan(slow.toNumber());
+        });
+
+        it('energy equals gamma * mc^2', () => {
+            const mass = new Decimal('1');
+            const velocity = rl.c.mul('0.5');
+            const result = rl.relativisticEnergy(mass, velocity);
+
+            const gamma = rl.lorentzFactor(velocity);
+            const expected = gamma.mul(mass).mul(rl.c.pow(2));
+
+            expect(result.toNumber()).toBeCloseTo(expected.toNumber(), 0);
+        });
+    });
+
+    describe('invariantMassFromEnergyMomentum', () => {
+        it('calculates invariant mass from energy and momentum', () => {
+            const energy = new Decimal('1e17'); // Some energy in joules
+            const momentum = new Decimal('1e9'); // Some momentum in kg m/s
+            const mass = rl.invariantMassFromEnergyMomentum(energy, momentum);
+
+            // Should return a positive mass
+            expect(mass.toNumber()).toBeGreaterThan(0);
+            // Verify formula: m = sqrt((E/c^2)^2 - (p/c^2)^2)
+            const expected = energy.div(rl.c.pow(2)).pow(2).sub(momentum.div(rl.c.pow(2)).pow(2)).sqrt();
+            expect(mass.toNumber()).toBeCloseTo(expected.toNumber(), 0);
+        });
+
+        it('returns rest mass for zero momentum', () => {
+            const energy = new Decimal('1e16'); // Some energy in joules
+            const momentum = new Decimal('0');
+            const mass = rl.invariantMassFromEnergyMomentum(energy, momentum);
+
+            // E = mc^2, so m = E/c^2
+            const expected = energy.div(rl.c.pow(2));
+            expect(mass.toNumber()).toBeCloseTo(expected.toNumber(), 0);
+        });
+    });
+
+    describe('addVelocities', () => {
+        it('returns sum for small velocities (classical limit)', () => {
+            const v1 = new Decimal('1000'); // 1000 m/s
+            const v2 = new Decimal('2000'); // 2000 m/s
+            const result = rl.addVelocities(v1, v2);
+
+            // At low velocities, should be approximately classical
+            expect(result.toNumber()).toBeCloseTo(3000, -1);
+        });
+
+        it('never exceeds speed of light', () => {
+            const v1 = rl.c.mul(0.9);
+            const v2 = rl.c.mul(0.9);
+            const result = rl.addVelocities(v1, v2);
+
+            expect(result.toNumber()).toBeLessThan(rl.c.toNumber());
+        });
+
+        it('adding zero returns original velocity', () => {
+            const v = rl.c.mul(0.5);
+            const result = rl.addVelocities(v, new Decimal('0'));
+            expect(result.toNumber()).toBeCloseTo(v.toNumber(), 5);
+        });
+    });
+});
+
 describe('formatMassWithUnit', () => {
     describe('Mass unit scaling', () => {
         it('should format very small masses in kilograms', () => {
