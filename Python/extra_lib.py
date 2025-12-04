@@ -199,6 +199,10 @@ if __name__ == "__main__":
         (10000, "~1-2% of galaxy"),
         (20000, "~5-10% of galaxy"),
         (50000, "~80-90% of disk, most of galaxy"),
+        (60000, "~90% of galaxy"),
+        (70000, "~95% of galaxy"),
+        (80000, "~98% of galaxy"),
+        (85000, "~99% of galaxy"),
         (100000, "~90-100% of galaxy (full MW extent)"),
     ]
 
