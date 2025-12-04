@@ -972,6 +972,107 @@ describe('Calc Tab Operations', () => {
     });
 });
 
+describe('Relativistic Velocity Functions', () => {
+    describe('tauToVelocity', () => {
+        it('returns zero time for zero velocity', () => {
+            const velocity = new Decimal('0');
+            const result = rl.tauToVelocity(rl.g, velocity);
+            expect(result.toNumber()).toBeCloseTo(0, 10);
+        });
+
+        it('returns positive time for positive velocity', () => {
+            // Time to reach 0.5c at 1g
+            const velocity = rl.c.mul('0.5');
+            const result = rl.tauToVelocity(rl.g, velocity);
+            // Time should be positive
+            expect(result.toNumber()).toBeGreaterThan(0);
+        });
+
+        it('returns large time for velocities close to c', () => {
+            // Time to reach 0.9c at 1g
+            const velocity = rl.c.mul('0.9');
+            const result = rl.tauToVelocity(rl.g, velocity);
+            // Should require many months/years
+            expect(result.toNumber()).toBeGreaterThan(rl.secondsPerYear.toNumber());
+        });
+
+        it('handles small velocities', () => {
+            const velocity = rl.g.mul('1'); // 9.8 m/s
+            const result = rl.tauToVelocity(rl.g, velocity);
+            // At low velocities, tau ≈ v/a
+            const expected = velocity.div(rl.g).toNumber();
+            expect(result.toNumber()).toBeCloseTo(expected, 8);
+        });
+    });
+
+    describe('relativisticVelocity', () => {
+        it('returns zero for zero proper time', () => {
+            const tau = new Decimal('0');
+            const result = rl.relativisticVelocity(rl.g, tau);
+            expect(result.toNumber()).toBeCloseTo(0, 10);
+        });
+
+        it('returns velocity in m/s', () => {
+            const tau = new Decimal(rl.secondsPerYear);
+            const result = rl.relativisticVelocity(rl.g, tau);
+            // Should be in m/s, not fraction of c
+            expect(result.toNumber()).toBeGreaterThan(1e8); // > 100,000,000 m/s
+            expect(result.toNumber()).toBeLessThan(rl.c.toNumber());
+        });
+
+        it('is inverse of tauToVelocity', () => {
+            const tau = new Decimal(rl.secondsPerYear);
+            const velocity = rl.relativisticVelocity(rl.g, tau);
+            const recoveredTau = rl.tauToVelocity(rl.g, velocity);
+            expect(recoveredTau.toNumber()).toBeCloseTo(tau.toNumber(), 0);
+        });
+    });
+
+    describe('relativisticDistance', () => {
+        it('returns zero for zero proper time', () => {
+            const tau = new Decimal('0');
+            const result = rl.relativisticDistance(rl.g, tau);
+            expect(result.toNumber()).toBeCloseTo(0, 10);
+        });
+
+        it('returns positive distance for positive proper time', () => {
+            const tau = new Decimal(rl.secondsPerYear);
+            const result = rl.relativisticDistance(rl.g, tau);
+            expect(result.toNumber()).toBeGreaterThan(0);
+        });
+
+        it('returns distance in meters', () => {
+            const tau = new Decimal(rl.secondsPerYear);
+            const result = rl.relativisticDistance(rl.g, tau);
+            // After 1 year at 1g, should travel roughly 0.5 light years
+            const halfLightYear = rl.lightYear.div(2).toNumber();
+            expect(result.toNumber()).toBeGreaterThan(halfLightYear * 0.1);
+            expect(result.toNumber()).toBeLessThan(halfLightYear * 10);
+        });
+    });
+
+    describe('relativisticTimeForDistance', () => {
+        it('returns zero for zero distance', () => {
+            const distance = new Decimal('0');
+            const result = rl.relativisticTimeForDistance(rl.g, distance);
+            expect(result.toNumber()).toBeCloseTo(0, 10);
+        });
+
+        it('returns positive time for positive distance', () => {
+            const distance = new Decimal(rl.lightYear);
+            const result = rl.relativisticTimeForDistance(rl.g, distance);
+            expect(result.toNumber()).toBeGreaterThan(0);
+        });
+
+        it('is inverse of relativisticDistance', () => {
+            const tau = new Decimal(rl.secondsPerYear);
+            const distance = rl.relativisticDistance(rl.g, tau);
+            const recoveredTau = rl.relativisticTimeForDistance(rl.g, distance);
+            expect(recoveredTau.toNumber()).toBeCloseTo(tau.toNumber(), 0);
+        });
+    });
+});
+
 describe('formatMassWithUnit', () => {
     describe('Mass unit scaling', () => {
         it('should format very small masses in kilograms', () => {
