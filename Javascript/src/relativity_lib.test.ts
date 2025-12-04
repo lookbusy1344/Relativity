@@ -1329,7 +1329,7 @@ describe('Spacetime Interval and Four-Momentum Functions', () => {
         it('energy equals rest mass energy at zero velocity', () => {
             const mass = new Decimal('1');
             const velocity = new Decimal('0');
-            const [energy, momentum] = rl.fourMomentum(mass, velocity);
+            const [energy] = rl.fourMomentum(mass, velocity);
 
             // E = mc^2 at rest
             const restEnergy = mass.mul(rl.c.pow(2));
@@ -1339,15 +1339,15 @@ describe('Spacetime Interval and Four-Momentum Functions', () => {
         it('momentum is zero at zero velocity', () => {
             const mass = new Decimal('1');
             const velocity = new Decimal('0');
-            const [energy, momentum] = rl.fourMomentum(mass, velocity);
+            const [, momentum] = rl.fourMomentum(mass, velocity);
 
             expect(momentum.toNumber()).toBeCloseTo(0, 5);
         });
 
         it('energy increases with velocity', () => {
             const mass = new Decimal('1');
-            const [energySlow, momentumSlow] = rl.fourMomentum(mass, rl.c.mul('0.1'));
-            const [energyFast, momentumFast] = rl.fourMomentum(mass, rl.c.mul('0.9'));
+            const [energySlow] = rl.fourMomentum(mass, rl.c.mul('0.1'));
+            const [energyFast] = rl.fourMomentum(mass, rl.c.mul('0.9'));
 
             expect(energyFast.toNumber()).toBeGreaterThan(energySlow.toNumber());
         });
