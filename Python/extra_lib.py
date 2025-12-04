@@ -2,6 +2,10 @@ import numpy as np
 from numpy.typing import NDArray
 
 
+# Cache for model's total galaxy star count (computed once at 200,000 ly)
+_MODEL_TOTAL_STARS = None
+
+
 def estimate_stars_in_sphere(
     R_ly: float, n_shells: int = 200, samples_per_shell: int = 2000
 ) -> tuple[float, float]:
@@ -26,7 +30,7 @@ def estimate_stars_in_sphere(
     Returns:
         tuple: (estimated_stars, fraction_of_galaxy)
             - estimated_stars: Number of stars within the sphere
-            - fraction_of_galaxy: Ratio to total Milky Way stars (~200 billion)
+            - fraction_of_galaxy: Ratio to model's total (normalized to approach 100% at large radii)
 
     Raises:
         ValueError: If R_ly <= 0 or n_shells <= 0 or samples_per_shell <= 0
@@ -38,8 +42,6 @@ def estimate_stars_in_sphere(
         raise ValueError(f"Number of shells must be positive, got {n_shells}")
     if samples_per_shell <= 0:
         raise ValueError(f"Samples per shell must be positive, got {samples_per_shell}")
-
-    STARS_IN_GALAXY = 200_000_000_000  # Approximate total stars in Milky Way
 
     # --- Galactic Model Parameters ---
     # All measurements from Sun's position at R_sun from galactic center
@@ -66,18 +68,18 @@ def estimate_stars_in_sphere(
     rho_disk_center = rho_local * np.exp(R_sun / h_R)
 
     # --- Shell-based Monte Carlo integration ---
-    # Use fixed shell width (500 ly) to ensure consistent sampling across different R_ly
+    # Use FIXED shell width across all calls to ensure shells align and samples match
     # This guarantees monotonicity: estimate(R1) <= estimate(R2) when R1 < R2
-    shell_width = max(R_ly / n_shells, 0.1)  # Minimum 0.1 ly shell width
-    n_actual_shells = int(np.ceil(R_ly / shell_width))
+    SHELL_WIDTH_LY = 500.0  # Fixed shell width in light-years
+    n_actual_shells = int(np.ceil(R_ly / SHELL_WIDTH_LY))
     total_stars = 0.0
 
-    # Use deterministic seeding per shell for reproducibility across calls
+    # Use deterministic seeding for reproducibility across calls
     rng = np.random.default_rng(seed=42)
 
     for i in range(n_actual_shells):
-        r_inner = i * shell_width
-        r_outer = min((i + 1) * shell_width, R_ly)
+        r_inner = i * SHELL_WIDTH_LY
+        r_outer = min((i + 1) * SHELL_WIDTH_LY, R_ly)
 
         # Sample uniformly within this shell
         # Use inverse transform: r³ uniform in [r_inner³, r_outer³]
@@ -113,8 +115,71 @@ def estimate_stars_in_sphere(
         shell_stars = rho_total.mean() * shell_volume
         total_stars += shell_stars
 
-    fraction = total_stars / STARS_IN_GALAXY
+    # Compute model's total galaxy star count for normalization (cache it)
+    global _MODEL_TOTAL_STARS
+    if _MODEL_TOTAL_STARS is None:
+        # Estimate total by integrating to 200,000 ly (captures essentially all stars)
+        temp_stars, _ = _compute_stars_without_normalization(
+            200000, samples_per_shell=2000
+        )
+        _MODEL_TOTAL_STARS = temp_stars
+
+    fraction = total_stars / _MODEL_TOTAL_STARS
     return total_stars, fraction
+
+
+def _compute_stars_without_normalization(
+    R_ly: float, samples_per_shell: int
+) -> tuple[float, float]:
+    """Helper function to compute star count without normalization (avoids recursion)."""
+    # Same model parameters as main function
+    rho_local = 0.014
+    h_R = 9000.0
+    h_z = 300.0
+    rho_bulge_center = 0.35
+    r_bulge = 3500.0
+    rho_halo_norm = 1.5e-5
+    r_halo = 25000.0
+    r_core = 500.0
+    R_sun = 27000.0
+    rho_disk_center = rho_local * np.exp(R_sun / h_R)
+
+    SHELL_WIDTH_LY = 500.0  # Must match main function
+    n_actual_shells = int(np.ceil(R_ly / SHELL_WIDTH_LY))
+    total_stars = 0.0
+    rng = np.random.default_rng(seed=42)
+
+    for i in range(n_actual_shells):
+        r_inner = i * SHELL_WIDTH_LY
+        r_outer = min((i + 1) * SHELL_WIDTH_LY, R_ly)
+
+        u = rng.uniform(0, 1, samples_per_shell)
+        r = (r_inner**3 + u * (r_outer**3 - r_inner**3)) ** (1 / 3)
+
+        costheta = rng.uniform(-1, 1, samples_per_shell)
+        phi = rng.uniform(0, 2 * np.pi, samples_per_shell)
+        theta = np.arccos(costheta)
+
+        x = r * np.sin(theta) * np.cos(phi)
+        y = r * np.sin(theta) * np.sin(phi)
+        z = r * np.cos(theta)
+
+        R_gal = np.sqrt((R_sun + x) ** 2 + y**2)
+        z_gal = z
+        r_gal = np.sqrt((R_sun + x) ** 2 + y**2 + z**2)
+
+        disk_density = (
+            rho_disk_center * np.exp(-R_gal / h_R) * np.exp(-np.abs(z_gal) / h_z)
+        )
+        bulge_density = rho_bulge_center * np.exp(-((r_gal / r_bulge) ** 2))
+        halo_density = rho_halo_norm * ((r_gal + r_core) / r_halo) ** (-3.5)
+
+        rho_total = disk_density + bulge_density + halo_density
+        shell_volume = (4 / 3) * np.pi * (r_outer**3 - r_inner**3)
+        shell_stars = rho_total.mean() * shell_volume
+        total_stars += shell_stars
+
+    return total_stars, 1.0
 
 
 if __name__ == "__main__":
