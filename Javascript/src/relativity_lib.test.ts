@@ -1076,6 +1076,146 @@ describe('Relativistic Velocity Functions', () => {
     });
 });
 
+describe('twinParadox', () => {
+    it('returns result object with expected properties', () => {
+        const velocity = rl.c.mul('0.9'); // 0.9c in m/s
+        const properTime = new Decimal(rl.secondsPerYear).mul(5); // 5 years
+        const result = rl.twinParadox(velocity, properTime);
+
+        expect(result).toHaveProperty('properTime');
+        expect(result).toHaveProperty('earthTime');
+        expect(result).toHaveProperty('ageDifference');
+        expect(result).toHaveProperty('lorentzFactor');
+        expect(result).toHaveProperty('oneWayDistance');
+        expect(result).toHaveProperty('totalDistance');
+        expect(result).toHaveProperty('velocity');
+    });
+
+    it('traveler experiences less time than Earth observer', () => {
+        const velocity = rl.c.mul('0.9');
+        const properTime = new Decimal(rl.secondsPerYear).mul(5);
+        const result = rl.twinParadox(velocity, properTime);
+
+        expect(result.properTime.toNumber()).toBeLessThan(result.earthTime.toNumber());
+    });
+
+    it('time dilation increases with velocity', () => {
+        const properTime = new Decimal(rl.secondsPerYear).mul(5);
+        const slowResult = rl.twinParadox(rl.c.mul('0.5'), properTime);
+        const fastResult = rl.twinParadox(rl.c.mul('0.9'), properTime);
+
+        // Higher velocity = greater time dilation ratio
+        const slowRatio = slowResult.earthTime.div(slowResult.properTime);
+        const fastRatio = fastResult.earthTime.div(fastResult.properTime);
+        expect(fastRatio.toNumber()).toBeGreaterThan(slowRatio.toNumber());
+    });
+
+    it('lorentzFactor matches lorentzFactor function', () => {
+        const velocity = rl.c.mul('0.8');
+        const properTime = new Decimal(rl.secondsPerYear).mul(5);
+        const result = rl.twinParadox(velocity, properTime);
+        const expectedGamma = rl.lorentzFactor(velocity);
+
+        expect(result.lorentzFactor.toNumber()).toBeCloseTo(expectedGamma.toNumber(), 10);
+    });
+
+    it('handles very low velocity (minimal time dilation)', () => {
+        const velocity = rl.c.mul('0.001'); // Very slow
+        const properTime = new Decimal(rl.secondsPerYear).mul(5);
+        const result = rl.twinParadox(velocity, properTime);
+
+        // At very low velocity, times should be nearly equal
+        const ratio = result.earthTime.div(result.properTime);
+        expect(ratio.toNumber()).toBeCloseTo(1, 3);
+    });
+
+    it('returns NaN values for velocity >= c', () => {
+        const properTime = new Decimal(rl.secondsPerYear).mul(5);
+        const result = rl.twinParadox(rl.c, properTime);
+
+        expect(result.properTime.isNaN()).toBe(true);
+        expect(result.earthTime.isNaN()).toBe(true);
+        expect(result.lorentzFactor.isNaN()).toBe(true);
+    });
+});
+
+describe('flipAndBurn', () => {
+    it('returns result object with expected properties', () => {
+        const distance = rl.lightYear.mul(10); // 10 light years
+        const result = rl.flipAndBurn(rl.g, distance);
+
+        expect(result).toHaveProperty('properTime');
+        expect(result).toHaveProperty('peakVelocity');
+        expect(result).toHaveProperty('lorentzFactor');
+        expect(result).toHaveProperty('coordTime');
+    });
+
+    it('proper time is less than coordinate time', () => {
+        const distance = rl.lightYear.mul(10);
+        const result = rl.flipAndBurn(rl.g, distance);
+
+        expect(result.properTime.toNumber()).toBeLessThan(result.coordTime.toNumber());
+    });
+
+    it('peak velocity is less than c', () => {
+        const distance = rl.lightYear.mul(10);
+        const result = rl.flipAndBurn(rl.g, distance);
+
+        expect(result.peakVelocity.toNumber()).toBeLessThan(rl.c.toNumber());
+        expect(result.peakVelocity.toNumber()).toBeGreaterThan(0);
+    });
+
+    it('longer distance results in higher peak velocity', () => {
+        const shortResult = rl.flipAndBurn(rl.g, rl.lightYear.mul(1));
+        const longResult = rl.flipAndBurn(rl.g, rl.lightYear.mul(100));
+
+        expect(longResult.peakVelocity.toNumber()).toBeGreaterThan(shortResult.peakVelocity.toNumber());
+    });
+
+    it('handles very short distances', () => {
+        const distance = rl.lightYear.mul('0.01'); // 0.01 light years
+        const result = rl.flipAndBurn(rl.g, distance);
+
+        expect(result.properTime.toNumber()).toBeGreaterThan(0);
+        expect(result.coordTime.toNumber()).toBeGreaterThan(0);
+    });
+
+    it('handles very long distances (100,000 ly)', () => {
+        const distance = rl.lightYear.mul(100000);
+        const result = rl.flipAndBurn(rl.g, distance);
+
+        // Peak velocity should be very close to c
+        const velocityFraction = result.peakVelocity.div(rl.c);
+        expect(velocityFraction.toNumber()).toBeGreaterThan(0.9999);
+        expect(velocityFraction.toNumber()).toBeLessThan(1);
+    });
+
+    it('coordinate time is greater than distance/c (light travel time)', () => {
+        const distance = rl.lightYear.mul(10);
+        const result = rl.flipAndBurn(rl.g, distance);
+
+        const lightTravelTime = distance.div(rl.c);
+        expect(result.coordTime.toNumber()).toBeGreaterThan(lightTravelTime.toNumber());
+    });
+
+    it('lorentzFactor matches lorentzFactor function at peak velocity', () => {
+        const distance = rl.lightYear.mul(10);
+        const result = rl.flipAndBurn(rl.g, distance);
+        const expectedGamma = rl.lorentzFactor(result.peakVelocity);
+
+        expect(result.lorentzFactor.toNumber()).toBeCloseTo(expectedGamma.toNumber(), 10);
+    });
+
+    it('handles different acceleration values', () => {
+        const distance = rl.lightYear.mul(10);
+        const result1g = rl.flipAndBurn(rl.g, distance);
+        const result2g = rl.flipAndBurn(rl.g.mul(2), distance);
+
+        // Higher acceleration = shorter proper time
+        expect(result2g.properTime.toNumber()).toBeLessThan(result1g.properTime.toNumber());
+    });
+});
+
 describe('formatMassWithUnit', () => {
     describe('Mass unit scaling', () => {
         it('should format very small masses in kilograms', () => {
