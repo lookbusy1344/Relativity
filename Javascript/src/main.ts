@@ -127,7 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 getResultElement('resultFlip5'),
                 getResultElement('resultFlip6'),
                 getResultElement('resultFlipFuel'),
-                getResultElement('resultFlipFuelFraction')
+                getResultElement('resultFlipFuelFraction'),
+                getResultElement('resultFlipStars'),
+                getResultElement('resultFlipGalaxyFraction')
             ],
             chartRegistry
         )

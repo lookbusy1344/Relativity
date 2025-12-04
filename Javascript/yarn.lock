@@ -668,6 +668,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/seedrandom@npm:^3.0.8":
+  version: 3.0.8
+  resolution: "@types/seedrandom@npm:3.0.8"
+  checksum: 10/9651de4ecb5ad060053678d6a42403dd78222bcca80016417c23b58b4f739e544b7197a78b97d6862cf417ea80fd2df612cc50ca0fa387fbe794e326a382ab0b
+  languageName: node
+  linkType: hard
+
 "@vitest/expect@npm:4.0.14":
   version: 4.0.14
   resolution: "@vitest/expect@npm:4.0.14"
@@ -1738,6 +1745,7 @@ __metadata:
     "@types/d3-selection": "npm:^3.0.11"
     "@types/d3-timer": "npm:^3.0.2"
     "@types/d3-transition": "npm:^3.0.9"
+    "@types/seedrandom": "npm:^3.0.8"
     "@vitest/ui": "npm:^4.0.14"
     chart.js: "npm:^4.5.1"
     d3-ease: "npm:^3.0.1"
@@ -1747,6 +1755,7 @@ __metadata:
     d3-transition: "npm:^3.0.1"
     decimal.js: "npm:^10.6.0"
     esbuild: "npm:^0.27.0"
+    seedrandom: "npm:^3.0.5"
     typescript: "npm:^5.9.3"
     vite: "npm:^7.2.4"
     vitest: "npm:^4.0.14"
@@ -1853,6 +1862,13 @@ __metadata:
   version: 2.1.2
   resolution: "safer-buffer@npm:2.1.2"
   checksum: 10/7eaf7a0cf37cc27b42fb3ef6a9b1df6e93a1c6d98c6c6702b02fe262d5fcbd89db63320793b99b21cb5348097d0a53de81bd5f4e8b86e20cc9412e3f1cfb4e83
+  languageName: node
+  linkType: hard
+
+"seedrandom@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "seedrandom@npm:3.0.5"
+  checksum: 10/acad5e516c04289f61c2fb9848f449b95f58362b75406b79ec51e101ec885293fc57e3675d2f39f49716336559d7190f7273415d185fead8cd27b171ebf7d8fb
   languageName: node
   linkType: hard
 

@@ -5,6 +5,7 @@
 
 import Decimal from 'decimal.js';
 import * as rl from '../relativity_lib';
+import * as extra from '../extra_lib';
 import { setElement } from './domUtils';
 import { generateAccelChartData, generateFlipBurnChartData, generateVisualizationChartData, generateTwinParadoxChartData } from '../charts/dataGeneration';
 import { updateAccelCharts, updateFlipBurnCharts, updateVisualizationCharts, updateTwinParadoxCharts, type ChartRegistry } from '../charts/charts';
@@ -193,7 +194,7 @@ export function createFlipBurnHandler(
         const distanceInput = getDistanceInput();
         const dryMassInput = getDryMassInput();
         const efficiencyInput = getEfficiencyInput();
-        const [resultFlip1, resultFlip2, resultFlip3, resultFlip4, resultFlip5, resultFlip6, resultFlipFuel, resultFlipFuelFraction] = getResults();
+        const [resultFlip1, resultFlip2, resultFlip3, resultFlip4, resultFlip5, resultFlip6, resultFlipFuel, resultFlipFuelFraction, resultFlipStars, resultFlipGalaxyFraction] = getResults();
         if (!accelInput || !distanceInput || !dryMassInput || !efficiencyInput) return;
 
         // Cancel pending calculation to prevent race condition
@@ -276,6 +277,8 @@ export function createFlipBurnHandler(
         if (resultFlip6) resultFlip6.textContent = "";
         if (resultFlipFuel) resultFlipFuel.textContent = "";
         if (resultFlipFuelFraction) resultFlipFuelFraction.textContent = "";
+        if (resultFlipStars) resultFlipStars.textContent = "";
+        if (resultFlipGalaxyFraction) resultFlipGalaxyFraction.textContent = "";
 
         // Allow UI to update before heavy calculation
         pendingRAF = requestAnimationFrame(() => {
@@ -311,6 +314,19 @@ export function createFlipBurnHandler(
             // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
             const accelG = parseFloat(accelGStr);
             const distanceLightYears = parseFloat(distanceLightYearsStr);
+
+            // Estimate stars in range
+            if (distanceLightYears >= 100000) {
+                // At or above 100k ly, show "Entire galaxy"
+                if (resultFlipStars) setElement(resultFlipStars, "Entire galaxy", "");
+                if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, "100.00000000", "%");
+            } else {
+                const starEstimate = extra.estimateStarsInSphere(distanceLightYears);
+                const starsFormatted = extra.formatStarCount(starEstimate.stars);
+                const fractionPercent = (starEstimate.fraction * 100).toFixed(8);
+                if (resultFlipStars) setElement(resultFlipStars, starsFormatted, "");
+                if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, fractionPercent, "%");
+            }
             const data = generateFlipBurnChartData(accelG, distanceLightYears);
             chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data);
             pendingCalculation = null;
