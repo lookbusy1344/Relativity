@@ -43,14 +43,14 @@ def estimate_stars_in_sphere(R_ly: float, samples: int = 300000) -> tuple[float,
     h_R = 9000.0  # Radial scale length of disk (ly)
     h_z = 300.0  # Vertical scale height of disk (ly)
 
-    # Bulge: Gaussian spheroid centered on galaxy
-    rho_bulge_center = 0.5  # Central bulge density (stars/ly³)
-    r_bulge = 1000.0  # Bulge scale radius (ly)
+    # Bulge: Gaussian spheroid centered on galaxy (~40 billion stars, 20% of galaxy)
+    rho_bulge_center = 0.35  # Central bulge density (stars/ly³)
+    r_bulge = 3500.0  # Bulge scale radius (ly)
 
-    # Halo: Power-law profile with core to avoid singularity at center
-    rho_halo_norm = 1e-7  # Halo normalization constant (stars/ly³)
-    r_halo = 10000.0  # Halo reference radius (ly)
-    r_core = 100.0  # Core radius to prevent singularity at r=0 (ly)
+    # Halo: Power-law profile with core to avoid singularity at center (~40 billion stars)
+    rho_halo_norm = 1.5e-5  # Halo normalization constant (stars/ly³)
+    r_halo = 25000.0  # Halo reference radius (ly)
+    r_core = 500.0  # Core radius to prevent singularity at r=0 (ly)
 
     # Sun's galactocentric distance
     R_sun = 27000.0  # Distance from galactic center to Sun (ly)
@@ -116,7 +116,41 @@ def estimate_stars_in_sphere(R_ly: float, samples: int = 300000) -> tuple[float,
 
 
 if __name__ == "__main__":
-    print("Radius (ly) | Estimated Stars         | Fraction of Galaxy")
-    for R in [5, 10, 20, 50, 80, 100, 1000, 5000, 20000, 50000, 100000]:
+    print("\nEstimated stars within spheres centered on the Sun (Earth):\n")
+    print(f"{'Radius':<12} {'Stars':<20} {'Fraction':<12} {'Expected/Notes':<40}")
+    print("=" * 85)
+
+    # Test cases with expected values for validation
+    test_cases = [
+        (5, "~3 stars (Proxima, α Cen A/B)"),
+        (10, "~10-15 stars (incl. Sirius, Barnard's)"),
+        (20, "Few hundred stars"),
+        (50, "Few thousand stars"),
+        (100, "~50,000 stars (local bubble)"),
+        (1000, "~20-30 million stars (local arm)"),
+        (5000, "~0.5-1 billion stars"),
+        (10000, "~1-2% of galaxy"),
+        (20000, "~5-10% of galaxy"),
+        (50000, "~80-90% of disk, most of galaxy"),
+        (100000, "~90-100% of galaxy (full MW extent)"),
+    ]
+
+    for R, expected in test_cases:
         stars, frac = estimate_stars_in_sphere(R)
-        print(f"{R:<15} | {stars:<22.6g} | {frac:.3e}")
+
+        # Format star count for readability
+        if stars >= 1e9:
+            stars_str = f"{stars / 1e9:.2f} billion"
+        elif stars >= 1e6:
+            stars_str = f"{stars / 1e6:.2f} million"
+        elif stars >= 1e3:
+            stars_str = f"{stars / 1e3:.2f} thousand"
+        else:
+            stars_str = f"{stars:.1f}"
+
+        # Format fraction as percentage
+        frac_str = f"{frac * 100:.2f}%"
+
+        print(f"{R:<12,} {stars_str:<20} {frac_str:<12} {expected}")
+
+    print("\nNote: Results use Monte Carlo sampling with variance at large scales.")
