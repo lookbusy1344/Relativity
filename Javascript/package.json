@@ -24,6 +24,7 @@
         "seedrandom": "^3.0.5"
     },
     "devDependencies": {
+        "@testing-library/dom": "^10.4.1",
         "@types/d3-ease": "^3.0.2",
         "@types/d3-scale": "^4.0.9",
         "@types/d3-selection": "^3.0.11",
@@ -32,6 +33,7 @@
         "@types/seedrandom": "^3.0.8",
         "@vitest/ui": "^4.0.14",
         "esbuild": "^0.27.0",
+        "happy-dom": "^20.0.11",
         "typescript": "^5.9.3",
         "vite": "^7.2.4",
         "vitest": "^4.0.14"
