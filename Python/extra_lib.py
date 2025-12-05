@@ -45,18 +45,30 @@ def estimate_stars_in_sphere(
 
     # --- Galactic Model Parameters ---
     # All measurements from Sun's position at R_sun from galactic center
+    # See docs/galactic-stellar-density-research.md for sources and derivations
 
     # Thin disk: Exponential profile ρ(R,z) = ρ₀ * exp(-R/h_R) * exp(-|z|/h_z)
-    rho_local = 0.014  # Local stellar density at Sun's position (stars/ly³)
-    h_R = 9000.0  # Radial scale length of disk (ly)
-    h_z = 300.0  # Vertical scale height of disk (ly)
+    # Local stellar density from RECONS/Gaia/HIPPARCOS surveys: 0.10-0.14 stars/pc³
+    # Unit conversion: 1 pc³ = 34.71 ly³, so 0.12 stars/pc³ = 0.0034 stars/ly³
+    rho_local = 0.0034  # Local stellar density at Sun's position (stars/ly³)
 
-    # Bulge: Gaussian spheroid centered on galaxy (~40 billion stars, 20% of galaxy)
-    rho_bulge_center = 0.35  # Central bulge density (stars/ly³)
-    r_bulge = 3500.0  # Bulge scale radius (ly)
+    # Disk scale length: meta-analysis gives 2.6-3.5 kpc (Licquia & Newman 2016)
+    h_R = 11500.0  # Radial scale length: 3.5 kpc = 11,500 ly
 
-    # Halo: Power-law profile with core to avoid singularity at center (~40 billion stars)
-    rho_halo_norm = 1.5e-5  # Halo normalization constant (stars/ly³)
+    # Disk scale height: Effective value combining thin disk (~300 pc) and thick disk (~1 kpc)
+    # The thick disk contains ~10-15% of disk stars but extends much higher
+    # Using effective scale height of ~860 pc captures both populations
+    h_z = 2800.0  # Effective vertical scale height: ~860 pc = 2,800 ly
+
+    # Bulge: Gaussian spheroid centered on galaxy
+    # Research shows bulge is 10-15% of stellar mass
+    # Central density tuned to produce ~16% of total galaxy stars (~30B of 200B)
+    rho_bulge_center = 0.14  # Central bulge density (stars/ly³)
+    r_bulge = 3500.0  # Bulge scale radius: ~1 kpc
+
+    # Halo: Power-law profile with core (minor component, ~1-2% of galaxy)
+    # Reduced from original to match observational ~1% stellar halo fraction
+    rho_halo_norm = 3e-6  # Halo normalization constant (stars/ly³)
     r_halo = 25000.0  # Halo reference radius (ly)
     r_core = 500.0  # Core radius to prevent singularity at r=0 (ly)
 
@@ -132,13 +144,13 @@ def _compute_stars_without_normalization(
     R_ly: float, samples_per_shell: int
 ) -> tuple[float, float]:
     """Helper function to compute star count without normalization (avoids recursion)."""
-    # Same model parameters as main function
-    rho_local = 0.014
-    h_R = 9000.0
-    h_z = 300.0
-    rho_bulge_center = 0.35
+    # Same model parameters as main function - MUST be kept in sync!
+    rho_local = 0.0034
+    h_R = 11500.0
+    h_z = 2800.0
+    rho_bulge_center = 0.14
     r_bulge = 3500.0
-    rho_halo_norm = 1.5e-5
+    rho_halo_norm = 3e-6
     r_halo = 25000.0
     r_core = 500.0
     R_sun = 27000.0
