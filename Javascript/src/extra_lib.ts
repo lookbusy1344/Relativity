@@ -48,18 +48,30 @@ export function estimateStarsInSphere(
 
 	// --- Galactic Model Parameters ---
 	// All measurements from Sun's position at R_sun from galactic center
+	// See docs/galactic-stellar-density-research.md for sources and derivations
 
 	// Thin disk: Exponential profile ρ(R,z) = ρ₀ * exp(-R/h_R) * exp(-|z|/h_z)
-	const rhoLocal = 0.014; // Local stellar density at Sun's position (stars/ly³)
-	const hR = 9000.0; // Radial scale length of disk (ly)
-	const hZ = 300.0; // Vertical scale height of disk (ly)
+	// Local stellar density from RECONS/Gaia/HIPPARCOS surveys: 0.10-0.14 stars/pc³
+	// Unit conversion: 1 pc³ = 34.71 ly³, so 0.12 stars/pc³ = 0.0034 stars/ly³
+	const rhoLocal = 0.0034; // Local stellar density at Sun's position (stars/ly³)
 
-	// Bulge: Gaussian spheroid centered on galaxy (~40 billion stars, 20% of galaxy)
-	const rhoBulgeCenter = 0.35; // Central bulge density (stars/ly³)
-	const rBulge = 3500.0; // Bulge scale radius (ly)
+	// Disk scale length: meta-analysis gives 2.6-3.5 kpc (Licquia & Newman 2016)
+	const hR = 11500.0; // Radial scale length: 3.5 kpc = 11,500 ly
 
-	// Halo: Power-law profile with core to avoid singularity at center (~40 billion stars)
-	const rhoHaloNorm = 1.5e-5; // Halo normalization constant (stars/ly³)
+	// Disk scale height: Effective value combining thin disk (~300 pc) and thick disk (~1 kpc)
+	// The thick disk contains ~10-15% of disk stars but extends much higher
+	// Using effective scale height of ~860 pc captures both populations
+	const hZ = 2800.0; // Effective vertical scale height: ~860 pc = 2,800 ly
+
+	// Bulge: Gaussian spheroid centered on galaxy
+	// Research shows bulge is 10-15% of stellar mass
+	// Central density tuned to produce ~16% of total galaxy stars (~30B of 200B)
+	const rhoBulgeCenter = 0.14; // Central bulge density (stars/ly³)
+	const rBulge = 3500.0; // Bulge scale radius: ~1 kpc
+
+	// Halo: Power-law profile with core (minor component, ~1-2% of galaxy)
+	// Reduced from original to match observational ~1% stellar halo fraction
+	const rhoHaloNorm = 3e-6; // Halo normalization constant (stars/ly³)
 	const rHalo = 25000.0; // Halo reference radius (ly)
 	const rCore = 500.0; // Core radius to prevent singularity at r=0 (ly)
 
@@ -155,13 +167,13 @@ function _computeStarsWithoutNormalization(
 	radiusLy: number,
 	samplesPerShell: number
 ): StarEstimationResult {
-	// Same model parameters as main function
-	const rhoLocal = 0.014;
-	const hR = 9000.0;
-	const hZ = 300.0;
-	const rhoBulgeCenter = 0.35;
+	// Same model parameters as main function - MUST be kept in sync!
+	const rhoLocal = 0.0034;
+	const hR = 11500.0;
+	const hZ = 2800.0;
+	const rhoBulgeCenter = 0.14;
 	const rBulge = 3500.0;
-	const rhoHaloNorm = 1.5e-5;
+	const rhoHaloNorm = 3e-6;
 	const rHalo = 25000.0;
 	const rCore = 500.0;
 	const rSun = 27000.0;
