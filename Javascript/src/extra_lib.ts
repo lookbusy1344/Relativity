@@ -48,23 +48,26 @@ export function estimateStarsInSphere(
 
 	// --- Galactic Model Parameters ---
 	// All measurements from Sun's position at R_sun from galactic center
+	// See docs/galactic-stellar-density-research.md for sources and derivations
 
 	// Thin disk: Exponential profile ρ(R,z) = ρ₀ * exp(-R/h_R) * exp(-|z|/h_z)
-	// Unit conversion: Observational data shows 0.1-0.14 stars/pc³ near the Sun
-	// Converting to stars/ly³: 1 pc = 3.26156 ly, so 1 pc³ = 34.71 ly³
-	// Range: 0.10 stars/pc³ = 0.00288 stars/ly³ to 0.14 stars/pc³ = 0.00403 stars/ly³
-	// Using midpoint: 0.12 stars/pc³ = 0.00346 stars/ly³ ≈ 0.0034 stars/ly³
+	// Local stellar density from RECONS/Gaia/HIPPARCOS surveys: 0.10-0.14 stars/pc³
+	// Unit conversion: 1 pc³ = 34.71 ly³, so 0.12 stars/pc³ = 0.0034 stars/ly³
 	const rhoLocal = 0.0034; // Local stellar density at Sun's position (stars/ly³)
-	                          // Based on HIPPARCOS/Gaia/RECONS surveys
-	const hR = 9000.0; // Radial scale length of disk (ly)
-	const hZ = 300.0; // Vertical scale height of disk (ly)
 
-	// Bulge: Gaussian spheroid centered on galaxy (~40-50 billion stars, ~20% of galaxy)
-	// Value adjusted to maintain realistic Milky Way total of ~200 billion stars
-	// while using corrected local density. The bulge is ~26,000 ly from Earth,
-	// so this adjustment has minimal effect on nearby star counts.
-	const rhoBulgeCenter = 0.75; // Central bulge density (stars/ly³)
-	const rBulge = 3500.0; // Bulge scale radius (ly)
+	// Disk scale length: meta-analysis gives 2.6 ± 0.13 kpc (Licquia & Newman 2016)
+	const hR = 10000.0; // Radial scale length: ~3.1 kpc = 10,000 ly
+
+	// Disk scale height: thin disk is 260-325 PARSECS (Gilmore & Reid 1983, Gaia DR3)
+	// IMPORTANT: 300 pc = 980 ly ≈ 1000 ly (NOT 300 ly!)
+	const hZ = 1000.0; // Vertical scale height: ~300 pc = 1,000 ly
+
+	// Bulge: Gaussian spheroid centered on galaxy
+	// Research shows bulge is only 10-15% of stellar mass, NOT 20-50%
+	// Bulge mass ~2×10¹⁰ M☉, average density ~2 stars/pc³ = 0.058 stars/ly³
+	// Central density tuned to produce ~15% of total galaxy stars
+	const rhoBulgeCenter = 0.12; // Central bulge density (stars/ly³)
+	const rBulge = 3500.0; // Bulge scale radius: ~1 kpc
 
 	// Halo: Power-law profile with core to avoid singularity at center (minor component, ~1-2% of galaxy)
 	const rhoHaloNorm = 1.5e-5; // Halo normalization constant (stars/ly³)
@@ -163,11 +166,11 @@ function _computeStarsWithoutNormalization(
 	radiusLy: number,
 	samplesPerShell: number
 ): StarEstimationResult {
-	// Same model parameters as main function
+	// Same model parameters as main function - MUST be kept in sync!
 	const rhoLocal = 0.0034;
-	const hR = 9000.0;
-	const hZ = 300.0;
-	const rhoBulgeCenter = 0.75;
+	const hR = 10000.0;
+	const hZ = 1000.0;
+	const rhoBulgeCenter = 0.12;
 	const rBulge = 3500.0;
 	const rhoHaloNorm = 1.5e-5;
 	const rHalo = 25000.0;
