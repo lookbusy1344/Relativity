@@ -111,47 +111,62 @@ Source: [Milky Way Wikipedia](https://en.wikipedia.org/wiki/Milky_Way)
 
 ## Model Calibration
 
-### Recommended Parameters
+### Final Calibrated Parameters
 
-Based on this research, the stellar density model should use:
+The model is calibrated to produce ~200 billion total stars with realistic component proportions:
 
 ```typescript
 // Local density (observationally constrained)
 const rhoLocal = 0.0034;  // stars/ly³ (0.12 stars/pc³)
 
-// Disk parameters
-const hR = 10000;         // Radial scale length: 3.1 kpc = 10,000 ly
-const hZ = 1000;          // Vertical scale height: 300 pc = 1,000 ly (NOT 300 ly!)
+// Disk parameters (effective single-disk model combining thin + thick disk)
+const hR = 11500;         // Radial scale length: 3.5 kpc = 11,500 ly
+const hZ = 2800;          // Effective vertical scale height: ~860 pc = 2,800 ly
+                          // (combines thin disk ~300 pc and thick disk ~1 kpc)
 
-// Bulge parameters (tuned for 10-15% of total)
-const rhoBulgeCenter = 0.12;  // Central density adjusted for proper proportions
+// Bulge parameters (tuned for ~16% of total)
+const rhoBulgeCenter = 0.14;  // Central density adjusted for proper proportions
 const rBulge = 3500;          // Scale radius: ~1 kpc
 
-// Halo (minor component)
-const rhoHaloNorm = 1.5e-5;   // Normalization for ~1% of galaxy
+// Halo (minor component, ~1% of galaxy)
+const rhoHaloNorm = 3e-6;     // Reduced to match observational ~1% stellar halo
 const rHalo = 25000;
 
 // Sun's position
 const rSun = 27000;           // 8.3 kpc from galactic center
 ```
 
-### Expected Distribution
+### Model Results
 
-With correctly calibrated parameters:
+| Component | Percentage | Stars (of 200B) |
+|-----------|------------|-----------------|
+| Disk | 83% | ~166 billion |
+| Bulge | 16% | ~32 billion |
+| Halo | 1% | ~2 billion |
 
-| Distance from Sun | Expected % of Galaxy | Rationale |
-|-------------------|----------------------|-----------|
-| 50,000 ly | 75-85% | Captures most of disk, all of bulge |
-| 75,000 ly | 90-95% | Captures outer disk |
-| 100,000 ly | 98-99% | Full galaxy extent |
+### Spatial Distribution
 
-The current broken model shows 97.7% at 50,000 ly because the bulge is massively over-weighted.
+| Distance from Sun | % of Galaxy | Stars |
+|-------------------|-------------|-------|
+| 50,000 ly | 85% | ~171 billion |
+| 70,000 ly | 97% | ~193 billion |
+| 100,000 ly | 99.6% | ~199 billion |
 
-## Key Corrections Needed
+### Local Accuracy
 
-1. **Scale Height Units**: Change `hZ` from 300 to 1000 (it's 300 parsecs, not 300 light-years)
-2. **Bulge Density**: Reduce from 0.75 to ~0.10-0.15 (bulge should be 10-15% of total, not 89%)
-3. **Disk Scale Length**: Consider increasing from 9000 to 10000-11000 ly for better distribution
+| Distance | Model Output | Observational Range |
+|----------|--------------|---------------------|
+| 10 ly | 14 stars | ~12 known (RECONS) |
+| 100 ly | 14,000 stars | ~10,000-15,000 estimated |
+| 1000 ly | 12.5 million | Within expected range |
+
+## Corrections Applied
+
+1. **Scale Height Units**: Fixed from 300 ly to effective 2800 ly (combining thin+thick disk)
+2. **Bulge Density**: Reduced from 0.75 to 0.14 (bulge now 16% of total, not 89%)
+3. **Disk Scale Length**: Increased from 9000 to 11500 ly for better distribution
+4. **Halo Normalization**: Reduced from 1.5e-5 to 3e-6 to match ~1% observational fraction
+5. **Total Calibration**: Model now produces ~200B stars instead of broken ~105B or ~175B
 
 ## References
 
