@@ -5,7 +5,8 @@ import {
   createVelocityFromRapidityHandler,
   createAddVelocitiesHandler,
   createPionAccelTimeHandler,
-  createPionFuelFractionHandler
+  createPionFuelFractionHandler,
+  createFlipBurnHandler
 } from './eventHandlers';
 import { clearBody } from '../test-utils/dom-helpers';
 
@@ -322,6 +323,96 @@ describe('Event Handler Factories', () => {
       // Should show error message
       expect(resultFraction.textContent).toContain('Acceleration must be between');
       expect(resultMass.textContent).toBe('-');
+    });
+  });
+
+  describe('createFlipBurnHandler', () => {
+    it('formats star count without double tilde for large values', async () => {
+      // Setup DOM elements
+      const accelInput = document.createElement('input');
+      accelInput.value = '1'; // 1g
+      const distanceInput = document.createElement('input');
+      distanceInput.value = '30000'; // 30000 light years
+      const dryMassInput = document.createElement('input');
+      dryMassInput.value = '78000';
+      const efficiencyInput = document.createElement('input');
+      efficiencyInput.value = '0.85';
+
+      const resultFlipStars = document.createElement('span');
+      const resultFlipGalaxyFraction = document.createElement('span');
+
+      document.body.appendChild(resultFlipStars);
+      document.body.appendChild(resultFlipGalaxyFraction);
+
+      const getAccel = vi.fn(() => accelInput);
+      const getDistance = vi.fn(() => distanceInput);
+      const getDryMass = vi.fn(() => dryMassInput);
+      const getEfficiency = vi.fn(() => efficiencyInput);
+      const getResults = vi.fn(() => [
+        null, null, null, null, null, null, null, null,
+        resultFlipStars, resultFlipGalaxyFraction
+      ]);
+      const chartRegistry = { current: new Map() };
+
+      const handler = createFlipBurnHandler(
+        getAccel, getDistance, getDryMass, getEfficiency,
+        getResults, chartRegistry
+      );
+
+      // Execute handler
+      handler();
+
+      // Wait for async requestAnimationFrame to complete
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Verify star count doesn't have double tilde
+      const starText = resultFlipStars.textContent;
+      expect(starText).toBeTruthy();
+      expect(starText).toMatch(/^~/); // Should start with single ~
+      expect(starText).not.toMatch(/^~~/); // Should NOT start with ~~
+
+      // Should be a formatted number like "~99,770,180,100"
+      expect(starText).toMatch(/^~[\d,]+$/);
+    });
+
+    it('formats small star counts without tilde', async () => {
+      const accelInput = document.createElement('input');
+      accelInput.value = '1';
+      const distanceInput = document.createElement('input');
+      distanceInput.value = '10'; // Very close - should be < 1000 stars
+      const dryMassInput = document.createElement('input');
+      dryMassInput.value = '78000';
+      const efficiencyInput = document.createElement('input');
+      efficiencyInput.value = '0.85';
+
+      const resultFlipStars = document.createElement('span');
+      const resultFlipGalaxyFraction = document.createElement('span');
+
+      document.body.appendChild(resultFlipStars);
+      document.body.appendChild(resultFlipGalaxyFraction);
+
+      const getAccel = vi.fn(() => accelInput);
+      const getDistance = vi.fn(() => distanceInput);
+      const getDryMass = vi.fn(() => dryMassInput);
+      const getEfficiency = vi.fn(() => efficiencyInput);
+      const getResults = vi.fn(() => [
+        null, null, null, null, null, null, null, null,
+        resultFlipStars, resultFlipGalaxyFraction
+      ]);
+      const chartRegistry = { current: new Map() };
+
+      const handler = createFlipBurnHandler(
+        getAccel, getDistance, getDryMass, getEfficiency,
+        getResults, chartRegistry
+      );
+
+      handler();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      const starText = resultFlipStars.textContent;
+      expect(starText).toBeTruthy();
+      // Small counts (< 1000) should NOT have tilde prefix
+      expect(starText).toMatch(/^\d+$/);
     });
   });
 });
