@@ -6,7 +6,8 @@ import {
   createAddVelocitiesHandler,
   createPionAccelTimeHandler,
   createPionFuelFractionHandler,
-  createFlipBurnHandler
+  createFlipBurnHandler,
+  createTwinParadoxHandler
 } from './eventHandlers';
 import { clearBody } from '../test-utils/dom-helpers';
 
@@ -413,6 +414,84 @@ describe('Event Handler Factories', () => {
       expect(starText).toBeTruthy();
       // Small counts (< 1000) should also have tilde prefix
       expect(starText).toMatch(/^~\d+$/);
+    });
+  });
+
+  describe('createTwinParadoxHandler', () => {
+    it('accepts velocities up to but not reaching 1.0', async () => {
+      // Setup DOM elements
+      const velocityInput = document.createElement('input');
+      velocityInput.value = '0.9999999999999'; // High precision velocity < 1.0
+      const timeInput = document.createElement('input');
+      timeInput.value = '4';
+
+      const resultTwins1 = document.createElement('span');
+      const resultTwins2 = document.createElement('span');
+      const resultTwins3 = document.createElement('span');
+      const resultTwins4 = document.createElement('span');
+      const resultTwins5 = document.createElement('span');
+      const resultTwins6 = document.createElement('span');
+      const resultTwins7 = document.createElement('span');
+
+      document.body.appendChild(resultTwins1);
+      document.body.appendChild(resultTwins2);
+      document.body.appendChild(resultTwins3);
+      document.body.appendChild(resultTwins4);
+      document.body.appendChild(resultTwins5);
+      document.body.appendChild(resultTwins6);
+      document.body.appendChild(resultTwins7);
+
+      const getVelocity = vi.fn(() => velocityInput);
+      const getTime = vi.fn(() => timeInput);
+      const getResults = vi.fn(() => [
+        resultTwins1, resultTwins2, resultTwins3, resultTwins4,
+        resultTwins5, resultTwins6, resultTwins7
+      ]);
+      const chartRegistry = { current: new Map() };
+
+      const handler = createTwinParadoxHandler(
+        getVelocity, getTime, getResults, chartRegistry
+      );
+
+      // Execute handler
+      handler();
+
+      // Wait for async requestAnimationFrame to complete
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Verify the velocity was NOT clamped (should remain 0.9999999999999)
+      expect(velocityInput.value).toBe('0.9999999999999');
+
+      // Verify calculations completed (results should be populated, not "Working...")
+      expect(resultTwins1.textContent).not.toBe('Working...');
+      expect(resultTwins1.textContent).toMatch(/\d+/); // Should contain numbers
+      expect(resultTwins1.textContent).toContain('yrs'); // Should have units
+    });
+
+    it('clamps velocities at exactly 1.0 to below 1.0', async () => {
+      const velocityInput = document.createElement('input');
+      velocityInput.value = '1.0'; // Exactly 1.0c
+      const timeInput = document.createElement('input');
+      timeInput.value = '4';
+
+      const resultTwins1 = document.createElement('span');
+      document.body.appendChild(resultTwins1);
+
+      const getVelocity = vi.fn(() => velocityInput);
+      const getTime = vi.fn(() => timeInput);
+      const getResults = vi.fn(() => [resultTwins1, null, null, null, null, null, null]);
+      const chartRegistry = { current: new Map() };
+
+      const handler = createTwinParadoxHandler(
+        getVelocity, getTime, getResults, chartRegistry
+      );
+
+      handler();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Should be clamped to a value < 1.0
+      const clampedValue = parseFloat(velocityInput.value);
+      expect(clampedValue).toBeLessThan(1.0);
     });
   });
 });

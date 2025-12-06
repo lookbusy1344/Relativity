@@ -368,7 +368,7 @@ export function createTwinParadoxHandler(
             if (velocityCDec.lt(0.001)) {
                 velocityCStr = '0.001';
                 velocityInput.value = '0.001';
-            } else if (velocityCDec.gt(0.999)) {
+            } else if (velocityCDec.gte(1.0)) {
                 velocityCStr = '0.999';
                 velocityInput.value = '0.999';
             }
