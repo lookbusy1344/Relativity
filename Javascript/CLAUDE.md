@@ -145,6 +145,15 @@ src/
 - Round-trip conversions and precision validation
 - Edge cases (zero velocity, velocities near c, negative velocities)
 
+### Build and Type Checking
+
+**IMPORTANT**: Always verify the project builds and type-checks successfully before committing changes.
+
+- Run `yarn type-check` to ensure TypeScript compilation succeeds
+- Run `yarn build` to verify the production build completes without errors
+- Both commands must pass before considering work complete
+- These checks catch issues early and ensure the codebase remains buildable
+
 ### Precision Handling Policy
 
 To maintain calculation accuracy throughout the application:
