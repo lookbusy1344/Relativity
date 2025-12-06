@@ -83,17 +83,27 @@
 
 **Phase 4 Status**: ✅ COMPLETE (1/1 task)
 
+- **Task 5.1**: Test Minkowski Math Utilities - COMPLETED
+  - Commit: de595cd "test: add tests for Minkowski diagram math utilities"
+  - Status: 24 tests added (formatCoordinate, calculateGamma, lorentzTransform, createScaleSet, debounce)
+
+**Phase 5 Status**: ✅ COMPLETE (1/1 task)
+
+- **Task 6.1**: Test simultaneityState.ts - COMPLETED
+  - Commit: 061d798 "test: add tests for simultaneity state management"
+  - Status: 18 tests added (getEvents, setEvents, pending events, subscriptions, integration scenarios)
+
+**Phase 6 Status**: 🔄 IN PROGRESS (1/1 task)
+
 ### Pending ⏳
-- Task 5.1: Test Minkowski Math Utilities
-- Task 6.1: Test simultaneityState.ts
-- Task 7.1: Remove Ad-hoc Test File
+- Task 7.1: Remove Ad-hoc Test File (IN PROGRESS)
 - Task 7.2: Final Test Run and Summary
 
-**Current Test Count**: 303 tests (up from 129 baseline)
-**Tests Added**: 174 new tests
-**Test Files**: 8 (up from 2 baseline)
-**Progress**: 10/14 tasks complete (71%)
-**Phases Complete**: 1-4 ✅
+**Current Test Count**: 345 tests (up from 129 baseline)
+**Tests Added**: 216 new tests
+**Test Files**: 10 (up from 2 baseline)
+**Progress**: 12/14 tasks complete (86%)
+**Phases Complete**: 1-6 (6 in progress)
 
 ---
 
