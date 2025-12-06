@@ -143,12 +143,12 @@ describe('formatStarCount', () => {
 		expect(formatStarCount(0)).toBe('< 1 star');
 	});
 
-	it('formats single digit as plain number', () => {
-		expect(formatStarCount(5)).toBe('5');
+	it('formats single digit with tilde prefix', () => {
+		expect(formatStarCount(5)).toBe('~5');
 	});
 
-	it('formats hundreds as plain number', () => {
-		expect(formatStarCount(523)).toBe('523');
+	it('formats hundreds with tilde prefix', () => {
+		expect(formatStarCount(523)).toBe('~523');
 	});
 
 	it('formats thousands with thousand separators', () => {

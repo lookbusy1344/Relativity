@@ -375,7 +375,7 @@ describe('Event Handler Factories', () => {
       expect(starText).toMatch(/^~[\d,]+$/);
     });
 
-    it('formats small star counts without tilde', async () => {
+    it('formats small star counts with tilde', async () => {
       const accelInput = document.createElement('input');
       accelInput.value = '1';
       const distanceInput = document.createElement('input');
@@ -411,8 +411,8 @@ describe('Event Handler Factories', () => {
 
       const starText = resultFlipStars.textContent;
       expect(starText).toBeTruthy();
-      // Small counts (< 1000) should NOT have tilde prefix
-      expect(starText).toMatch(/^\d+$/);
+      // Small counts (< 1000) should also have tilde prefix
+      expect(starText).toMatch(/^~\d+$/);
     });
   });
 });

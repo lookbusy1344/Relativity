@@ -150,7 +150,7 @@ export function estimateStarsInSphere(
 /**
  * Format star count for display with appropriate units
  * @param stars - Number of stars to format
- * @returns Formatted string like "~866,200", "~12,600,000", "5"
+ * @returns Formatted string like "~866,200", "~12,600,000", "~5"
  */
 export function formatStarCount(stars: number): string {
 	if (stars < 0.5) return '< 1 star';
@@ -159,7 +159,7 @@ export function formatStarCount(stars: number): string {
 		const rounded = Math.round(stars / 100) * 100;
 		return `~${rounded.toLocaleString('en-US')}`;
 	}
-	return Math.round(stars).toString();
+	return `~${Math.round(stars)}`;
 }
 
 /**
