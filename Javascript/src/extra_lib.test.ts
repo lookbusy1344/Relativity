@@ -151,18 +151,20 @@ describe('formatStarCount', () => {
 		expect(formatStarCount(523)).toBe('523');
 	});
 
-	it('formats thousands with suffix', () => {
-		expect(formatStarCount(1500)).toBe('1.50 thousand');
-		expect(formatStarCount(25000)).toBe('25.00 thousand');
+	it('formats thousands with thousand separators', () => {
+		expect(formatStarCount(1500)).toBe('~1,500');
+		expect(formatStarCount(25000)).toBe('~25,000');
+		expect(formatStarCount(866150)).toBe('~866,200');
 	});
 
-	it('formats millions with suffix', () => {
-		expect(formatStarCount(1_500_000)).toBe('1.50 million');
-		expect(formatStarCount(25_000_000)).toBe('25.00 million');
+	it('formats millions with thousand separators', () => {
+		expect(formatStarCount(1_500_000)).toBe('~1,500,000');
+		expect(formatStarCount(25_000_000)).toBe('~25,000,000');
+		expect(formatStarCount(12_560_000)).toBe('~12,560,000');
 	});
 
-	it('formats billions with suffix', () => {
-		expect(formatStarCount(1_500_000_000)).toBe('1.50 billion');
-		expect(formatStarCount(25_000_000_000)).toBe('25.00 billion');
+	it('formats billions with thousand separators', () => {
+		expect(formatStarCount(1_500_000_000)).toBe('~1,500,000,000');
+		expect(formatStarCount(25_000_000_000)).toBe('~25,000,000,000');
 	});
 });

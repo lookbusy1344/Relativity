@@ -150,14 +150,16 @@ export function estimateStarsInSphere(
 /**
  * Format star count for display with appropriate units
  * @param stars - Number of stars to format
- * @returns Formatted string like "1.50 billion", "25.00 million", "5"
+ * @returns Formatted string like "~866,200", "~12,600,000", "5"
  */
 export function formatStarCount(stars: number): string {
 	if (stars < 0.5) return '< 1 star';
-	if (stars >= 1e9) return `${(stars / 1e9).toFixed(2)} billion`;
-	if (stars >= 1e6) return `${(stars / 1e6).toFixed(2)} million`;
-	if (stars >= 1e3) return `${(stars / 1e3).toFixed(2)} thousand`;
-	return stars.toFixed(0);
+	if (stars >= 1e3) {
+		// Round to 3 significant figures for thousands and above
+		const rounded = Math.round(stars / 100) * 100;
+		return `~${rounded.toLocaleString('en-US')}`;
+	}
+	return Math.round(stars).toFixed(0);
 }
 
 /**
