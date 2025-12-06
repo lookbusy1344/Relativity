@@ -319,11 +319,11 @@ export function createFlipBurnHandler(
             if (distanceLightYears >= 100000) {
                 // At or above 100k ly, show "Entire galaxy"
                 if (resultFlipStars) setElement(resultFlipStars, "Entire galaxy", "");
-                if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, "100.00000000", "%");
+                if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, "100", "%");
             } else {
                 const starEstimate = extra.estimateStarsInSphere(distanceLightYears);
                 const starsFormatted = extra.formatStarCount(starEstimate.stars);
-                const fractionPercent = (starEstimate.fraction * 100).toFixed(8);
+                const fractionPercent = rl.formatSignificant(new Decimal(starEstimate.fraction * 100), "0", 1);
                 if (resultFlipStars) setElement(resultFlipStars, starsFormatted, "");
                 if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, fractionPercent, "%");
             }
