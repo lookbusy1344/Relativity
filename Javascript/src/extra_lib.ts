@@ -155,11 +155,11 @@ export function estimateStarsInSphere(
 export function formatStarCount(stars: number): string {
 	if (stars < 0.5) return '< 1 star';
 	if (stars >= 1e3) {
-		// Round to 3 significant figures for thousands and above
+		// Round to nearest hundred for thousands and above
 		const rounded = Math.round(stars / 100) * 100;
 		return `~${rounded.toLocaleString('en-US')}`;
 	}
-	return Math.round(stars).toFixed(0);
+	return Math.round(stars).toString();
 }
 
 /**
