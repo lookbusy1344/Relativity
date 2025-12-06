@@ -146,7 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
             getResultElement('resultTwins4'),
             getResultElement('resultTwins5'),
             getResultElement('resultTwins6'),
-            getResultElement('resultTwins7')
+            getResultElement('resultTwins7'),
+            getResultElement('resultTwins8')
         ],
         chartRegistry,
         (container, data, _controller) => {

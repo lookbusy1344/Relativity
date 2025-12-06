@@ -479,7 +479,7 @@ describe('Event Handler Factories', () => {
 
       const getVelocity = vi.fn(() => velocityInput);
       const getTime = vi.fn(() => timeInput);
-      const getResults = vi.fn(() => [resultTwins1, null, null, null, null, null, null]);
+      const getResults = vi.fn(() => [resultTwins1, null, null, null, null, null, null, null]);
       const chartRegistry = { current: new Map() };
 
       const handler = createTwinParadoxHandler(
@@ -492,6 +492,56 @@ describe('Event Handler Factories', () => {
       // Should be clamped to a value < 1.0
       const clampedValue = parseFloat(velocityInput.value);
       expect(clampedValue).toBeLessThan(1.0);
+    });
+
+    it('calculates and displays rapidity for given velocity', async () => {
+      // Setup DOM elements
+      const velocityInput = document.createElement('input');
+      velocityInput.value = '0.8'; // 0.8c
+      const timeInput = document.createElement('input');
+      timeInput.value = '4';
+
+      const resultTwins1 = document.createElement('span');
+      const resultTwins2 = document.createElement('span');
+      const resultTwins3 = document.createElement('span');
+      const resultTwins4 = document.createElement('span');
+      const resultTwins5 = document.createElement('span');
+      const resultTwins6 = document.createElement('span');
+      const resultTwins7 = document.createElement('span');
+      const resultTwins8 = document.createElement('span'); // Rapidity result
+
+      document.body.appendChild(resultTwins1);
+      document.body.appendChild(resultTwins2);
+      document.body.appendChild(resultTwins3);
+      document.body.appendChild(resultTwins4);
+      document.body.appendChild(resultTwins5);
+      document.body.appendChild(resultTwins6);
+      document.body.appendChild(resultTwins7);
+      document.body.appendChild(resultTwins8);
+
+      const getVelocity = vi.fn(() => velocityInput);
+      const getTime = vi.fn(() => timeInput);
+      const getResults = vi.fn(() => [
+        resultTwins1, resultTwins2, resultTwins3, resultTwins4,
+        resultTwins5, resultTwins6, resultTwins7, resultTwins8
+      ]);
+      const chartRegistry = { current: new Map() };
+
+      const handler = createTwinParadoxHandler(
+        getVelocity, getTime, getResults, chartRegistry
+      );
+
+      // Execute handler
+      handler();
+
+      // Wait for async requestAnimationFrame to complete
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Verify rapidity is calculated and displayed
+      // For v = 0.8c, rapidity = atanh(0.8) ≈ 1.0986
+      // With formatSignificant(r, "0", 2): skip zeros after decimal, take 2 digits = "1.098"
+      expect(resultTwins8.textContent).toBeTruthy();
+      expect(resultTwins8.textContent).toMatch(/1\.098/); // Should show "1.098"
     });
   });
 });

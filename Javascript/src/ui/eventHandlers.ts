@@ -348,7 +348,7 @@ export function createTwinParadoxHandler(
     return (silent = false) => {
         const velocityInput = getVelocityInput();
         const timeInput = getTimeInput();
-        const [resultTwins1, resultTwins2, resultTwins3, resultTwins4, resultTwins5, resultTwins6, resultTwins7] = getResults();
+        const [resultTwins1, resultTwins2, resultTwins3, resultTwins4, resultTwins5, resultTwins6, resultTwins7, resultTwins8] = getResults();
         if (!velocityInput || !timeInput) return;
 
         // Cancel pending calculation to prevent race condition
@@ -401,6 +401,7 @@ export function createTwinParadoxHandler(
             if (resultTwins5) resultTwins5.textContent = "";
             if (resultTwins6) resultTwins6.textContent = "";
             if (resultTwins7) resultTwins7.textContent = "";
+            if (resultTwins8) resultTwins8.textContent = "";
         }
 
         // Allow UI to update before heavy calculation (skip delay in silent mode)
@@ -431,6 +432,10 @@ export function createTwinParadoxHandler(
             if (resultTwins5) setElement(resultTwins5, rl.formatSignificant(velocityMs, "9", 2), "m/s");
             if (resultTwins6) setElement(resultTwins6, rl.formatSignificant(oneWayLy, "0", 3), "ly");
             if (resultTwins7) setElement(resultTwins7, rl.formatSignificant(totalLy, "0", 3), "ly");
+
+            // Calculate and display rapidity
+            const rapidityValue = rl.rapidityFromVelocity(velocityMs);
+            if (resultTwins8) setElement(resultTwins8, rl.formatSignificant(rapidityValue, "0", 2), "");
 
             // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
             const velocityCNum = parseFloat(velocityCStr);
