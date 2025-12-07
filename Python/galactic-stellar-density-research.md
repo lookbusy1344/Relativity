@@ -1,6 +1,6 @@
 # Galactic Stellar Density Research
 
-This document summarizes research on Milky Way stellar density and structure, used to calibrate the `estimateStarsInSphere` function in `extra_lib.ts`.
+This document summarizes research on Milky Way stellar density and structure, used to calibrate the `estimateStarsInSphere` function in `extra_lib.py` and `extra_lib.ts`.
 
 ## Local Stellar Density
 
@@ -187,3 +187,9 @@ const rSun = 27000;           // 8.3 kpc from galactic center
 ### Galactic Center
 - [Physics Stack Exchange - Center Density](https://physics.stackexchange.com/questions/25706/what-is-the-density-of-stars-near-the-center-of-the-milky-way)
 - [Ohio State Galactic Center Lecture](https://www.astronomy.ohio-state.edu/ryden.1/ast162_7/notes31.html)
+
+## Results
+
+Results at various distances from the Sun are in this notebook:
+
+https://github.com/lookbusy1344/Relativity/blob/main/Python/Star%20distribution.ipynb
