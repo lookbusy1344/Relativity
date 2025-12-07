@@ -124,7 +124,9 @@ class TestComprehensiveAccuracy(unittest.TestCase):
         print("\n" + "=" * 80)
         print("Cross-Platform Consistency Check (Python vs TypeScript expected values)")
         print("=" * 80)
-        print(f"{'Radius':<10} {'Expected':<15} {'Python':<15} {'Diff %':<10} {'Status':<10}")
+        print(
+            f"{'Radius':<10} {'Expected':<15} {'Python':<15} {'Diff %':<10} {'Status':<10}"
+        )
         print("-" * 80)
 
         max_diff_percent = 0.0
@@ -139,7 +141,9 @@ class TestComprehensiveAccuracy(unittest.TestCase):
 
             # 1% tolerance as in TypeScript tests
             tolerance = expected_stars * 0.01
-            passed = (expected_stars - tolerance) <= stars <= (expected_stars + tolerance)
+            passed = (
+                (expected_stars - tolerance) <= stars <= (expected_stars + tolerance)
+            )
 
             status = "PASS" if passed else "FAIL"
 
