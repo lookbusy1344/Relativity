@@ -77,6 +77,8 @@ export function createAddVelocitiesHandler(
 export function createAccelHandler(
     getAccelInput: () => HTMLInputElement | null,
     getTimeInput: () => HTMLInputElement | null,
+    getDryMassInput: () => HTMLInputElement | null,
+    getEfficiencyInput: () => HTMLInputElement | null,
     getResults: () => (HTMLElement | null)[],
     chartRegistry: { current: ChartRegistry }
 ): () => void {
@@ -86,8 +88,10 @@ export function createAccelHandler(
     return () => {
         const accelInput = getAccelInput();
         const timeInput = getTimeInput();
-        const [resultA1, resultA2, resultA1b, resultA2b, resultAFuel40, resultAFuel, resultAFuel60, resultAFuel70] = getResults();
-        if (!accelInput || !timeInput) return;
+        const dryMassInput = getDryMassInput();
+        const efficiencyInput = getEfficiencyInput();
+        const [resultA1, resultA2, resultA1b, resultA2b, resultAFuel, resultAFuelFraction, resultAStars, resultAGalaxyFraction] = getResults();
+        if (!accelInput || !timeInput || !dryMassInput || !efficiencyInput) return;
 
         // Cancel pending calculation to prevent race condition
         if (pendingRAF !== null) {
@@ -130,15 +134,45 @@ export function createAccelHandler(
             timeInput.value = '365';
         }
 
+        let dryMassStr = dryMassInput.value ?? '500';
+        try {
+            const dryMassDec = rl.ensure(dryMassStr);
+            if (dryMassDec.lt(1)) {
+                dryMassStr = '1';
+                dryMassInput.value = '1';
+            } else if (dryMassDec.gt(100000000)) {
+                dryMassStr = '100000000';
+                dryMassInput.value = '100000000';
+            }
+        } catch {
+            dryMassStr = '500';
+            dryMassInput.value = '500';
+        }
+
+        let efficiencyStr = efficiencyInput.value ?? '0.85';
+        try {
+            const efficiencyDec = rl.ensure(efficiencyStr);
+            if (efficiencyDec.lt(0.01)) {
+                efficiencyStr = '0.01';
+                efficiencyInput.value = '0.01';
+            } else if (efficiencyDec.gt(0.99)) {
+                efficiencyStr = '0.99';
+                efficiencyInput.value = '0.99';
+            }
+        } catch {
+            efficiencyStr = '0.85';
+            efficiencyInput.value = '0.85';
+        }
+
         // Show working message
         if (resultA1) resultA1.textContent = "Working...";
         if (resultA2) resultA2.textContent = "";
         if (resultA1b) resultA1b.textContent = "";
         if (resultA2b) resultA2b.textContent = "";
-        if (resultAFuel40) resultAFuel40.textContent = "";
         if (resultAFuel) resultAFuel.textContent = "";
-        if (resultAFuel60) resultAFuel60.textContent = "";
-        if (resultAFuel70) resultAFuel70.textContent = "";
+        if (resultAFuelFraction) resultAFuelFraction.textContent = "";
+        if (resultAStars) resultAStars.textContent = "";
+        if (resultAGalaxyFraction) resultAGalaxyFraction.textContent = "";
 
         // Allow UI to update before heavy calculation
         pendingRAF = requestAnimationFrame(() => {
@@ -154,18 +188,33 @@ export function createAccelHandler(
             const relDistC = relDist.div(rl.lightYear);
             const relDistKm = relDist.div(1000);
 
-            // Calculate fuel fractions at all nozzle efficiencies
-            const [fuelPercent70, fuelPercent75, fuelPercent80, fuelPercent85] = 
-                rl.pionRocketFuelFractionsMultiple(secs, accel, [0.7, 0.75, 0.8, 0.85]);
+            // Calculate fuel fraction using user-provided efficiency
+            const dryMass = rl.ensure(dryMassStr);
+            const efficiency = rl.ensure(efficiencyStr);
+            const fuelFraction = rl.pionRocketFuelFraction(secs, accel, efficiency);
+            const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
+            const fuelPercent = fuelFraction.mul(100);
 
             if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 2), "m/s");
             if (resultA2) setElement(resultA2, rl.formatSignificant(relDistKm, "0", 1), "km");
             if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
             if (resultA2b) setElement(resultA2b, rl.formatSignificant(relDistC, "0", 3), "ly");
-            if (resultAFuel40) setElement(resultAFuel40, rl.formatSignificant(fuelPercent70, "9", 3), "%");
-            if (resultAFuel) setElement(resultAFuel, rl.formatSignificant(fuelPercent75, "9", 3), "%");
-            if (resultAFuel60) setElement(resultAFuel60, rl.formatSignificant(fuelPercent80, "9", 3), "%");
-            if (resultAFuel70) setElement(resultAFuel70, rl.formatSignificant(fuelPercent85, "9", 3), "%");
+            if (resultAFuel) setElement(resultAFuel, rl.formatMassWithUnit(fuelMass), "");
+            if (resultAFuelFraction) setElement(resultAFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
+
+            // Estimate stars in range - use distance in light years
+            const distanceLightYears = parseFloat(relDistC.toString());
+            if (distanceLightYears >= 100000) {
+                // At or above 100k ly, show "Entire galaxy"
+                if (resultAStars) setElement(resultAStars, "Entire galaxy", "");
+                if (resultAGalaxyFraction) setElement(resultAGalaxyFraction, "100", "%");
+            } else {
+                const starEstimate = extra.estimateStarsInSphere(distanceLightYears);
+                const starsFormatted = extra.formatStarCount(starEstimate.stars);
+                const fractionPercent = rl.formatSignificant(new Decimal(starEstimate.fraction * 100), "0", 1);
+                if (resultAStars) setElement(resultAStars, starsFormatted, "");
+                if (resultAGalaxyFraction) setElement(resultAGalaxyFraction, fractionPercent, "%");
+            }
 
             // Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
             const accelG = parseFloat(accelGStr);

@@ -96,15 +96,17 @@ document.addEventListener('DOMContentLoaded', () => {
         createAccelHandler(
             () => getInputElement('aAccelInput'),
             () => getInputElement('aInput'),
+            () => getInputElement('aDryMassInput'),
+            () => getInputElement('aEfficiencyInput'),
             () => [
                 getResultElement('resultA1'),
                 getResultElement('resultA2'),
                 getResultElement('resultA1b'),
                 getResultElement('resultA2b'),
-                getResultElement('resultAFuel40'),
                 getResultElement('resultAFuel'),
-                getResultElement('resultAFuel60'),
-                getResultElement('resultAFuel70')
+                getResultElement('resultAFuelFraction'),
+                getResultElement('resultAStars'),
+                getResultElement('resultAGalaxyFraction')
             ],
             chartRegistry
         )

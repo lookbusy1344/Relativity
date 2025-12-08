@@ -23,7 +23,9 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
         name: 'motion',
         params: {
             accel: 'aAccelInput',
-            time: 'aInput'
+            time: 'aInput',
+            dry: 'aDryMassInput',
+            eff: 'aEfficiencyInput'
         },
         buttonId: 'aButton',
         tabId: 'motion-tab'

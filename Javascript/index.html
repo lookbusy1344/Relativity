@@ -70,10 +70,20 @@
 								<input type="number" id="aAccelInput" placeholder="Enter g" value="1"
 									class="form-control" step="0.1" min="0.1" max="100">
 							</div>
-							<div style="flex: 1; min-width: 200px;">
+							<div style="flex: 1; min-width: 150px;">
 								<div class="input-label">Proper Time (days)</div>
 								<input type="number" id="aInput" placeholder="Enter days" value="365"
 									class="form-control" step="0.1" min="0.1" max="60000">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Dry Mass (kg)</div>
+								<input type="number" id="aDryMassInput" placeholder="e.g., 500" value="500"
+									class="form-control" step="100" min="1" max="100000000">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Nozzle effic</div>
+								<input type="number" id="aEfficiencyInput" placeholder="e.g., 0.85" value="0.85"
+									class="form-control" step="0.01" min="0.01" max="0.99">
 							</div>
 							<button type="button" class="btn-calculate" id="aButton"
 								>Calculate</button>
@@ -95,21 +105,21 @@
 								<div class="result-item-label">Distance (ly)</div>
 								<div class="result-item-value" id="resultA2b">-</div>
 							</div>
-							<div class="result-item hide-on-mobile">
-								<div class="result-item-label">Fuel Fraction (70% nozzle eff)</div>
-								<div class="result-item-value" id="resultAFuel40">-</div>
-							</div>
-							<div class="result-item hide-on-mobile">
-								<div class="result-item-label">Fuel Fraction (75% nozzle eff)</div>
+							<div class="result-item">
+								<div class="result-item-label">Antimatter rocket fuel</div>
 								<div class="result-item-value" id="resultAFuel">-</div>
 							</div>
-							<div class="result-item hide-on-mobile">
-								<div class="result-item-label">Fuel Fraction (80% nozzle eff)</div>
-								<div class="result-item-value" id="resultAFuel60">-</div>
+							<div class="result-item">
+								<div class="result-item-label">Fuel Fraction</div>
+								<div class="result-item-value" id="resultAFuelFraction">-</div>
 							</div>
 							<div class="result-item">
-								<div class="result-item-label">Fuel Fraction (85% nozzle eff)</div>
-								<div class="result-item-value" id="resultAFuel70">-</div>
+								<div class="result-item-label">Est stars in range</div>
+								<div class="result-item-value" id="resultAStars">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Fraction of galaxy</div>
+								<div class="result-item-value" id="resultAGalaxyFraction">-</div>
 							</div>
 						</div>
 
