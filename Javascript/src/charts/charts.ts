@@ -150,8 +150,9 @@ function createDualTimeDatasets(
         borderWidth: 2,
         fill: true,
         tension: 0.4,
-        pointRadius: 0
-    }, {
+        pointRadius: 0,
+        clip: true
+    } as ChartDataset, {
         label: coordLabel,
         data: coordTimeData,
         borderColor: '#00ff9f',
@@ -159,8 +160,9 @@ function createDualTimeDatasets(
         borderWidth: 2,
         fill: true,
         tension: 0.4,
-        pointRadius: 0
-    }];
+        pointRadius: 0,
+        clip: true
+    } as ChartDataset];
 }
 
 function createChartOptions(config: ChartStyleConfig): ChartOptions {
@@ -264,6 +266,10 @@ export function updateChart(
             options: createChartOptions(config)
         });
         newRegistry.set(canvasId, chart);
+
+        // Trigger an immediate update to fix initial rendering artifacts
+        // This ensures the chart renders correctly with the same path as toggle updates
+        chart.update('none');
     }
 
     return newRegistry;
