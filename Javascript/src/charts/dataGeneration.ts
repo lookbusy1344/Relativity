@@ -179,20 +179,13 @@ export function generateAccelChartData(
         });
     }
 
-    // Filter coordinate time arrays to only include points within proper time range
-    // This prevents Chart.js spline interpolation artifacts at the x-axis boundary
-    const maxProperTimeDays = durationDays;
-    const coordTimeVelocityFiltered = coordTimeVelocity.filter(p => p.x <= maxProperTimeDays);
-    const coordTimeRapidityFiltered = coordTimeRapidity.filter(p => p.x <= maxProperTimeDays);
-    const coordTimeTimeDilationFiltered = coordTimeTimeDilation.filter(p => p.x <= maxProperTimeDays);
-
     return {
         properTimeVelocity,
-        coordTimeVelocity: coordTimeVelocityFiltered,
+        coordTimeVelocity,
         properTimeRapidity,
-        coordTimeRapidity: coordTimeRapidityFiltered,
+        coordTimeRapidity,
         properTimeTimeDilation,
-        coordTimeTimeDilation: coordTimeTimeDilationFiltered,
+        coordTimeTimeDilation,
         properTimeMassRemaining40,
         properTimeMassRemaining50,
         properTimeMassRemaining60,
@@ -496,20 +489,13 @@ export function generateFlipBurnChartData(
         });
     }
 
-    // Filter coordinate time arrays to only include points within proper time range
-    // This prevents Chart.js spline interpolation artifacts at the x-axis boundary
-    const maxProperTimeYears = res.properTime.div(rl.secondsPerYear).toNumber();
-    const coordTimeVelocityFiltered = coordTimeVelocity.filter(p => p.x <= maxProperTimeYears);
-    const coordTimeRapidityFiltered = coordTimeRapidity.filter(p => p.x <= maxProperTimeYears);
-    const coordTimeLorentzFiltered = coordTimeLorentz.filter(p => p.x <= maxProperTimeYears);
-
     return {
         properTimeVelocity,
-        coordTimeVelocity: coordTimeVelocityFiltered,
+        coordTimeVelocity,
         properTimeRapidity,
-        coordTimeRapidity: coordTimeRapidityFiltered,
+        coordTimeRapidity,
         properTimeLorentz,
-        coordTimeLorentz: coordTimeLorentzFiltered,
+        coordTimeLorentz,
         properTimeMassRemaining40,
         properTimeMassRemaining50,
         properTimeMassRemaining60,
