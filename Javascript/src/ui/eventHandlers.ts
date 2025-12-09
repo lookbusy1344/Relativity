@@ -975,8 +975,29 @@ export function initializeMassChartSlider(
     }
 }
 
+// Power scale exponent for distance sliders
+// Higher values give more resolution at small distances
+const DISTANCE_SLIDER_EXPONENT = 3;
+
+/**
+ * Convert slider percentage (0-100) to actual distance using power scale
+ * This gives much finer control at small distances
+ */
+export function sliderToDistance(percentage: number, maxDistance: number): number {
+    return maxDistance * Math.pow(percentage / 100, DISTANCE_SLIDER_EXPONENT);
+}
+
+/**
+ * Convert actual distance to slider percentage (0-100) using inverse power scale
+ */
+export function distanceToSlider(distance: number, maxDistance: number): number {
+    if (maxDistance <= 0) return 100;
+    return 100 * Math.pow(distance / maxDistance, 1 / DISTANCE_SLIDER_EXPONENT);
+}
+
 /**
  * Create handler for position/velocity chart distance scale slider
+ * Uses power scale for fine control at small distances
  */
 export function createPositionVelocitySliderHandler(
     chartId: string,
@@ -989,15 +1010,21 @@ export function createPositionVelocitySliderHandler(
         const valueDisplay = getValueDisplay();
         if (!slider || !valueDisplay) return;
 
-        const newMax = parseFloat(slider.value);
+        // Get max distance from data attribute
+        const maxDistance = parseFloat(slider.dataset.maxDistance || slider.max);
+        const sliderPercent = parseFloat(slider.value);
 
-        // Update display value
-        valueDisplay.textContent = `${newMax} ly`;
+        // Convert slider percentage to actual distance using power scale
+        const distance = sliderToDistance(sliderPercent, maxDistance);
+
+        // Update display value with appropriate precision
+        const displayValue = distance < 10 ? distance.toFixed(2) : distance.toFixed(1);
+        valueDisplay.textContent = `${displayValue} ly`;
 
         // Update the chart's x-axis max directly without recalculating
         const chart = chartRegistry.current.get(chartId);
         if (chart && chart.options.scales?.x) {
-            chart.options.scales.x.max = newMax;
+            chart.options.scales.x.max = distance;
             chart.update('none'); // Update without animation for instant response
         }
     };
@@ -1005,6 +1032,7 @@ export function createPositionVelocitySliderHandler(
 
 /**
  * Initialize position/velocity chart slider with correct range from data
+ * Uses power scale (0-100%) internally for fine control at small distances
  */
 export function initializePositionVelocitySlider(
     chartId: string,
@@ -1023,25 +1051,16 @@ export function initializePositionVelocitySlider(
         })
     );
 
-    // Calculate appropriate step size:
-    // - For small scales (≤5 ly): use 0.1 ly for fine control
-    // - For larger scales: use at least 0.5 ly, or scale proportionally (1% of max)
-    let step: number;
-    if (maxValue <= 5) {
-        step = 0.1;
-    } else {
-        // Calculate 1% of max value, rounded to 1 decimal place, but ensure it's at least 0.5 ly
-        // Formula: Math.round(maxValue / 100 * 10) / 10 gives 1% rounded to 1 decimal
-        step = Math.max(0.5, Math.round(maxValue / 100 * 10) / 10);
-    }
-
-    // Update slider attributes
+    // Update slider to use percentage scale (0-100)
+    // Store actual max distance in data attribute for conversion
     const slider = document.getElementById(sliderId) as HTMLInputElement;
     const valueDisplay = document.getElementById(valueDisplayId);
     if (slider && valueDisplay) {
-        slider.max = maxValue.toString();
-        slider.step = step.toString();
-        slider.value = maxValue.toString();
+        slider.min = '0';
+        slider.max = '100';
+        slider.step = '0.5';  // 0.5% steps for smooth sliding
+        slider.value = '100'; // Start at max (100%)
+        slider.dataset.maxDistance = maxValue.toString();
         valueDisplay.textContent = `${maxValue.toFixed(1)} ly`;
     }
 }

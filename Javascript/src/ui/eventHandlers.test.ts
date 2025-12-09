@@ -9,7 +9,9 @@ import {
   createFlipBurnHandler,
   createTwinParadoxHandler,
   createPositionVelocitySliderHandler,
-  initializePositionVelocitySlider
+  initializePositionVelocitySlider,
+  sliderToDistance,
+  distanceToSlider
 } from './eventHandlers';
 import { clearBody } from '../test-utils/dom-helpers';
 
@@ -561,7 +563,7 @@ describe('Event Handler Factories', () => {
       expect(typeof handler).toBe('function');
     });
 
-    it('updates chart x-axis max without recalculation', () => {
+    it('updates chart x-axis max using power scale', () => {
       // Create mock chart with x-axis scale
       const mockChart = {
         options: {
@@ -576,7 +578,8 @@ describe('Event Handler Factories', () => {
 
       const slider = document.createElement('input');
       slider.type = 'range';
-      slider.value = '5.5';
+      slider.dataset.maxDistance = '100';  // Max distance in light years
+      slider.value = '50';  // 50% on the slider
       const valueDisplay = document.createElement('span');
       document.body.appendChild(valueDisplay);
 
@@ -593,15 +596,15 @@ describe('Event Handler Factories', () => {
 
       handler();
 
-      // Verify chart x-axis max was updated
-      expect(mockChart.options.scales.x.max).toBe(5.5);
+      // 50% with power scale (exponent 3) = 100 * 0.5^3 = 12.5 ly
+      expect(mockChart.options.scales.x.max).toBeCloseTo(12.5, 5);
       // Verify chart.update was called with 'none' for instant response
       expect(mockChart.update).toHaveBeenCalledWith('none');
       // Verify display value was updated
-      expect(valueDisplay.textContent).toBe('5.5 ly');
+      expect(valueDisplay.textContent).toBe('12.5 ly');
     });
 
-    it('handles slider values with proper precision', () => {
+    it('handles slider at 100% (max distance)', () => {
       const mockChart = {
         options: {
           scales: {
@@ -614,7 +617,8 @@ describe('Event Handler Factories', () => {
       };
 
       const slider = document.createElement('input');
-      slider.value = '0.1';
+      slider.dataset.maxDistance = '6700';  // Max distance in light years
+      slider.value = '100';  // 100% = max
       const valueDisplay = document.createElement('span');
       document.body.appendChild(valueDisplay);
 
@@ -631,8 +635,8 @@ describe('Event Handler Factories', () => {
 
       handler();
 
-      expect(mockChart.options.scales.x.max).toBe(0.1);
-      expect(valueDisplay.textContent).toBe('0.1 ly');
+      expect(mockChart.options.scales.x.max).toBe(6700);
+      expect(valueDisplay.textContent).toBe('6700.0 ly');
     });
 
     it('returns early if slider is missing', () => {
@@ -695,7 +699,7 @@ describe('Event Handler Factories', () => {
   });
 
   describe('initializePositionVelocitySlider', () => {
-    it('sets step to 0.1 for small scales (≤5 ly)', () => {
+    it('uses percentage scale (0-100) for slider values', () => {
       // Create mock chart with max value of 4 ly
       const mockChart = {
         data: {
@@ -712,13 +716,13 @@ describe('Event Handler Factories', () => {
       };
 
       const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
-      
+
       // Create slider and value display in DOM
       const slider = document.createElement('input');
       slider.id = 'testSlider';
       slider.type = 'range';
       document.body.appendChild(slider);
-      
+
       const valueDisplay = document.createElement('span');
       valueDisplay.id = 'testValue';
       document.body.appendChild(valueDisplay);
@@ -726,14 +730,17 @@ describe('Event Handler Factories', () => {
       // Call the function
       initializePositionVelocitySlider('testChart', 'testSlider', 'testValue', chartRegistry);
 
-      // Verify step is 0.1 for small scales
-      expect(slider.step).toBe('0.1');
-      expect(slider.max).toBe('4');
-      expect(slider.value).toBe('4');
+      // Slider uses percentage scale 0-100
+      expect(slider.min).toBe('0');
+      expect(slider.max).toBe('100');
+      expect(slider.step).toBe('0.5'); // 0.5% steps
+      expect(slider.value).toBe('100'); // Starts at max
+      // Max distance stored in data attribute
+      expect(slider.dataset.maxDistance).toBe('4');
       expect(valueDisplay.textContent).toBe('4.0 ly');
     });
 
-    it('sets step to at least 0.5 for larger scales (>5 ly)', () => {
+    it('stores max distance in data attribute for power scale conversion', () => {
       // Create mock chart with max value of 100 ly
       const mockChart = {
         data: {
@@ -750,58 +757,24 @@ describe('Event Handler Factories', () => {
       };
 
       const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
-      
+
       const slider = document.createElement('input');
       slider.id = 'testSlider2';
       slider.type = 'range';
       document.body.appendChild(slider);
-      
+
       const valueDisplay = document.createElement('span');
       valueDisplay.id = 'testValue2';
       document.body.appendChild(valueDisplay);
 
       initializePositionVelocitySlider('testChart', 'testSlider2', 'testValue2', chartRegistry);
 
-      // For 100 ly, step should be 1.0 (1% of max, rounded)
-      expect(slider.step).toBe('1');
-      expect(slider.max).toBe('100');
+      // Max distance stored in data attribute
+      expect(slider.dataset.maxDistance).toBe('100');
+      expect(slider.max).toBe('100'); // percentage max
     });
 
-    it('sets step to at least 0.5 even when 1% would be smaller', () => {
-      // Create mock chart with max value of 10 ly (1% = 0.1, but should use 0.5)
-      const mockChart = {
-        data: {
-          datasets: [
-            {
-              data: [
-                { x: 0, y: 0 },
-                { x: 5, y: 0.5 },
-                { x: 10, y: 0.9 }
-              ]
-            }
-          ]
-        }
-      };
-
-      const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
-      
-      const slider = document.createElement('input');
-      slider.id = 'testSlider3';
-      slider.type = 'range';
-      document.body.appendChild(slider);
-      
-      const valueDisplay = document.createElement('span');
-      valueDisplay.id = 'testValue3';
-      document.body.appendChild(valueDisplay);
-
-      initializePositionVelocitySlider('testChart', 'testSlider3', 'testValue3', chartRegistry);
-
-      // Step should be at least 0.5, not 0.1 (which is 1% of 10)
-      expect(slider.step).toBe('0.5');
-      expect(slider.max).toBe('10');
-    });
-
-    it('handles very large values correctly (e.g., 6700 ly)', () => {
+    it('handles very large values with power scale for fine control at start', () => {
       // Create mock chart with max value of 6700 ly
       const mockChart = {
         data: {
@@ -818,31 +791,31 @@ describe('Event Handler Factories', () => {
       };
 
       const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
-      
+
       const slider = document.createElement('input');
       slider.id = 'testSlider4';
       slider.type = 'range';
       document.body.appendChild(slider);
-      
+
       const valueDisplay = document.createElement('span');
       valueDisplay.id = 'testValue4';
       document.body.appendChild(valueDisplay);
 
       initializePositionVelocitySlider('testChart', 'testSlider4', 'testValue4', chartRegistry);
 
-      // For 6700 ly, step should be 67 (1% of max, rounded to 1 decimal)
-      expect(slider.step).toBe('67');
-      expect(slider.max).toBe('6700');
-      expect(parseFloat(slider.step)).toBeGreaterThanOrEqual(0.5);
+      // Slider uses percentage scale, max distance in data attribute
+      expect(slider.max).toBe('100');
+      expect(slider.dataset.maxDistance).toBe('6700');
+      expect(valueDisplay.textContent).toBe('6700.0 ly');
     });
 
     it('returns early if chart is missing', () => {
       const chartRegistry = { current: new Map() };
-      
+
       const slider = document.createElement('input');
       slider.id = 'testSlider5';
       document.body.appendChild(slider);
-      
+
       const valueDisplay = document.createElement('span');
       valueDisplay.id = 'testValue5';
       document.body.appendChild(valueDisplay);
@@ -852,6 +825,51 @@ describe('Event Handler Factories', () => {
 
       // Slider should remain unchanged
       expect(slider.step).toBe('');
+    });
+  });
+
+  describe('sliderToDistance and distanceToSlider', () => {
+    it('sliderToDistance converts percentage to distance using power scale', () => {
+      // With exponent 3: distance = maxDistance * (percentage/100)^3
+      expect(sliderToDistance(100, 1000)).toBe(1000);  // 100% = max
+      expect(sliderToDistance(0, 1000)).toBe(0);       // 0% = 0
+      expect(sliderToDistance(50, 1000)).toBeCloseTo(125, 5);  // 50% = 1000 * 0.125
+      expect(sliderToDistance(10, 1000)).toBeCloseTo(1, 5);    // 10% = 1000 * 0.001
+    });
+
+    it('distanceToSlider converts distance to percentage using inverse power scale', () => {
+      expect(distanceToSlider(1000, 1000)).toBe(100);  // max = 100%
+      expect(distanceToSlider(0, 1000)).toBe(0);       // 0 = 0%
+      expect(distanceToSlider(125, 1000)).toBeCloseTo(50, 5);  // 125 = 50%
+      expect(distanceToSlider(1, 1000)).toBeCloseTo(10, 5);    // 1 = 10%
+    });
+
+    it('sliderToDistance and distanceToSlider are inverses', () => {
+      const maxDistance = 6700;
+      const testPercentages = [0, 10, 25, 50, 75, 100];
+
+      for (const pct of testPercentages) {
+        const distance = sliderToDistance(pct, maxDistance);
+        const backToPercent = distanceToSlider(distance, maxDistance);
+        expect(backToPercent).toBeCloseTo(pct, 5);
+      }
+    });
+
+    it('gives fine resolution at small distances for large ranges', () => {
+      // For 6700 ly max, first few percent should map to small distances
+      const maxDistance = 6700;
+
+      // 1% should be much less than 67 ly (which was the old linear 1%)
+      const distAt1Pct = sliderToDistance(1, maxDistance);
+      expect(distAt1Pct).toBeLessThan(1);  // Should be ~0.067 ly
+
+      // 5% should still be small
+      const distAt5Pct = sliderToDistance(5, maxDistance);
+      expect(distAt5Pct).toBeLessThan(10);  // Should be ~0.84 ly
+
+      // 10% should be manageable
+      const distAt10Pct = sliderToDistance(10, maxDistance);
+      expect(distAt10Pct).toBeLessThan(10);  // Should be ~6.7 ly
     });
   });
 });
