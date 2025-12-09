@@ -167,9 +167,14 @@
 						</div>
 
 						<div style="margin-top: 1.5rem;">
-							<div class="input-label" style="margin-bottom: 0.5rem;">
-								Ship mass over time - charged-pion antimatter rocket
+							<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem;">
+								<span>Ship mass over time - charged-pion antimatter rocket</span>
 								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+								<div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto;">
+									<label for="accelMassSlider" style="font-size: 0.7rem; color: #00d9ff; white-space: nowrap;">Time Scale:</label>
+									<input type="range" id="accelMassSlider" min="50" max="365" value="365" step="1" style="width: 150px;">
+									<span id="accelMassSliderValue" style="font-size: 0.7rem; color: #00ff9f; min-width: 80px;">365 days</span>
+								</div>
 							</div>
 							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 								<canvas id="accelMassChart"></canvas>
@@ -307,9 +312,14 @@
 						</div>
 
 					<div style="margin-top: 1.5rem;">
-						<div class="input-label" style="margin-bottom: 0.5rem;">
-							Ship mass over time - charged-pion antimatter rocket
+						<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem;">
+							<span>Ship mass over time - charged-pion antimatter rocket</span>
 							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							<div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto;">
+								<label for="flipMassSlider" style="font-size: 0.7rem; color: #00d9ff; white-space: nowrap;">Time Scale:</label>
+								<input type="range" id="flipMassSlider" min="0.5" max="4" value="4" step="0.1" style="width: 150px;">
+								<span id="flipMassSliderValue" style="font-size: 0.7rem; color: #00ff9f; min-width: 80px;">4.0 years</span>
+							</div>
 						</div>
 						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
 							<canvas id="flipMassChart"></canvas>

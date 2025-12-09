@@ -11,7 +11,9 @@ import {
     createPionAccelTimeHandler,
     createPionFuelFractionHandler,
     createSpacetimeIntervalHandler,
-    createChartTimeModeHandler
+    createChartTimeModeHandler,
+    createMassChartSliderHandler,
+    initializeMassChartSlider
 } from './ui/eventHandlers';
 import { type ChartRegistry } from './charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData, type MinkowskiDiagramController } from './charts/minkowski';
@@ -91,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Constant acceleration
-    const accelHandler = createAccelHandler(
+    const accelHandlerBase = createAccelHandler(
         () => getInputElement('aAccelInput'),
         () => getInputElement('aInput'),
         () => getInputElement('aDryMassInput'),
@@ -108,6 +110,16 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         chartRegistry
     );
+
+    // Wrap handler to initialize slider after chart update
+    const accelHandler = () => {
+        accelHandlerBase();
+        // Wait for chart to be updated before initializing slider
+        setTimeout(() => {
+            initializeMassChartSlider('accelMassChart', 'accelMassSlider', 'accelMassSliderValue', 'days', chartRegistry);
+        }, 50);
+    };
+
     addEventListener(
         getButtonElement('aButton'),
         'click',
@@ -115,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Flip-and-burn
-    const flipHandler = createFlipBurnHandler(
+    const flipHandlerBase = createFlipBurnHandler(
         () => getInputElement('flipAccelInput'),
         () => getInputElement('flipInput'),
         () => getInputElement('flipDryMassInput'),
@@ -134,6 +146,16 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         chartRegistry
     );
+
+    // Wrap handler to initialize slider after chart update
+    const flipHandler = () => {
+        flipHandlerBase();
+        // Wait for chart to be updated before initializing slider
+        setTimeout(() => {
+            initializeMassChartSlider('flipMassChart', 'flipMassSlider', 'flipMassSliderValue', 'years', chartRegistry);
+        }, 50);
+    };
+
     addEventListener(
         getButtonElement('flipButton'),
         'click',
@@ -159,6 +181,25 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
+
+    // Setup mass chart sliders
+    const accelMassSliderHandler = createMassChartSliderHandler(
+        'accelMassChart',
+        () => getInputElement('accelMassSlider'),
+        () => getResultElement('accelMassSliderValue'),
+        'days',
+        chartRegistry
+    );
+    addEventListener(getInputElement('accelMassSlider'), 'input', accelMassSliderHandler);
+
+    const flipMassSliderHandler = createMassChartSliderHandler(
+        'flipMassChart',
+        () => getInputElement('flipMassSlider'),
+        () => getResultElement('flipMassSliderValue'),
+        'years',
+        chartRegistry
+    );
+    addEventListener(getInputElement('flipMassSlider'), 'input', flipMassSliderHandler);
 
     // Twin Paradox
     const twinsCalculateHandler = createTwinParadoxHandler(
