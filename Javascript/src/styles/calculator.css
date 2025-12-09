@@ -295,22 +295,31 @@
 input[type="range"] {
 	-webkit-appearance: none;
 	appearance: none;
-	background: transparent;
+	width: 150px;
+	height: 8px;
+	background: rgba(0, 217, 255, 0.8);
+	border-radius: 4px;
+	border: 2px solid rgba(0, 217, 255, 0.6);
+	box-shadow:
+		0 0 8px rgba(0, 217, 255, 0.4),
+		inset 0 1px 3px rgba(0, 0, 0, 0.5);
 	cursor: pointer;
+	margin: 8px 0;
+	outline: none;
 }
 
 input[type="range"]::-webkit-slider-track {
-	background: rgba(0, 217, 255, 0.5);
-	height: 6px;
-	border-radius: 3px;
-	border: 1px solid rgba(0, 217, 255, 0.3);
+	background: transparent;
+	height: 8px;
+	border: none;
+	border-radius: 4px;
 }
 
 input[type="range"]::-moz-range-track {
-	background: rgba(0, 217, 255, 0.5);
-	height: 6px;
-	border-radius: 3px;
-	border: 1px solid rgba(0, 217, 255, 0.3);
+	background: transparent;
+	height: 8px;
+	border: none;
+	border-radius: 4px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
