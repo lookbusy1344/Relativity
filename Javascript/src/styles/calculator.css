@@ -157,6 +157,45 @@
 	transform: translateY(0);
 }
 
+.chart-time-mode-toggle {
+	display: inline-flex;
+	margin-left: 1rem;
+	border: 1px solid rgba(0, 217, 255, 0.3);
+	background: rgba(0, 0, 0, 0.5);
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+.chart-time-mode-btn {
+	background: transparent;
+	border: none;
+	color: var(--soft-white);
+	padding: 0.35rem 0.75rem;
+	font-weight: 600;
+	font-size: 0.65rem;
+	font-family: 'IBM Plex Mono', monospace;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	border-right: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+.chart-time-mode-btn:last-child {
+	border-right: none;
+}
+
+.chart-time-mode-btn:hover:not(.active) {
+	background: rgba(0, 217, 255, 0.1);
+	color: var(--electric-cyan);
+}
+
+.chart-time-mode-btn.active {
+	background: var(--electric-cyan);
+	color: var(--space-black);
+	box-shadow: 0 0 10px var(--glow-cyan);
+}
+
 .result-box {
 	background: rgba(0, 0, 0, 0.6);
 	padding: 0.75rem 1rem;
@@ -250,4 +289,74 @@
 	margin-bottom: 0.25rem;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
+}
+
+/* Universal slider styling for all range inputs */
+input[type="range"] {
+	-webkit-appearance: none;
+	appearance: none;
+	height: 4px;
+	background: rgba(0, 217, 255, 0.4);
+	border-radius: 2px;
+	border: 1px solid rgba(0, 217, 255, 0.3);
+	cursor: pointer;
+	outline: none;
+	vertical-align: middle;
+}
+
+input[type="range"]::-webkit-slider-track {
+	background: transparent;
+	height: 4px;
+	border: none;
+	border-radius: 2px;
+}
+
+input[type="range"]::-moz-range-track {
+	background: transparent;
+	height: 4px;
+	border: none;
+	border-radius: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 14px;
+	height: 14px;
+	background: var(--electric-cyan);
+	border-radius: 50%;
+	cursor: pointer;
+	box-shadow: 0 0 8px rgba(0, 217, 255, 0.5);
+	transition: all 0.15s ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+	width: 14px;
+	height: 14px;
+	background: var(--electric-cyan);
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	box-shadow: 0 0 8px rgba(0, 217, 255, 0.5);
+	transition: all 0.15s ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+	background: var(--scientific-green);
+	box-shadow: 0 0 12px rgba(0, 255, 159, 0.6);
+	transform: scale(1.05);
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+	background: var(--scientific-green);
+	box-shadow: 0 0 12px rgba(0, 255, 159, 0.6);
+	transform: scale(1.05);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+	transform: scale(0.95);
+}
+
+input[type="range"]:active::-moz-range-thumb {
+	transform: scale(0.95);
 }

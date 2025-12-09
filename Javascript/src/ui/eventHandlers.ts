@@ -12,6 +12,16 @@ import { updateAccelCharts, updateFlipBurnCharts, updateVisualizationCharts, upd
 import { drawMinkowskiDiagramD3, type MinkowskiData } from '../charts/minkowski';
 import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData } from '../charts/minkowski-twins';
 
+// Per-chart time mode state
+const chartTimeModes: Record<string, 'proper' | 'coordinate'> = {
+	accelVelocity: 'proper',
+	accelLorentz: 'proper',
+	accelRapidity: 'proper',
+	flipVelocity: 'proper',
+	flipLorentz: 'proper',
+	flipRapidity: 'proper'
+};
+
 export function createLorentzHandler(
     getInput: () => HTMLInputElement | null,
     getResult: () => HTMLElement | null
@@ -220,7 +230,11 @@ export function createAccelHandler(
             const accelG = parseFloat(accelGStr);
             const durationDays = parseFloat(timeStr);
             const data = generateAccelChartData(accelG, durationDays);
-            chartRegistry.current = updateAccelCharts(chartRegistry.current, data);
+            chartRegistry.current = updateAccelCharts(chartRegistry.current, data, {
+                velocity: chartTimeModes.accelVelocity,
+                lorentz: chartTimeModes.accelLorentz,
+                rapidity: chartTimeModes.accelRapidity
+            });
             pendingCalculation = null;
             }, 0);
         });
@@ -377,7 +391,11 @@ export function createFlipBurnHandler(
                 if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, fractionPercent, "%");
             }
             const data = generateFlipBurnChartData(accelG, distanceLightYears);
-            chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data);
+            chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data, {
+                velocity: chartTimeModes.flipVelocity,
+                lorentz: chartTimeModes.flipLorentz,
+                rapidity: chartTimeModes.flipRapidity
+            });
             pendingCalculation = null;
             }, 0);
         });
@@ -837,4 +855,122 @@ export function createSpacetimeIntervalHandler(
             }
         }
     };
+}
+
+/**
+ * Create handler for chart time mode toggle buttons
+ */
+export function createChartTimeModeHandler(
+    chartId: string,
+    chartRegistry: { current: ChartRegistry }
+): (mode: 'proper' | 'coordinate') => void {
+    return (mode: 'proper' | 'coordinate') => {
+        // Update state
+        chartTimeModes[chartId] = mode;
+
+        // Update button states
+        const buttons = document.querySelectorAll(`[data-chart="${chartId}"]`);
+        buttons.forEach(btn => {
+            const btnElement = btn as HTMLButtonElement;
+            if (btnElement.dataset.mode === mode) {
+                btnElement.classList.add('active');
+            } else {
+                btnElement.classList.remove('active');
+            }
+        });
+
+        // Update the chart's x-axis max directly without recalculating
+        const chartName = chartId + 'Chart';
+        const chart = chartRegistry.current.get(chartName);
+
+        if (chart && chart.data.datasets.length >= 2) {
+            // Get max x values from the existing datasets
+            // Dataset 0 is proper time, Dataset 1 is coordinate time
+            const properTimeData = chart.data.datasets[0].data as Array<{x: number, y: number}>;
+            const coordTimeData = chart.data.datasets[1].data as Array<{x: number, y: number}>;
+
+            const maxProperTime = Math.max(...properTimeData.map(d => d.x));
+            const maxCoordTime = Math.max(...coordTimeData.map(d => d.x));
+
+            // Update x-axis max based on mode
+            const newXMax = mode === 'proper' ? maxProperTime : maxCoordTime;
+
+            if (chart.options.scales?.x) {
+                chart.options.scales.x.max = newXMax;
+                chart.update('none'); // Update without animation for instant response
+            }
+        }
+    };
+}
+
+/**
+ * Get current chart time modes
+ */
+export function getChartTimeModes() {
+    return { ...chartTimeModes };
+}
+
+/**
+ * Set chart time mode
+ */
+export function setChartTimeMode(chartId: string, mode: 'proper' | 'coordinate') {
+    if (chartId in chartTimeModes) {
+        chartTimeModes[chartId] = mode;
+    }
+}
+
+/**
+ * Create handler for mass chart time scale slider
+ */
+export function createMassChartSliderHandler(
+    chartId: string,
+    getSlider: () => HTMLInputElement | null,
+    getValueDisplay: () => HTMLElement | null,
+    unit: 'days' | 'years',
+    chartRegistry: { current: ChartRegistry }
+): () => void {
+    return () => {
+        const slider = getSlider();
+        const valueDisplay = getValueDisplay();
+        if (!slider || !valueDisplay) return;
+
+        const newMax = parseFloat(slider.value);
+
+        // Update display value
+        valueDisplay.textContent = `${newMax.toFixed(unit === 'days' ? 0 : 1)} ${unit}`;
+
+        // Update the chart's x-axis max directly without recalculating
+        const chart = chartRegistry.current.get(chartId);
+        if (chart && chart.options.scales?.x) {
+            chart.options.scales.x.max = newMax;
+            chart.update('none'); // Update without animation for instant response
+        }
+    };
+}
+
+/**
+ * Initialize mass chart slider with correct range from data
+ */
+export function initializeMassChartSlider(
+    chartId: string,
+    sliderId: string,
+    valueDisplayId: string,
+    unit: 'days' | 'years',
+    chartRegistry: { current: ChartRegistry }
+): void {
+    const chart = chartRegistry.current.get(chartId);
+    if (!chart || !chart.data.datasets.length) return;
+
+    // Get max x value from first dataset (all mass datasets have same x range)
+    const data = chart.data.datasets[0].data as Array<{x: number, y: number}>;
+    const maxValue = Math.max(...data.map(d => d.x));
+
+    // Update slider attributes
+    const slider = document.getElementById(sliderId) as HTMLInputElement;
+    const valueDisplay = document.getElementById(valueDisplayId);
+    if (slider && valueDisplay) {
+        slider.max = maxValue.toString();
+        slider.value = maxValue.toString();
+        valueDisplay.textContent = `${maxValue.toFixed(unit === 'days' ? 0 : 1)} ${unit}`;
+    }
 }

@@ -91,9 +91,19 @@ describe('Data Generation Functions', () => {
       const durationDays = 365;
       const result = generateAccelChartData(accelG, durationDays);
 
-      // Should have 101 points (0 to 100 inclusive)
+      // Proper time arrays should have 101 points (0 to 100 inclusive)
       expect(result.properTimeVelocity.length).toBe(101);
-      expect(result.coordTimeVelocity.length).toBe(101);
+
+      // Coordinate time arrays are filtered to proper time range, so will have fewer points
+      // since coordinate time extends beyond proper time due to time dilation
+      expect(result.coordTimeVelocity.length).toBeLessThanOrEqual(101);
+      expect(result.coordTimeVelocity.length).toBeGreaterThan(0);
+
+      // Verify all coordinate time points are within proper time range
+      const maxProperTime = durationDays;
+      result.coordTimeVelocity.forEach(point => {
+        expect(point.x).toBeLessThanOrEqual(maxProperTime);
+      });
     });
 
     it('handles very short durations', () => {
