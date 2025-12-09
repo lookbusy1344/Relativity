@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 /**
  * Helper function to check if a mass slider should skip encoding
- * (matches the logic in urlState.ts updateURL function)
+ * (matches the massSlider logic in urlState.ts updateURL() at lines 390-398)
  */
 function shouldSkipMassSliderEncoding(slider: HTMLInputElement): boolean {
     const sliderMax = parseFloat(slider.max);
@@ -16,7 +16,7 @@ function shouldSkipMassSliderEncoding(slider: HTMLInputElement): boolean {
 
 /**
  * Helper function to check if a distance slider should skip encoding
- * (matches the logic in urlState.ts updateURL function)
+ * (matches the distSlider logic in urlState.ts updateURL() at lines 401-406)
  */
 function shouldSkipDistanceSliderEncoding(slider: HTMLInputElement): boolean {
     const percentage = parseFloat(slider.value);
