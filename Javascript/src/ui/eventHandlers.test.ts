@@ -8,7 +8,8 @@ import {
   createPionFuelFractionHandler,
   createFlipBurnHandler,
   createTwinParadoxHandler,
-  createPositionVelocitySliderHandler
+  createPositionVelocitySliderHandler,
+  initializePositionVelocitySlider
 } from './eventHandlers';
 import { clearBody } from '../test-utils/dom-helpers';
 
@@ -690,6 +691,167 @@ describe('Event Handler Factories', () => {
       handler();
 
       expect(mockChart.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('initializePositionVelocitySlider', () => {
+    it('sets step to 0.1 for small scales (≤5 ly)', () => {
+      // Create mock chart with max value of 4 ly
+      const mockChart = {
+        data: {
+          datasets: [
+            {
+              data: [
+                { x: 0, y: 0 },
+                { x: 2, y: 0.5 },
+                { x: 4, y: 0.8 }
+              ]
+            }
+          ]
+        }
+      };
+
+      const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
+      
+      // Create slider and value display in DOM
+      const slider = document.createElement('input');
+      slider.id = 'testSlider';
+      slider.type = 'range';
+      document.body.appendChild(slider);
+      
+      const valueDisplay = document.createElement('span');
+      valueDisplay.id = 'testValue';
+      document.body.appendChild(valueDisplay);
+
+      // Call the function
+      initializePositionVelocitySlider('testChart', 'testSlider', 'testValue', chartRegistry);
+
+      // Verify step is 0.1 for small scales
+      expect(slider.step).toBe('0.1');
+      expect(slider.max).toBe('4');
+      expect(slider.value).toBe('4');
+      expect(valueDisplay.textContent).toBe('4.0 ly');
+    });
+
+    it('sets step to at least 0.5 for larger scales (>5 ly)', () => {
+      // Create mock chart with max value of 100 ly
+      const mockChart = {
+        data: {
+          datasets: [
+            {
+              data: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0.5 },
+                { x: 100, y: 0.99 }
+              ]
+            }
+          ]
+        }
+      };
+
+      const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
+      
+      const slider = document.createElement('input');
+      slider.id = 'testSlider2';
+      slider.type = 'range';
+      document.body.appendChild(slider);
+      
+      const valueDisplay = document.createElement('span');
+      valueDisplay.id = 'testValue2';
+      document.body.appendChild(valueDisplay);
+
+      initializePositionVelocitySlider('testChart', 'testSlider2', 'testValue2', chartRegistry);
+
+      // For 100 ly, step should be 1.0 (1% of max, rounded)
+      expect(slider.step).toBe('1');
+      expect(slider.max).toBe('100');
+    });
+
+    it('sets step to at least 0.5 even when 1% would be smaller', () => {
+      // Create mock chart with max value of 10 ly (1% = 0.1, but should use 0.5)
+      const mockChart = {
+        data: {
+          datasets: [
+            {
+              data: [
+                { x: 0, y: 0 },
+                { x: 5, y: 0.5 },
+                { x: 10, y: 0.9 }
+              ]
+            }
+          ]
+        }
+      };
+
+      const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
+      
+      const slider = document.createElement('input');
+      slider.id = 'testSlider3';
+      slider.type = 'range';
+      document.body.appendChild(slider);
+      
+      const valueDisplay = document.createElement('span');
+      valueDisplay.id = 'testValue3';
+      document.body.appendChild(valueDisplay);
+
+      initializePositionVelocitySlider('testChart', 'testSlider3', 'testValue3', chartRegistry);
+
+      // Step should be at least 0.5, not 0.1 (which is 1% of 10)
+      expect(slider.step).toBe('0.5');
+      expect(slider.max).toBe('10');
+    });
+
+    it('handles very large values correctly (e.g., 6700 ly)', () => {
+      // Create mock chart with max value of 6700 ly
+      const mockChart = {
+        data: {
+          datasets: [
+            {
+              data: [
+                { x: 0, y: 0 },
+                { x: 3350, y: 0.5 },
+                { x: 6700, y: 0.99 }
+              ]
+            }
+          ]
+        }
+      };
+
+      const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
+      
+      const slider = document.createElement('input');
+      slider.id = 'testSlider4';
+      slider.type = 'range';
+      document.body.appendChild(slider);
+      
+      const valueDisplay = document.createElement('span');
+      valueDisplay.id = 'testValue4';
+      document.body.appendChild(valueDisplay);
+
+      initializePositionVelocitySlider('testChart', 'testSlider4', 'testValue4', chartRegistry);
+
+      // For 6700 ly, step should be 67 (1% of max, rounded to 1 decimal)
+      expect(slider.step).toBe('67');
+      expect(slider.max).toBe('6700');
+      expect(parseFloat(slider.step)).toBeGreaterThanOrEqual(0.5);
+    });
+
+    it('returns early if chart is missing', () => {
+      const chartRegistry = { current: new Map() };
+      
+      const slider = document.createElement('input');
+      slider.id = 'testSlider5';
+      document.body.appendChild(slider);
+      
+      const valueDisplay = document.createElement('span');
+      valueDisplay.id = 'testValue5';
+      document.body.appendChild(valueDisplay);
+
+      // Should not throw
+      initializePositionVelocitySlider('nonExistentChart', 'testSlider5', 'testValue5', chartRegistry);
+
+      // Slider should remain unchanged
+      expect(slider.step).toBe('');
     });
   });
 });

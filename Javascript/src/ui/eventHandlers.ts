@@ -1023,11 +1023,23 @@ export function initializePositionVelocitySlider(
         })
     );
 
+    // Calculate appropriate step size:
+    // - For small scales (≤5 ly): use 0.1 ly for fine control
+    // - For larger scales: use at least 0.5 ly, or scale proportionally (1% of max)
+    let step: number;
+    if (maxValue <= 5) {
+        step = 0.1;
+    } else {
+        // Use 1% of max value, but ensure it's at least 0.5 ly
+        step = Math.max(0.5, Math.round(maxValue / 100 * 10) / 10);
+    }
+
     // Update slider attributes
     const slider = document.getElementById(sliderId) as HTMLInputElement;
     const valueDisplay = document.getElementById(valueDisplayId);
     if (slider && valueDisplay) {
         slider.max = maxValue.toString();
+        slider.step = step.toString();
         slider.value = maxValue.toString();
         valueDisplay.textContent = `${maxValue.toFixed(1)} ly`;
     }
