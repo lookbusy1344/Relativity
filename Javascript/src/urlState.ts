@@ -6,6 +6,7 @@
 import * as simultaneityState from './charts/simultaneityState';
 import * as rl from './relativity_lib';
 import Decimal from 'decimal.js';
+import { getChartTimeModes, setChartTimeMode } from './ui/eventHandlers';
 
 // Parameter mapping: clean URL param name -> HTML input element ID
 type ParamMap = Record<string, string>;
@@ -25,7 +26,10 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
             accel: 'aAccelInput',
             time: 'aInput',
             dry: 'aDryMassInput',
-            eff: 'aEfficiencyInput'
+            eff: 'aEfficiencyInput',
+            velMode: '__velMode',
+            lorMode: '__lorMode',
+            rapMode: '__rapMode'
         },
         buttonId: 'aButton',
         tabId: 'motion-tab'
@@ -36,7 +40,10 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
             accel: 'flipAccelInput',
             dist: 'flipInput',
             dry: 'flipDryMassInput',
-            eff: 'flipEfficiencyInput'
+            eff: 'flipEfficiencyInput',
+            velMode: '__velMode',
+            lorMode: '__lorMode',
+            rapMode: '__rapMode'
         },
         buttonId: 'flipButton',
         tabId: 'travel-tab'
@@ -175,6 +182,33 @@ export function initializeFromURL(): void {
     let hasValidParams = false;
     for (const [paramName, inputId] of Object.entries(tabConfig.params)) {
         const paramValue = urlParams.get(paramName);
+
+        // Handle special chart time mode parameters
+        if (inputId.startsWith('__')) {
+            if (paramName.endsWith('Mode') && (paramValue === 'coord' || paramValue === 'coordinate')) {
+                // Map parameter to chart ID
+                const chartIdMap: Record<string, string> = {
+                    velMode: tabParam === 'motion' ? 'accelVelocity' : 'flipVelocity',
+                    lorMode: tabParam === 'motion' ? 'accelLorentz' : 'flipLorentz',
+                    rapMode: tabParam === 'motion' ? 'accelRapidity' : 'flipRapidity'
+                };
+                const chartId = chartIdMap[paramName];
+                if (chartId) {
+                    setChartTimeMode(chartId, 'coordinate');
+                    // Update button states
+                    document.querySelectorAll(`[data-chart="${chartId}"]`).forEach(btn => {
+                        const btnElement = btn as HTMLButtonElement;
+                        if (btnElement.dataset.mode === 'coordinate') {
+                            btnElement.classList.add('active');
+                        } else {
+                            btnElement.classList.remove('active');
+                        }
+                    });
+                }
+            }
+            continue;
+        }
+
         if (paramValue && isValidNumber(paramValue)) {
             const input = document.getElementById(inputId) as HTMLInputElement;
             if (input) {
@@ -313,6 +347,25 @@ export function updateURL(): void {
     } else {
         // Add non-default parameters
         for (const [paramName, inputId] of Object.entries(tabConfig.params)) {
+            // Handle special chart time mode parameters
+            if (inputId.startsWith('__')) {
+                if (paramName.endsWith('Mode')) {
+                    const chartIdMap: Record<string, string> = {
+                        velMode: activeTab === 'motion' ? 'accelVelocity' : 'flipVelocity',
+                        lorMode: activeTab === 'motion' ? 'accelLorentz' : 'flipLorentz',
+                        rapMode: activeTab === 'motion' ? 'accelRapidity' : 'flipRapidity'
+                    };
+                    const chartId = chartIdMap[paramName];
+                    if (chartId) {
+                        const modes = getChartTimeModes();
+                        if (modes[chartId] === 'coordinate') {
+                            params.set(paramName, 'coord');
+                        }
+                    }
+                }
+                continue;
+            }
+
             const input = document.getElementById(inputId) as HTMLInputElement;
             if (!input) continue;
 

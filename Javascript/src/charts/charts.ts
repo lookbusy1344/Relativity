@@ -276,14 +276,21 @@ export function destroyAll(registry: ChartRegistry): ChartRegistry {
 
 export function updateAccelCharts(
     registry: ChartRegistry,
-    data: ReturnType<typeof generateAccelChartData>
+    data: ReturnType<typeof generateAccelChartData>,
+    timeModes: {
+        velocity: 'proper' | 'coordinate';
+        lorentz: 'proper' | 'coordinate';
+        rapidity: 'proper' | 'coordinate';
+    } = { velocity: 'proper', lorentz: 'proper', rapidity: 'proper' }
 ): ChartRegistry {
     let newRegistry = registry;
 
-    // Calculate max proper time for x-axis scaling
+    // Calculate max times for both proper and coordinate
     const maxProperTime = Math.max(...data.properTimeVelocity.map(d => d.x));
+    const maxCoordTime = Math.max(...data.coordTimeVelocity.map(d => d.x));
 
-    // Velocity Chart - extend x-axis to proper time
+    // Velocity Chart - x-axis based on selected mode
+    const velocityXMax = timeModes.velocity === 'proper' ? maxProperTime : maxCoordTime;
     newRegistry = updateChart(
         newRegistry,
         'accelVelocityChart',
@@ -298,11 +305,12 @@ export function updateAccelCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
             yAxisLabel: 'Velocity (fraction of c)',
-            xMax: maxProperTime
+            xMax: velocityXMax
         }
     );
 
-    // Lorentz/Time Dilation Chart - extend x-axis to proper time
+    // Lorentz/Time Dilation Chart - x-axis based on selected mode
+    const lorentzXMax = timeModes.lorentz === 'proper' ? maxProperTime : maxCoordTime;
     newRegistry = updateChart(
         newRegistry,
         'accelLorentzChart',
@@ -317,12 +325,13 @@ export function updateAccelCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
             yAxisLabel: 'Time Rate (1 = normal)',
-            xMax: maxProperTime,
+            xMax: lorentzXMax,
             yMax: 1
         }
     );
 
-    // Rapidity Chart - extend x-axis to proper time
+    // Rapidity Chart - x-axis based on selected mode
+    const rapidityXMax = timeModes.rapidity === 'proper' ? maxProperTime : maxCoordTime;
     newRegistry = updateChart(
         newRegistry,
         'accelRapidityChart',
@@ -337,7 +346,7 @@ export function updateAccelCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
             yAxisLabel: 'Rapidity',
-            xMax: maxProperTime
+            xMax: rapidityXMax
         }
     );
 
@@ -388,18 +397,22 @@ export function updateAccelCharts(
 
 export function updateFlipBurnCharts(
     registry: ChartRegistry,
-    data: ReturnType<typeof generateFlipBurnChartData>
+    data: ReturnType<typeof generateFlipBurnChartData>,
+    timeModes: {
+        velocity: 'proper' | 'coordinate';
+        lorentz: 'proper' | 'coordinate';
+        rapidity: 'proper' | 'coordinate';
+    } = { velocity: 'proper', lorentz: 'proper', rapidity: 'proper' }
 ): ChartRegistry {
     let newRegistry = registry;
 
     // Calculate max x values for both proper and coordinate time
     const maxProperTime = Math.max(...data.properTimeVelocity.map(d => d.x));
     const maxCoordTime = Math.max(...data.coordTimeVelocity.map(d => d.x));
-    const maxTime = Math.max(maxProperTime, maxCoordTime);
     const maxMassProperTime = Math.max(...data.properTimeMassRemaining50.map(d => d.x));
 
-    // Velocity Chart - extend x-axis to show full proper time + 100%, but use coordinate time if smaller
-    const velocityChartXMax = maxCoordTime < maxProperTime * 2 ? maxCoordTime : maxProperTime * 2;
+    // Velocity Chart - x-axis based on selected mode
+    const velocityChartXMax = timeModes.velocity === 'proper' ? maxProperTime : maxCoordTime;
     newRegistry = updateChart(
         newRegistry,
         'flipVelocityChart',
@@ -418,7 +431,8 @@ export function updateFlipBurnCharts(
         }
     );
 
-    // Time Dilation / Lorentz Chart - use same x-axis logic as velocity chart
+    // Time Dilation / Lorentz Chart - x-axis based on selected mode
+    const lorentzChartXMax = timeModes.lorentz === 'proper' ? maxProperTime : maxCoordTime;
     newRegistry = updateChart(
         newRegistry,
         'flipLorentzChart',
@@ -433,12 +447,13 @@ export function updateFlipBurnCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (years)',
             yAxisLabel: 'Time Rate (1 = normal)',
-            xMax: velocityChartXMax,
+            xMax: lorentzChartXMax,
             yMax: 1
         }
     );
 
-    // Rapidity Chart
+    // Rapidity Chart - x-axis based on selected mode
+    const rapidityChartXMax = timeModes.rapidity === 'proper' ? maxProperTime : maxCoordTime;
     newRegistry = updateChart(
         newRegistry,
         'flipRapidityChart',
@@ -453,7 +468,7 @@ export function updateFlipBurnCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (years)',
             yAxisLabel: 'Rapidity',
-            xMax: maxTime
+            xMax: rapidityChartXMax
         }
     );
 

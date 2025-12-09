@@ -157,6 +157,45 @@
 	transform: translateY(0);
 }
 
+.chart-time-mode-toggle {
+	display: inline-flex;
+	margin-left: 1rem;
+	border: 1px solid rgba(0, 217, 255, 0.3);
+	background: rgba(0, 0, 0, 0.5);
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+.chart-time-mode-btn {
+	background: transparent;
+	border: none;
+	color: var(--soft-white);
+	padding: 0.35rem 0.75rem;
+	font-weight: 600;
+	font-size: 0.65rem;
+	font-family: 'IBM Plex Mono', monospace;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	border-right: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+.chart-time-mode-btn:last-child {
+	border-right: none;
+}
+
+.chart-time-mode-btn:hover:not(.active) {
+	background: rgba(0, 217, 255, 0.1);
+	color: var(--electric-cyan);
+}
+
+.chart-time-mode-btn.active {
+	background: var(--electric-cyan);
+	color: var(--space-black);
+	box-shadow: 0 0 10px var(--glow-cyan);
+}
+
 .result-box {
 	background: rgba(0, 0, 0, 0.6);
 	padding: 0.75rem 1rem;

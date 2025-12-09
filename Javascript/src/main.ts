@@ -10,13 +10,14 @@ import {
     createAddVelocitiesHandler,
     createPionAccelTimeHandler,
     createPionFuelFractionHandler,
-    createSpacetimeIntervalHandler
+    createSpacetimeIntervalHandler,
+    createChartTimeModeHandler
 } from './ui/eventHandlers';
 import { type ChartRegistry } from './charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData, type MinkowskiDiagramController } from './charts/minkowski';
 import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData, type TwinParadoxController } from './charts/minkowski-twins';
 import { createSimultaneityDiagram, type SimultaneityController } from './charts/simultaneity';
-import { initializeFromURL, setupURLSync } from './urlState';
+import { initializeFromURL, setupURLSync, updateURL } from './urlState';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -90,52 +91,74 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // Constant acceleration
+    const accelHandler = createAccelHandler(
+        () => getInputElement('aAccelInput'),
+        () => getInputElement('aInput'),
+        () => getInputElement('aDryMassInput'),
+        () => getInputElement('aEfficiencyInput'),
+        () => [
+            getResultElement('resultA1'),
+            getResultElement('resultA2'),
+            getResultElement('resultA1b'),
+            getResultElement('resultA2b'),
+            getResultElement('resultAFuel'),
+            getResultElement('resultAFuelFraction'),
+            getResultElement('resultAStars'),
+            getResultElement('resultAGalaxyFraction')
+        ],
+        chartRegistry
+    );
     addEventListener(
         getButtonElement('aButton'),
         'click',
-        createAccelHandler(
-            () => getInputElement('aAccelInput'),
-            () => getInputElement('aInput'),
-            () => getInputElement('aDryMassInput'),
-            () => getInputElement('aEfficiencyInput'),
-            () => [
-                getResultElement('resultA1'),
-                getResultElement('resultA2'),
-                getResultElement('resultA1b'),
-                getResultElement('resultA2b'),
-                getResultElement('resultAFuel'),
-                getResultElement('resultAFuelFraction'),
-                getResultElement('resultAStars'),
-                getResultElement('resultAGalaxyFraction')
-            ],
-            chartRegistry
-        )
+        accelHandler
     );
 
     // Flip-and-burn
+    const flipHandler = createFlipBurnHandler(
+        () => getInputElement('flipAccelInput'),
+        () => getInputElement('flipInput'),
+        () => getInputElement('flipDryMassInput'),
+        () => getInputElement('flipEfficiencyInput'),
+        () => [
+            getResultElement('resultFlip1'),
+            getResultElement('resultFlip2'),
+            getResultElement('resultFlip3'),
+            getResultElement('resultFlip4'),
+            getResultElement('resultFlip5'),
+            getResultElement('resultFlip6'),
+            getResultElement('resultFlipFuel'),
+            getResultElement('resultFlipFuelFraction'),
+            getResultElement('resultFlipStars'),
+            getResultElement('resultFlipGalaxyFraction')
+        ],
+        chartRegistry
+    );
     addEventListener(
         getButtonElement('flipButton'),
         'click',
-        createFlipBurnHandler(
-            () => getInputElement('flipAccelInput'),
-            () => getInputElement('flipInput'),
-            () => getInputElement('flipDryMassInput'),
-            () => getInputElement('flipEfficiencyInput'),
-            () => [
-                getResultElement('resultFlip1'),
-                getResultElement('resultFlip2'),
-                getResultElement('resultFlip3'),
-                getResultElement('resultFlip4'),
-                getResultElement('resultFlip5'),
-                getResultElement('resultFlip6'),
-                getResultElement('resultFlipFuel'),
-                getResultElement('resultFlipFuelFraction'),
-                getResultElement('resultFlipStars'),
-                getResultElement('resultFlipGalaxyFraction')
-            ],
-            chartRegistry
-        )
+        flipHandler
     );
+
+    // Setup time mode toggles for all charts
+    const chartIds = ['accelVelocity', 'accelLorentz', 'accelRapidity',
+                      'flipVelocity', 'flipLorentz', 'flipRapidity'];
+
+    chartIds.forEach(chartId => {
+        const handler = createChartTimeModeHandler(
+            chartId,
+            chartRegistry
+        );
+
+        // Wire up both buttons for this chart
+        document.querySelectorAll(`[data-chart="${chartId}"]`).forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const mode = (e.target as HTMLButtonElement).dataset.mode as 'proper' | 'coordinate';
+                handler(mode);
+                updateURL();  // Persist to URL
+            });
+        });
+    });
 
     // Twin Paradox
     const twinsCalculateHandler = createTwinParadoxHandler(
