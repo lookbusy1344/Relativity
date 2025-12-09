@@ -8,6 +8,9 @@ import * as rl from './relativity_lib';
 import Decimal from 'decimal.js';
 import { getChartTimeModes, setChartTimeMode } from './ui/eventHandlers';
 
+// Store pending slider values to apply after chart initialization
+let pendingSliderValues: Record<string, number> = {};
+
 // Parameter mapping: clean URL param name -> HTML input element ID
 type ParamMap = Record<string, string>;
 
@@ -27,6 +30,7 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
             time: 'aInput',
             dry: 'aDryMassInput',
             eff: 'aEfficiencyInput',
+            massSlider: 'accelMassSlider',
             velMode: '__velMode',
             lorMode: '__lorMode',
             rapMode: '__rapMode'
@@ -41,6 +45,7 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
             dist: 'flipInput',
             dry: 'flipDryMassInput',
             eff: 'flipEfficiencyInput',
+            massSlider: 'flipMassSlider',
             velMode: '__velMode',
             lorMode: '__lorMode',
             rapMode: '__rapMode'
@@ -214,6 +219,12 @@ export function initializeFromURL(): void {
             if (input) {
                 input.value = paramValue;
                 hasValidParams = true;
+
+                // Special handling for mass sliders - store value to apply after chart initialization
+                if (paramName === 'massSlider') {
+                    const numValue = parseFloat(paramValue);
+                    pendingSliderValues[inputId] = numValue;
+                }
             }
         }
     }
@@ -439,6 +450,46 @@ function updateSimultaneityURL(params: URLSearchParams, tabConfig: TabConfig): v
             const encoded = events.map((e: any) => `${e.ct},${e.x}`).join(';');
             params.set('events', encoded);
         }
+    }
+}
+
+/**
+ * Apply pending slider values that were loaded from URL
+ * Called after chart initialization to restore slider state
+ */
+export function applyPendingSliderValue(
+    sliderId: string, 
+    valueDisplayId: string, 
+    unit: 'days' | 'years',
+    chartId: string,
+    chartRegistry: any
+): void {
+    const pendingValue = pendingSliderValues[sliderId];
+    if (pendingValue !== undefined) {
+        const slider = document.getElementById(sliderId) as HTMLInputElement;
+        const valueDisplay = document.getElementById(valueDisplayId);
+        
+        if (slider) {
+            // Only apply if value is within current slider range
+            const min = parseFloat(slider.min);
+            const max = parseFloat(slider.max);
+            if (pendingValue >= min && pendingValue <= max) {
+                slider.value = pendingValue.toString();
+                if (valueDisplay) {
+                    valueDisplay.textContent = `${pendingValue.toFixed(unit === 'days' ? 0 : 1)} ${unit}`;
+                }
+                
+                // Update the chart's x-axis max
+                const chart = chartRegistry.current.get(chartId);
+                if (chart && chart.options.scales?.x) {
+                    chart.options.scales.x.max = pendingValue;
+                    chart.update('none'); // Update without animation
+                }
+            }
+        }
+        
+        // Clear the pending value
+        delete pendingSliderValues[sliderId];
     }
 }
 

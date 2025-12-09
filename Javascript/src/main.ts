@@ -19,7 +19,7 @@ import { type ChartRegistry } from './charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData, type MinkowskiDiagramController } from './charts/minkowski';
 import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData, type TwinParadoxController } from './charts/minkowski-twins';
 import { createSimultaneityDiagram, type SimultaneityController } from './charts/simultaneity';
-import { initializeFromURL, setupURLSync, updateURL } from './urlState';
+import { initializeFromURL, setupURLSync, updateURL, applyPendingSliderValue } from './urlState';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -117,6 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Wait for chart to be updated before initializing slider
         setTimeout(() => {
             initializeMassChartSlider('accelMassChart', 'accelMassSlider', 'accelMassSliderValue', 'days', chartRegistry);
+            // Apply any pending slider value from URL after initialization
+            applyPendingSliderValue('accelMassSlider', 'accelMassSliderValue', 'days', 'accelMassChart', chartRegistry);
         }, 50);
     };
 
@@ -153,6 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Wait for chart to be updated before initializing slider
         setTimeout(() => {
             initializeMassChartSlider('flipMassChart', 'flipMassSlider', 'flipMassSliderValue', 'years', chartRegistry);
+            // Apply any pending slider value from URL after initialization
+            applyPendingSliderValue('flipMassSlider', 'flipMassSliderValue', 'years', 'flipMassChart', chartRegistry);
         }, 50);
     };
 
