@@ -1017,6 +1017,9 @@ export function createPositionVelocitySliderHandler(
         // Convert slider percentage to actual distance using power scale
         const distance = sliderToDistance(sliderPercent, maxDistance);
 
+        // Ensure minimum chart range to prevent negative x-axis values
+        const chartDistance = Math.max(0.1, distance);
+
         // Update display value with appropriate precision
         const displayValue = distance < 10 ? distance.toFixed(2) : distance.toFixed(1);
         valueDisplay.textContent = `${displayValue} ly`;
@@ -1024,7 +1027,8 @@ export function createPositionVelocitySliderHandler(
         // Update the chart's x-axis max directly without recalculating
         const chart = chartRegistry.current.get(chartId);
         if (chart && chart.options.scales?.x) {
-            chart.options.scales.x.max = distance;
+            chart.options.scales.x.max = chartDistance;
+            chart.options.scales.x.min = 0;  // Ensure axis starts at 0
             chart.update('none'); // Update without animation for instant response
         }
     };

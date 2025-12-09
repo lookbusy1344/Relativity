@@ -544,7 +544,9 @@ export function applyPendingDistanceSliderValue(
                 try {
                     const chart = chartRegistry.current.get(chartId);
                     if (chart && chart.options.scales?.x) {
-                        chart.options.scales.x.max = pendingDistance;
+                        // Ensure minimum chart range to prevent negative x-axis values
+                        chart.options.scales.x.max = Math.max(0.1, pendingDistance);
+                        chart.options.scales.x.min = 0;  // Ensure axis starts at 0
                         chart.update('none'); // Update without animation
                     }
                 } catch (error) {
