@@ -223,7 +223,9 @@ export function initializeFromURL(): void {
                 // Special handling for mass sliders - store value to apply after chart initialization
                 if (paramName === 'massSlider') {
                     const numValue = parseFloat(paramValue);
-                    pendingSliderValues[inputId] = numValue;
+                    if (!isNaN(numValue)) {
+                        pendingSliderValues[inputId] = numValue;
+                    }
                 }
             }
         }
@@ -462,7 +464,7 @@ export function applyPendingSliderValue(
     valueDisplayId: string, 
     unit: 'days' | 'years',
     chartId: string,
-    chartRegistry: any
+    chartRegistry: { current: Map<string, any> }
 ): void {
     const pendingValue = pendingSliderValues[sliderId];
     if (pendingValue !== undefined) {
@@ -471,9 +473,9 @@ export function applyPendingSliderValue(
         
         if (slider) {
             // Only apply if value is within current slider range
-            const min = parseFloat(slider.min);
-            const max = parseFloat(slider.max);
-            if (pendingValue >= min && pendingValue <= max) {
+            const min = parseFloat(slider.min || '0');
+            const max = parseFloat(slider.max || String(Number.MAX_SAFE_INTEGER));
+            if (!isNaN(min) && !isNaN(max) && pendingValue >= min && pendingValue <= max) {
                 slider.value = pendingValue.toString();
                 if (valueDisplay) {
                     valueDisplay.textContent = `${pendingValue.toFixed(unit === 'days' ? 0 : 1)} ${unit}`;
