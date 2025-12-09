@@ -1030,7 +1030,8 @@ export function initializePositionVelocitySlider(
     if (maxValue <= 5) {
         step = 0.1;
     } else {
-        // Use 1% of max value, but ensure it's at least 0.5 ly
+        // Calculate 1% of max value, rounded to 1 decimal place, but ensure it's at least 0.5 ly
+        // Formula: Math.round(maxValue / 100 * 10) / 10 gives 1% rounded to 1 decimal
         step = Math.max(0.5, Math.round(maxValue / 100 * 10) / 10);
     }
 
