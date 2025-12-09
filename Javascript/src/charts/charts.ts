@@ -305,7 +305,7 @@ export function updateAccelCharts(
         }
     );
 
-    // Lorentz/Time Dilation Chart
+    // Lorentz/Time Dilation Chart - use same x-axis logic as velocity chart
     newRegistry = updateChart(
         newRegistry,
         'accelLorentzChart',
@@ -320,7 +320,7 @@ export function updateAccelCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
             yAxisLabel: 'Time Rate (1 = normal)',
-            xMax: maxTime,
+            xMax: accelVelocityChartXMax,
             yMax: 1
         }
     );
@@ -421,7 +421,7 @@ export function updateFlipBurnCharts(
         }
     );
 
-    // Time Dilation / Lorentz Chart
+    // Time Dilation / Lorentz Chart - use same x-axis logic as velocity chart
     newRegistry = updateChart(
         newRegistry,
         'flipLorentzChart',
@@ -436,7 +436,7 @@ export function updateFlipBurnCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (years)',
             yAxisLabel: 'Time Rate (1 = normal)',
-            xMax: maxTime,
+            xMax: velocityChartXMax,
             yMax: 1
         }
     );
