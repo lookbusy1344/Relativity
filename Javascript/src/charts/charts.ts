@@ -280,13 +280,10 @@ export function updateAccelCharts(
 ): ChartRegistry {
     let newRegistry = registry;
 
-    // Calculate max x values for both proper and coordinate time
+    // Calculate max proper time for x-axis scaling
     const maxProperTime = Math.max(...data.properTimeVelocity.map(d => d.x));
-    const maxCoordTime = Math.max(...data.coordTimeVelocity.map(d => d.x));
-    const maxTime = Math.max(maxProperTime, maxCoordTime);
 
-    // Velocity Chart - extend x-axis to proper time * 2, unless coordinate time is smaller
-    const accelVelocityChartXMax = maxCoordTime < maxProperTime * 2 ? maxCoordTime : maxProperTime * 2;
+    // Velocity Chart - extend x-axis to proper time
     newRegistry = updateChart(
         newRegistry,
         'accelVelocityChart',
@@ -301,11 +298,11 @@ export function updateAccelCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
             yAxisLabel: 'Velocity (fraction of c)',
-            xMax: accelVelocityChartXMax
+            xMax: maxProperTime
         }
     );
 
-    // Lorentz/Time Dilation Chart - use same x-axis logic as velocity chart
+    // Lorentz/Time Dilation Chart - extend x-axis to proper time
     newRegistry = updateChart(
         newRegistry,
         'accelLorentzChart',
@@ -320,12 +317,12 @@ export function updateAccelCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
             yAxisLabel: 'Time Rate (1 = normal)',
-            xMax: accelVelocityChartXMax,
+            xMax: maxProperTime,
             yMax: 1
         }
     );
 
-    // Rapidity Chart
+    // Rapidity Chart - extend x-axis to proper time
     newRegistry = updateChart(
         newRegistry,
         'accelRapidityChart',
@@ -340,7 +337,7 @@ export function updateAccelCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
             yAxisLabel: 'Rapidity',
-            xMax: maxTime
+            xMax: maxProperTime
         }
     );
 
