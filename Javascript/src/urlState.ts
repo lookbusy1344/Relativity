@@ -482,10 +482,14 @@ export function applyPendingSliderValue(
                 }
                 
                 // Update the chart's x-axis max
-                const chart = chartRegistry.current.get(chartId);
-                if (chart && chart.options.scales?.x) {
-                    chart.options.scales.x.max = pendingValue;
-                    chart.update('none'); // Update without animation
+                try {
+                    const chart = chartRegistry.current.get(chartId);
+                    if (chart && chart.options.scales?.x) {
+                        chart.options.scales.x.max = pendingValue;
+                        chart.update('none'); // Update without animation
+                    }
+                } catch (error) {
+                    console.error(`Failed to update chart ${chartId} with slider value:`, error);
                 }
             }
         }
