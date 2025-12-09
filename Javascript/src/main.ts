@@ -152,12 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
         chartRegistry
     );
 
-    // Wrap handler to initialize slider after chart update
+    // Wrap handler to initialize sliders after chart update
     const flipHandler = () => {
         flipHandlerBase();
-        // Wait for chart to be updated before initializing slider
+        // Wait for chart to be updated before initializing sliders
         setTimeout(() => {
             initializeMassChartSlider('flipMassChart', 'flipMassSlider', 'flipMassSliderValue', 'years', chartRegistry);
+            initializePositionVelocitySlider('flipPositionVelocity', 'flipPositionSlider', 'flipPositionSliderValue', chartRegistry);
             // Apply any pending slider value from URL after initialization
             applyPendingSliderValue('flipMassSlider', 'flipMassSliderValue', 'years', 'flipMassChart', chartRegistry);
         }, 50);
@@ -208,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     addEventListener(getInputElement('flipMassSlider'), 'input', flipMassSliderHandler);
 
-    // Setup position/velocity chart slider
+    // Setup position/velocity chart sliders
     const accelPositionSliderHandler = createPositionVelocitySliderHandler(
         'accelPositionVelocity',
         () => getInputElement('accelPositionSlider'),
@@ -216,6 +217,14 @@ document.addEventListener('DOMContentLoaded', () => {
         chartRegistry
     );
     addEventListener(getInputElement('accelPositionSlider'), 'input', accelPositionSliderHandler);
+
+    const flipPositionSliderHandler = createPositionVelocitySliderHandler(
+        'flipPositionVelocity',
+        () => getInputElement('flipPositionSlider'),
+        () => getResultElement('flipPositionSliderValue'),
+        chartRegistry
+    );
+    addEventListener(getInputElement('flipPositionSlider'), 'input', flipPositionSliderHandler);
 
     // Twin Paradox
     const twinsCalculateHandler = createTwinParadoxHandler(
