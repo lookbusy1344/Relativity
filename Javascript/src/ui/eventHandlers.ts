@@ -974,3 +974,57 @@ export function initializeMassChartSlider(
         valueDisplay.textContent = `${maxValue.toFixed(unit === 'days' ? 0 : 1)} ${unit}`;
     }
 }
+
+/**
+ * Create handler for position/velocity chart distance scale slider
+ */
+export function createPositionVelocitySliderHandler(
+    chartId: string,
+    getSlider: () => HTMLInputElement | null,
+    getValueDisplay: () => HTMLElement | null,
+    chartRegistry: { current: ChartRegistry }
+): () => void {
+    return () => {
+        const slider = getSlider();
+        const valueDisplay = getValueDisplay();
+        if (!slider || !valueDisplay) return;
+
+        const newMax = parseFloat(slider.value);
+
+        // Update display value
+        valueDisplay.textContent = `${newMax} ly`;
+
+        // Update the chart's x-axis max directly without recalculating
+        const chart = chartRegistry.current.get(chartId);
+        if (chart && chart.options.scales?.x) {
+            chart.options.scales.x.max = newMax;
+            chart.update('none'); // Update without animation for instant response
+        }
+    };
+}
+
+/**
+ * Initialize position/velocity chart slider with correct range from data
+ */
+export function initializePositionVelocitySlider(
+    chartId: string,
+    sliderId: string,
+    valueDisplayId: string,
+    chartRegistry: { current: ChartRegistry }
+): void {
+    const chart = chartRegistry.current.get(chartId);
+    if (!chart || !chart.data.datasets.length) return;
+
+    // Get max x value from first dataset
+    const data = chart.data.datasets[0].data as Array<{x: number, y: number}>;
+    const maxValue = Math.max(...data.map(d => d.x));
+
+    // Update slider attributes
+    const slider = document.getElementById(sliderId) as HTMLInputElement;
+    const valueDisplay = document.getElementById(valueDisplayId);
+    if (slider && valueDisplay) {
+        slider.max = maxValue.toString();
+        slider.value = maxValue.toString();
+        valueDisplay.textContent = `${maxValue.toFixed(1)} ly`;
+    }
+}

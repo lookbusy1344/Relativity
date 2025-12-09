@@ -13,7 +13,9 @@ import {
     createSpacetimeIntervalHandler,
     createChartTimeModeHandler,
     createMassChartSliderHandler,
-    initializeMassChartSlider
+    initializeMassChartSlider,
+    createPositionVelocitySliderHandler,
+    initializePositionVelocitySlider
 } from './ui/eventHandlers';
 import { type ChartRegistry } from './charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData, type MinkowskiDiagramController } from './charts/minkowski';
@@ -111,12 +113,13 @@ document.addEventListener('DOMContentLoaded', () => {
         chartRegistry
     );
 
-    // Wrap handler to initialize slider after chart update
+    // Wrap handler to initialize sliders after chart update
     const accelHandler = () => {
         accelHandlerBase();
-        // Wait for chart to be updated before initializing slider
+        // Wait for chart to be updated before initializing sliders
         setTimeout(() => {
             initializeMassChartSlider('accelMassChart', 'accelMassSlider', 'accelMassSliderValue', 'days', chartRegistry);
+            initializePositionVelocitySlider('accelPositionVelocity', 'accelPositionSlider', 'accelPositionSliderValue', chartRegistry);
             // Apply any pending slider value from URL after initialization
             applyPendingSliderValue('accelMassSlider', 'accelMassSliderValue', 'days', 'accelMassChart', chartRegistry);
         }, 50);
@@ -204,6 +207,15 @@ document.addEventListener('DOMContentLoaded', () => {
         chartRegistry
     );
     addEventListener(getInputElement('flipMassSlider'), 'input', flipMassSliderHandler);
+
+    // Setup position/velocity chart slider
+    const accelPositionSliderHandler = createPositionVelocitySliderHandler(
+        'accelPositionVelocity',
+        () => getInputElement('accelPositionSlider'),
+        () => getResultElement('accelPositionSliderValue'),
+        chartRegistry
+    );
+    addEventListener(getInputElement('accelPositionSlider'), 'input', accelPositionSliderHandler);
 
     // Twin Paradox
     const twinsCalculateHandler = createTwinParadoxHandler(

@@ -7,7 +7,8 @@ import {
   createPionAccelTimeHandler,
   createPionFuelFractionHandler,
   createFlipBurnHandler,
-  createTwinParadoxHandler
+  createTwinParadoxHandler,
+  createPositionVelocitySliderHandler
 } from './eventHandlers';
 import { clearBody } from '../test-utils/dom-helpers';
 
@@ -542,6 +543,153 @@ describe('Event Handler Factories', () => {
       // With formatSignificant(r, "0", 2): skip zeros after decimal, take 2 digits = "1.098"
       expect(resultTwins8.textContent).toBeTruthy();
       expect(resultTwins8.textContent).toMatch(/1\.098/); // Should show "1.098"
+    });
+  });
+
+  describe('createPositionVelocitySliderHandler', () => {
+    it('creates a function', () => {
+      const getSlider = vi.fn(() => null);
+      const getValueDisplay = vi.fn(() => null);
+      const chartRegistry = { current: new Map() };
+      const handler = createPositionVelocitySliderHandler(
+        'testChart',
+        getSlider,
+        getValueDisplay,
+        chartRegistry
+      );
+      expect(typeof handler).toBe('function');
+    });
+
+    it('updates chart x-axis max without recalculation', () => {
+      // Create mock chart with x-axis scale
+      const mockChart = {
+        options: {
+          scales: {
+            x: {
+              max: 10.0
+            }
+          }
+        },
+        update: vi.fn()
+      };
+
+      const slider = document.createElement('input');
+      slider.type = 'range';
+      slider.value = '5.5';
+      const valueDisplay = document.createElement('span');
+      document.body.appendChild(valueDisplay);
+
+      const getSlider = vi.fn(() => slider);
+      const getValueDisplay = vi.fn(() => valueDisplay);
+      const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
+
+      const handler = createPositionVelocitySliderHandler(
+        'testChart',
+        getSlider,
+        getValueDisplay,
+        chartRegistry
+      );
+
+      handler();
+
+      // Verify chart x-axis max was updated
+      expect(mockChart.options.scales.x.max).toBe(5.5);
+      // Verify chart.update was called with 'none' for instant response
+      expect(mockChart.update).toHaveBeenCalledWith('none');
+      // Verify display value was updated
+      expect(valueDisplay.textContent).toBe('5.5 ly');
+    });
+
+    it('handles slider values with proper precision', () => {
+      const mockChart = {
+        options: {
+          scales: {
+            x: {
+              max: 10.0
+            }
+          }
+        },
+        update: vi.fn()
+      };
+
+      const slider = document.createElement('input');
+      slider.value = '0.1';
+      const valueDisplay = document.createElement('span');
+      document.body.appendChild(valueDisplay);
+
+      const getSlider = vi.fn(() => slider);
+      const getValueDisplay = vi.fn(() => valueDisplay);
+      const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
+
+      const handler = createPositionVelocitySliderHandler(
+        'testChart',
+        getSlider,
+        getValueDisplay,
+        chartRegistry
+      );
+
+      handler();
+
+      expect(mockChart.options.scales.x.max).toBe(0.1);
+      expect(valueDisplay.textContent).toBe('0.1 ly');
+    });
+
+    it('returns early if slider is missing', () => {
+      const mockChart = {
+        options: {
+          scales: {
+            x: {
+              max: 10.0
+            }
+          }
+        },
+        update: vi.fn()
+      };
+
+      const getSlider = vi.fn(() => null);
+      const getValueDisplay = vi.fn(() => document.createElement('span'));
+      const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
+
+      const handler = createPositionVelocitySliderHandler(
+        'testChart',
+        getSlider,
+        getValueDisplay,
+        chartRegistry
+      );
+
+      handler();
+
+      expect(mockChart.update).not.toHaveBeenCalled();
+    });
+
+    it('returns early if value display is missing', () => {
+      const mockChart = {
+        options: {
+          scales: {
+            x: {
+              max: 10.0
+            }
+          }
+        },
+        update: vi.fn()
+      };
+
+      const slider = document.createElement('input');
+      slider.value = '5.0';
+      const getSlider = vi.fn(() => slider);
+      const getValueDisplay = vi.fn(() => null);
+      const chartRegistry = { current: new Map([['testChart', mockChart as any]]) };
+
+      const handler = createPositionVelocitySliderHandler(
+        'testChart',
+        getSlider,
+        getValueDisplay,
+        chartRegistry
+      );
+
+      handler();
+
+      expect(mockChart.update).not.toHaveBeenCalled();
     });
   });
 });
