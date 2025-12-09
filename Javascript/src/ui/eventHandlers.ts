@@ -976,7 +976,42 @@ export function initializeMassChartSlider(
 }
 
 /**
+ * Calculate adaptive exponent based on max distance
+ * - Small distances (<10 ly): exponent ~1.5 for more even distribution
+ * - Large distances (>1000 ly): exponent ~3 for fine control at start
+ */
+function getDistanceExponent(maxDistance: number): number {
+    if (maxDistance <= 1) return 1.5;
+    if (maxDistance >= 1000) return 3;
+    // Logarithmic interpolation between 1.5 and 3
+    const logMin = Math.log10(1);
+    const logMax = Math.log10(1000);
+    const logDist = Math.log10(maxDistance);
+    const t = (logDist - logMin) / (logMax - logMin);
+    return 1.5 + t * 1.5;  // Ranges from 1.5 to 3
+}
+
+/**
+ * Convert slider percentage (0-100) to actual distance using adaptive power scale
+ * Exponent varies based on max distance for optimal responsiveness
+ */
+export function sliderToDistance(percentage: number, maxDistance: number): number {
+    const exponent = getDistanceExponent(maxDistance);
+    return maxDistance * Math.pow(percentage / 100, exponent);
+}
+
+/**
+ * Convert actual distance to slider percentage (0-100) using inverse power scale
+ */
+export function distanceToSlider(distance: number, maxDistance: number): number {
+    if (maxDistance <= 0) return 100;
+    const exponent = getDistanceExponent(maxDistance);
+    return 100 * Math.pow(distance / maxDistance, 1 / exponent);
+}
+
+/**
  * Create handler for position/velocity chart distance scale slider
+ * Uses power scale for fine control at small distances
  */
 export function createPositionVelocitySliderHandler(
     chartId: string,
@@ -989,15 +1024,25 @@ export function createPositionVelocitySliderHandler(
         const valueDisplay = getValueDisplay();
         if (!slider || !valueDisplay) return;
 
-        const newMax = parseFloat(slider.value);
+        // Get max distance from data attribute
+        const maxDistance = parseFloat(slider.dataset.maxDistance || slider.max);
+        const sliderPercent = parseFloat(slider.value);
 
-        // Update display value
-        valueDisplay.textContent = `${newMax} ly`;
+        // Convert slider percentage to actual distance using power scale
+        const distance = sliderToDistance(sliderPercent, maxDistance);
+
+        // Ensure minimum chart range to prevent negative x-axis values
+        const chartDistance = Math.max(0.01, distance);
+
+        // Update display value with appropriate precision
+        const displayValue = distance < 10 ? distance.toFixed(2) : distance.toFixed(1);
+        valueDisplay.textContent = `${displayValue} ly`;
 
         // Update the chart's x-axis max directly without recalculating
         const chart = chartRegistry.current.get(chartId);
         if (chart && chart.options.scales?.x) {
-            chart.options.scales.x.max = newMax;
+            chart.options.scales.x.max = chartDistance;
+            chart.options.scales.x.min = 0;  // Ensure axis starts at 0
             chart.update('none'); // Update without animation for instant response
         }
     };
@@ -1005,6 +1050,7 @@ export function createPositionVelocitySliderHandler(
 
 /**
  * Initialize position/velocity chart slider with correct range from data
+ * Uses power scale (0-100%) internally for fine control at small distances
  */
 export function initializePositionVelocitySlider(
     chartId: string,
@@ -1023,12 +1069,16 @@ export function initializePositionVelocitySlider(
         })
     );
 
-    // Update slider attributes
+    // Update slider to use percentage scale (0-100)
+    // Store actual max distance in data attribute for conversion
     const slider = document.getElementById(sliderId) as HTMLInputElement;
     const valueDisplay = document.getElementById(valueDisplayId);
     if (slider && valueDisplay) {
-        slider.max = maxValue.toString();
-        slider.value = maxValue.toString();
+        slider.min = '0';
+        slider.max = '100';
+        slider.step = '0.5';  // 0.5% steps for smooth sliding
+        slider.value = '100'; // Start at max (100%)
+        slider.dataset.maxDistance = maxValue.toString();
         valueDisplay.textContent = `${maxValue.toFixed(1)} ly`;
     }
 }

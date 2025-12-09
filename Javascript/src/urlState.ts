@@ -6,7 +6,7 @@
 import * as simultaneityState from './charts/simultaneityState';
 import * as rl from './relativity_lib';
 import Decimal from 'decimal.js';
-import { getChartTimeModes, setChartTimeMode } from './ui/eventHandlers';
+import { getChartTimeModes, setChartTimeMode, sliderToDistance, distanceToSlider } from './ui/eventHandlers';
 
 // Store pending slider values to apply after chart initialization
 let pendingSliderValues: Record<string, number> = {};
@@ -384,8 +384,16 @@ export function updateURL(): void {
             const input = document.getElementById(inputId) as HTMLInputElement;
             if (!input) continue;
 
-            const currentValue = input.value;
+            let currentValue = input.value;
             const defaultValue = getDefaultValue(inputId);
+
+            // For distance sliders, convert percentage to actual distance for URL
+            if (paramName === 'distSlider') {
+                const maxDistance = parseFloat(input.dataset.maxDistance || input.max);
+                const percentage = parseFloat(currentValue);
+                const actualDistance = sliderToDistance(percentage, maxDistance);
+                currentValue = actualDistance.toFixed(2);
+            }
 
             // Only include if different from default and valid
             if (currentValue !== defaultValue && isValidNumber(currentValue)) {
@@ -511,26 +519,34 @@ export function applyPendingDistanceSliderValue(
     chartId: string,
     chartRegistry: { current: Map<string, any> }
 ): void {
-    const pendingValue = pendingSliderValues[sliderId];
-    if (pendingValue !== undefined) {
+    const pendingDistance = pendingSliderValues[sliderId];
+    if (pendingDistance !== undefined) {
         const slider = document.getElementById(sliderId) as HTMLInputElement;
         const valueDisplay = document.getElementById(valueDisplayId);
 
         if (slider) {
-            // Only apply if value is within current slider range
-            const min = parseFloat(slider.min || '0');
-            const max = parseFloat(slider.max || String(Number.MAX_SAFE_INTEGER));
-            if (!isNaN(min) && !isNaN(max) && pendingValue >= min && pendingValue <= max) {
-                slider.value = pendingValue.toString();
+            // Get max distance from data attribute (set by initializePositionVelocitySlider)
+            const maxDistance = parseFloat(slider.dataset.maxDistance || '100');
+
+            // Only apply if distance is within range
+            if (pendingDistance >= 0 && pendingDistance <= maxDistance) {
+                // Convert actual distance to slider percentage
+                const sliderPercent = distanceToSlider(pendingDistance, maxDistance);
+                slider.value = sliderPercent.toString();
+
+                // Update display with appropriate precision
+                const displayValue = pendingDistance < 10 ? pendingDistance.toFixed(2) : pendingDistance.toFixed(1);
                 if (valueDisplay) {
-                    valueDisplay.textContent = `${pendingValue.toFixed(1)} ly`;
+                    valueDisplay.textContent = `${displayValue} ly`;
                 }
 
                 // Update the chart's x-axis max
                 try {
                     const chart = chartRegistry.current.get(chartId);
                     if (chart && chart.options.scales?.x) {
-                        chart.options.scales.x.max = pendingValue;
+                        // Ensure minimum chart range to prevent negative x-axis values
+                        chart.options.scales.x.max = Math.max(0.01, pendingDistance);
+                        chart.options.scales.x.min = 0;  // Ensure axis starts at 0
                         chart.update('none'); // Update without animation
                     }
                 } catch (error) {
