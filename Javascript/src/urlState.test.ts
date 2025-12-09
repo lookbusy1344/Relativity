@@ -4,6 +4,25 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
+/**
+ * Helper function to check if a mass slider should skip encoding
+ * (matches the logic in urlState.ts updateURL function)
+ */
+function shouldSkipMassSliderEncoding(slider: HTMLInputElement): boolean {
+    const sliderMax = parseFloat(slider.max);
+    const sliderValue = parseFloat(slider.value);
+    return !isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax;
+}
+
+/**
+ * Helper function to check if a distance slider should skip encoding
+ * (matches the logic in urlState.ts updateURL function)
+ */
+function shouldSkipDistanceSliderEncoding(slider: HTMLInputElement): boolean {
+    const percentage = parseFloat(slider.value);
+    return !isNaN(percentage) && percentage >= 100;
+}
+
 describe('URL encoding for slider defaults', () => {
     beforeEach(() => {
         // Set up DOM elements
@@ -26,16 +45,11 @@ describe('URL encoding for slider defaults', () => {
         
         // Test at max (should not encode)
         slider.value = '365';
-        const sliderMax = parseFloat(slider.max);
-        const sliderValue = parseFloat(slider.value);
-        const shouldSkip = !isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax;
-        expect(shouldSkip).toBe(true);
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
         
         // Test below max (should encode)
         slider.value = '300';
-        const sliderValue2 = parseFloat(slider.value);
-        const shouldSkip2 = !isNaN(sliderMax) && !isNaN(sliderValue2) && sliderValue2 >= sliderMax;
-        expect(shouldSkip2).toBe(false);
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(false);
     });
     
     it('should skip encoding mass slider when at dynamically set max', () => {
@@ -45,10 +59,7 @@ describe('URL encoding for slider defaults', () => {
         slider.max = '22.3';
         slider.value = '22.3';
         
-        const sliderMax = parseFloat(slider.max);
-        const sliderValue = parseFloat(slider.value);
-        const shouldSkip = !isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax;
-        expect(shouldSkip).toBe(true);
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
     });
     
     it('should skip encoding distance slider when at 100%', () => {
@@ -56,34 +67,25 @@ describe('URL encoding for slider defaults', () => {
         
         // Test at 100% (should not encode)
         slider.value = '100';
-        const percentage = parseFloat(slider.value);
-        const shouldSkip = !isNaN(percentage) && percentage >= 100;
-        expect(shouldSkip).toBe(true);
+        expect(shouldSkipDistanceSliderEncoding(slider)).toBe(true);
         
         // Test below 100% (should encode)
         slider.value = '75';
-        const percentage2 = parseFloat(slider.value);
-        const shouldSkip2 = !isNaN(percentage2) && percentage2 >= 100;
-        expect(shouldSkip2).toBe(false);
+        expect(shouldSkipDistanceSliderEncoding(slider)).toBe(false);
     });
     
     it('should encode mass slider when below max', () => {
         const slider = document.getElementById('accelMassSlider') as HTMLInputElement;
         slider.value = '200';
         
-        const sliderMax = parseFloat(slider.max);
-        const sliderValue = parseFloat(slider.value);
-        const shouldSkip = !isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax;
-        expect(shouldSkip).toBe(false);
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(false);
     });
     
     it('should encode distance slider when below 100%', () => {
         const slider = document.getElementById('flipPositionSlider') as HTMLInputElement;
         slider.value = '50';
         
-        const percentage = parseFloat(slider.value);
-        const shouldSkip = !isNaN(percentage) && percentage >= 100;
-        expect(shouldSkip).toBe(false);
+        expect(shouldSkipDistanceSliderEncoding(slider)).toBe(false);
     });
     
     it('should handle edge case of slider value equal to max', () => {
@@ -91,18 +93,13 @@ describe('URL encoding for slider defaults', () => {
         slider.max = '10.5';
         slider.value = '10.5';
         
-        const sliderMax = parseFloat(slider.max);
-        const sliderValue = parseFloat(slider.value);
-        const shouldSkip = !isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax;
-        expect(shouldSkip).toBe(true);
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
     });
     
     it('should handle edge case of distance slider at exactly 100', () => {
         const slider = document.getElementById('accelPositionSlider') as HTMLInputElement;
         slider.value = '100.0';
         
-        const percentage = parseFloat(slider.value);
-        const shouldSkip = !isNaN(percentage) && percentage >= 100;
-        expect(shouldSkip).toBe(true);
+        expect(shouldSkipDistanceSliderEncoding(slider)).toBe(true);
     });
 });
