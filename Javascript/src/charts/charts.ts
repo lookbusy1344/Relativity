@@ -285,7 +285,8 @@ export function updateAccelCharts(
     const maxCoordTime = Math.max(...data.coordTimeVelocity.map(d => d.x));
     const maxTime = Math.max(maxProperTime, maxCoordTime);
 
-    // Velocity Chart
+    // Velocity Chart - extend x-axis to proper time * 2, unless coordinate time is smaller
+    const accelVelocityChartXMax = maxCoordTime < maxProperTime * 2 ? maxCoordTime : maxProperTime * 2;
     newRegistry = updateChart(
         newRegistry,
         'accelVelocityChart',
@@ -300,7 +301,7 @@ export function updateAccelCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (days)',
             yAxisLabel: 'Velocity (fraction of c)',
-            xMax: maxTime
+            xMax: accelVelocityChartXMax
         }
     );
 
@@ -400,7 +401,8 @@ export function updateFlipBurnCharts(
     const maxTime = Math.max(maxProperTime, maxCoordTime);
     const maxMassProperTime = Math.max(...data.properTimeMassRemaining50.map(d => d.x));
 
-    // Velocity Chart
+    // Velocity Chart - extend x-axis to show full proper time + 100%, but use coordinate time if smaller
+    const velocityChartXMax = maxCoordTime < maxProperTime * 2 ? maxCoordTime : maxProperTime * 2;
     newRegistry = updateChart(
         newRegistry,
         'flipVelocityChart',
@@ -415,7 +417,7 @@ export function updateFlipBurnCharts(
             secondaryColor: '#00ff9f',
             xAxisLabel: 'Time (years)',
             yAxisLabel: 'Velocity (fraction of c)',
-            xMax: maxTime
+            xMax: velocityChartXMax
         }
     );
 
