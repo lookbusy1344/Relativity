@@ -145,13 +145,13 @@ src/
 
 ### Testing Requirements
 
-**IMPORTANT**: After making changes to core physics calculations, always run the test suite to ensure correctness.
+**IMPORTANT**: After making ANY changes to the codebase, always run the test suite to ensure correctness: `yarn test:run`
 
 - All core physics functions in `relativity_lib.ts` have comprehensive unit tests
 - Tests verify precision handling, edge cases, and mathematical correctness
-- Run tests before committing changes: `yarn test:run`
+- Tests must pass before committing changes or considering work complete
 - For development with auto-reload: `yarn test`
-- Tests are located in `src/relativity_lib.test.ts`
+- Tests are located in `src/relativity_lib.test.ts` and other `*.test.ts` files
 
 **Test Coverage Includes**:
 - Lorentz factor calculations
@@ -169,6 +169,18 @@ src/
 - Run `yarn build` to verify the production build completes without errors
 - Both commands must pass before considering work complete
 - These checks catch issues early and ensure the codebase remains buildable
+
+### Troubleshooting
+
+#### Yarn Commands Not Finding Binaries
+
+**Symptom**: `yarn test`, `yarn build`, or other yarn scripts fail with `command not found: vitest` (or `vite`, etc.), even though the packages are installed.
+
+**Cause**: Yarn 4's bin symlinks in `node_modules/.bin/` are out of sync.
+
+**Fix**: Run `yarn install` to re-establish the bin links. This refreshes the symlinks and resolves the issue.
+
+**Workaround**: If you need to run commands immediately, use the full path: `node_modules/.bin/vitest run`
 
 ### Precision Handling Policy
 

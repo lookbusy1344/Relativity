@@ -94,16 +94,20 @@ describe('Data Generation Functions', () => {
       // Proper time arrays should have 101 points (0 to 100 inclusive)
       expect(result.properTimeVelocity.length).toBe(101);
 
-      // Coordinate time arrays are filtered to proper time range, so will have fewer points
-      // since coordinate time extends beyond proper time due to time dilation
-      expect(result.coordTimeVelocity.length).toBeLessThanOrEqual(101);
-      expect(result.coordTimeVelocity.length).toBeGreaterThan(0);
+      // Coordinate time arrays should also have 101 points (same number of samples)
+      expect(result.coordTimeVelocity.length).toBe(101);
 
-      // Verify all coordinate time points are within proper time range
+      // Verify coordinate time is always >= proper time due to time dilation
+      // At t=0 they're equal, but coordinate time grows faster at relativistic speeds
       const maxProperTime = durationDays;
-      result.coordTimeVelocity.forEach(point => {
-        expect(point.x).toBeLessThanOrEqual(maxProperTime);
+      result.coordTimeVelocity.forEach((point, i) => {
+        const properTimePoint = result.properTimeVelocity[i];
+        expect(point.x).toBeGreaterThanOrEqual(properTimePoint.x);
       });
+
+      // Last coordinate time point should be > last proper time point for 1g accel
+      const lastCoordTime = result.coordTimeVelocity[result.coordTimeVelocity.length - 1].x;
+      expect(lastCoordTime).toBeGreaterThan(maxProperTime);
     });
 
     it('handles very short durations', () => {
