@@ -387,10 +387,24 @@ export function updateURL(): void {
             let currentValue = input.value;
             const defaultValue = getDefaultValue(inputId);
 
+            // For mass sliders, skip if at maximum (the default position)
+            if (paramName === 'massSlider') {
+                const sliderMax = parseFloat(input.max);
+                const sliderValue = parseFloat(currentValue);
+                // Skip encoding if slider is at max (default position)
+                if (!isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax) {
+                    continue;
+                }
+            }
+
             // For distance sliders, convert percentage to actual distance for URL
             if (paramName === 'distSlider') {
-                const maxDistance = parseFloat(input.dataset.maxDistance || input.max);
                 const percentage = parseFloat(currentValue);
+                // Skip encoding if slider is at 100% (default position)
+                if (!isNaN(percentage) && percentage >= 100) {
+                    continue;
+                }
+                const maxDistance = parseFloat(input.dataset.maxDistance || input.max);
                 const actualDistance = sliderToDistance(percentage, maxDistance);
                 currentValue = actualDistance.toFixed(2);
             }
