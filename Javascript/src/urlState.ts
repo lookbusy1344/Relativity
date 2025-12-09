@@ -31,6 +31,7 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
             dry: 'aDryMassInput',
             eff: 'aEfficiencyInput',
             massSlider: 'accelMassSlider',
+            distSlider: 'accelPositionSlider',
             velMode: '__velMode',
             lorMode: '__lorMode',
             rapMode: '__rapMode'
@@ -46,6 +47,7 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
             dry: 'flipDryMassInput',
             eff: 'flipEfficiencyInput',
             massSlider: 'flipMassSlider',
+            distSlider: 'flipPositionSlider',
             velMode: '__velMode',
             lorMode: '__lorMode',
             rapMode: '__rapMode'
@@ -220,8 +222,8 @@ export function initializeFromURL(): void {
                 input.value = paramValue;
                 hasValidParams = true;
 
-                // Special handling for mass sliders - store value to apply after chart initialization
-                if (paramName === 'massSlider') {
+                // Special handling for sliders - store value to apply after chart initialization
+                if (paramName === 'massSlider' || paramName === 'distSlider') {
                     const numValue = parseFloat(paramValue);
                     if (!isNaN(numValue)) {
                         pendingSliderValues[inputId] = numValue;
@@ -460,8 +462,8 @@ function updateSimultaneityURL(params: URLSearchParams, tabConfig: TabConfig): v
  * Called after chart initialization to restore slider state
  */
 export function applyPendingSliderValue(
-    sliderId: string, 
-    valueDisplayId: string, 
+    sliderId: string,
+    valueDisplayId: string,
     unit: 'days' | 'years',
     chartId: string,
     chartRegistry: { current: Map<string, any> }
@@ -470,7 +472,7 @@ export function applyPendingSliderValue(
     if (pendingValue !== undefined) {
         const slider = document.getElementById(sliderId) as HTMLInputElement;
         const valueDisplay = document.getElementById(valueDisplayId);
-        
+
         if (slider) {
             // Only apply if value is within current slider range
             const min = parseFloat(slider.min || '0');
@@ -480,7 +482,7 @@ export function applyPendingSliderValue(
                 if (valueDisplay) {
                     valueDisplay.textContent = `${pendingValue.toFixed(unit === 'days' ? 0 : 1)} ${unit}`;
                 }
-                
+
                 // Update the chart's x-axis max
                 try {
                     const chart = chartRegistry.current.get(chartId);
@@ -493,7 +495,50 @@ export function applyPendingSliderValue(
                 }
             }
         }
-        
+
+        // Clear the pending value
+        delete pendingSliderValues[sliderId];
+    }
+}
+
+/**
+ * Apply pending distance slider values for position/velocity charts
+ * Called after chart initialization to restore slider state
+ */
+export function applyPendingDistanceSliderValue(
+    sliderId: string,
+    valueDisplayId: string,
+    chartId: string,
+    chartRegistry: { current: Map<string, any> }
+): void {
+    const pendingValue = pendingSliderValues[sliderId];
+    if (pendingValue !== undefined) {
+        const slider = document.getElementById(sliderId) as HTMLInputElement;
+        const valueDisplay = document.getElementById(valueDisplayId);
+
+        if (slider) {
+            // Only apply if value is within current slider range
+            const min = parseFloat(slider.min || '0');
+            const max = parseFloat(slider.max || String(Number.MAX_SAFE_INTEGER));
+            if (!isNaN(min) && !isNaN(max) && pendingValue >= min && pendingValue <= max) {
+                slider.value = pendingValue.toString();
+                if (valueDisplay) {
+                    valueDisplay.textContent = `${pendingValue.toFixed(1)} ly`;
+                }
+
+                // Update the chart's x-axis max
+                try {
+                    const chart = chartRegistry.current.get(chartId);
+                    if (chart && chart.options.scales?.x) {
+                        chart.options.scales.x.max = pendingValue;
+                        chart.update('none'); // Update without animation
+                    }
+                } catch (error) {
+                    console.error(`Failed to update chart ${chartId} with slider value:`, error);
+                }
+            }
+        }
+
         // Clear the pending value
         delete pendingSliderValues[sliderId];
     }

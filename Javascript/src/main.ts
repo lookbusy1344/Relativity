@@ -21,7 +21,7 @@ import { type ChartRegistry } from './charts/charts';
 import { drawMinkowskiDiagramD3, type MinkowskiData, type MinkowskiDiagramController } from './charts/minkowski';
 import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData, type TwinParadoxController } from './charts/minkowski-twins';
 import { createSimultaneityDiagram, type SimultaneityController } from './charts/simultaneity';
-import { initializeFromURL, setupURLSync, updateURL, applyPendingSliderValue } from './urlState';
+import { initializeFromURL, setupURLSync, updateURL, applyPendingSliderValue, applyPendingDistanceSliderValue } from './urlState';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -120,8 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             initializeMassChartSlider('accelMassChart', 'accelMassSlider', 'accelMassSliderValue', 'days', chartRegistry);
             initializePositionVelocitySlider('accelPositionVelocity', 'accelPositionSlider', 'accelPositionSliderValue', chartRegistry);
-            // Apply any pending slider value from URL after initialization
+            // Apply any pending slider values from URL after initialization
             applyPendingSliderValue('accelMassSlider', 'accelMassSliderValue', 'days', 'accelMassChart', chartRegistry);
+            applyPendingDistanceSliderValue('accelPositionSlider', 'accelPositionSliderValue', 'accelPositionVelocity', chartRegistry);
         }, 50);
     };
 
@@ -159,8 +160,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             initializeMassChartSlider('flipMassChart', 'flipMassSlider', 'flipMassSliderValue', 'years', chartRegistry);
             initializePositionVelocitySlider('flipPositionVelocity', 'flipPositionSlider', 'flipPositionSliderValue', chartRegistry);
-            // Apply any pending slider value from URL after initialization
+            // Apply any pending slider values from URL after initialization
             applyPendingSliderValue('flipMassSlider', 'flipMassSliderValue', 'years', 'flipMassChart', chartRegistry);
+            applyPendingDistanceSliderValue('flipPositionSlider', 'flipPositionSliderValue', 'flipPositionVelocity', chartRegistry);
         }, 50);
     };
 
