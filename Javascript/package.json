@@ -31,12 +31,12 @@
         "@types/d3-timer": "^3.0.2",
         "@types/d3-transition": "^3.0.9",
         "@types/seedrandom": "^3.0.8",
-        "@vitest/ui": "^4.0.14",
-        "esbuild": "^0.27.0",
+        "@vitest/ui": "^4.0.15",
+        "esbuild": "^0.27.1",
         "happy-dom": "^20.0.11",
         "typescript": "^5.9.3",
-        "vite": "^7.2.4",
-        "vitest": "^4.0.14"
+        "vite": "^7.2.7",
+        "vitest": "^4.0.15"
     },
     "resolutions": {
         "glob": "^11.1.0"
