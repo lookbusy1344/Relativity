@@ -42,6 +42,7 @@ yarn upgrade-interactive
 src/
 ├── main.ts                     # Application entry point and initialization
 ├── relativity_lib.ts           # Core physics calculations (Decimal.js)
+├── extra_lib.ts                # Galactic star estimation (Monte Carlo integration)
 ├── urlState.ts                 # URL parameter management for deep linking
 ├── ui/
 │   ├── domUtils.ts             # DOM element access utilities
@@ -52,9 +53,12 @@ src/
 │   ├── minkowski.ts            # D3-based Minkowski diagram (spacetime)
 │   ├── minkowski-twins.ts      # D3-based twin paradox diagram with animation
 │   ├── simultaneity.ts         # D3-based simultaneity visualization
+│   ├── simultaneityState.ts    # State management for simultaneity events
 │   ├── minkowski-core.ts       # Shared D3 utilities
 │   ├── minkowski-types.ts      # TypeScript interfaces
 │   └── minkowski-colors.ts     # Color palette constants
+├── test-utils/
+│   └── dom-helpers.ts          # Testing utilities for DOM manipulation
 └── styles/
     ├── variables.css           # CSS custom properties for theming
     ├── animations.css          # Keyframe animations
@@ -78,6 +82,13 @@ src/
 - Functions for: Lorentz factors, velocity addition, time dilation, length contraction, relativistic kinematics
 - Specialized calculations: flip-and-burn maneuvers, spacetime intervals, four-momentum, twin paradox
 
+### Galactic Library (`extra_lib.ts`)
+- Milky Way star estimation using Monte Carlo integration
+- Three-component density model: exponential thin disk, Gaussian bulge, power-law halo
+- Shell-based integration ensuring monotonicity (larger spheres contain more stars)
+- Used for smart mass scale formatting (displays fuel mass in astronomical units)
+- Calibrated to produce ~200 billion total stars in the galaxy
+
 ### UI Layer (`ui/`)
 - `domUtils.ts` - Type-safe DOM element access helpers
 - `eventHandlers.ts` - Factory functions creating event handlers for each calculator section
@@ -89,6 +100,7 @@ src/
   - `minkowski.ts` - Standard two-event Minkowski diagram (public API)
   - `minkowski-twins.ts` - Twin paradox diagram with dual reference frames, animation, and play/pause controls
   - `simultaneity.ts` - Interactive simultaneity visualization with event placement, animated timeline, and temporal ordering
+  - `simultaneityState.ts` - State management module for simultaneity events (replaces global window pollution)
   - `minkowski-core.ts` - Shared utilities and rendering functions for all diagrams
   - `minkowski-types.ts` - TypeScript interfaces (imported via public APIs)
   - `minkowski-colors.ts` - Color palette constants
@@ -101,6 +113,10 @@ src/
 - `header.css` - Header and navigation component styles
 - `calculator.css` - Calculator UI component styles
 - `responsive.css` - Mobile-first responsive design with breakpoints for all visualizations
+
+### Testing Utilities (`test-utils/`)
+- `dom-helpers.ts` - DOM manipulation utilities for unit tests
+- Provides helpers for creating test DOM environments in Vitest
 
 ### URL State (`urlState.ts`)
 - Bidirectional sync between URL parameters and calculator inputs
@@ -171,6 +187,23 @@ To maintain calculation accuracy throughout the application:
 **Rationale**: JavaScript's `Number` type uses 64-bit IEEE 754 floats, which lose precision for values requiring more than ~15-17 significant digits. Relativistic calculations often require higher precision, especially for velocities near the speed of light.
 
 ## Recent Major Features
+
+### Chart Scaling and Time Mode Controls (Dec 2025)
+Enhanced chart functionality for better data visualization:
+- X-axis time scale sliders for mass charts (proper time and coordinate time)
+- Per-chart time mode toggles (coordinate vs proper time)
+- Unified slider styling across all range inputs
+- Improved chart scaling for velocity and time dilation charts
+- Eliminated spline interpolation artifacts on initial render
+- Better proper time visibility through dynamic x-axis scaling
+
+### Mass Scale and Astronomical Features (Dec 2025)
+Advanced mass calculations and astronomical context:
+- Smart mass unit formatting (Mount Everest, Moon, Supercluster, Observable Universe)
+- Milky Way star estimation using Monte Carlo integration
+- Three-component galactic density model (disk, bulge, halo)
+- Calibrated to ~200 billion total stars in the galaxy
+- Dry mass and nozzle efficiency inputs for Constant Acceleration tab
 
 ### Relativity of Simultaneity (Nov 2025)
 Interactive visualization demonstrating how simultaneity changes between reference frames:
