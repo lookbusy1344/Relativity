@@ -6,21 +6,23 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 /**
  * Helper function to check if a mass slider should skip encoding
- * (matches the massSlider logic in urlState.ts updateURL() at lines 390-398)
+ * (matches the massSlider logic in urlState.ts updateURL() at lines 390-400)
  */
 function shouldSkipMassSliderEncoding(slider: HTMLInputElement): boolean {
     const sliderMax = parseFloat(slider.max);
     const sliderValue = parseFloat(slider.value);
-    return !isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax;
+    const epsilon = 0.01; // Tolerance for floating-point comparison
+    return !isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax - epsilon;
 }
 
 /**
  * Helper function to check if a distance slider should skip encoding
- * (matches the distSlider logic in urlState.ts updateURL() at lines 401-406)
+ * (matches the distSlider logic in urlState.ts updateURL() at lines 402-413)
  */
 function shouldSkipDistanceSliderEncoding(slider: HTMLInputElement): boolean {
     const percentage = parseFloat(slider.value);
-    return !isNaN(percentage) && percentage >= 100;
+    const epsilon = 0.01; // Tolerance for floating-point comparison
+    return !isNaN(percentage) && percentage >= 100 - epsilon;
 }
 
 describe('URL encoding for slider defaults', () => {
@@ -101,5 +103,36 @@ describe('URL encoding for slider defaults', () => {
         slider.value = '100.0';
         
         expect(shouldSkipDistanceSliderEncoding(slider)).toBe(true);
+    });
+    
+    it('should handle floating-point precision near max for mass slider', () => {
+        const slider = document.getElementById('flipMassSlider') as HTMLInputElement;
+        
+        // Test values very close to max (within epsilon tolerance)
+        slider.max = '22.3';
+        slider.value = '22.299'; // 0.001 below max (within 0.01 epsilon)
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
+        
+        slider.value = '22.29'; // 0.01 below max (at epsilon boundary)
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
+        
+        // Test value just outside tolerance
+        slider.value = '22.28'; // 0.02 below max (outside epsilon)
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(false);
+    });
+    
+    it('should handle floating-point precision near 100% for distance slider', () => {
+        const slider = document.getElementById('accelPositionSlider') as HTMLInputElement;
+        
+        // Test values very close to 100% (within epsilon tolerance)
+        slider.value = '99.999'; // 0.001 below 100 (within 0.01 epsilon)
+        expect(shouldSkipDistanceSliderEncoding(slider)).toBe(true);
+        
+        slider.value = '99.99'; // 0.01 below 100 (at epsilon boundary)
+        expect(shouldSkipDistanceSliderEncoding(slider)).toBe(true);
+        
+        // Test value just outside tolerance
+        slider.value = '99.98'; // 0.02 below 100 (outside epsilon)
+        expect(shouldSkipDistanceSliderEncoding(slider)).toBe(false);
     });
 });

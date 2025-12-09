@@ -392,7 +392,9 @@ export function updateURL(): void {
                 const sliderMax = parseFloat(input.max);
                 const sliderValue = parseFloat(currentValue);
                 // Skip encoding if slider is at max (default position)
-                if (!isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax) {
+                // Use small epsilon for floating-point comparison tolerance
+                const epsilon = 0.01; // Tolerance for slider step rounding
+                if (!isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax - epsilon) {
                     continue;
                 }
             }
@@ -401,7 +403,9 @@ export function updateURL(): void {
             if (paramName === 'distSlider') {
                 const percentage = parseFloat(currentValue);
                 // Skip encoding if slider is at 100% (default position)
-                if (!isNaN(percentage) && percentage >= 100) {
+                // Use small epsilon for floating-point comparison tolerance
+                const epsilon = 0.01; // Tolerance for slider step rounding (step is 0.5)
+                if (!isNaN(percentage) && percentage >= 100 - epsilon) {
                     continue;
                 }
                 const maxDistance = parseFloat(input.dataset.maxDistance || input.max);
