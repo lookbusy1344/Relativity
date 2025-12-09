@@ -976,8 +976,9 @@ export function initializeMassChartSlider(
 }
 
 // Power scale exponent for distance sliders
-// Higher values give more resolution at small distances
-const DISTANCE_SLIDER_EXPONENT = 3;
+// Exponent of 2 gives good balance between fine control at small distances
+// and reasonable updates across the full range
+const DISTANCE_SLIDER_EXPONENT = 2;
 
 /**
  * Convert slider percentage (0-100) to actual distance using power scale
@@ -1018,7 +1019,7 @@ export function createPositionVelocitySliderHandler(
         const distance = sliderToDistance(sliderPercent, maxDistance);
 
         // Ensure minimum chart range to prevent negative x-axis values
-        const chartDistance = Math.max(0.1, distance);
+        const chartDistance = Math.max(0.01, distance);
 
         // Update display value with appropriate precision
         const displayValue = distance < 10 ? distance.toFixed(2) : distance.toFixed(1);

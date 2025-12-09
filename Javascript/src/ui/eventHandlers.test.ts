@@ -596,12 +596,12 @@ describe('Event Handler Factories', () => {
 
       handler();
 
-      // 50% with power scale (exponent 3) = 100 * 0.5^3 = 12.5 ly
-      expect(mockChart.options.scales.x.max).toBeCloseTo(12.5, 5);
+      // 50% with power scale (exponent 2) = 100 * 0.5^2 = 25 ly
+      expect(mockChart.options.scales.x.max).toBeCloseTo(25, 5);
       // Verify chart.update was called with 'none' for instant response
       expect(mockChart.update).toHaveBeenCalledWith('none');
       // Verify display value was updated
-      expect(valueDisplay.textContent).toBe('12.5 ly');
+      expect(valueDisplay.textContent).toBe('25.0 ly');
     });
 
     it('handles slider at 100% (max distance)', () => {
@@ -830,18 +830,18 @@ describe('Event Handler Factories', () => {
 
   describe('sliderToDistance and distanceToSlider', () => {
     it('sliderToDistance converts percentage to distance using power scale', () => {
-      // With exponent 3: distance = maxDistance * (percentage/100)^3
+      // With exponent 2: distance = maxDistance * (percentage/100)^2
       expect(sliderToDistance(100, 1000)).toBe(1000);  // 100% = max
       expect(sliderToDistance(0, 1000)).toBe(0);       // 0% = 0
-      expect(sliderToDistance(50, 1000)).toBeCloseTo(125, 5);  // 50% = 1000 * 0.125
-      expect(sliderToDistance(10, 1000)).toBeCloseTo(1, 5);    // 10% = 1000 * 0.001
+      expect(sliderToDistance(50, 1000)).toBeCloseTo(250, 5);  // 50% = 1000 * 0.25
+      expect(sliderToDistance(10, 1000)).toBeCloseTo(10, 5);   // 10% = 1000 * 0.01
     });
 
     it('distanceToSlider converts distance to percentage using inverse power scale', () => {
       expect(distanceToSlider(1000, 1000)).toBe(100);  // max = 100%
       expect(distanceToSlider(0, 1000)).toBe(0);       // 0 = 0%
-      expect(distanceToSlider(125, 1000)).toBeCloseTo(50, 5);  // 125 = 50%
-      expect(distanceToSlider(1, 1000)).toBeCloseTo(10, 5);    // 1 = 10%
+      expect(distanceToSlider(250, 1000)).toBeCloseTo(50, 5);  // 250 = 50%
+      expect(distanceToSlider(10, 1000)).toBeCloseTo(10, 5);   // 10 = 10%
     });
 
     it('sliderToDistance and distanceToSlider are inverses', () => {
@@ -861,15 +861,15 @@ describe('Event Handler Factories', () => {
 
       // 1% should be much less than 67 ly (which was the old linear 1%)
       const distAt1Pct = sliderToDistance(1, maxDistance);
-      expect(distAt1Pct).toBeLessThan(1);  // Should be ~0.067 ly
+      expect(distAt1Pct).toBeLessThan(1);  // Should be ~0.67 ly
 
       // 5% should still be small
       const distAt5Pct = sliderToDistance(5, maxDistance);
-      expect(distAt5Pct).toBeLessThan(10);  // Should be ~0.84 ly
+      expect(distAt5Pct).toBeLessThan(20);  // Should be ~16.75 ly
 
       // 10% should be manageable
       const distAt10Pct = sliderToDistance(10, maxDistance);
-      expect(distAt10Pct).toBeLessThan(10);  // Should be ~6.7 ly
+      expect(distAt10Pct).toBeLessThan(70);  // Should be ~67 ly
     });
   });
 });
