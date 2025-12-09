@@ -1015,9 +1015,13 @@ export function initializePositionVelocitySlider(
     const chart = chartRegistry.current.get(chartId);
     if (!chart || !chart.data.datasets.length) return;
 
-    // Get max x value from first dataset
-    const data = chart.data.datasets[0].data as Array<{x: number, y: number}>;
-    const maxValue = Math.max(...data.map(d => d.x));
+    // Get max x value across all datasets (flip-and-burn has accel + decel phases)
+    const maxValue = Math.max(
+        ...chart.data.datasets.flatMap(dataset => {
+            const data = dataset.data as Array<{x: number, y: number}>;
+            return data.map(d => d.x);
+        })
+    );
 
     // Update slider attributes
     const slider = document.getElementById(sliderId) as HTMLInputElement;
