@@ -596,12 +596,13 @@ describe('Event Handler Factories', () => {
 
       handler();
 
-      // 50% with power scale (exponent 2) = 100 * 0.5^2 = 25 ly
-      expect(mockChart.options.scales.x.max).toBeCloseTo(25, 5);
+      // 50% with adaptive power scale (maxDistance=100 → exponent≈2.5) = 100 * 0.5^2.5 ≈ 17.7 ly
+      expect(mockChart.options.scales.x.max).toBeGreaterThan(15);
+      expect(mockChart.options.scales.x.max).toBeLessThan(20);
       // Verify chart.update was called with 'none' for instant response
       expect(mockChart.update).toHaveBeenCalledWith('none');
-      // Verify display value was updated
-      expect(valueDisplay.textContent).toBe('25.0 ly');
+      // Verify display value was updated (17.68 rounds to 17.7)
+      expect(valueDisplay.textContent).toMatch(/17\.\d+ ly/);
     });
 
     it('handles slider at 100% (max distance)', () => {
@@ -829,47 +830,61 @@ describe('Event Handler Factories', () => {
   });
 
   describe('sliderToDistance and distanceToSlider', () => {
-    it('sliderToDistance converts percentage to distance using power scale', () => {
-      // With exponent 2: distance = maxDistance * (percentage/100)^2
-      expect(sliderToDistance(100, 1000)).toBe(1000);  // 100% = max
-      expect(sliderToDistance(0, 1000)).toBe(0);       // 0% = 0
-      expect(sliderToDistance(50, 1000)).toBeCloseTo(250, 5);  // 50% = 1000 * 0.25
-      expect(sliderToDistance(10, 1000)).toBeCloseTo(10, 5);   // 10% = 1000 * 0.01
-    });
-
-    it('distanceToSlider converts distance to percentage using inverse power scale', () => {
-      expect(distanceToSlider(1000, 1000)).toBe(100);  // max = 100%
-      expect(distanceToSlider(0, 1000)).toBe(0);       // 0 = 0%
-      expect(distanceToSlider(250, 1000)).toBeCloseTo(50, 5);  // 250 = 50%
-      expect(distanceToSlider(10, 1000)).toBeCloseTo(10, 5);   // 10 = 10%
-    });
-
-    it('sliderToDistance and distanceToSlider are inverses', () => {
-      const maxDistance = 6700;
+    it('sliderToDistance and distanceToSlider are inverses for various max distances', () => {
+      const testCases = [1, 10, 100, 1000, 6700];  // Range of max distances
       const testPercentages = [0, 10, 25, 50, 75, 100];
 
-      for (const pct of testPercentages) {
-        const distance = sliderToDistance(pct, maxDistance);
-        const backToPercent = distanceToSlider(distance, maxDistance);
-        expect(backToPercent).toBeCloseTo(pct, 5);
+      for (const maxDistance of testCases) {
+        for (const pct of testPercentages) {
+          const distance = sliderToDistance(pct, maxDistance);
+          const backToPercent = distanceToSlider(distance, maxDistance);
+          expect(backToPercent).toBeCloseTo(pct, 5);
+        }
       }
     });
 
+    it('uses lower exponent for small max distances (more even distribution)', () => {
+      // For small max distance (1 ly), exponent is 1.5
+      // 50% should give more than 25% of range (which exponent 2 would give)
+      const smallMax = 1;
+      const distAt50Pct = sliderToDistance(50, smallMax);
+      // With exponent 1.5: 1 * 0.5^1.5 ≈ 0.354
+      expect(distAt50Pct).toBeGreaterThan(0.3);
+      expect(distAt50Pct).toBeLessThan(0.4);
+    });
+
+    it('uses higher exponent for large max distances (fine control at start)', () => {
+      // For large max distance (6700 ly), exponent is 3
+      // 50% should give only 12.5% of range
+      const largeMax = 6700;
+      const distAt50Pct = sliderToDistance(50, largeMax);
+      // With exponent 3: 6700 * 0.5^3 = 837.5
+      expect(distAt50Pct).toBeGreaterThan(800);
+      expect(distAt50Pct).toBeLessThan(900);
+    });
+
     it('gives fine resolution at small distances for large ranges', () => {
-      // For 6700 ly max, first few percent should map to small distances
+      // For 6700 ly max (exponent 3), first few percent should map to small distances
       const maxDistance = 6700;
 
-      // 1% should be much less than 67 ly (which was the old linear 1%)
+      // 1% should be much less than 67 ly (which linear would give)
       const distAt1Pct = sliderToDistance(1, maxDistance);
-      expect(distAt1Pct).toBeLessThan(1);  // Should be ~0.67 ly
+      expect(distAt1Pct).toBeLessThan(1);  // Should be ~0.067 ly
 
-      // 5% should still be small
-      const distAt5Pct = sliderToDistance(5, maxDistance);
-      expect(distAt5Pct).toBeLessThan(20);  // Should be ~16.75 ly
-
-      // 10% should be manageable
+      // 10% should be small
       const distAt10Pct = sliderToDistance(10, maxDistance);
-      expect(distAt10Pct).toBeLessThan(70);  // Should be ~67 ly
+      expect(distAt10Pct).toBeLessThan(10);  // Should be ~6.7 ly
+    });
+
+    it('gives better distribution for small ranges', () => {
+      // For 1 ly max (exponent 1.5), distribution should be more even
+      const maxDistance = 1;
+
+      // 10% should give meaningful portion of range
+      const distAt10Pct = sliderToDistance(10, maxDistance);
+      // With exponent 1.5: 1 * 0.1^1.5 ≈ 0.032
+      expect(distAt10Pct).toBeGreaterThan(0.02);
+      expect(distAt10Pct).toBeLessThan(0.05);
     });
   });
 });

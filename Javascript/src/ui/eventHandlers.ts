@@ -975,17 +975,29 @@ export function initializeMassChartSlider(
     }
 }
 
-// Power scale exponent for distance sliders
-// Exponent of 2 gives good balance between fine control at small distances
-// and reasonable updates across the full range
-const DISTANCE_SLIDER_EXPONENT = 2;
+/**
+ * Calculate adaptive exponent based on max distance
+ * - Small distances (<10 ly): exponent ~1.5 for more even distribution
+ * - Large distances (>1000 ly): exponent ~3 for fine control at start
+ */
+function getDistanceExponent(maxDistance: number): number {
+    if (maxDistance <= 1) return 1.5;
+    if (maxDistance >= 1000) return 3;
+    // Logarithmic interpolation between 1.5 and 3
+    const logMin = Math.log10(1);
+    const logMax = Math.log10(1000);
+    const logDist = Math.log10(maxDistance);
+    const t = (logDist - logMin) / (logMax - logMin);
+    return 1.5 + t * 1.5;  // Ranges from 1.5 to 3
+}
 
 /**
- * Convert slider percentage (0-100) to actual distance using power scale
- * This gives much finer control at small distances
+ * Convert slider percentage (0-100) to actual distance using adaptive power scale
+ * Exponent varies based on max distance for optimal responsiveness
  */
 export function sliderToDistance(percentage: number, maxDistance: number): number {
-    return maxDistance * Math.pow(percentage / 100, DISTANCE_SLIDER_EXPONENT);
+    const exponent = getDistanceExponent(maxDistance);
+    return maxDistance * Math.pow(percentage / 100, exponent);
 }
 
 /**
@@ -993,7 +1005,8 @@ export function sliderToDistance(percentage: number, maxDistance: number): numbe
  */
 export function distanceToSlider(distance: number, maxDistance: number): number {
     if (maxDistance <= 0) return 100;
-    return 100 * Math.pow(distance / maxDistance, 1 / DISTANCE_SLIDER_EXPONENT);
+    const exponent = getDistanceExponent(maxDistance);
+    return 100 * Math.pow(distance / maxDistance, 1 / exponent);
 }
 
 /**
