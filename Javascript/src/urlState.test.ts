@@ -19,12 +19,15 @@ function shouldSkipMassSliderEncoding(slider: HTMLInputElement): boolean {
 
 /**
  * Helper function to check if a distance slider should skip encoding
- * (matches the distSlider logic in urlState.ts updateURL() at lines 402-413)
+ * (matches the distSlider logic in urlState.ts updateURL() at lines 402-420)
  */
 function shouldSkipDistanceSliderEncoding(slider: HTMLInputElement): boolean {
     const percentage = parseFloat(slider.value);
+    const sliderMax = parseFloat(slider.max);
     const epsilon = 0.01; // Tolerance for floating-point comparison
-    return !isNaN(percentage) && percentage >= 100 - epsilon;
+    const isAtPercentageMax = !isNaN(percentage) && percentage >= 100 - epsilon;
+    const isAtUninitializedMax = !isNaN(sliderMax) && Math.abs(percentage - sliderMax) <= epsilon;
+    return isAtPercentageMax || isAtUninitializedMax;
 }
 
 describe('URL encoding for slider defaults', () => {
@@ -150,5 +153,29 @@ describe('URL encoding for slider defaults', () => {
 
         // Slider is at its maximum, so skip encoding
         expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
+    });
+
+    it('should skip encoding uninitialized distance slider at HTML default', () => {
+        const slider = document.getElementById('flipPositionSlider') as HTMLInputElement;
+
+        // Simulate tab switch BEFORE initialization:
+        // HTML has: <input type="range" id="flipPositionSlider" min="0" max="10" value="10">
+        // initializePositionVelocitySlider hasn't run yet (it runs on Calculate button click)
+        slider.max = '10';  // HTML default
+        slider.value = '10';  // HTML default (at max)
+
+        // Slider is at its uninitialized max, so skip encoding
+        expect(shouldSkipDistanceSliderEncoding(slider)).toBe(true);
+    });
+
+    it('should encode uninitialized distance slider when moved from HTML default', () => {
+        const slider = document.getElementById('flipPositionSlider') as HTMLInputElement;
+
+        // Simulate user moving slider before Calculate is pressed
+        slider.max = '10';  // HTML default
+        slider.value = '5';  // User moved slider to middle
+
+        // Slider is not at max, so should encode
+        expect(shouldSkipDistanceSliderEncoding(slider)).toBe(false);
     });
 });
