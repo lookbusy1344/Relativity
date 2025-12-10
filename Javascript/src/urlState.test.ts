@@ -6,13 +6,15 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 /**
  * Helper function to check if a mass slider should skip encoding
- * (matches the massSlider logic in urlState.ts updateURL() at lines 390-400)
+ * (matches the massSlider logic in urlState.ts updateURL() at lines 390-402)
  */
 function shouldSkipMassSliderEncoding(slider: HTMLInputElement): boolean {
-    const sliderMax = parseFloat(slider.max);
     const sliderValue = parseFloat(slider.value);
+    // Check against the chart's actual max (stored in data-chart-max)
+    // Fall back to slider.max if not yet initialized
+    const chartMax = slider.dataset.chartMax ? parseFloat(slider.dataset.chartMax) : parseFloat(slider.max);
     const epsilon = 0.01; // Tolerance for floating-point comparison
-    return !isNaN(sliderMax) && !isNaN(sliderValue) && sliderValue >= sliderMax - epsilon;
+    return !isNaN(chartMax) && !isNaN(sliderValue) && sliderValue >= chartMax - epsilon;
 }
 
 /**
@@ -123,16 +125,35 @@ describe('URL encoding for slider defaults', () => {
     
     it('should handle floating-point precision near 100% for distance slider', () => {
         const slider = document.getElementById('accelPositionSlider') as HTMLInputElement;
-        
+
         // Test values very close to 100% (within epsilon tolerance)
         slider.value = '99.999'; // 0.001 below 100 (within 0.01 epsilon)
         expect(shouldSkipDistanceSliderEncoding(slider)).toBe(true);
-        
+
         slider.value = '99.99'; // 0.01 below 100 (at epsilon boundary)
         expect(shouldSkipDistanceSliderEncoding(slider)).toBe(true);
-        
+
         // Test value just outside tolerance
         slider.value = '99.98'; // 0.02 below 100 (outside epsilon)
         expect(shouldSkipDistanceSliderEncoding(slider)).toBe(false);
+    });
+
+    it('should handle race condition by using data-chart-max', () => {
+        const slider = document.getElementById('flipMassSlider') as HTMLInputElement;
+
+        // Simulate the race condition scenario:
+        // 1. HTML has max="4"
+        // 2. Chart calculates actual max time = 3.4 years
+        // 3. Slider value is set to 3.4 (the chart's max)
+        // 4. slider.max might still be "4" (not yet updated)
+        slider.max = '4';  // HTML default
+        slider.value = '3.4';  // Chart's actual max time
+
+        // WITHOUT data-chart-max set, this would fail (old behavior)
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(false);
+
+        // WITH data-chart-max set (by initializeMassChartSlider), this works!
+        slider.dataset.chartMax = '3.4';
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(true);  // FIXED!
     });
 });

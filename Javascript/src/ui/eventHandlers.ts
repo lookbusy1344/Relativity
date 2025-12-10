@@ -970,6 +970,8 @@ export function initializeMassChartSlider(
     const valueDisplay = document.getElementById(valueDisplayId);
     if (slider && valueDisplay) {
         slider.max = maxValue.toString();
+        // Store the chart's actual max BEFORE setting value (value change may trigger URL update)
+        slider.dataset.chartMax = maxValue.toString();
         slider.value = maxValue.toString();
         valueDisplay.textContent = `${maxValue.toFixed(unit === 'days' ? 0 : 1)} ${unit}`;
     }
