@@ -230,6 +230,63 @@ Comprehensive test coverage for physics calculations and UI components:
 - Galactic star estimation calibrated to ~200 billion total stars
 - The web interface is hosted at: https://lookbusy1344.github.io/Relativity/
 
+## Sharing Calculations via URL
+
+The calculator supports URL encoding to share specific calculations with others. Simply copy the URL from your browser's address bar after performing a calculation - all relevant parameters are automatically encoded.
+
+### URL Parameters by Tab
+
+Each tab encodes only its essential calculation parameters (chart slider positions and time mode selections are not encoded - they default to maximum/proper time on load):
+
+**Constant Accel** (`?tab=motion`)
+- `accel` - Acceleration in g (e.g., `1`)
+- `time` - Proper time in days (e.g., `365`)
+- `dry` - Dry mass in kg (e.g., `500`)
+- `eff` - Nozzle efficiency (e.g., `0.85`)
+
+Example: `?tab=motion&accel=2&time=730&dry=1000&eff=0.9`
+
+**Flip** (`?tab=flip`)
+- `accel` - Acceleration in g (e.g., `1`)
+- `dist` - Distance in light years (e.g., `4`)
+- `dry` - Dry mass in kg (e.g., `500`)
+- `eff` - Nozzle efficiency (e.g., `0.85`)
+
+Example: `?tab=flip&accel=1&dist=10&dry=2000&eff=0.88`
+
+**Twin Paradox** (`?tab=twins`)
+- `vel` - Velocity as fraction of c (e.g., `0.8`)
+- `time` - Travel time (e.g., `10`)
+
+Example: `?tab=twins&vel=0.9&time=5`
+
+**Spacetime** (`?tab=spacetime`)
+- `time` - Time coordinate (e.g., `5`)
+- `dist` - Distance coordinate (e.g., `3`)
+- `vel` - Velocity as fraction of c (e.g., `0.6`)
+
+Example: `?tab=spacetime&time=10&dist=8&vel=0.5`
+
+**Simultaneity** (`?tab=simultaneity`)
+- `vel` - Observer velocity as fraction of c (e.g., `0.5`)
+- `events` - Event coordinates as `ct1,x1;ct2,x2;...` (e.g., `599584.92,-300000;599584.92,300000`)
+
+Example: `?tab=simultaneity&vel=0.6&events=500000,0;600000,100000`
+
+**Calc** (`?tab=calc`)
+- Various parameters depending on the calculator type (velocity, rapidity, fuel mass, etc.)
+
+### Default Behavior
+
+- Parameters not specified in the URL use their default values from the HTML form
+- Chart time scale sliders default to maximum (showing full calculation results)
+- Chart time mode toggles default to "Proper" time
+- Only non-default values are encoded to keep URLs concise
+
+### Backward Compatibility
+
+URLs from older versions of the calculator remain functional. Parameters that are no longer used (such as slider positions or time modes) are silently ignored.
+
 ## Recent Updates
 
 ### December 2025
