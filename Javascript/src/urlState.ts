@@ -402,10 +402,14 @@ export function updateURL(): void {
             // For distance sliders, convert percentage to actual distance for URL
             if (paramName === 'distSlider') {
                 const percentage = parseFloat(currentValue);
+                const sliderMax = parseFloat(input.max);
                 // Skip encoding if slider is at 100% (default position)
+                // OR if slider is uninitialized and at its max (e.g., max="10" value="10" from HTML)
                 // Use small epsilon for floating-point comparison tolerance
                 const epsilon = 0.01; // Tolerance for slider step rounding (step is 0.5)
-                if (!isNaN(percentage) && percentage >= 100 - epsilon) {
+                const isAtPercentageMax = !isNaN(percentage) && percentage >= 100 - epsilon;
+                const isAtUninitializedMax = !isNaN(sliderMax) && Math.abs(percentage - sliderMax) <= epsilon;
+                if (isAtPercentageMax || isAtUninitializedMax) {
                     continue;
                 }
                 const maxDistance = parseFloat(input.dataset.maxDistance || input.max);
