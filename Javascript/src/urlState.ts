@@ -9,6 +9,7 @@ import Decimal from 'decimal.js';
 import { distanceToSlider } from './ui/eventHandlers';
 
 // Store pending slider values to apply after chart initialization
+// Note: No longer populated for motion/flip tabs, but kept for backward compatibility
 let pendingSliderValues: Record<string, number> = {};
 
 // Parameter mapping: clean URL param name -> HTML input element ID
