@@ -6,7 +6,7 @@
 import * as simultaneityState from './charts/simultaneityState';
 import * as rl from './relativity_lib';
 import Decimal from 'decimal.js';
-import { getChartTimeModes, setChartTimeMode, sliderToDistance, distanceToSlider } from './ui/eventHandlers';
+import { distanceToSlider } from './ui/eventHandlers';
 
 // Store pending slider values to apply after chart initialization
 let pendingSliderValues: Record<string, number> = {};
@@ -29,12 +29,7 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
             accel: 'aAccelInput',
             time: 'aInput',
             dry: 'aDryMassInput',
-            eff: 'aEfficiencyInput',
-            massSlider: 'accelMassSlider',
-            distSlider: 'accelPositionSlider',
-            velMode: '__velMode',
-            lorMode: '__lorMode',
-            rapMode: '__rapMode'
+            eff: 'aEfficiencyInput'
         },
         buttonId: 'aButton',
         tabId: 'motion-tab'
@@ -45,12 +40,7 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
             accel: 'flipAccelInput',
             dist: 'flipInput',
             dry: 'flipDryMassInput',
-            eff: 'flipEfficiencyInput',
-            massSlider: 'flipMassSlider',
-            distSlider: 'flipPositionSlider',
-            velMode: '__velMode',
-            lorMode: '__lorMode',
-            rapMode: '__rapMode'
+            eff: 'flipEfficiencyInput'
         },
         buttonId: 'flipButton',
         tabId: 'travel-tab'
@@ -190,29 +180,14 @@ export function initializeFromURL(): void {
     for (const [paramName, inputId] of Object.entries(tabConfig.params)) {
         const paramValue = urlParams.get(paramName);
 
-        // Handle special chart time mode parameters
+        // Skip chart time mode parameters - always default to proper time
         if (inputId.startsWith('__')) {
-            if (paramName.endsWith('Mode') && (paramValue === 'coord' || paramValue === 'coordinate')) {
-                // Map parameter to chart ID
-                const chartIdMap: Record<string, string> = {
-                    velMode: tabParam === 'motion' ? 'accelVelocity' : 'flipVelocity',
-                    lorMode: tabParam === 'motion' ? 'accelLorentz' : 'flipLorentz',
-                    rapMode: tabParam === 'motion' ? 'accelRapidity' : 'flipRapidity'
-                };
-                const chartId = chartIdMap[paramName];
-                if (chartId) {
-                    setChartTimeMode(chartId, 'coordinate');
-                    // Update button states
-                    document.querySelectorAll(`[data-chart="${chartId}"]`).forEach(btn => {
-                        const btnElement = btn as HTMLButtonElement;
-                        if (btnElement.dataset.mode === 'coordinate') {
-                            btnElement.classList.add('active');
-                        } else {
-                            btnElement.classList.remove('active');
-                        }
-                    });
-                }
-            }
+            continue;
+        }
+
+        // Skip slider parameters for motion and flip tabs - always default to maximum
+        if ((tabParam === 'motion' || tabParam === 'flip') && 
+            (paramName === 'massSlider' || paramName === 'distSlider')) {
             continue;
         }
 
@@ -221,14 +196,6 @@ export function initializeFromURL(): void {
             if (input) {
                 input.value = paramValue;
                 hasValidParams = true;
-
-                // Special handling for sliders - store value to apply after chart initialization
-                if (paramName === 'massSlider' || paramName === 'distSlider') {
-                    const numValue = parseFloat(paramValue);
-                    if (!isNaN(numValue)) {
-                        pendingSliderValues[inputId] = numValue;
-                    }
-                }
             }
         }
     }
@@ -362,60 +329,22 @@ export function updateURL(): void {
     } else {
         // Add non-default parameters
         for (const [paramName, inputId] of Object.entries(tabConfig.params)) {
-            // Handle special chart time mode parameters
+            // Skip chart time mode parameters - always default to proper time
             if (inputId.startsWith('__')) {
-                if (paramName.endsWith('Mode')) {
-                    const chartIdMap: Record<string, string> = {
-                        velMode: activeTab === 'motion' ? 'accelVelocity' : 'flipVelocity',
-                        lorMode: activeTab === 'motion' ? 'accelLorentz' : 'flipLorentz',
-                        rapMode: activeTab === 'motion' ? 'accelRapidity' : 'flipRapidity'
-                    };
-                    const chartId = chartIdMap[paramName];
-                    if (chartId) {
-                        const modes = getChartTimeModes();
-                        if (modes[chartId] === 'coordinate') {
-                            params.set(paramName, 'coord');
-                        }
-                    }
-                }
+                continue;
+            }
+
+            // Skip slider parameters for motion and flip tabs - always default to maximum
+            if ((activeTab === 'motion' || activeTab === 'flip') && 
+                (paramName === 'massSlider' || paramName === 'distSlider')) {
                 continue;
             }
 
             const input = document.getElementById(inputId) as HTMLInputElement;
             if (!input) continue;
 
-            let currentValue = input.value;
+            const currentValue = input.value;
             const defaultValue = getDefaultValue(inputId);
-
-            // For mass sliders, skip if at maximum (user hasn't manually moved slider)
-            if (paramName === 'massSlider') {
-                const sliderValue = parseFloat(currentValue);
-                const sliderMax = parseFloat(input.max);
-                const epsilon = 0.01; // Tolerance for slider step rounding
-
-                // If slider is at its current maximum, user hasn't manually moved it
-                if (!isNaN(sliderMax) && Math.abs(sliderValue - sliderMax) <= epsilon) {
-                    continue;
-                }
-            }
-
-            // For distance sliders, convert percentage to actual distance for URL
-            if (paramName === 'distSlider') {
-                const percentage = parseFloat(currentValue);
-                const sliderMax = parseFloat(input.max);
-                // Skip encoding if slider is at 100% (default position)
-                // OR if slider is uninitialized and at its max (e.g., max="10" value="10" from HTML)
-                // Use small epsilon for floating-point comparison tolerance
-                const epsilon = 0.01; // Tolerance for slider step rounding (step is 0.5)
-                const isAtPercentageMax = !isNaN(percentage) && percentage >= 100 - epsilon;
-                const isAtUninitializedMax = !isNaN(sliderMax) && Math.abs(percentage - sliderMax) <= epsilon;
-                if (isAtPercentageMax || isAtUninitializedMax) {
-                    continue;
-                }
-                const maxDistance = parseFloat(input.dataset.maxDistance || input.max);
-                const actualDistance = sliderToDistance(percentage, maxDistance);
-                currentValue = actualDistance.toFixed(2);
-            }
 
             // Only include if different from default and valid
             if (currentValue !== defaultValue && isValidNumber(currentValue)) {
