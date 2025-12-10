@@ -963,15 +963,15 @@ export function initializeMassChartSlider(
 
     // Get max x value from first dataset (all mass datasets have same x range)
     const data = chart.data.datasets[0].data as Array<{x: number, y: number}>;
-    const maxValue = Math.max(...data.map(d => d.x));
+    const dataMax = Math.max(...data.map(d => d.x));
+    // Round up to nearest 0.5 to encompass the full calculation result
+    const maxValue = Math.ceil(dataMax * 2) / 2;
 
     // Update slider attributes
     const slider = document.getElementById(sliderId) as HTMLInputElement;
     const valueDisplay = document.getElementById(valueDisplayId);
     if (slider && valueDisplay) {
         slider.max = maxValue.toString();
-        // Store the chart's actual max BEFORE setting value (value change may trigger URL update)
-        slider.dataset.chartMax = maxValue.toString();
         slider.value = maxValue.toString();
         valueDisplay.textContent = `${maxValue.toFixed(unit === 'days' ? 0 : 1)} ${unit}`;
     }

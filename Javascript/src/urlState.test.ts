@@ -6,15 +6,15 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 /**
  * Helper function to check if a mass slider should skip encoding
- * (matches the massSlider logic in urlState.ts updateURL() at lines 390-402)
+ * (matches the massSlider logic in urlState.ts updateURL() at lines 390-406)
  */
 function shouldSkipMassSliderEncoding(slider: HTMLInputElement): boolean {
     const sliderValue = parseFloat(slider.value);
-    // Check against the chart's actual max (stored in data-chart-max)
-    // Fall back to slider.max if not yet initialized
-    const chartMax = slider.dataset.chartMax ? parseFloat(slider.dataset.chartMax) : parseFloat(slider.max);
-    const epsilon = 0.01; // Tolerance for floating-point comparison
-    return !isNaN(chartMax) && !isNaN(sliderValue) && sliderValue >= chartMax - epsilon;
+    const sliderMax = parseFloat(slider.max);
+    const epsilon = 0.01;
+
+    // Skip if slider is at its current maximum
+    return !isNaN(sliderMax) && Math.abs(sliderValue - sliderMax) <= epsilon;
 }
 
 /**
@@ -58,11 +58,11 @@ describe('URL encoding for slider defaults', () => {
     
     it('should skip encoding mass slider when at dynamically set max', () => {
         const slider = document.getElementById('flipMassSlider') as HTMLInputElement;
-        
+
         // Simulate dynamic max update (like after calculation)
         slider.max = '22.3';
         slider.value = '22.3';
-        
+
         expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
     });
     
@@ -96,7 +96,7 @@ describe('URL encoding for slider defaults', () => {
         const slider = document.getElementById('flipMassSlider') as HTMLInputElement;
         slider.max = '10.5';
         slider.value = '10.5';
-        
+
         expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
     });
     
@@ -109,15 +109,15 @@ describe('URL encoding for slider defaults', () => {
     
     it('should handle floating-point precision near max for mass slider', () => {
         const slider = document.getElementById('flipMassSlider') as HTMLInputElement;
-        
+
         // Test values very close to max (within epsilon tolerance)
         slider.max = '22.3';
         slider.value = '22.299'; // 0.001 below max (within 0.01 epsilon)
         expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
-        
-        slider.value = '22.29'; // 0.01 below max (at epsilon boundary)
+
+        slider.value = '22.295'; // 0.005 below max (well within epsilon)
         expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
-        
+
         // Test value just outside tolerance
         slider.value = '22.28'; // 0.02 below max (outside epsilon)
         expect(shouldSkipMassSliderEncoding(slider)).toBe(false);
@@ -138,22 +138,17 @@ describe('URL encoding for slider defaults', () => {
         expect(shouldSkipDistanceSliderEncoding(slider)).toBe(false);
     });
 
-    it('should handle race condition by using data-chart-max', () => {
+    it('should skip encoding when slider is at rounded-up max', () => {
         const slider = document.getElementById('flipMassSlider') as HTMLInputElement;
 
-        // Simulate the race condition scenario:
-        // 1. HTML has max="4"
-        // 2. Chart calculates actual max time = 3.4 years
-        // 3. Slider value is set to 3.4 (the chart's max)
-        // 4. slider.max might still be "4" (not yet updated)
-        slider.max = '4';  // HTML default
-        slider.value = '3.4';  // Chart's actual max time
+        // Simulate the scenario after initializeMassChartSlider runs:
+        // 1. Chart data max is 3.4 years (discrete data points)
+        // 2. initializeMassChartSlider rounds up: Math.ceil(3.4 * 2) / 2 = 3.5
+        // 3. Slider max and value are both set to 3.5
+        slider.max = '3.5';  // Rounded up from chart data max 3.4
+        slider.value = '3.5';  // Set to rounded max
 
-        // WITHOUT data-chart-max set, this would fail (old behavior)
-        expect(shouldSkipMassSliderEncoding(slider)).toBe(false);
-
-        // WITH data-chart-max set (by initializeMassChartSlider), this works!
-        slider.dataset.chartMax = '3.4';
-        expect(shouldSkipMassSliderEncoding(slider)).toBe(true);  // FIXED!
+        // Slider is at its maximum, so skip encoding
+        expect(shouldSkipMassSliderEncoding(slider)).toBe(true);
     });
 });

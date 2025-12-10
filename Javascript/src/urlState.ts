@@ -387,16 +387,14 @@ export function updateURL(): void {
             let currentValue = input.value;
             const defaultValue = getDefaultValue(inputId);
 
-            // For mass sliders, skip if at maximum (the default position)
+            // For mass sliders, skip if at maximum (user hasn't manually moved slider)
             if (paramName === 'massSlider') {
                 const sliderValue = parseFloat(currentValue);
-                // Check against the chart's actual max (stored in data-chart-max by initializeMassChartSlider)
-                // Fall back to slider.max if not yet initialized
-                const chartMax = input.dataset.chartMax ? parseFloat(input.dataset.chartMax) : parseFloat(input.max);
-                // Skip encoding if slider is at max (default position)
-                // Use small epsilon for floating-point comparison tolerance
+                const sliderMax = parseFloat(input.max);
                 const epsilon = 0.01; // Tolerance for slider step rounding
-                if (!isNaN(chartMax) && !isNaN(sliderValue) && sliderValue >= chartMax - epsilon) {
+
+                // If slider is at its current maximum, user hasn't manually moved it
+                if (!isNaN(sliderMax) && Math.abs(sliderValue - sliderMax) <= epsilon) {
                     continue;
                 }
             }
