@@ -387,10 +387,28 @@ export function updateURL(): void {
             let currentValue = input.value;
             const defaultValue = getDefaultValue(inputId);
 
+            // For mass sliders, skip if at maximum (user hasn't manually moved slider)
+            if (paramName === 'massSlider') {
+                const sliderValue = parseFloat(currentValue);
+                const sliderMax = parseFloat(input.max);
+                const epsilon = 0.01; // Tolerance for slider step rounding
+
+                // If slider is at its current maximum, user hasn't manually moved it
+                if (!isNaN(sliderMax) && Math.abs(sliderValue - sliderMax) <= epsilon) {
+                    continue;
+                }
+            }
+
             // For distance sliders, convert percentage to actual distance for URL
             if (paramName === 'distSlider') {
-                const maxDistance = parseFloat(input.dataset.maxDistance || input.max);
                 const percentage = parseFloat(currentValue);
+                // Skip encoding if slider is at 100% (default position)
+                // Use small epsilon for floating-point comparison tolerance
+                const epsilon = 0.01; // Tolerance for slider step rounding (step is 0.5)
+                if (!isNaN(percentage) && percentage >= 100 - epsilon) {
+                    continue;
+                }
+                const maxDistance = parseFloat(input.dataset.maxDistance || input.max);
                 const actualDistance = sliderToDistance(percentage, maxDistance);
                 currentValue = actualDistance.toFixed(2);
             }
@@ -578,7 +596,7 @@ export function setupURLSync(): () => void {
         handlers.get(element)!.set(event, handler);
     };
 
-    // Update URL when inputs change (debounced for text inputs)
+    // Update URL when inputs change (debounced to allow slider initialization)
     const allInputs = document.querySelectorAll('input[type="number"], input[type="range"]');
     allInputs.forEach(input => {
         const inputHandler = () => {
@@ -591,7 +609,10 @@ export function setupURLSync(): () => void {
 
         const changeHandler = () => {
             clearTimeout(debounceTimer);
-            updateURL();
+            // Delay to allow chart calculations and slider initialization to complete
+            debounceTimer = window.setTimeout(() => {
+                updateURL();
+            }, 150);
         };
         addHandler(input, 'change', changeHandler);
     });
@@ -609,10 +630,11 @@ export function setupURLSync(): () => void {
     const calcButtons = document.querySelectorAll('.btn-calculate');
     calcButtons.forEach(button => {
         const clickHandler = () => {
-            // Small delay to ensure inputs are settled
+            // Delay must be longer than slider initialization (100ms in main.ts)
+            // to ensure data-chart-max is set before URL encoding check
             setTimeout(() => {
                 updateURL();
-            }, 50);
+            }, 200);
         };
         addHandler(button, 'click', clickHandler);
     });

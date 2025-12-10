@@ -117,13 +117,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const accelHandler = () => {
         accelHandlerBase();
         // Wait for chart to be updated before initializing sliders
+        // Chart update uses RAF + setTimeout(0), so 100ms provides margin
         setTimeout(() => {
             initializeMassChartSlider('accelMassChart', 'accelMassSlider', 'accelMassSliderValue', 'days', chartRegistry);
             initializePositionVelocitySlider('accelPositionVelocity', 'accelPositionSlider', 'accelPositionSliderValue', chartRegistry);
             // Apply any pending slider values from URL after initialization
             applyPendingSliderValue('accelMassSlider', 'accelMassSliderValue', 'days', 'accelMassChart', chartRegistry);
             applyPendingDistanceSliderValue('accelPositionSlider', 'accelPositionSliderValue', 'accelPositionVelocity', chartRegistry);
-        }, 50);
+        }, 100);
     };
 
     addEventListener(
@@ -157,13 +158,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const flipHandler = () => {
         flipHandlerBase();
         // Wait for chart to be updated before initializing sliders
+        // Chart update uses RAF + setTimeout(0), so 100ms provides margin
         setTimeout(() => {
             initializeMassChartSlider('flipMassChart', 'flipMassSlider', 'flipMassSliderValue', 'years', chartRegistry);
             initializePositionVelocitySlider('flipPositionVelocity', 'flipPositionSlider', 'flipPositionSliderValue', chartRegistry);
             // Apply any pending slider values from URL after initialization
             applyPendingSliderValue('flipMassSlider', 'flipMassSliderValue', 'years', 'flipMassChart', chartRegistry);
             applyPendingDistanceSliderValue('flipPositionSlider', 'flipPositionSliderValue', 'flipPositionVelocity', chartRegistry);
-        }, 50);
+        }, 100);
     };
 
     addEventListener(
