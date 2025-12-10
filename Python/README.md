@@ -20,7 +20,11 @@ The maths needed for special relativity is not difficult, there's nothing more c
 
 [Spacetime intervals, invariant intervals between events](https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb)
 
-[A few notes on antimatter rocket propulsion](https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb)
+## Extra topics
+
+[Antimatter rocket propulsion](https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb) (the most efficient type of engine we can imagine with realistic physics)
+
+[Star distribution within the galaxy](https://github.com/lookbusy1344/Relativity/blob/main/Python/Star%20distribution.ipynb) (useful for knowing how many stars we can reach for a particular journey)
 
 ## Web-based calculator
 
