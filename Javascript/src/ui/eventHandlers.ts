@@ -208,7 +208,15 @@ export function createAccelHandler(
             const fuelPercent = fuelFraction.mul(100);
 
             if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 2), "m/s");
-            if (resultA2) setElement(resultA2, rl.formatSignificant(coordTimeDays, "", 1), "days");
+            if (resultA2) {
+                // Auto-switch between days and years for coordinate time
+                if (coordTimeDays.gte(1000)) {
+                    const coordTimeYears = coordTimeDays.div(365.25);
+                    setElement(resultA2, rl.formatSignificant(coordTimeYears, "", 1), "yrs");
+                } else {
+                    setElement(resultA2, rl.formatSignificant(coordTimeDays, "", 1), "days");
+                }
+            }
             if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
             if (resultA2b) {
                 const distanceFormatted = rl.formatDistanceAutoUnit(relDistC, relDistKm);
