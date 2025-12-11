@@ -175,8 +175,8 @@ export function createAccelHandler(
         }
 
         // Show working message
-        if (resultA1) resultA1.textContent = "Working...";
-        if (resultA2) resultA2.textContent = "";
+        if (resultA1) resultA1.textContent = "";
+        if (resultA2) resultA2.textContent = "Working...";
         if (resultA1b) resultA1b.textContent = "";
         if (resultA2b) resultA2b.textContent = "";
         if (resultAFuel) resultAFuel.textContent = "";
