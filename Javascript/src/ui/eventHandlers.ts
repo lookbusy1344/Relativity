@@ -197,6 +197,8 @@ export function createAccelHandler(
             const relVelC = relVel.div(rl.c);
             const relDistC = relDist.div(rl.lightYear);
             const relDistKm = relDist.div(1000);
+            const coordTimeSec = rl.coordinateTime(accel, secs);
+            const coordTimeDays = coordTimeSec.div(86400);
 
             // Calculate fuel fraction using user-provided efficiency
             const dryMass = rl.ensure(dryMassStr);
@@ -206,7 +208,7 @@ export function createAccelHandler(
             const fuelPercent = fuelFraction.mul(100);
 
             if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 2), "m/s");
-            if (resultA2) setElement(resultA2, rl.formatSignificant(relDistKm, "0", 1), "km");
+            if (resultA2) setElement(resultA2, rl.formatSignificant(coordTimeDays, "0", 1), "days");
             if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
             if (resultA2b) {
                 const distanceFormatted = rl.formatDistanceAutoUnit(relDistC, relDistKm);
