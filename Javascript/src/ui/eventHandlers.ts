@@ -208,7 +208,7 @@ export function createAccelHandler(
             const fuelPercent = fuelFraction.mul(100);
 
             if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 2), "m/s");
-            if (resultA2) setElement(resultA2, rl.formatSignificant(coordTimeDays, "0", 1), "days");
+            if (resultA2) setElement(resultA2, rl.formatSignificant(coordTimeDays, "", 1), "days");
             if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
             if (resultA2b) {
                 const distanceFormatted = rl.formatDistanceAutoUnit(relDistC, relDistKm);
@@ -372,7 +372,7 @@ export function createFlipBurnHandler(
 
             if (resultFlip1) setElement(resultFlip1, rl.formatSignificant(properTime, "0", 2), "yrs");
             if (resultFlip2) setElement(resultFlip2, rl.formatSignificant(peak, "9", 2), "c");
-            if (resultFlip4) setElement(resultFlip4, rl.formatSignificant(coordTime, "0", 2), "yrs");
+            if (resultFlip4) setElement(resultFlip4, rl.formatSignificant(coordTime, "", 1), "yrs");
             if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
             if (resultFlip5) setElement(resultFlip5, `1m becomes ${metre}m`, "");
             if (resultFlip6) setElement(resultFlip6, `1s becomes ${sec}s`, "");
