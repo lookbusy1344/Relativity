@@ -783,3 +783,27 @@ export function formatMassWithUnit(fuelMass: Decimal): string {
     // Show in Observable Universe masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
     return `${formatSignificant(observableUniverseMasses, "", 2, true)} Observable Universe masses (${fuelMassScientific} kg)`;
 }
+
+/**
+ * Format distance with automatic unit selection based on magnitude
+ * Uses light years for distances >= 0.1 ly, kilometers for smaller distances
+ *
+ * @param distanceInLightYears - Distance in light years (Decimal)
+ * @param distanceInKm - Distance in kilometers (Decimal)
+ * @returns Object with formatted value and units
+ */
+export function formatDistanceAutoUnit(distanceInLightYears: Decimal, distanceInKm: Decimal): { value: string; units: string } {
+    const threshold = new Decimal('0.1');
+
+    if (distanceInLightYears.gte(threshold)) {
+        return {
+            value: formatSignificant(distanceInLightYears, "0", 3, true),
+            units: 'ly'
+        };
+    } else {
+        return {
+            value: formatSignificant(distanceInKm, "0", 1),
+            units: 'km'
+        };
+    }
+}

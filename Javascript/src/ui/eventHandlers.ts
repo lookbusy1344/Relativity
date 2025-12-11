@@ -208,7 +208,10 @@ export function createAccelHandler(
             if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 2), "m/s");
             if (resultA2) setElement(resultA2, rl.formatSignificant(relDistKm, "0", 1), "km");
             if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
-            if (resultA2b) setElement(resultA2b, rl.formatSignificant(relDistC, "0", 3), "ly");
+            if (resultA2b) {
+                const distanceFormatted = rl.formatDistanceAutoUnit(relDistC, relDistKm);
+                setElement(resultA2b, distanceFormatted.value, distanceFormatted.units);
+            }
             if (resultAFuel) setElement(resultAFuel, rl.formatMassWithUnit(fuelMass), "");
             if (resultAFuelFraction) setElement(resultAFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
 

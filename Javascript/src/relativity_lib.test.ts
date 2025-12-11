@@ -1743,4 +1743,38 @@ describe('formatMassWithUnit', () => {
             expect(result).toContain('Observable Universe masses');
         });
     });
+
+    describe('formatDistanceAutoUnit', () => {
+        it('should format distance in light years when >= 0.1 ly', () => {
+            const distanceLy = new Decimal('0.5');
+            const distanceKm = new Decimal('4730400000000'); // 0.5 ly in km
+            const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm);
+            expect(result.value).toBe('0.500');
+            expect(result.units).toBe('ly');
+        });
+
+        it('should format distance in km when < 0.1 ly', () => {
+            const distanceLy = new Decimal('0.05');
+            const distanceKm = new Decimal('473040000000'); // 0.05 ly in km
+            const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm);
+            expect(result.value).toBe('473,040,000,000');
+            expect(result.units).toBe('km');
+        });
+
+        it('should use light years at the boundary of 0.1 ly', () => {
+            const distanceLy = new Decimal('0.1');
+            const distanceKm = new Decimal('946080000000'); // 0.1 ly in km
+            const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm);
+            expect(result.value).toBe('0.100');
+            expect(result.units).toBe('ly');
+        });
+
+        it('should format very small distances in km', () => {
+            const distanceLy = new Decimal('0.00001');
+            const distanceKm = new Decimal('94608000'); // 0.00001 ly in km
+            const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm);
+            expect(result.value).toBe('94,608,000');
+            expect(result.units).toBe('km');
+        });
+    });
 });
