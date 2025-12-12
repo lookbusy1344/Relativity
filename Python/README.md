@@ -26,7 +26,7 @@ The maths needed for special relativity is not difficult, there's nothing more c
 
 [Star distribution within the galaxy](https://github.com/lookbusy1344/Relativity/blob/main/Python/Star%20distribution.ipynb) (useful for knowing how many stars we can reach for a particular journey)
 
-[FTL travel and causality violations](https://github.com/lookbusy1344/Relativity/blob/main/Python/FTL%20Travel.ipynb)
+[FTL travel and causality violations](https://github.com/lookbusy1344/Relativity/blob/main/Python/FTL%20Travel.ipynb) (why faster-than-light travel breaks causality, even with hypothetical warp drives)
 
 ## Web-based calculator
 
