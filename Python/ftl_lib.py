@@ -1,11 +1,11 @@
-import numpy as np
+import math
 
 
 def lorentz_gamma(v: float) -> float:
     """Calculate the Lorentz factor gamma for a given velocity (as fraction of c)."""
     if v < 0 or v >= 1.0:
-        return np.nan
-    return 1.0 / np.sqrt(1.0 - v**2)
+        raise ValueError(f"v must be in [0, 1), got {v}")
+    return 1.0 / math.sqrt(1.0 - v**2)
 
 
 def calculate_time_travel(
@@ -41,18 +41,14 @@ def calculate_time_travel(
             - 'earth_time_elapsed': Total time elapsed on Earth during the trip.
             - 'traveler_time_elapsed': Total proper time experienced by traveler.
             - 'simultaneity_shift': The relativistic simultaneity shift from the boost.
-        Returns dict with np.nan values if boost_speed_c is invalid.
+
+    Raises:
+        ValueError: If boost_speed_c is not in the range [0, 1).
     """
 
     # Check for invalid boost speed
     if boost_speed_c < 0 or boost_speed_c >= 1.0:
-        print("Error: Boost speed must be between 0 and 1 (exclusive of 1).")
-        return {
-            "time_displacement": np.nan,
-            "earth_time_elapsed": np.nan,
-            "traveler_time_elapsed": np.nan,
-            "simultaneity_shift": np.nan,
-        }
+        raise ValueError(f"boost_speed_c must be in [0, 1), got {boost_speed_c}")
 
     # Calculate Lorentz factor for time dilation during boost phase
     gamma = lorentz_gamma(boost_speed_c)
