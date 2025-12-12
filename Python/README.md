@@ -26,6 +26,8 @@ The maths needed for special relativity is not difficult, there's nothing more c
 
 [Star distribution within the galaxy](https://github.com/lookbusy1344/Relativity/blob/main/Python/Star%20distribution.ipynb) (useful for knowing how many stars we can reach for a particular journey)
 
+[FTL travel and causality violations](https://github.com/lookbusy1344/Relativity/blob/main/Python/FTL%20Travel.ipynb)
+
 ## Web-based calculator
 
 There is also a web-based Javascript calculator with visualizations, available here https://lookbusy1344.github.io/Relativity/
