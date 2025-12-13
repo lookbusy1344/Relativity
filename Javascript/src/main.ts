@@ -8,6 +8,7 @@ import {
     createFlipBurnHandler,
     createTwinParadoxHandler,
     createAddVelocitiesHandler,
+    createWarpDriveHandler,
     createPionAccelTimeHandler,
     createPionFuelFractionHandler,
     createSpacetimeIntervalHandler,
@@ -297,6 +298,23 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getInputElement('v1Input'),
             () => getInputElement('v2Input'),
             () => getResultElement('resultAdd')
+        )
+    );
+
+    // Warp drive time travel
+    addEventListener(
+        getButtonElement('warpButton'),
+        'click',
+        createWarpDriveHandler(
+            () => getInputElement('warpDistanceInput'),
+            () => getInputElement('warpBoostInput'),
+            () => getInputElement('warpTransitInput'),
+            () => [
+                getResultElement('resultWarpDisplacement'),
+                getResultElement('resultWarpSimultaneity'),
+                getResultElement('resultWarpEarthTime'),
+                getResultElement('resultWarpTravelerTime')
+            ]
         )
     );
 

@@ -21,6 +21,13 @@ export interface ITwinParadox {
     velocity: Decimal;
 }
 
+export interface IWarpDriveTimeTravel {
+    timeDisplacement: Decimal;      // net time travel in seconds (negative = past)
+    simultaneityShift: Decimal;      // relativistic effect in seconds
+    earthTimeElapsed: Decimal;       // coordinate time in seconds
+    travelerTime: Decimal;           // proper time in seconds
+}
+
 // Physical constants
 export const DecimalNaN: Decimal = new Decimal(NaN);
 export const DecimalInfinity: Decimal = new Decimal(Infinity);
@@ -226,6 +233,59 @@ export function twinParadox(velocity: NumberInput, properTime: NumberInput): ITw
         oneWayDistance: oneWayDist,
         totalDistance: totalDist,
         velocity: vel
+    };
+}
+
+/**
+ * Calculate time travel effects from FTL travel combined with relativistic boost
+ * Based on the relativity of simultaneity paradox
+ * @param distanceMeters Distance traveled at FTL (in metres)
+ * @param boostVelocityC Boost velocity as fraction of c (0 to 1, exclusive)
+ * @param transitTimeSeconds Time spent in FTL transit (in seconds)
+ * @returns Time travel results including displacement and simultaneity shift
+ */
+export function warpDriveTimeTravel(
+    distanceMeters: NumberInput,
+    boostVelocityC: NumberInput,
+    transitTimeSeconds: NumberInput
+): IWarpDriveTimeTravel {
+    const dist = ensure(distanceMeters);
+    const boostC = ensure(boostVelocityC);
+    const transitTime = ensure(transitTimeSeconds);
+
+    // Validate boost velocity is in valid range [0, 1)
+    if (boostC.lt(0) || boostC.gte(one)) {
+        return {
+            timeDisplacement: DecimalNaN,
+            simultaneityShift: DecimalNaN,
+            earthTimeElapsed: DecimalNaN,
+            travelerTime: DecimalNaN
+        };
+    }
+
+    // Calculate boost velocity in m/s
+    const boostVelocity = boostC.mul(c);
+
+    // Simultaneity shift: Δt = (v * d) / c²
+    // This is the key to the time travel paradox
+    const cSquared = c.mul(c);
+    const simultaneityShift = boostVelocity.mul(dist).div(cSquared);
+
+    // Time displacement = transit time - simultaneity shift
+    // Negative values mean travel into the past
+    const timeDisplacement = transitTime.minus(simultaneityShift);
+
+    // For the simplified case (instant warp, no boost duration):
+    // Earth time = transit time
+    // Traveler time = transit time
+    const earthTime = transitTime;
+    const travelerTime = transitTime;
+
+    return {
+        timeDisplacement,
+        simultaneityShift,
+        earthTimeElapsed: earthTime,
+        travelerTime
     };
 }
 

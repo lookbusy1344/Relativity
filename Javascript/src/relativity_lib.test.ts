@@ -1778,3 +1778,98 @@ describe('formatMassWithUnit', () => {
         });
     });
 });
+
+describe('warpDriveTimeTravel', () => {
+    describe('basic time travel calculation', () => {
+        it('should calculate time displacement for 30 light-minutes at 0.9c boost with instant warp', () => {
+            // 30 light-minutes = 30 * 60 seconds * c metres/second
+            const distanceMetres = rl.c.times(30).times(60);
+            const boostVelocityC = new Decimal('0.9');
+            const transitTimeSeconds = new Decimal('0');
+
+            const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitTimeSeconds);
+
+            // Expected: simultaneity shift = (v * d) / c² = 0.9 * 1800 seconds = 1620 seconds
+            // Time displacement = transit time - simultaneity shift = 0 - 1620 = -1620 seconds (into the past)
+            expect(result.timeDisplacement.toNumber()).toBeCloseTo(-1620, 1);
+            expect(result.simultaneityShift.toNumber()).toBeCloseTo(1620, 1);
+            expect(result.earthTimeElapsed.toNumber()).toBeCloseTo(0, 1);
+            expect(result.travelerTime.toNumber()).toBeCloseTo(0, 1);
+        });
+    });
+
+    describe('edge cases', () => {
+        it('should return zero time displacement for zero velocity', () => {
+            const distanceMetres = rl.c.times(30).times(60);
+            const boostVelocityC = new Decimal('0');
+            const transitTimeSeconds = new Decimal('0');
+
+            const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitTimeSeconds);
+
+            // No boost velocity = no simultaneity shift = no time travel
+            expect(result.timeDisplacement.toNumber()).toBe(0);
+            expect(result.simultaneityShift.toNumber()).toBe(0);
+        });
+
+        it('should handle velocity very close to c', () => {
+            const distanceMetres = rl.c.times(30).times(60);
+            const boostVelocityC = new Decimal('0.999');
+            const transitTimeSeconds = new Decimal('0');
+
+            const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitTimeSeconds);
+
+            // Very high velocity = very large simultaneity shift
+            // 0.999 * 1800 = 1798.2 seconds
+            expect(result.timeDisplacement.toNumber()).toBeCloseTo(-1798.2, 1);
+            expect(result.simultaneityShift.toNumber()).toBeCloseTo(1798.2, 1);
+        });
+
+        it('should return NaN for invalid velocity >= c', () => {
+            const distanceMetres = rl.c.times(30).times(60);
+            const boostVelocityC = new Decimal('1.0');
+            const transitTimeSeconds = new Decimal('0');
+
+            const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitTimeSeconds);
+
+            expect(result.timeDisplacement.isNaN()).toBe(true);
+            expect(result.simultaneityShift.isNaN()).toBe(true);
+        });
+
+        it('should return NaN for negative velocity', () => {
+            const distanceMetres = rl.c.times(30).times(60);
+            const boostVelocityC = new Decimal('-0.5');
+            const transitTimeSeconds = new Decimal('0');
+
+            const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitTimeSeconds);
+
+            expect(result.timeDisplacement.isNaN()).toBe(true);
+        });
+
+        it('should handle slow warp reducing time travel', () => {
+            // If FTL takes time, it reduces the time travel effect
+            const distanceMetres = rl.c.times(30).times(60);
+            const boostVelocityC = new Decimal('0.9');
+            const transitTimeSeconds = new Decimal('1000'); // 1000 seconds of transit
+
+            const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitTimeSeconds);
+
+            // Simultaneity shift = 1620 seconds
+            // Time displacement = 1000 - 1620 = -620 seconds (less time travel)
+            expect(result.timeDisplacement.toNumber()).toBeCloseTo(-620, 1);
+            expect(result.earthTimeElapsed.toNumber()).toBe(1000);
+            expect(result.travelerTime.toNumber()).toBe(1000);
+        });
+
+        it('should allow forward time travel when transit time exceeds simultaneity shift', () => {
+            const distanceMetres = rl.c.times(30).times(60);
+            const boostVelocityC = new Decimal('0.9');
+            const transitTimeSeconds = new Decimal('2000'); // Very slow warp
+
+            const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitTimeSeconds);
+
+            // Simultaneity shift = 1620 seconds
+            // Time displacement = 2000 - 1620 = 380 seconds (into the future!)
+            expect(result.timeDisplacement.toNumber()).toBeCloseTo(380, 1);
+        });
+    });
+});

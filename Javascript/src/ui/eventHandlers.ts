@@ -84,6 +84,56 @@ export function createAddVelocitiesHandler(
     };
 }
 
+export function createWarpDriveHandler(
+    getDistanceInput: () => HTMLInputElement | null,
+    getBoostInput: () => HTMLInputElement | null,
+    getTransitInput: () => HTMLInputElement | null,
+    getResults: () => (HTMLElement | null)[]
+): () => void {
+    return () => {
+        const distanceInput = getDistanceInput();
+        const boostInput = getBoostInput();
+        const transitInput = getTransitInput();
+        const results = getResults();
+        if (!distanceInput || !boostInput || !transitInput) return;
+        if (results.length < 4 || results.some(r => r === null)) return;
+
+        // Convert inputs from user units to SI units
+        // Distance: light-minutes -> metres (multiply by c * 60)
+        const distanceLightMinutes = rl.ensure(distanceInput.value ?? 30);
+        const distanceMetres = distanceLightMinutes.mul(rl.c).mul(60);
+
+        // Boost velocity: already fraction of c
+        const boostVelocityC = rl.ensure(boostInput.value ?? 0.9);
+
+        // Transit time: minutes -> seconds
+        const transitMinutes = rl.ensure(transitInput.value ?? 0);
+        const transitSeconds = transitMinutes.mul(60);
+
+        // Calculate
+        const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitSeconds);
+
+        // Convert results back to user-friendly units (seconds -> minutes)
+        const displacementMinutes = result.timeDisplacement.div(60);
+        const simultaneityMinutes = result.simultaneityShift.div(60);
+        const earthTimeMinutes = result.earthTimeElapsed.div(60);
+        const travelerTimeMinutes = result.travelerTime.div(60);
+
+        // Format and display
+        const [dispResult, simResult, earthResult, travelerResult] = results;
+
+        // Time displacement with descriptive text
+        const dispValue = rl.formatSignificant(displacementMinutes.abs(), "0", 2);
+        const direction = displacementMinutes.isNegative() ? "into the past" : "into the future";
+        setElement(dispResult!, `${dispValue} minutes ${direction}`, "");
+
+        // Other results
+        setElement(simResult!, rl.formatSignificant(simultaneityMinutes, "0", 2), "minutes");
+        setElement(earthResult!, rl.formatSignificant(earthTimeMinutes, "0", 2), "minutes");
+        setElement(travelerResult!, rl.formatSignificant(travelerTimeMinutes, "0", 2), "minutes");
+    };
+}
+
 export function createAccelHandler(
     getAccelInput: () => HTMLInputElement | null,
     getTimeInput: () => HTMLInputElement | null,

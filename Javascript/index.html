@@ -506,6 +506,50 @@
 				<div class="tab-pane fade" id="conversions" role="tabpanel">
 					<div class="calc-section">
 						<div class="calc-label">
+							Warp Drive Time Travel
+							<a href="../Python/FTL Travel.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Distance (light-minutes)</div>
+								<input type="number" id="warpDistanceInput" placeholder="e.g., 30" value="30"
+									class="form-control" step="0.01" min="0.01">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Boost velocity (c)</div>
+								<input type="number" id="warpBoostInput" placeholder="e.g., 0.9" value="0.9"
+									class="form-control" step="0.01" min="0.001" max="0.999">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">FTL transit time (minutes)</div>
+								<input type="number" id="warpTransitInput" placeholder="e.g., 0" value="0"
+									class="form-control" step="0.1" min="0">
+							</div>
+							<button type="button" class="btn-calculate" id="warpButton"
+								>Calculate</button>
+						</div>
+						<div class="result-grid" style="margin-top: 1rem;">
+							<div class="result-item">
+								<div class="result-item-label">Time displacement</div>
+								<div class="result-item-value" id="resultWarpDisplacement">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Simultaneity shift</div>
+								<div class="result-item-value" id="resultWarpSimultaneity">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Earth time elapsed</div>
+								<div class="result-item-value" id="resultWarpEarthTime">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Traveler proper time</div>
+								<div class="result-item-value" id="resultWarpTravelerTime">-</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
 							Lorentz Factor from Velocity
 							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
 						</div>
