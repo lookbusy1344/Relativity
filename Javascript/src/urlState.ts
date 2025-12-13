@@ -86,7 +86,10 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
             dry: 'pionDryMassInput',
             eff: 'pionEfficiencyInput',
             thrustTime: 'fuelFractionTimeInput',
-            thrustEff: 'fuelFractionEffInput'
+            thrustEff: 'fuelFractionEffInput',
+            warpDist: 'warpDistanceInput',
+            warpBoost: 'warpBoostInput',
+            warpTransit: 'warpTransitInput'
         },
         buttonId: '',  // Determined by calc type
         tabId: 'conversions-tab'
@@ -100,7 +103,8 @@ const CALC_CONFIGS: Record<string, { params: string[], buttonId: string }> = {
     velocity: { params: ['vel'], buttonId: 'velocityButton' },
     addvel: { params: ['vel1', 'vel2'], buttonId: 'addButton' },
     pion: { params: ['fuel', 'dry', 'eff'], buttonId: 'pionAccelButton' },
-    fuelfrac: { params: ['thrustTime', 'thrustEff'], buttonId: 'fuelFractionButton' }
+    fuelfrac: { params: ['thrustTime', 'thrustEff'], buttonId: 'fuelFractionButton' },
+    warp: { params: ['warpDist', 'warpBoost', 'warpTransit'], buttonId: 'warpButton' }
 };
 
 /**
