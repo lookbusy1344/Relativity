@@ -1942,27 +1942,65 @@ describe('warpDriveTimeTravel', () => {
             // If FTL takes time, it reduces the time travel effect
             const distanceMetres = rl.c.times(30).times(60);
             const boostVelocityC = new Decimal('0.9');
-            const transitTimeSeconds = new Decimal('1000'); // 1000 seconds of transit
+            const transitTimeSeconds = new Decimal('1000'); // 1000 seconds ONE-WAY transit
 
             const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitTimeSeconds);
 
             // Simultaneity shift = 1620 seconds
-            // Time displacement = 1000 - 1620 = -620 seconds (less time travel)
-            expect(result.timeDisplacement.toNumber()).toBeCloseTo(-620, 1);
-            expect(result.earthTimeElapsed.toNumber()).toBe(1000);
-            expect(result.travelerTime.toNumber()).toBe(1000);
+            // Round trip = 2 × 1000 = 2000 seconds
+            // Time displacement = 2000 - 1620 = 380 seconds (into the future!)
+            expect(result.timeDisplacement.toNumber()).toBeCloseTo(380, 1);
+            expect(result.earthTimeElapsed.toNumber()).toBe(2000);
+            expect(result.travelerTime.toNumber()).toBe(2000);
         });
 
         it('should allow forward time travel when transit time exceeds simultaneity shift', () => {
             const distanceMetres = rl.c.times(30).times(60);
             const boostVelocityC = new Decimal('0.9');
-            const transitTimeSeconds = new Decimal('2000'); // Very slow warp
+            const transitTimeSeconds = new Decimal('1000'); // 1000 seconds ONE-WAY, 2000 round trip
 
             const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitTimeSeconds);
 
             // Simultaneity shift = 1620 seconds
+            // Round trip = 2 × 1000 = 2000 seconds
             // Time displacement = 2000 - 1620 = 380 seconds (into the future!)
             expect(result.timeDisplacement.toNumber()).toBeCloseTo(380, 1);
+            expect(result.earthTimeElapsed.toNumber()).toBe(2000);
+            expect(result.travelerTime.toNumber()).toBe(2000);
+        });
+
+        it('should match Python reference calculation with all parameters', () => {
+            // This matches the Python example:
+            // distance_ly=10.0, boost_speed_c=0.8,
+            // outbound_warp_time_years=0.5, return_warp_time_years=0.5,
+            // boost_duration_years=1.0
+            
+            // Convert to SI units (light-years to meters, years to seconds)
+            const lightYear = rl.c.times(365.25).times(24).times(60).times(60);
+            const yearInSeconds = 365.25 * 24 * 60 * 60;
+            
+            const distanceMetres = lightYear.times(10);
+            const boostVelocityC = new Decimal('0.8');
+            const transitTimeSeconds = new Decimal(0.5 * yearInSeconds); // 0.5 years ONE-WAY
+            const boostDurationSeconds = new Decimal(1.0 * yearInSeconds); // 1 year
+            
+            const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitTimeSeconds, boostDurationSeconds);
+            
+            // Expected results from Python:
+            // Simultaneity shift: 8.000 years
+            // Earth time elapsed: 2.667 years
+            // Traveler time: 2.000 years
+            // Time displacement: -5.333 years
+            
+            const simultaneityYears = result.simultaneityShift.div(yearInSeconds);
+            const earthTimeYears = result.earthTimeElapsed.div(yearInSeconds);
+            const travelerTimeYears = result.travelerTime.div(yearInSeconds);
+            const displacementYears = result.timeDisplacement.div(yearInSeconds);
+            
+            expect(simultaneityYears.toNumber()).toBeCloseTo(8.0, 2);
+            expect(earthTimeYears.toNumber()).toBeCloseTo(2.667, 2);
+            expect(travelerTimeYears.toNumber()).toBeCloseTo(2.0, 2);
+            expect(displacementYears.toNumber()).toBeCloseTo(-5.333, 2);
         });
     });
 });
