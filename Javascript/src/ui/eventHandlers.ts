@@ -112,9 +112,9 @@ export function createWarpDriveHandler(
         const transitMinutes = rl.ensure(transitInput.value ?? 0);
         const transitSeconds = transitMinutes.mul(60);
 
-        // Boost duration: days -> seconds (multiply by 86400)
-        const boostDurationDays = rl.ensure(boostDurationInput.value ?? 0);
-        const boostDurationSeconds = boostDurationDays.mul(86400);
+        // Boost duration: minutes -> seconds
+        const boostDurationMinutes = rl.ensure(boostDurationInput.value ?? 0);
+        const boostDurationSeconds = boostDurationMinutes.mul(60);
 
         // Calculate
         const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitSeconds, boostDurationSeconds);
