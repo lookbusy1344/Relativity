@@ -119,24 +119,32 @@ export function createWarpDriveHandler(
         // Calculate
         const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitSeconds, boostDurationSeconds);
 
+        // Calculate Lorentz factor for the boost velocity
+        const boostVelocityMs = boostVelocityC.mul(rl.c);
+        const lorentzFactor = rl.lorentzFactor(boostVelocityMs);
+
         // Convert results back to user-friendly units (seconds -> minutes)
         const displacementMinutes = result.timeDisplacement.div(60);
         const simultaneityMinutes = result.simultaneityShift.div(60);
-        const earthTimeMinutes = result.earthTimeElapsed.div(60);
         const travelerTimeMinutes = result.travelerTime.div(60);
 
         // Format and display
-        const [dispResult, simResult, earthResult, travelerResult] = results;
+        const [dispResult, simResult, lorentzResult, travelerResult] = results;
 
-        // Time displacement with descriptive text
-        const dispValue = rl.formatSignificant(displacementMinutes.abs(), "0", 2);
+        // Time displacement with descriptive text and auto-scaled units
+        const dispFormatted = rl.formatTimeWithUnit(displacementMinutes.abs());
         const direction = displacementMinutes.isNegative() ? "into the past" : "into the future";
-        setElement(dispResult!, `${dispValue} minutes ${direction}`, "");
+        setElement(dispResult!, `${dispFormatted.value} ${dispFormatted.units} ${direction}`, "");
 
-        // Other results
-        setElement(simResult!, rl.formatSignificant(simultaneityMinutes, "0", 2), "minutes");
-        setElement(earthResult!, rl.formatSignificant(earthTimeMinutes, "0", 2), "minutes");
-        setElement(travelerResult!, rl.formatSignificant(travelerTimeMinutes, "0", 2), "minutes");
+        // Other results with auto-scaled units
+        const simFormatted = rl.formatTimeWithUnit(simultaneityMinutes);
+        setElement(simResult!, simFormatted.value, simFormatted.units);
+
+        // Lorentz factor (dimensionless, show 3 significant figures)
+        setElement(lorentzResult!, rl.formatSignificant(lorentzFactor, "", 3), "");
+
+        const travelerFormatted = rl.formatTimeWithUnit(travelerTimeMinutes);
+        setElement(travelerResult!, travelerFormatted.value, travelerFormatted.units);
     };
 }
 

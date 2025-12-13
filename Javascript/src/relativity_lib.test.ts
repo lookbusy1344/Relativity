@@ -1777,6 +1777,99 @@ describe('formatMassWithUnit', () => {
             expect(result.units).toBe('km');
         });
     });
+
+    describe('formatTimeWithUnit', () => {
+        it('should format time in minutes when < 120 minutes', () => {
+            const timeMinutes = new Decimal('60');
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('60');
+            expect(result.units).toBe('minutes');
+        });
+
+        it('should format time in hours when >= 120 minutes and < 1 day', () => {
+            const timeMinutes = new Decimal('180'); // 3 hours
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('3.0');
+            expect(result.units).toBe('hours');
+        });
+
+        it('should format time in days when >= 1 day and < 365 days', () => {
+            const timeMinutes = new Decimal('2880'); // 2 days
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('2.0');
+            expect(result.units).toBe('days');
+        });
+
+        it('should format time in years when >= 365 days', () => {
+            const timeMinutes = new Decimal('525600'); // 365 days
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('1.0');
+            expect(result.units).toBe('years');
+        });
+
+        it('should use minutes at boundary of 119.9 minutes', () => {
+            const timeMinutes = new Decimal('119.9');
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('119.9');
+            expect(result.units).toBe('minutes');
+        });
+
+        it('should use hours at boundary of 120 minutes', () => {
+            const timeMinutes = new Decimal('120');
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('2.0');
+            expect(result.units).toBe('hours');
+        });
+
+        it('should use hours at boundary of 1439.9 minutes', () => {
+            const timeMinutes = new Decimal('1439.9');
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('24.0');
+            expect(result.units).toBe('hours');
+        });
+
+        it('should use days at boundary of 1440 minutes (1 day)', () => {
+            const timeMinutes = new Decimal('1440');
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('1.0');
+            expect(result.units).toBe('days');
+        });
+
+        it('should use days just before 365 days', () => {
+            const timeMinutes = new Decimal('525599'); // 364.999+ days
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('365.0');
+            expect(result.units).toBe('days');
+        });
+
+        it('should handle negative values (for time displacement into past)', () => {
+            const timeMinutes = new Decimal('-60');
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('-60');
+            expect(result.units).toBe('minutes');
+        });
+
+        it('should handle negative values in hours', () => {
+            const timeMinutes = new Decimal('-180'); // -3 hours
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('-3.0');
+            expect(result.units).toBe('hours');
+        });
+
+        it('should format very small time values', () => {
+            const timeMinutes = new Decimal('0.5');
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('0.5');
+            expect(result.units).toBe('minutes');
+        });
+
+        it('should format large time values in years', () => {
+            const timeMinutes = new Decimal('1051200'); // ~2 years
+            const result = rl.formatTimeWithUnit(timeMinutes);
+            expect(result.value).toBe('2.0');
+            expect(result.units).toBe('years');
+        });
+    });
 });
 
 describe('warpDriveTimeTravel', () => {

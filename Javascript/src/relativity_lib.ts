@@ -875,3 +875,50 @@ export function formatDistanceAutoUnit(distanceInLightYears: Decimal, distanceIn
         };
     }
 }
+
+/**
+ * Format time with automatic unit selection based on magnitude
+ * - Minutes if < 120 minutes (2 hours)
+ * - Hours (1 dp) if < 1 day (1440 minutes)
+ * - Days (1 dp) if < 365 days
+ * - Years otherwise
+ *
+ * @param timeInMinutes - Time in minutes (Decimal)
+ * @returns Object with formatted value and units
+ */
+export function formatTimeWithUnit(timeInMinutes: Decimal): { value: string; units: string } {
+    const absTime = timeInMinutes.abs();
+
+    if (absTime.lt(120)) {
+        // Less than 2 hours: show in minutes with 2 decimal places
+        return {
+            value: formatSignificant(timeInMinutes, "", 2),
+            units: 'minutes'
+        };
+    }
+
+    const timeInHours = timeInMinutes.div(60);
+    if (absTime.lt(1440)) {
+        // Less than 1 day: show in hours with 1 decimal place
+        return {
+            value: formatSignificant(timeInHours, "", 1, true),
+            units: 'hours'
+        };
+    }
+
+    const timeInDays = timeInMinutes.div(1440);
+    if (absTime.lt(365 * 1440)) {
+        // Less than 365 days: show in days with 1 decimal place
+        return {
+            value: formatSignificant(timeInDays, "", 1, true),
+            units: 'days'
+        };
+    }
+
+    // 365 days or more: show in years with 1 decimal place
+    const timeInYears = timeInDays.div(365);
+    return {
+        value: formatSignificant(timeInYears, "", 1, true),
+        units: 'years'
+    };
+}
