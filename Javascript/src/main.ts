@@ -309,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getInputElement('warpDistanceInput'),
             () => getInputElement('warpBoostInput'),
             () => getInputElement('warpTransitInput'),
+            () => getInputElement('warpBoostDurationInput'),
             () => [
                 getResultElement('resultWarpDisplacement'),
                 getResultElement('resultWarpSimultaneity'),

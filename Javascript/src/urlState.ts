@@ -89,7 +89,8 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
             thrustEff: 'fuelFractionEffInput',
             warpDist: 'warpDistanceInput',
             warpBoost: 'warpBoostInput',
-            warpTransit: 'warpTransitInput'
+            warpTransit: 'warpTransitInput',
+            warpDuration: 'warpBoostDurationInput'
         },
         buttonId: '',  // Determined by calc type
         tabId: 'conversions-tab'
@@ -104,7 +105,7 @@ const CALC_CONFIGS: Record<string, { params: string[], buttonId: string }> = {
     addvel: { params: ['vel1', 'vel2'], buttonId: 'addButton' },
     pion: { params: ['fuel', 'dry', 'eff'], buttonId: 'pionAccelButton' },
     fuelfrac: { params: ['thrustTime', 'thrustEff'], buttonId: 'fuelFractionButton' },
-    warp: { params: ['warpDist', 'warpBoost', 'warpTransit'], buttonId: 'warpButton' }
+    warp: { params: ['warpDist', 'warpBoost', 'warpTransit', 'warpDuration'], buttonId: 'warpButton' }
 };
 
 /**
@@ -367,21 +368,55 @@ export function updateURL(): void {
  * Update URL for calc tab (needs to track which calculator is active)
  */
 function updateCalcURL(params: URLSearchParams): void {
-    // This is simplified - in full implementation, track which calc section was last used
-    // For now, just include all non-default calc params
     const tabConfig = TAB_CONFIGS.calc;
 
-    for (const [paramName, inputId] of Object.entries(tabConfig.params)) {
-        if (paramName === 'calc') continue;  // Skip calc type for now
+    // Infer which calculator is active by checking which params have non-default values
+    let activeCalcType: string | null = null;
 
-        const input = document.getElementById(inputId) as HTMLInputElement;
-        if (!input) continue;
+    // Check each calculator's parameters
+    for (const [calcType, calcConfig] of Object.entries(CALC_CONFIGS)) {
+        let hasNonDefault = false;
 
-        const currentValue = input.value;
-        const defaultValue = getDefaultValue(inputId);
+        for (const paramName of calcConfig.params) {
+            const inputId = tabConfig.params[paramName];
+            if (!inputId) continue;
 
-        if (currentValue !== defaultValue && isValidNumber(currentValue)) {
-            params.set(paramName, currentValue);
+            const input = document.getElementById(inputId) as HTMLInputElement;
+            if (!input) continue;
+
+            const currentValue = input.value;
+            const defaultValue = getDefaultValue(inputId);
+
+            if (currentValue !== defaultValue && isValidNumber(currentValue)) {
+                hasNonDefault = true;
+                break;
+            }
+        }
+
+        if (hasNonDefault) {
+            activeCalcType = calcType;
+            break;  // Use first calculator with non-default values
+        }
+    }
+
+    // If we found an active calculator, only include its parameters
+    if (activeCalcType && CALC_CONFIGS[activeCalcType]) {
+        params.set('calc', activeCalcType);
+        const calcConfig = CALC_CONFIGS[activeCalcType];
+
+        for (const paramName of calcConfig.params) {
+            const inputId = tabConfig.params[paramName];
+            if (!inputId) continue;
+
+            const input = document.getElementById(inputId) as HTMLInputElement;
+            if (!input) continue;
+
+            const currentValue = input.value;
+            const defaultValue = getDefaultValue(inputId);
+
+            if (currentValue !== defaultValue && isValidNumber(currentValue)) {
+                params.set(paramName, currentValue);
+            }
         }
     }
 }

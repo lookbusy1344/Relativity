@@ -88,14 +88,16 @@ export function createWarpDriveHandler(
     getDistanceInput: () => HTMLInputElement | null,
     getBoostInput: () => HTMLInputElement | null,
     getTransitInput: () => HTMLInputElement | null,
+    getBoostDurationInput: () => HTMLInputElement | null,
     getResults: () => (HTMLElement | null)[]
 ): () => void {
     return () => {
         const distanceInput = getDistanceInput();
         const boostInput = getBoostInput();
         const transitInput = getTransitInput();
+        const boostDurationInput = getBoostDurationInput();
         const results = getResults();
-        if (!distanceInput || !boostInput || !transitInput) return;
+        if (!distanceInput || !boostInput || !transitInput || !boostDurationInput) return;
         if (results.length < 4 || results.some(r => r === null)) return;
 
         // Convert inputs from user units to SI units
@@ -110,8 +112,12 @@ export function createWarpDriveHandler(
         const transitMinutes = rl.ensure(transitInput.value ?? 0);
         const transitSeconds = transitMinutes.mul(60);
 
+        // Boost duration: days -> seconds (multiply by 86400)
+        const boostDurationDays = rl.ensure(boostDurationInput.value ?? 0);
+        const boostDurationSeconds = boostDurationDays.mul(86400);
+
         // Calculate
-        const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitSeconds);
+        const result = rl.warpDriveTimeTravel(distanceMetres, boostVelocityC, transitSeconds, boostDurationSeconds);
 
         // Convert results back to user-friendly units (seconds -> minutes)
         const displacementMinutes = result.timeDisplacement.div(60);

@@ -242,16 +242,19 @@ export function twinParadox(velocity: NumberInput, properTime: NumberInput): ITw
  * @param distanceMeters Distance traveled at FTL (in metres)
  * @param boostVelocityC Boost velocity as fraction of c (0 to 1, exclusive)
  * @param transitTimeSeconds Time spent in FTL transit (in seconds)
+ * @param boostDurationSeconds Time spent at boost velocity (in seconds)
  * @returns Time travel results including displacement and simultaneity shift
  */
 export function warpDriveTimeTravel(
     distanceMeters: NumberInput,
     boostVelocityC: NumberInput,
-    transitTimeSeconds: NumberInput
+    transitTimeSeconds: NumberInput,
+    boostDurationSeconds: NumberInput = 0
 ): IWarpDriveTimeTravel {
     const dist = ensure(distanceMeters);
     const boostC = ensure(boostVelocityC);
     const transitTime = ensure(transitTimeSeconds);
+    const boostDuration = ensure(boostDurationSeconds);
 
     // Validate boost velocity is in valid range [0, 1)
     if (boostC.lt(0) || boostC.gte(one)) {
@@ -266,20 +269,25 @@ export function warpDriveTimeTravel(
     // Calculate boost velocity in m/s
     const boostVelocity = boostC.mul(c);
 
+    // Calculate Lorentz factor for time dilation during boost phase
+    const gamma = lorentzFactor(boostVelocity);
+
     // Simultaneity shift: Δt = (v * d) / c²
     // This is the key to the time travel paradox
     const cSquared = c.mul(c);
     const simultaneityShift = boostVelocity.mul(dist).div(cSquared);
 
-    // Time displacement = transit time - simultaneity shift
-    // Negative values mean travel into the past
-    const timeDisplacement = transitTime.minus(simultaneityShift);
+    // Earth time includes time dilation during boost phase
+    // Earth time = transit time + (γ × boost duration)
+    const earthTime = transitTime.plus(gamma.mul(boostDuration));
 
-    // For the simplified case (instant warp, no boost duration):
-    // Earth time = transit time
-    // Traveler time = transit time
-    const earthTime = transitTime;
-    const travelerTime = transitTime;
+    // Traveler proper time (what they actually experience)
+    // Traveler time = transit time + boost duration
+    const travelerTime = transitTime.plus(boostDuration);
+
+    // Time displacement = Earth time - simultaneity shift
+    // Negative values mean travel into the past
+    const timeDisplacement = earthTime.minus(simultaneityShift);
 
     return {
         timeDisplacement,
