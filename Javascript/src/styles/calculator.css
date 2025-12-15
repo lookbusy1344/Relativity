@@ -25,7 +25,7 @@
 	margin-right: 0;
 	transition: all 0.2s ease;
 	background: rgba(0, 0, 0, 0.3);
-	font-family: 'Orbitron', sans-serif;
+	font-family: "Orbitron", sans-serif;
 	font-size: 0.85rem;
 	letter-spacing: 0.5px;
 	text-transform: uppercase;
@@ -47,7 +47,7 @@
 }
 
 .nav-tabs .nav-link.active::after {
-	content: '';
+	content: "";
 	position: absolute;
 	bottom: -2px;
 	left: 0;
@@ -82,13 +82,13 @@
 	font-size: 1rem;
 	display: flex;
 	align-items: center;
-	font-family: 'Orbitron', sans-serif;
+	font-family: "Orbitron", sans-serif;
 	letter-spacing: 1px;
 	text-transform: uppercase;
 }
 
 .calc-label::before {
-	content: '▸';
+	content: "▸";
 	display: inline-block;
 	color: var(--electric-cyan);
 	font-size: 1.2rem;
@@ -112,7 +112,7 @@
 	transition: all 0.2s ease;
 	background: rgba(0, 0, 0, 0.5);
 	color: var(--soft-white);
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: "IBM Plex Mono", monospace;
 	font-weight: 500;
 }
 
@@ -140,7 +140,7 @@
 	height: calc(1.5em + 0.75rem * 2 + 2px);
 	transition: all 0.2s ease;
 	box-shadow: 0 0 20px var(--glow-cyan);
-	font-family: 'Orbitron', sans-serif;
+	font-family: "Orbitron", sans-serif;
 	text-transform: uppercase;
 	letter-spacing: 1px;
 	cursor: pointer;
@@ -173,7 +173,7 @@
 	padding: 0.35rem 0.75rem;
 	font-weight: 600;
 	font-size: 0.65rem;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: "IBM Plex Mono", monospace;
 	text-transform: uppercase;
 	letter-spacing: 0.3px;
 	cursor: pointer;
@@ -206,7 +206,7 @@
 	font-weight: 600;
 	color: var(--amber-alert);
 	flex: 1;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: "IBM Plex Mono", monospace;
 	font-size: 1rem;
 	line-height: 1.5;
 	height: calc(1.5em + 0.75rem * 2 + 2px);
@@ -245,7 +245,7 @@
 	margin-bottom: 0.5rem;
 	text-transform: uppercase;
 	letter-spacing: 1px;
-	font-family: 'Orbitron', sans-serif;
+	font-family: "Orbitron", sans-serif;
 }
 
 .result-item-value {
@@ -253,7 +253,7 @@
 	font-weight: 600;
 	font-size: 1.1rem;
 	word-wrap: break-word;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: "IBM Plex Mono", monospace;
 }
 
 .notebook-link {
@@ -278,7 +278,7 @@
 }
 
 .notebook-link::before {
-	content: '📖';
+	content: "📖";
 	font-size: 0.9rem;
 }
 

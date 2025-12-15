@@ -83,10 +83,12 @@ Milky Way star estimation for astronomical mass context:
 - **Usage:** Smart mass scale formatting for fuel mass displays
 
 ### UI Layer (`ui/`)
+
 - `domUtils.ts` - Type-safe DOM element access helpers
 - `eventHandlers.ts` - Factory functions creating event handlers for each calculator section
 
 ### Charts (`charts/`)
+
 - `charts.ts` - Chart.js chart lifecycle management and configuration with time scale controls
 - `dataGeneration.ts` - Converts physics calculations to chart-ready data
 - Minkowski spacetime diagrams (D3.js-based):
@@ -99,6 +101,7 @@ Milky Way star estimation for astronomical mass context:
   - `minkowski-colors.ts` - Color palette constants
 
 ### Styles (`styles/`)
+
 - Modular CSS architecture extracted from inline styles
 - `variables.css` - Theming constants and custom properties
 - `animations.css` - All keyframe animations for UI elements
@@ -108,10 +111,12 @@ Milky Way star estimation for astronomical mass context:
 - `responsive.css` - Mobile-first responsive design (768px+ breakpoints)
 
 ### Testing Utilities (`test-utils/`)
+
 - `dom-helpers.ts` - DOM manipulation utilities for unit tests
 - Provides helpers for creating test DOM environments in Vitest
 
 ### URL State (`urlState.ts`)
+
 - Bidirectional sync between URL parameters and calculator inputs
 - Deep linking support for sharing calculations (including simultaneity events)
 
@@ -183,6 +188,7 @@ The project includes WebStorm run configurations for debugging TypeScript code w
 ### Configuration Files
 
 Run configurations are stored in `.idea/runConfigurations/`:
+
 - `Dev_Server.xml` - Runs the Vite dev server
 - `Debug_in_Chrome.xml` - Launches Chrome with remote debugging
 
@@ -239,6 +245,7 @@ The calculator supports URL encoding to share specific calculations with others.
 Each tab encodes only its essential calculation parameters (chart slider positions and time mode selections are not encoded - they default to maximum/proper time on load):
 
 **Constant Accel** (`?tab=motion`)
+
 - `accel` - Acceleration in g (e.g., `1`)
 - `time` - Proper time in days (e.g., `365`)
 - `dry` - Dry mass in kg (e.g., `500`)
@@ -247,6 +254,7 @@ Each tab encodes only its essential calculation parameters (chart slider positio
 Example: `?tab=motion&accel=2&time=730&dry=1000&eff=0.9`
 
 **Flip** (`?tab=flip`)
+
 - `accel` - Acceleration in g (e.g., `1`)
 - `dist` - Distance in light years (e.g., `4`)
 - `dry` - Dry mass in kg (e.g., `500`)
@@ -255,12 +263,14 @@ Example: `?tab=motion&accel=2&time=730&dry=1000&eff=0.9`
 Example: `?tab=flip&accel=1&dist=10&dry=2000&eff=0.88`
 
 **Twin Paradox** (`?tab=twins`)
+
 - `vel` - Velocity as fraction of c (e.g., `0.8`)
 - `time` - Travel time (e.g., `10`)
 
 Example: `?tab=twins&vel=0.9&time=5`
 
 **Spacetime** (`?tab=spacetime`)
+
 - `time` - Time coordinate (e.g., `5`)
 - `dist` - Distance coordinate (e.g., `3`)
 - `vel` - Velocity as fraction of c (e.g., `0.6`)
@@ -268,12 +278,14 @@ Example: `?tab=twins&vel=0.9&time=5`
 Example: `?tab=spacetime&time=10&dist=8&vel=0.5`
 
 **Simultaneity** (`?tab=simultaneity`)
+
 - `vel` - Observer velocity as fraction of c (e.g., `0.5`)
 - `events` - Event coordinates as `ct1,x1;ct2,x2;...` (e.g., `599584.92,-300000;599584.92,300000`)
 
 Example: `?tab=simultaneity&vel=0.6&events=500000,0;600000,100000`
 
 **Calc** (`?tab=calc`)
+
 - Various parameters depending on the calculator type (velocity, rapidity, fuel mass, etc.)
 
 ### Default Behavior
@@ -290,6 +302,7 @@ URLs from older versions of the calculator remain functional. Parameters that ar
 ## Recent Updates
 
 ### December 2025
+
 - Added x-axis time scale sliders for mass charts (proper time and coordinate time)
 - Implemented per-chart time mode toggles (coordinate vs proper time)
 - Unified slider styling across all range inputs
@@ -300,6 +313,7 @@ URLs from older versions of the calculator remain functional. Parameters that ar
 - Eliminated spline interpolation artifacts on initial render
 
 ### November 2025
+
 - Implemented Relativity of Simultaneity interactive visualization
 - Enhanced Twin Paradox diagram with interactive velocity slider
 - Extracted 830+ lines of inline CSS into modular architecture

@@ -1,21 +1,21 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import Decimal from 'decimal.js';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import Decimal from "decimal.js";
 import {
 	getEvents,
 	setEvents,
 	setPendingEvents,
 	consumePendingEvents,
 	subscribe,
-	type SimultaneityEventData
-} from './simultaneityState';
+	type SimultaneityEventData,
+} from "./simultaneityState";
 
-describe('Simultaneity State Management', () => {
+describe("Simultaneity State Management", () => {
 	// Helper to create test events
 	const createEvent = (ct: number, x: number): SimultaneityEventData => ({
 		ct,
 		x,
 		ctDecimal: new Decimal(ct),
-		xDecimal: new Decimal(x)
+		xDecimal: new Decimal(x),
 	});
 
 	beforeEach(() => {
@@ -24,23 +24,20 @@ describe('Simultaneity State Management', () => {
 		consumePendingEvents(); // Clear any pending events
 	});
 
-	describe('getEvents/setEvents', () => {
-		it('returns empty array initially', () => {
+	describe("getEvents/setEvents", () => {
+		it("returns empty array initially", () => {
 			setEvents([]);
 			expect(getEvents()).toEqual([]);
 		});
 
-		it('stores and retrieves events', () => {
-			const events = [
-				createEvent(0, 0),
-				createEvent(1, 1)
-			];
+		it("stores and retrieves events", () => {
+			const events = [createEvent(0, 0), createEvent(1, 1)];
 			setEvents(events);
 
 			expect(getEvents()).toEqual(events);
 		});
 
-		it('returns same reference when called multiple times', () => {
+		it("returns same reference when called multiple times", () => {
 			const events = [createEvent(0, 0)];
 			setEvents(events);
 
@@ -49,7 +46,7 @@ describe('Simultaneity State Management', () => {
 			expect(result1).toBe(result2);
 		});
 
-		it('overwrites previous events', () => {
+		it("overwrites previous events", () => {
 			const events1 = [createEvent(0, 0)];
 			const events2 = [createEvent(1, 1), createEvent(2, 2)];
 
@@ -60,18 +57,18 @@ describe('Simultaneity State Management', () => {
 			expect(getEvents()).toEqual(events2);
 		});
 
-		it('stores events with Decimal precision', () => {
+		it("stores events with Decimal precision", () => {
 			const events = [createEvent(0.123456789, 0.987654321)];
 			setEvents(events);
 
 			const retrieved = getEvents();
-			expect(retrieved[0].ctDecimal.toString()).toBe('0.123456789');
-			expect(retrieved[0].xDecimal.toString()).toBe('0.987654321');
+			expect(retrieved[0].ctDecimal.toString()).toBe("0.123456789");
+			expect(retrieved[0].xDecimal.toString()).toBe("0.987654321");
 		});
 	});
 
-	describe('subscribe', () => {
-		it('calls subscriber when events change', () => {
+	describe("subscribe", () => {
+		it("calls subscriber when events change", () => {
 			const subscriber = vi.fn();
 			const unsubscribe = subscribe(subscriber);
 
@@ -83,7 +80,7 @@ describe('Simultaneity State Management', () => {
 			unsubscribe();
 		});
 
-		it('calls multiple subscribers', () => {
+		it("calls multiple subscribers", () => {
 			const subscriber1 = vi.fn();
 			const subscriber2 = vi.fn();
 
@@ -100,7 +97,7 @@ describe('Simultaneity State Management', () => {
 			unsub2();
 		});
 
-		it('unsubscribe stops notifications', () => {
+		it("unsubscribe stops notifications", () => {
 			const subscriber = vi.fn();
 			const unsubscribe = subscribe(subscriber);
 
@@ -110,7 +107,7 @@ describe('Simultaneity State Management', () => {
 			expect(subscriber).not.toHaveBeenCalled();
 		});
 
-		it('notifies on empty array', () => {
+		it("notifies on empty array", () => {
 			const subscriber = vi.fn();
 			const unsubscribe = subscribe(subscriber);
 
@@ -121,8 +118,8 @@ describe('Simultaneity State Management', () => {
 		});
 	});
 
-	describe('setPendingEvents/consumePendingEvents', () => {
-		it('stores and retrieves pending events', () => {
+	describe("setPendingEvents/consumePendingEvents", () => {
+		it("stores and retrieves pending events", () => {
 			const events = [createEvent(3, 4), createEvent(5, 6)];
 			setPendingEvents(events);
 
@@ -130,12 +127,12 @@ describe('Simultaneity State Management', () => {
 			expect(retrieved).toEqual(events);
 		});
 
-		it('returns null when no pending events', () => {
+		it("returns null when no pending events", () => {
 			const result = consumePendingEvents();
 			expect(result).toBeNull();
 		});
 
-		it('clears pending events after consuming', () => {
+		it("clears pending events after consuming", () => {
 			const events = [createEvent(1, 2)];
 			setPendingEvents(events);
 
@@ -146,7 +143,7 @@ describe('Simultaneity State Management', () => {
 			expect(second).toBeNull();
 		});
 
-		it('pending events do not affect current events', () => {
+		it("pending events do not affect current events", () => {
 			const currentEvts = [createEvent(0, 0)];
 			const pendingEvts = [createEvent(1, 1)];
 
@@ -157,7 +154,7 @@ describe('Simultaneity State Management', () => {
 			expect(consumePendingEvents()).toEqual(pendingEvts);
 		});
 
-		it('overwrites previous pending events', () => {
+		it("overwrites previous pending events", () => {
 			const events1 = [createEvent(1, 1)];
 			const events2 = [createEvent(2, 2)];
 
@@ -167,7 +164,7 @@ describe('Simultaneity State Management', () => {
 			expect(consumePendingEvents()).toEqual(events2);
 		});
 
-		it('does not notify subscribers when setting pending events', () => {
+		it("does not notify subscribers when setting pending events", () => {
 			const subscriber = vi.fn();
 			subscribe(subscriber);
 
@@ -177,8 +174,8 @@ describe('Simultaneity State Management', () => {
 		});
 	});
 
-	describe('integration scenarios', () => {
-		it('handles typical URL loading workflow', () => {
+	describe("integration scenarios", () => {
+		it("handles typical URL loading workflow", () => {
 			// 1. URL state loads before diagram initializes
 			const urlEvents = [createEvent(2, 3), createEvent(4, 5)];
 			setPendingEvents(urlEvents);
@@ -197,7 +194,7 @@ describe('Simultaneity State Management', () => {
 			expect(consumePendingEvents()).toBeNull();
 		});
 
-		it('handles user interaction updating events', () => {
+		it("handles user interaction updating events", () => {
 			const subscriber = vi.fn();
 			subscribe(subscriber);
 
@@ -213,7 +210,7 @@ describe('Simultaneity State Management', () => {
 			expect(subscriber).toHaveBeenCalledTimes(2);
 		});
 
-		it('handles clearing all events', () => {
+		it("handles clearing all events", () => {
 			const subscriber = vi.fn();
 			subscribe(subscriber);
 

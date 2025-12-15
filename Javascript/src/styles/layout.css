@@ -5,18 +5,30 @@
 body {
 	background: var(--space-black);
 	background-image:
-		repeating-linear-gradient(0deg, transparent, transparent 2px, var(--grid-color) 2px, var(--grid-color) 3px),
-		repeating-linear-gradient(90deg, transparent, transparent 2px, var(--grid-color) 2px, var(--grid-color) 3px);
+		repeating-linear-gradient(
+			0deg,
+			transparent,
+			transparent 2px,
+			var(--grid-color) 2px,
+			var(--grid-color) 3px
+		),
+		repeating-linear-gradient(
+			90deg,
+			transparent,
+			transparent 2px,
+			var(--grid-color) 2px,
+			var(--grid-color) 3px
+		);
 	background-size: 50px 50px;
 	min-height: 100vh;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: "IBM Plex Mono", monospace;
 	color: var(--soft-white);
 	position: relative;
 	overflow-x: hidden;
 }
 
 body::before {
-	content: '';
+	content: "";
 	position: fixed;
 	top: 0;
 	left: 0;

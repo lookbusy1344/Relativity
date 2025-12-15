@@ -1,31 +1,31 @@
-import Decimal from 'decimal.js';
+import Decimal from "decimal.js";
 
 export type NumberInput = number | string | Decimal;
-export type SimplifiedInterval = [NumberInput, NumberInput];                    // time, x
-export type Interval = [NumberInput, NumberInput, NumberInput, NumberInput];    // time, x, y, z
+export type SimplifiedInterval = [NumberInput, NumberInput]; // time, x
+export type Interval = [NumberInput, NumberInput, NumberInput, NumberInput]; // time, x, y, z
 
 export interface IFlipAndBurn {
-    properTime: Decimal;
-    peakVelocity: Decimal;
-    lorentzFactor: Decimal;
-    coordTime: Decimal;
+	properTime: Decimal;
+	peakVelocity: Decimal;
+	lorentzFactor: Decimal;
+	coordTime: Decimal;
 }
 
 export interface ITwinParadox {
-    properTime: Decimal;
-    earthTime: Decimal;
-    ageDifference: Decimal;
-    lorentzFactor: Decimal;
-    oneWayDistance: Decimal;
-    totalDistance: Decimal;
-    velocity: Decimal;
+	properTime: Decimal;
+	earthTime: Decimal;
+	ageDifference: Decimal;
+	lorentzFactor: Decimal;
+	oneWayDistance: Decimal;
+	totalDistance: Decimal;
+	velocity: Decimal;
 }
 
 export interface IWarpDriveTimeTravel {
-    timeDisplacement: Decimal;      // net time travel in seconds (negative = past)
-    simultaneityShift: Decimal;      // relativistic effect in seconds
-    earthTimeElapsed: Decimal;       // coordinate time in seconds
-    travelerTime: Decimal;           // proper time in seconds
+	timeDisplacement: Decimal; // net time travel in seconds (negative = past)
+	simultaneityShift: Decimal; // relativistic effect in seconds
+	earthTimeElapsed: Decimal; // coordinate time in seconds
+	travelerTime: Decimal; // proper time in seconds
 }
 
 // Physical constants
@@ -56,52 +56,52 @@ let precisionConfigured: number = -1;
 configure(150);
 
 export function configure(precision: number): void {
-    Decimal.set({ precision: precision, defaults: true });
-    precisionConfigured = precision;
+	Decimal.set({ precision: precision, defaults: true });
+	precisionConfigured = precision;
 
-    c = new Decimal("299792458"); // speed of light in m/s
-    g = new Decimal("9.80665"); // acceleration due to standard gravity
-    lightYear = new Decimal("9460730472580800"); // meters in a light year
-    au = new Decimal("149597870700"); // meters in an astronomical unit
-    secondsPerYear = new Decimal(60 * 60 * 24).mul("365.25"); // seconds in a year
-    everestMass = new Decimal("8.1e14"); // kg (approximate mass of Mount Everest)
-    moonMass = new Decimal("7.342e22"); // kg (mass of the Moon)
-    earthMass = new Decimal("5.972e24"); // kg
-    solarMass = new Decimal("1.98892e30"); // kg
-    milkyWayMass = new Decimal("1.5e12").mul(solarMass); // kg (approximately 1.5 trillion solar masses)
-    superclusterMass = new Decimal("1e17").mul(solarMass); // kg (Laniakea Supercluster: ~100,000 Milky Ways)
-    observableUniverseMass = new Decimal("1e53"); // kg (observable universe: ordinary matter)
+	c = new Decimal("299792458"); // speed of light in m/s
+	g = new Decimal("9.80665"); // acceleration due to standard gravity
+	lightYear = new Decimal("9460730472580800"); // meters in a light year
+	au = new Decimal("149597870700"); // meters in an astronomical unit
+	secondsPerYear = new Decimal(60 * 60 * 24).mul("365.25"); // seconds in a year
+	everestMass = new Decimal("8.1e14"); // kg (approximate mass of Mount Everest)
+	moonMass = new Decimal("7.342e22"); // kg (mass of the Moon)
+	earthMass = new Decimal("5.972e24"); // kg
+	solarMass = new Decimal("1.98892e30"); // kg
+	milkyWayMass = new Decimal("1.5e12").mul(solarMass); // kg (approximately 1.5 trillion solar masses)
+	superclusterMass = new Decimal("1e17").mul(solarMass); // kg (Laniakea Supercluster: ~100,000 Milky Ways)
+	observableUniverseMass = new Decimal("1e53"); // kg (observable universe: ordinary matter)
 
-    cSquared = c.pow(2); // speed of light squared
-    one = new Decimal(1);
-    half = new Decimal("0.5");
+	cSquared = c.pow(2); // speed of light squared
+	one = new Decimal(1);
+	half = new Decimal("0.5");
 }
 
 /**
  * Ensure this is a Decimal, convert numbers and strings as required
  */
 export function ensure(v: NumberInput): Decimal {
-    if (precisionConfigured === -1) {
-        throw new Error('Precision not configured');
-    }
-    if (typeof v === 'number' || typeof v === 'string') {
-        return new Decimal(v);  // easily convertible
-    } else if (v instanceof Decimal) {
-        return v; // already a Decimal
-    } else {
-        throw new Error('Invalid input type');
-    }
+	if (precisionConfigured === -1) {
+		throw new Error("Precision not configured");
+	}
+	if (typeof v === "number" || typeof v === "string") {
+		return new Decimal(v); // easily convertible
+	} else if (v instanceof Decimal) {
+		return v; // already a Decimal
+	} else {
+		throw new Error("Invalid input type");
+	}
 }
 
 /**
  * Ensure this value is a Decimal and check it is a valid number, throw if not
  */
 export function check(v: NumberInput, msg: string = "Invalid number"): Decimal {
-    const v1 = ensure(v);
-    if (v1.isNaN() || !v1.isFinite()) {
-        throw new Error(msg);
-    }
-    return v1;
+	const v1 = ensure(v);
+	if (v1.isNaN() || !v1.isFinite()) {
+		throw new Error(msg);
+	}
+	return v1;
 }
 
 /**
@@ -111,11 +111,11 @@ export function check(v: NumberInput, msg: string = "Invalid number"): Decimal {
  * @returns The velocity as a Decimal
  */
 export function checkVelocity(velocity: NumberInput): Decimal {
-    const v = ensure(velocity);
-    if (v.abs().gte(c)) {
-        return DecimalNaN;
-    }
-    return v;
+	const v = ensure(velocity);
+	if (v.abs().gte(c)) {
+		return DecimalNaN;
+	}
+	return v;
 }
 
 /**
@@ -125,10 +125,10 @@ export function checkVelocity(velocity: NumberInput): Decimal {
  * @returns Proper time tau in seconds as a Decimal
  */
 export function tauToVelocity(accel: NumberInput, velocity: NumberInput): Decimal {
-    // (c / a) * atanh(velocity / c)
-    const aD = ensure(accel);
-    const vD = checkVelocity(velocity);
-    return c.div(aD).mul(vD.div(c).atanh());
+	// (c / a) * atanh(velocity / c)
+	const aD = ensure(accel);
+	const vD = checkVelocity(velocity);
+	return c.div(aD).mul(vD.div(c).atanh());
 }
 
 /**
@@ -138,10 +138,10 @@ export function tauToVelocity(accel: NumberInput, velocity: NumberInput): Decima
  * @returns The velocity in m/s as Decimal
  */
 export function relativisticVelocity(accel: NumberInput, tau: NumberInput): Decimal {
-    // c * tanh(a * tau / c)
-    const aD = ensure(accel);
-    const tauD = ensure(tau);
-    return c.mul(aD.mul(tauD).div(c).tanh());
+	// c * tanh(a * tau / c)
+	const aD = ensure(accel);
+	const tauD = ensure(tau);
+	return c.mul(aD.mul(tauD).div(c).tanh());
 }
 
 /**
@@ -151,10 +151,10 @@ export function relativisticVelocity(accel: NumberInput, tau: NumberInput): Deci
  * @returns The coordinate distance travelled in meters as Decimal
  */
 export function relativisticDistance(accel: NumberInput, tau: NumberInput): Decimal {
-    // (csquared / a) * (cosh(a * tau / c) - one)
-    const aD = ensure(accel);
-    const tauD = ensure(tau);
-    return cSquared.div(aD).mul(aD.mul(tauD).div(c).cosh().minus(one));
+	// (csquared / a) * (cosh(a * tau / c) - one)
+	const aD = ensure(accel);
+	const tauD = ensure(tau);
+	return cSquared.div(aD).mul(aD.mul(tauD).div(c).cosh().minus(one));
 }
 
 /**
@@ -164,10 +164,10 @@ export function relativisticDistance(accel: NumberInput, tau: NumberInput): Deci
  * @returns The proper time elapsed (s) as a Decimal
  */
 export function relativisticTimeForDistance(accel: NumberInput, dist: NumberInput): Decimal {
-    // (c / a) * acosh((dist * a) / csquared + one)
-    const aD = ensure(accel);
-    const distD = ensure(dist);
-    return c.div(aD).mul(distD.mul(aD).div(cSquared).plus(one).acosh());
+	// (c / a) * acosh((dist * a) / csquared + one)
+	const aD = ensure(accel);
+	const distD = ensure(dist);
+	return c.div(aD).mul(distD.mul(aD).div(cSquared).plus(one).acosh());
 }
 
 /**
@@ -177,15 +177,20 @@ export function relativisticTimeForDistance(accel: NumberInput, dist: NumberInpu
  * @returns IFlipAndBurn containing proper time (s), peak velocity (m/s), peak Lorentz, and Coord time (s) as Decimals
  */
 export function flipAndBurn(accel: NumberInput, dist: NumberInput): IFlipAndBurn {
-    const accelD = ensure(accel);
-    const totalDist = ensure(dist);
-    const halfDist = totalDist.div(2);
+	const accelD = ensure(accel);
+	const totalDist = ensure(dist);
+	const halfDist = totalDist.div(2);
 
-    const timeToHalfProper = relativisticTimeForDistance(accelD, halfDist);
-    const timeToHalfCoord = coordinateTime(accelD, timeToHalfProper);
-    const peakVelocity = relativisticVelocity(accelD, timeToHalfProper);
-    const lorentz = lorentzFactor(peakVelocity);
-    return { properTime: timeToHalfProper.mul(2), peakVelocity, lorentzFactor: lorentz, coordTime: timeToHalfCoord.mul(2) };
+	const timeToHalfProper = relativisticTimeForDistance(accelD, halfDist);
+	const timeToHalfCoord = coordinateTime(accelD, timeToHalfProper);
+	const peakVelocity = relativisticVelocity(accelD, timeToHalfProper);
+	const lorentz = lorentzFactor(peakVelocity);
+	return {
+		properTime: timeToHalfProper.mul(2),
+		peakVelocity,
+		lorentzFactor: lorentz,
+		coordTime: timeToHalfCoord.mul(2),
+	};
 }
 
 /**
@@ -195,59 +200,59 @@ export function flipAndBurn(accel: NumberInput, dist: NumberInput): IFlipAndBurn
  * @returns ITwinParadox containing ages (seconds), distances (meters), velocity (m/s), and Lorentz factor
  */
 export function twinParadox(velocity: NumberInput, properTime: NumberInput): ITwinParadox {
-    const vel = ensure(velocity);
-    const properTimeS = ensure(properTime);
+	const vel = ensure(velocity);
+	const properTimeS = ensure(properTime);
 
-    // Validate velocity is less than c
-    if (vel.abs().gte(c)) {
-        return {
-            properTime: DecimalNaN,
-            earthTime: DecimalNaN,
-            ageDifference: DecimalNaN,
-            lorentzFactor: DecimalNaN,
-            oneWayDistance: DecimalNaN,
-            totalDistance: DecimalNaN,
-            velocity: DecimalNaN
-        };
-    }
+	// Validate velocity is less than c
+	if (vel.abs().gte(c)) {
+		return {
+			properTime: DecimalNaN,
+			earthTime: DecimalNaN,
+			ageDifference: DecimalNaN,
+			lorentzFactor: DecimalNaN,
+			oneWayDistance: DecimalNaN,
+			totalDistance: DecimalNaN,
+			velocity: DecimalNaN,
+		};
+	}
 
-    // Calculate Lorentz factor
-    const gamma = lorentzFactor(vel);
+	// Calculate Lorentz factor
+	const gamma = lorentzFactor(vel);
 
-    // Earth time elapsed
-    const earthTimeS = gamma.mul(properTimeS);
+	// Earth time elapsed
+	const earthTimeS = gamma.mul(properTimeS);
 
-    // Age difference (Earth twin is older)
-    const ageDiff = earthTimeS.minus(properTimeS);
+	// Age difference (Earth twin is older)
+	const ageDiff = earthTimeS.minus(properTimeS);
 
-    // Distance calculations
-    // One way distance = v * (earth_time / 2)
-    const oneWayDist = vel.mul(earthTimeS.div(2));
-    const totalDist = oneWayDist.mul(2);
+	// Distance calculations
+	// One way distance = v * (earth_time / 2)
+	const oneWayDist = vel.mul(earthTimeS.div(2));
+	const totalDist = oneWayDist.mul(2);
 
-    return {
-        properTime: properTimeS,
-        earthTime: earthTimeS,
-        ageDifference: ageDiff,
-        lorentzFactor: gamma,
-        oneWayDistance: oneWayDist,
-        totalDistance: totalDist,
-        velocity: vel
-    };
+	return {
+		properTime: properTimeS,
+		earthTime: earthTimeS,
+		ageDifference: ageDiff,
+		lorentzFactor: gamma,
+		oneWayDistance: oneWayDist,
+		totalDistance: totalDist,
+		velocity: vel,
+	};
 }
 
 /**
  * Calculate time travel effects from FTL travel combined with relativistic boost
  * Based on the relativity of simultaneity paradox (Tachyonic Antitelephone)
- * 
- * The scenario: 
+ *
+ * The scenario:
  * 1. Travel distance d at FTL speed (taking transitTimeSeconds ONE-WAY)
  * 2. Boost to velocity v and optionally remain for boostDurationSeconds
  * 3. Return at FTL speed (taking transitTimeSeconds again)
- * 
+ *
  * Due to relativity of simultaneity, the boosted frame's "now" corresponds to
  * an earlier time at the origin, potentially allowing travel into the past.
- * 
+ *
  * @param distanceMeters Distance traveled at FTL, one-way (in metres)
  * @param boostVelocityC Boost velocity as fraction of c (0 to 1, exclusive)
  * @param transitTimeSeconds Time spent in FTL transit, ONE-WAY (in seconds)
@@ -255,56 +260,56 @@ export function twinParadox(velocity: NumberInput, properTime: NumberInput): ITw
  * @returns Time travel results including displacement and simultaneity shift
  */
 export function warpDriveTimeTravel(
-    distanceMeters: NumberInput,
-    boostVelocityC: NumberInput,
-    transitTimeSeconds: NumberInput,
-    boostDurationSeconds: NumberInput = 0
+	distanceMeters: NumberInput,
+	boostVelocityC: NumberInput,
+	transitTimeSeconds: NumberInput,
+	boostDurationSeconds: NumberInput = 0
 ): IWarpDriveTimeTravel {
-    const dist = ensure(distanceMeters);
-    const boostC = ensure(boostVelocityC);
-    const transitTime = ensure(transitTimeSeconds);
-    const boostDuration = ensure(boostDurationSeconds);
+	const dist = ensure(distanceMeters);
+	const boostC = ensure(boostVelocityC);
+	const transitTime = ensure(transitTimeSeconds);
+	const boostDuration = ensure(boostDurationSeconds);
 
-    // Validate boost velocity is in valid range [0, 1)
-    if (boostC.lt(0) || boostC.gte(one)) {
-        return {
-            timeDisplacement: DecimalNaN,
-            simultaneityShift: DecimalNaN,
-            earthTimeElapsed: DecimalNaN,
-            travelerTime: DecimalNaN
-        };
-    }
+	// Validate boost velocity is in valid range [0, 1)
+	if (boostC.lt(0) || boostC.gte(one)) {
+		return {
+			timeDisplacement: DecimalNaN,
+			simultaneityShift: DecimalNaN,
+			earthTimeElapsed: DecimalNaN,
+			travelerTime: DecimalNaN,
+		};
+	}
 
-    // Calculate boost velocity in m/s
-    const boostVelocity = boostC.mul(c);
+	// Calculate boost velocity in m/s
+	const boostVelocity = boostC.mul(c);
 
-    // Calculate Lorentz factor for time dilation during boost phase
-    const gamma = lorentzFactor(boostVelocity);
+	// Calculate Lorentz factor for time dilation during boost phase
+	const gamma = lorentzFactor(boostVelocity);
 
-    // Simultaneity shift: Δt = (v * d) / c²
-    // This is the key to the time travel paradox
-    const cSquared = c.mul(c);
-    const simultaneityShift = boostVelocity.mul(dist).div(cSquared);
+	// Simultaneity shift: Δt = (v * d) / c²
+	// This is the key to the time travel paradox
+	const cSquared = c.mul(c);
+	const simultaneityShift = boostVelocity.mul(dist).div(cSquared);
 
-    // Earth time includes outbound transit, boost phase, and return transit
-    // We treat transitTime as the one-way time, so the round trip takes 2 × transitTime
-    // Earth time = (2 × transit time) + (γ × boost duration)
-    const earthTime = transitTime.mul(2).plus(gamma.mul(boostDuration));
+	// Earth time includes outbound transit, boost phase, and return transit
+	// We treat transitTime as the one-way time, so the round trip takes 2 × transitTime
+	// Earth time = (2 × transit time) + (γ × boost duration)
+	const earthTime = transitTime.mul(2).plus(gamma.mul(boostDuration));
 
-    // Traveler proper time (what they actually experience)
-    // Traveler time = (2 × transit time) + boost duration
-    const travelerTime = transitTime.mul(2).plus(boostDuration);
+	// Traveler proper time (what they actually experience)
+	// Traveler time = (2 × transit time) + boost duration
+	const travelerTime = transitTime.mul(2).plus(boostDuration);
 
-    // Time displacement = Earth time - simultaneity shift
-    // Negative values mean travel into the past
-    const timeDisplacement = earthTime.minus(simultaneityShift);
+	// Time displacement = Earth time - simultaneity shift
+	// Negative values mean travel into the past
+	const timeDisplacement = earthTime.minus(simultaneityShift);
 
-    return {
-        timeDisplacement,
-        simultaneityShift,
-        earthTimeElapsed: earthTime,
-        travelerTime
-    };
+	return {
+		timeDisplacement,
+		simultaneityShift,
+		earthTimeElapsed: earthTime,
+		travelerTime,
+	};
 }
 
 /**
@@ -314,10 +319,10 @@ export function warpDriveTimeTravel(
  * @returns The distance travelled in meters as Decimal
  */
 export function simpleDistance(accel: NumberInput, t: NumberInput): Decimal {
-    // 0.5 * a * t^2
-    const aD = ensure(accel);
-    const tD = ensure(t);
-    return half.mul(aD).mul(tD.pow(2));
+	// 0.5 * a * t^2
+	const aD = ensure(accel);
+	const tD = ensure(t);
+	return half.mul(aD).mul(tD.pow(2));
 }
 
 /**
@@ -326,9 +331,9 @@ export function simpleDistance(accel: NumberInput, t: NumberInput): Decimal {
  * @returns The rapidity as a Decimal
  */
 export function rapidityFromVelocity(velocity: NumberInput): Decimal {
-    // atanh(v / c)
-    const v = checkVelocity(velocity);
-    return v.div(c).atanh();
+	// atanh(v / c)
+	const v = checkVelocity(velocity);
+	return v.div(c).atanh();
 }
 
 /**
@@ -337,9 +342,9 @@ export function rapidityFromVelocity(velocity: NumberInput): Decimal {
  * @returns The velocity as a Decimal
  */
 export function velocityFromRapidity(rapidity: NumberInput): Decimal {
-    // velocity = c * tanh(ensure(rapidity))
-    const velocity = c.mul(ensure(rapidity).tanh());
-    return checkVelocity(velocity);
+	// velocity = c * tanh(ensure(rapidity))
+	const velocity = c.mul(ensure(rapidity).tanh());
+	return checkVelocity(velocity);
 }
 
 /**
@@ -349,10 +354,10 @@ export function velocityFromRapidity(rapidity: NumberInput): Decimal {
  * @returns The combined velocity as a Decimal
  */
 export function addVelocities(v1: NumberInput, v2: NumberInput): Decimal {
-    // (v1 + v2) / (one + (v1 * v2) / csquared)
-    const v1D = checkVelocity(v1);
-    const v2D = checkVelocity(v2);
-    return v1D.plus(v2D).div(one.plus(v1D.mul(v2D).div(cSquared)));
+	// (v1 + v2) / (one + (v1 * v2) / csquared)
+	const v1D = checkVelocity(v1);
+	const v2D = checkVelocity(v2);
+	return v1D.plus(v2D).div(one.plus(v1D.mul(v2D).div(cSquared)));
 }
 
 /**
@@ -362,13 +367,13 @@ export function addVelocities(v1: NumberInput, v2: NumberInput): Decimal {
  * @returns The combined velocity as a fraction of c
  */
 export function addVelocitiesC(v1: NumberInput, v2: NumberInput): Decimal {
-    // (v1 + v2) / (one + v1 * v2)
-    const v1D = ensure(v1);
-    const v2D = ensure(v2);
-    if (v1D.abs().gte(one) || v2D.abs().gte(one)) {
-        return DecimalNaN;
-    }
-    return v1D.plus(v2D).div(one.plus(v1D.mul(v2D)));
+	// (v1 + v2) / (one + v1 * v2)
+	const v1D = ensure(v1);
+	const v2D = ensure(v2);
+	if (v1D.abs().gte(one) || v2D.abs().gte(one)) {
+		return DecimalNaN;
+	}
+	return v1D.plus(v2D).div(one.plus(v1D.mul(v2D)));
 }
 
 /**
@@ -378,10 +383,10 @@ export function addVelocitiesC(v1: NumberInput, v2: NumberInput): Decimal {
  * @returns The coordinate time elapsed in seconds as a Decimal
  */
 export function coordinateTime(accel: NumberInput, tau: NumberInput): Decimal {
-    // (c / a) * sinh(a * tau / c)
-    const aD = ensure(accel);
-    const tauD = ensure(tau);
-    return c.div(aD).mul(aD.mul(tauD).div(c).sinh());
+	// (c / a) * sinh(a * tau / c)
+	const aD = ensure(accel);
+	const tauD = ensure(tau);
+	return c.div(aD).mul(aD.mul(tauD).div(c).sinh());
 }
 
 /**
@@ -391,10 +396,10 @@ export function coordinateTime(accel: NumberInput, tau: NumberInput): Decimal {
  * @returns The contracted length in metres as a Decimal
  */
 export function lengthContractionVelocity(len: NumberInput, velocity: NumberInput): Decimal {
-    // len * sqrt(one - (velocity / c) ** 2)
-    const lenD = ensure(len);
-    const v = checkVelocity(velocity);
-    return lenD.mul(one.minus(v.div(c).pow(2)).sqrt());
+	// len * sqrt(one - (velocity / c) ** 2)
+	const lenD = ensure(len);
+	const v = checkVelocity(velocity);
+	return lenD.mul(one.minus(v.div(c).pow(2)).sqrt());
 }
 
 /**
@@ -403,8 +408,8 @@ export function lengthContractionVelocity(len: NumberInput, velocity: NumberInpu
  * @returns The Lorentz factor as a Decimal
  */
 export function lorentzFactor(velocity: NumberInput): Decimal {
-    const v = checkVelocity(velocity);
-    return one.div(one.minus(v.pow(2).div(cSquared)).sqrt());
+	const v = checkVelocity(velocity);
+	return one.div(one.minus(v.pow(2).div(cSquared)).sqrt());
 }
 
 /**
@@ -414,10 +419,10 @@ export function lorentzFactor(velocity: NumberInput): Decimal {
  * @returns The velocity (m/s) as a Decimal
  */
 export function relativisticVelocityCoord(accel: NumberInput, t: NumberInput): Decimal {
-    // (a * t) / sqrt(one + (a * t / c) ** 2)
-    const aD = ensure(accel);
-    const tD = ensure(t);
-    return aD.mul(tD).div(one.plus(aD.mul(tD).div(c).pow(2)).sqrt());
+	// (a * t) / sqrt(one + (a * t / c) ** 2)
+	const aD = ensure(accel);
+	const tD = ensure(t);
+	return aD.mul(tD).div(one.plus(aD.mul(tD).div(c).pow(2)).sqrt());
 }
 
 /**
@@ -427,10 +432,10 @@ export function relativisticVelocityCoord(accel: NumberInput, t: NumberInput): D
  * @returns The coordinate distance traveled in meters as a Decimal
  */
 export function relativisticDistanceCoord(accel: NumberInput, t: NumberInput): Decimal {
-    // (csquared / a) * (sqrt(one + (a * t / c) ** 2) - one)
-    const aD = ensure(accel);
-    const tD = ensure(t);
-    return cSquared.div(aD).mul(one.plus(aD.mul(tD).div(c).pow(2)).sqrt().minus(one));
+	// (csquared / a) * (sqrt(one + (a * t / c) ** 2) - one)
+	const aD = ensure(accel);
+	const tD = ensure(t);
+	return cSquared.div(aD).mul(one.plus(aD.mul(tD).div(c).pow(2)).sqrt().minus(one));
 }
 
 /**
@@ -440,11 +445,11 @@ export function relativisticDistanceCoord(accel: NumberInput, t: NumberInput): D
  * @returns The momentum in kg m/s as a Decimal
  */
 export function relativisticMomentum(mass: NumberInput, velocity: NumberInput): Decimal {
-    // mass * velocity * gamma
-    const m = ensure(mass);
-    const v = checkVelocity(velocity);
-    const gamma = lorentzFactor(v)
-    return m.mul(v).mul(gamma);
+	// mass * velocity * gamma
+	const m = ensure(mass);
+	const v = checkVelocity(velocity);
+	const gamma = lorentzFactor(v);
+	return m.mul(v).mul(gamma);
 }
 
 /**
@@ -454,10 +459,10 @@ export function relativisticMomentum(mass: NumberInput, velocity: NumberInput): 
  * @returns The energy in Joules as a Decimal
  */
 export function relativisticEnergy(mass: NumberInput, velocity: NumberInput): Decimal {
-    // mass * csquared * gamma
-    const m = ensure(mass);
-    const gamma = lorentzFactor(velocity)
-    return m.mul(cSquared).mul(gamma);
+	// mass * csquared * gamma
+	const m = ensure(mass);
+	const gamma = lorentzFactor(velocity);
+	return m.mul(cSquared).mul(gamma);
 }
 
 /**
@@ -467,16 +472,20 @@ export function relativisticEnergy(mass: NumberInput, velocity: NumberInput): De
  * @param source_moving_towards True if the source is moving towards the observer
  * @returns The shifted frequency in Hz as a Decimal
  */
-export function dopplerShift(frequency: NumberInput, velocity: NumberInput, source_moving_towards: boolean = true): Decimal {
-    //  towards: frequency * sqrt((one + beta) / (one - beta))
-    //  away: frequency * sqrt((one - beta) / (one + beta))
-    const f = ensure(frequency);
-    const beta = checkVelocity(velocity).div(c);
-    if (source_moving_towards) {
-        return f.mul(one.plus(beta).div(one.minus(beta)).sqrt());
-    } else {
-        return f.mul(one.minus(beta).div(one.plus(beta)).sqrt());
-    }
+export function dopplerShift(
+	frequency: NumberInput,
+	velocity: NumberInput,
+	source_moving_towards: boolean = true
+): Decimal {
+	//  towards: frequency * sqrt((one + beta) / (one - beta))
+	//  away: frequency * sqrt((one - beta) / (one + beta))
+	const f = ensure(frequency);
+	const beta = checkVelocity(velocity).div(c);
+	if (source_moving_towards) {
+		return f.mul(one.plus(beta).div(one.minus(beta)).sqrt());
+	} else {
+		return f.mul(one.minus(beta).div(one.plus(beta)).sqrt());
+	}
 }
 
 /**
@@ -486,10 +495,10 @@ export function dopplerShift(frequency: NumberInput, velocity: NumberInput, sour
  * @returns The rest mass in kg as a Decimal
  */
 export function invariantMassFromEnergyMomentum(energy: NumberInput, p: NumberInput): Decimal {
-    // sqrt((energy / csquared) ** 2 - (p / csquared) ** 2)
-    const e = ensure(energy);
-    const pD = ensure(p);
-    return e.div(cSquared).pow(2).minus(pD.div(cSquared).pow(2)).sqrt();
+	// sqrt((energy / csquared) ** 2 - (p / csquared) ** 2)
+	const e = ensure(energy);
+	const pD = ensure(p);
+	return e.div(cSquared).pow(2).minus(pD.div(cSquared).pow(2)).sqrt();
 }
 
 /**
@@ -499,12 +508,12 @@ export function invariantMassFromEnergyMomentum(energy: NumberInput, p: NumberIn
  * @returns A tuple of energy (j), momentum (kg·m/s) as Decimals
  */
 export function fourMomentum(mass: NumberInput, velocity: NumberInput): [Decimal, Decimal] {
-    const m = ensure(mass);
-    const v = checkVelocity(velocity);
-    const gamma = lorentzFactor(v);
-    const energy = m.mul(cSquared).mul(gamma);
-    const momentum = m.mul(v).mul(gamma);
-    return [energy, momentum];
+	const m = ensure(mass);
+	const v = checkVelocity(velocity);
+	const gamma = lorentzFactor(v);
+	const energy = m.mul(cSquared).mul(gamma);
+	const momentum = m.mul(v).mul(gamma);
+	return [energy, momentum];
 }
 
 /**
@@ -513,13 +522,16 @@ export function fourMomentum(mass: NumberInput, velocity: NumberInput): [Decimal
  * @param event2 The second event as a tuple of time, x
  * @returns The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)
  */
-export function spacetimeInterval1d(event1: SimplifiedInterval, event2: SimplifiedInterval): Decimal {
-    // sqrt(csquared * delta_ts - delta_xs)
-    const [time1, x1] = event1;
-    const [time2, x2] = event2;
-    const delta_ts = ensure(time2).sub(ensure(time1)).pow(2);
-    const delta_xs = ensure(x2).sub(ensure(x1)).pow(2);
-    return cSquared.mul(delta_ts).minus(delta_xs).sqrt();
+export function spacetimeInterval1d(
+	event1: SimplifiedInterval,
+	event2: SimplifiedInterval
+): Decimal {
+	// sqrt(csquared * delta_ts - delta_xs)
+	const [time1, x1] = event1;
+	const [time2, x2] = event2;
+	const delta_ts = ensure(time2).sub(ensure(time1)).pow(2);
+	const delta_xs = ensure(x2).sub(ensure(x1)).pow(2);
+	return cSquared.mul(delta_ts).minus(delta_xs).sqrt();
 }
 
 /**
@@ -529,17 +541,17 @@ export function spacetimeInterval1d(event1: SimplifiedInterval, event2: Simplifi
  * @returns The invariant interval (spacetime interval squared, or seconds^2 - meters^2 / c^2)
  */
 export function spacetimeInterval3d(event1: Interval, event2: Interval): Decimal {
-    // sqrt((cΔt) ^ 2 - (Δx) ^ 2 - (Δy) ^ 2 - (Δz) ^ 2)
-    // normal intervals are time-like
-    // zero is light-like
-    // imaginary is space-like, not causally connected
-    const [time1, x1, y1, z1] = event1;
-    const [time2, x2, y2, z2] = event2;
-    const delta_ts = ensure(time2).sub(ensure(time1)).pow(2);
-    const delta_xs = ensure(x2).sub(ensure(x1)).pow(2);
-    const delta_ys = ensure(y2).sub(ensure(y1)).pow(2);
-    const delta_zs = ensure(z2).sub(ensure(z1)).pow(2);
-    return cSquared.mul(delta_ts).minus(delta_xs).minus(delta_ys).minus(delta_zs).sqrt();
+	// sqrt((cΔt) ^ 2 - (Δx) ^ 2 - (Δy) ^ 2 - (Δz) ^ 2)
+	// normal intervals are time-like
+	// zero is light-like
+	// imaginary is space-like, not causally connected
+	const [time1, x1, y1, z1] = event1;
+	const [time2, x2, y2, z2] = event2;
+	const delta_ts = ensure(time2).sub(ensure(time1)).pow(2);
+	const delta_xs = ensure(x2).sub(ensure(x1)).pow(2);
+	const delta_ys = ensure(y2).sub(ensure(y1)).pow(2);
+	const delta_zs = ensure(z2).sub(ensure(z1)).pow(2);
+	return cSquared.mul(delta_ts).minus(delta_xs).minus(delta_ys).minus(delta_zs).sqrt();
 }
 
 /**
@@ -574,35 +586,35 @@ export function spacetimeInterval3d(event1: Interval, event2: Interval): Decimal
  * @returns Acceleration time in seconds as a Decimal
  */
 export function pionRocketAccelTime(
-    fuelMass: NumberInput,
-    dryMass: NumberInput,
-    nozzleEfficiency: NumberInput = 0.85,
-    chargedFraction: NumberInput = 0.4,
-    accel: NumberInput = g
+	fuelMass: NumberInput,
+	dryMass: NumberInput,
+	nozzleEfficiency: NumberInput = 0.85,
+	chargedFraction: NumberInput = 0.4,
+	accel: NumberInput = g
 ): Decimal {
-    const fuelD = check(fuelMass, "Invalid fuel mass");
-    const dryD = check(dryMass, "Invalid dry mass");
-    const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
-    const chargedFractionD = check(chargedFraction, "Invalid charged fraction");
-    const accelD = check(accel, "Invalid acceleration");
+	const fuelD = check(fuelMass, "Invalid fuel mass");
+	const dryD = check(dryMass, "Invalid dry mass");
+	const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
+	const chargedFractionD = check(chargedFraction, "Invalid charged fraction");
+	const accelD = check(accel, "Invalid acceleration");
 
-    // Charged pion exhaust velocity (actual particle velocity, not including energy fraction)
-    // Nozzle efficiency affects momentum collimation
-    const ve = c.mul(0.94).mul(nozzleEffD);
+	// Charged pion exhaust velocity (actual particle velocity, not including energy fraction)
+	// Nozzle efficiency affects momentum collimation
+	const ve = c.mul(0.94).mul(nozzleEffD);
 
-    // Apply charged fraction as thrust efficiency: only this fraction of fuel energy
-    // becomes usable momentum at velocity ve
-    const veEffective = ve.mul(chargedFractionD);
+	// Apply charged fraction as thrust efficiency: only this fraction of fuel energy
+	// becomes usable momentum at velocity ve
+	const veEffective = ve.mul(chargedFractionD);
 
-    const m0 = dryD.plus(fuelD);
-    const mf = dryD;
+	const m0 = dryD.plus(fuelD);
+	const mf = dryD;
 
-    if (m0.lte(mf) || veEffective.lte(0)) {
-        return new Decimal(0);
-    }
+	if (m0.lte(mf) || veEffective.lte(0)) {
+		return new Decimal(0);
+	}
 
-    // t = (v_e_effective / a) * ln(M0/Mf)
-    return veEffective.div(accelD).mul(m0.div(mf).ln());
+	// t = (v_e_effective / a) * ln(M0/Mf)
+	return veEffective.div(accelD).mul(m0.div(mf).ln());
 }
 
 /**
@@ -636,33 +648,33 @@ export function pionRocketAccelTime(
  * @returns Propellant mass fraction (fuel_mass / initial_mass), range 0.0 to 1.0
  */
 export function pionRocketFuelFraction(
-    thrustTime: NumberInput,
-    accel: NumberInput = g,
-    nozzleEfficiency: NumberInput = 0.85,
-    chargedFraction: NumberInput = 0.4
+	thrustTime: NumberInput,
+	accel: NumberInput = g,
+	nozzleEfficiency: NumberInput = 0.85,
+	chargedFraction: NumberInput = 0.4
 ): Decimal {
-    const timeD = check(thrustTime, "Invalid thrust time");
-    const accelD = check(accel, "Invalid acceleration");
-    const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
-    const chargedFractionD = check(chargedFraction, "Invalid charged fraction");
+	const timeD = check(thrustTime, "Invalid thrust time");
+	const accelD = check(accel, "Invalid acceleration");
+	const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
+	const chargedFractionD = check(chargedFraction, "Invalid charged fraction");
 
-    // Charged pion exhaust velocity (actual particle velocity, not including energy fraction)
-    // Nozzle efficiency affects momentum collimation
-    const ve = c.mul(0.94).mul(nozzleEffD);
+	// Charged pion exhaust velocity (actual particle velocity, not including energy fraction)
+	// Nozzle efficiency affects momentum collimation
+	const ve = c.mul(0.94).mul(nozzleEffD);
 
-    // Apply charged fraction as thrust efficiency: only this fraction of fuel energy
-    // becomes usable momentum at velocity ve
-    const veEffective = ve.mul(chargedFractionD);
+	// Apply charged fraction as thrust efficiency: only this fraction of fuel energy
+	// becomes usable momentum at velocity ve
+	const veEffective = ve.mul(chargedFractionD);
 
-    if (veEffective.lte(0)) {
-        return new Decimal(0);
-    }
+	if (veEffective.lte(0)) {
+		return new Decimal(0);
+	}
 
-    // Mass ratio M0/Mf = exp(a*t / v_e_effective)
-    const massRatio = accelD.mul(timeD).div(veEffective).exp();
+	// Mass ratio M0/Mf = exp(a*t / v_e_effective)
+	const massRatio = accelD.mul(timeD).div(veEffective).exp();
 
-    // Propellant fraction = 1 - (Mf/M0) = 1 - 1/mass_ratio
-    return one.minus(one.div(massRatio));
+	// Propellant fraction = 1 - (Mf/M0) = 1 - 1/mass_ratio
+	return one.minus(one.div(massRatio));
 }
 
 /**
@@ -673,30 +685,30 @@ export function pionRocketFuelFraction(
  * @returns Array of fuel fractions as percentages (0-100) for each nozzle efficiency level
  */
 export function pionRocketFuelFractionsMultiple(
-    thrustTime: NumberInput,
-    accel: NumberInput,
-    nozzleEfficiencies: number[]
+	thrustTime: NumberInput,
+	accel: NumberInput,
+	nozzleEfficiencies: number[]
 ): Decimal[] {
-    return nozzleEfficiencies.map(nozzleEff => 
-        pionRocketFuelFraction(thrustTime, accel, nozzleEff).mul(100)
-    );
+	return nozzleEfficiencies.map(nozzleEff =>
+		pionRocketFuelFraction(thrustTime, accel, nozzleEff).mul(100)
+	);
 }
 
 /**
  * Format a Decimal value with specified decimal places and thousand separators.
- * 
+ *
  * **BREAKING CHANGE (v2.0.0):** This function now formats all numbers in decimal notation
  * instead of preserving scientific notation. Previously, values like "1e100" would be
  * returned as-is in scientific notation. Now they are expanded to full decimal format
  * with thousand separators (e.g., "10,000,000,000...").
- * 
+ *
  * Features:
  * - Rounds to specified decimal places using banker's rounding
  * - Adds thousand separators (commas) to integer part
  * - Strips trailing zeros from decimal part
  * - Supports ignoreChar for selective digit formatting (useful for sequences like "0.999...")
  * - Normalizes -0 to 0
- * 
+ *
  * @param value The Decimal value to format
  * @param ignoreChar Optional single character to skip when counting significant places.
  *                   If the decimal part starts with this character, those digits are
@@ -706,89 +718,94 @@ export function pionRocketFuelFractionsMultiple(
  *                                 Set to 0 to return only the integer part (rounded).
  * @returns Formatted string with thousand separators and specified decimal places
  * @throws Error if ignoreChar is more than one character
- * 
+ *
  * @example
  * formatSignificant(new Decimal("1234.5678"))           // "1,234.57"
  * formatSignificant(new Decimal("0.999123"), "9", 3)    // "0.999123"
  * formatSignificant(new Decimal("1e100"), "", 2)        // "10,000,000,000..." (full decimal)
  * formatSignificant(new Decimal("1234.5678"), "", 0)    // "1,235" (rounded integer)
  */
-export function formatSignificant(value: Decimal, ignoreChar: string = "", significantDecimalPlaces: number = 2, preserveTrailingZeros: boolean = false): string {
-    if (ignoreChar.length > 1) {
-        throw new Error('ignoreChar must be a single character or empty');
-    }
+export function formatSignificant(
+	value: Decimal,
+	ignoreChar: string = "",
+	significantDecimalPlaces: number = 2,
+	preserveTrailingZeros: boolean = false
+): string {
+	if (ignoreChar.length > 1) {
+		throw new Error("ignoreChar must be a single character or empty");
+	}
 
-    // If 0 decimal places requested, return just the integer part (rounded)
-    if (significantDecimalPlaces === 0) {
-        const integerStr = value.toFixed(0);
-        // Add thousand separators
-        const result = integerStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        return result === '-0' ? '0' : result;
-    }
+	// If 0 decimal places requested, return just the integer part (rounded)
+	if (significantDecimalPlaces === 0) {
+		const integerStr = value.toFixed(0);
+		// Add thousand separators
+		const result = integerStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		return result === "-0" ? "0" : result;
+	}
 
-    // For ignoreChar case, we need full precision to scan for the character
-    // For normal case, we can use exact rounding
-    const needsFullPrecision = ignoreChar.length > 0;
-    const maxDecimalPlaces = needsFullPrecision
-        ? Math.max(precisionConfigured, significantDecimalPlaces + 50)
-        : significantDecimalPlaces;
+	// For ignoreChar case, we need full precision to scan for the character
+	// For normal case, we can use exact rounding
+	const needsFullPrecision = ignoreChar.length > 0;
+	const maxDecimalPlaces = needsFullPrecision
+		? Math.max(precisionConfigured, significantDecimalPlaces + 50)
+		: significantDecimalPlaces;
 
-    const str = value.toFixed(maxDecimalPlaces);
-    const parts = str.split('.', 2);
+	const str = value.toFixed(maxDecimalPlaces);
+	const parts = str.split(".", 2);
 
-    // Handle integers (no decimal part)
-    if (parts.length !== 2) {
-        const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        // If preserving trailing zeros and we want decimal places, add them
-        if (preserveTrailingZeros && significantDecimalPlaces > 0) {
-            const zeros = '0'.repeat(significantDecimalPlaces);
-            return integerPart === '-0' ? `0.${zeros}` : `${integerPart}.${zeros}`;
-        }
-        return integerPart === '-0' ? '0' : integerPart;
-    }
+	// Handle integers (no decimal part)
+	if (parts.length !== 2) {
+		const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		// If preserving trailing zeros and we want decimal places, add them
+		if (preserveTrailingZeros && significantDecimalPlaces > 0) {
+			const zeros = "0".repeat(significantDecimalPlaces);
+			return integerPart === "-0" ? `0.${zeros}` : `${integerPart}.${zeros}`;
+		}
+		return integerPart === "-0" ? "0" : integerPart;
+	}
 
-    let decOutput = ""; // output buffer
-    let remainingPlaces = significantDecimalPlaces;
+	let decOutput = ""; // output buffer
+	let remainingPlaces = significantDecimalPlaces;
 
-    if (needsFullPrecision) {
-        // Scan for ignoreChar, then take significant digits
-        let sigPart = true;
-        for (let i = 0; i < parts[1].length; ++i) {
-            const digit = parts[1][i];
-            if (sigPart && digit === ignoreChar) {
-                // in the ignoreChar part, just copy the digit
-                decOutput += digit;
-            } else if (remainingPlaces > 0) {
-                // now include a fixed number of digits
-                sigPart = false; // we've passed the ignoreChars
-                decOutput += digit;
-                --remainingPlaces;
-            } else {
-                break;
-            }
-        }
-    } else {
-        // No ignoreChar - toFixed already rounded correctly
-        decOutput = parts[1];
-    }
+	if (needsFullPrecision) {
+		// Scan for ignoreChar, then take significant digits
+		let sigPart = true;
+		for (let i = 0; i < parts[1].length; ++i) {
+			const digit = parts[1][i];
+			if (sigPart && digit === ignoreChar) {
+				// in the ignoreChar part, just copy the digit
+				decOutput += digit;
+			} else if (remainingPlaces > 0) {
+				// now include a fixed number of digits
+				sigPart = false; // we've passed the ignoreChars
+				decOutput += digit;
+				--remainingPlaces;
+			} else {
+				break;
+			}
+		}
+	} else {
+		// No ignoreChar - toFixed already rounded correctly
+		decOutput = parts[1];
+	}
 
-    // Strip trailing zeros to match Decimal.toString() behavior (unless preserving)
-    if (!preserveTrailingZeros) {
-        decOutput = decOutput.replace(/0+$/, '');
-    } else {
-        // Pad with zeros if needed to reach significantDecimalPlaces
-        while (decOutput.length < significantDecimalPlaces) {
-            decOutput += '0';
-        }
-    }
+	// Strip trailing zeros to match Decimal.toString() behavior (unless preserving)
+	if (!preserveTrailingZeros) {
+		decOutput = decOutput.replace(/0+$/, "");
+	} else {
+		// Pad with zeros if needed to reach significantDecimalPlaces
+		while (decOutput.length < significantDecimalPlaces) {
+			decOutput += "0";
+		}
+	}
 
-    // Add thousand separators (commas) to the integer part
-    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+	// Add thousand separators (commas) to the integer part
+	const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-    const result = decOutput.length === 0 ? integerPart : `${integerPart}.${decOutput}`;
+	const result = decOutput.length === 0 ? integerPart : `${integerPart}.${decOutput}`;
 
-    // Normalize -0 to 0
-    return result === '-0' ? '0' : result;
+	// Normalize -0 to 0
+	return result === "-0" ? "0" : result;
 }
 
 /**
@@ -808,58 +825,58 @@ export function formatSignificant(value: Decimal, ignoreChar: string = "", signi
  * formatMassWithUnit(observableUniverseMass)       // "1.00 Observable Universe masses (1.00e+53 kg)"
  */
 export function formatMassWithUnit(fuelMass: Decimal): string {
-    const fuelMassScientific = fuelMass.toExponential(2);
+	const fuelMassScientific = fuelMass.toExponential(2);
 
-    if (fuelMass.lt(1000)) {
-        // Show in kg for very small masses (< 1 ton)
-        return `${formatSignificant(fuelMass, "0", 2)} kg (${fuelMassScientific} kg)`;
-    }
+	if (fuelMass.lt(1000)) {
+		// Show in kg for very small masses (< 1 ton)
+		return `${formatSignificant(fuelMass, "0", 2)} kg (${fuelMassScientific} kg)`;
+	}
 
-    const everestMasses = fuelMass.div(everestMass);
-    if (everestMasses.lt(0.1)) {
-        // Show in tons for small masses (whole number)
-        const tons = fuelMass.div(1000);
-        return `${formatSignificant(tons, "0", 0)} tons (${fuelMassScientific} kg)`;
-    }
+	const everestMasses = fuelMass.div(everestMass);
+	if (everestMasses.lt(0.1)) {
+		// Show in tons for small masses (whole number)
+		const tons = fuelMass.div(1000);
+		return `${formatSignificant(tons, "0", 0)} tons (${fuelMassScientific} kg)`;
+	}
 
-    const moonMasses = fuelMass.div(moonMass);
-    if (moonMasses.lt(0.1)) {
-        // Show in Everest masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
-        return `${formatSignificant(everestMasses, "", 2, true)} Everest masses (${fuelMassScientific} kg)`;
-    }
+	const moonMasses = fuelMass.div(moonMass);
+	if (moonMasses.lt(0.1)) {
+		// Show in Everest masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+		return `${formatSignificant(everestMasses, "", 2, true)} Everest masses (${fuelMassScientific} kg)`;
+	}
 
-    const earthMasses = fuelMass.div(earthMass);
-    if (earthMasses.lt(0.1)) {
-        // Show in Moon masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
-        return `${formatSignificant(moonMasses, "", 2, true)} Moon masses (${fuelMassScientific} kg)`;
-    }
+	const earthMasses = fuelMass.div(earthMass);
+	if (earthMasses.lt(0.1)) {
+		// Show in Moon masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+		return `${formatSignificant(moonMasses, "", 2, true)} Moon masses (${fuelMassScientific} kg)`;
+	}
 
-    const solarMasses = fuelMass.div(solarMass);
-    if (solarMasses.lt(0.1)) {
-        // Show in Earth masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
-        return `${formatSignificant(earthMasses, "", 2, true)} Earth masses (${fuelMassScientific} kg)`;
-    }
+	const solarMasses = fuelMass.div(solarMass);
+	if (solarMasses.lt(0.1)) {
+		// Show in Earth masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+		return `${formatSignificant(earthMasses, "", 2, true)} Earth masses (${fuelMassScientific} kg)`;
+	}
 
-    const milkyWayMasses = fuelMass.div(milkyWayMass);
-    if (milkyWayMasses.lt(0.1)) {
-        // Show in Solar masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
-        return `${formatSignificant(solarMasses, "", 2, true)} Solar masses (${fuelMassScientific} kg)`;
-    }
+	const milkyWayMasses = fuelMass.div(milkyWayMass);
+	if (milkyWayMasses.lt(0.1)) {
+		// Show in Solar masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+		return `${formatSignificant(solarMasses, "", 2, true)} Solar masses (${fuelMassScientific} kg)`;
+	}
 
-    const superclusterMasses = fuelMass.div(superclusterMass);
-    if (superclusterMasses.lt(0.1)) {
-        // Show in Milky Way masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
-        return `${formatSignificant(milkyWayMasses, "", 2, true)} Milky Way masses (${fuelMassScientific} kg)`;
-    }
+	const superclusterMasses = fuelMass.div(superclusterMass);
+	if (superclusterMasses.lt(0.1)) {
+		// Show in Milky Way masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+		return `${formatSignificant(milkyWayMasses, "", 2, true)} Milky Way masses (${fuelMassScientific} kg)`;
+	}
 
-    const observableUniverseMasses = fuelMass.div(observableUniverseMass);
-    if (observableUniverseMasses.lt(0.1)) {
-        // Show in Supercluster masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
-        return `${formatSignificant(superclusterMasses, "", 2, true)} Supercluster masses (${fuelMassScientific} kg)`;
-    }
+	const observableUniverseMasses = fuelMass.div(observableUniverseMass);
+	if (observableUniverseMasses.lt(0.1)) {
+		// Show in Supercluster masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+		return `${formatSignificant(superclusterMasses, "", 2, true)} Supercluster masses (${fuelMassScientific} kg)`;
+	}
 
-    // Show in Observable Universe masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
-    return `${formatSignificant(observableUniverseMasses, "", 2, true)} Observable Universe masses (${fuelMassScientific} kg)`;
+	// Show in Observable Universe masses (use empty ignoreChar with preserveTrailingZeros to avoid bug with "0")
+	return `${formatSignificant(observableUniverseMasses, "", 2, true)} Observable Universe masses (${fuelMassScientific} kg)`;
 }
 
 /**
@@ -870,20 +887,23 @@ export function formatMassWithUnit(fuelMass: Decimal): string {
  * @param distanceInKm - Distance in kilometers (Decimal)
  * @returns Object with formatted value and units
  */
-export function formatDistanceAutoUnit(distanceInLightYears: Decimal, distanceInKm: Decimal): { value: string; units: string } {
-    const threshold = new Decimal('0.1');
+export function formatDistanceAutoUnit(
+	distanceInLightYears: Decimal,
+	distanceInKm: Decimal
+): { value: string; units: string } {
+	const threshold = new Decimal("0.1");
 
-    if (distanceInLightYears.gte(threshold)) {
-        return {
-            value: formatSignificant(distanceInLightYears, "0", 3, true),
-            units: 'ly'
-        };
-    } else {
-        return {
-            value: formatSignificant(distanceInKm, "0", 1),
-            units: 'km'
-        };
-    }
+	if (distanceInLightYears.gte(threshold)) {
+		return {
+			value: formatSignificant(distanceInLightYears, "0", 3, true),
+			units: "ly",
+		};
+	} else {
+		return {
+			value: formatSignificant(distanceInKm, "0", 1),
+			units: "km",
+		};
+	}
 }
 
 /**
@@ -897,38 +917,38 @@ export function formatDistanceAutoUnit(distanceInLightYears: Decimal, distanceIn
  * @returns Object with formatted value and units
  */
 export function formatTimeWithUnit(timeInMinutes: Decimal): { value: string; units: string } {
-    const absTime = timeInMinutes.abs();
+	const absTime = timeInMinutes.abs();
 
-    if (absTime.lt(120)) {
-        // Less than 2 hours: show in minutes with 2 decimal places
-        return {
-            value: formatSignificant(timeInMinutes, "", 2),
-            units: 'minutes'
-        };
-    }
+	if (absTime.lt(120)) {
+		// Less than 2 hours: show in minutes with 2 decimal places
+		return {
+			value: formatSignificant(timeInMinutes, "", 2),
+			units: "minutes",
+		};
+	}
 
-    const timeInHours = timeInMinutes.div(60);
-    if (absTime.lt(1440)) {
-        // Less than 1 day: show in hours with 1 decimal place
-        return {
-            value: formatSignificant(timeInHours, "", 1, true),
-            units: 'hours'
-        };
-    }
+	const timeInHours = timeInMinutes.div(60);
+	if (absTime.lt(1440)) {
+		// Less than 1 day: show in hours with 1 decimal place
+		return {
+			value: formatSignificant(timeInHours, "", 1, true),
+			units: "hours",
+		};
+	}
 
-    const timeInDays = timeInMinutes.div(1440);
-    if (absTime.lt(365 * 1440)) {
-        // Less than 365 days: show in days with 1 decimal place
-        return {
-            value: formatSignificant(timeInDays, "", 1, true),
-            units: 'days'
-        };
-    }
+	const timeInDays = timeInMinutes.div(1440);
+	if (absTime.lt(365 * 1440)) {
+		// Less than 365 days: show in days with 1 decimal place
+		return {
+			value: formatSignificant(timeInDays, "", 1, true),
+			units: "days",
+		};
+	}
 
-    // 365 days or more: show in years with 1 decimal place
-    const timeInYears = timeInDays.div(365);
-    return {
-        value: formatSignificant(timeInYears, "", 1, true),
-        units: 'years'
-    };
+	// 365 days or more: show in years with 1 decimal place
+	const timeInYears = timeInDays.div(365);
+	return {
+		value: formatSignificant(timeInYears, "", 1, true),
+		units: "years",
+	};
 }

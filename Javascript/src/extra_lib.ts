@@ -1,4 +1,4 @@
-import seedrandom from 'seedrandom';
+import seedrandom from "seedrandom";
 
 /**
  * Result of estimating stars in a sphere
@@ -90,7 +90,7 @@ export function estimateStarsInSphere(
 	let totalStars = 0.0;
 
 	// Use deterministic seeding for reproducibility across calls
-	const rng = seedrandom('42');
+	const rng = seedrandom("42");
 
 	for (let i = 0; i < nActualShells; i++) {
 		const rInner = i * SHELL_WIDTH_LY;
@@ -153,11 +153,11 @@ export function estimateStarsInSphere(
  * @returns Formatted string like "~866,200", "~12,600,000", "~5"
  */
 export function formatStarCount(stars: number): string {
-	if (stars < 0.5) return '< 1 star';
+	if (stars < 0.5) return "< 1 star";
 	if (stars >= 1e3) {
 		// Round to nearest hundred for thousands and above
 		const rounded = Math.round(stars / 100) * 100;
-		return `~${rounded.toLocaleString('en-US')}`;
+		return `~${rounded.toLocaleString("en-US")}`;
 	}
 	return `~${Math.round(stars)}`;
 }
@@ -184,7 +184,7 @@ function _computeStarsWithoutNormalization(
 	const SHELL_WIDTH_LY = 500.0; // Must match main function
 	const nActualShells = Math.ceil(radiusLy / SHELL_WIDTH_LY);
 	let totalStars = 0.0;
-	const rng = seedrandom('42');
+	const rng = seedrandom("42");
 
 	for (let i = 0; i < nActualShells; i++) {
 		const rInner = i * SHELL_WIDTH_LY;

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Previous behavior:** Numbers in scientific notation (e.g., `1e100`, `1.23e-50`) were returned as-is in scientific notation format.
 
 **New behavior:** All numbers are now formatted in decimal notation with:
+
 - Full decimal expansion (no scientific notation)
 - Thousand separators (commas) for readability
 - Configurable decimal places with proper rounding
@@ -25,23 +26,25 @@ If your code relied on scientific notation being preserved:
 
 ```typescript
 // Old behavior (v1.x)
-formatSignificant(new Decimal("1e100"))  // Returns: "1e100"
+formatSignificant(new Decimal("1e100")); // Returns: "1e100"
 
 // New behavior (v2.x)
-formatSignificant(new Decimal("1e100"))  // Returns: "10,000,000,000,000,000,000..." (full decimal)
+formatSignificant(new Decimal("1e100")); // Returns: "10,000,000,000,000,000,000..." (full decimal)
 ```
 
 To handle this change:
+
 1. If you need scientific notation, use `Decimal.toString()` or `Decimal.toExponential()` instead
 2. If you want decimal notation but without thousand separators, you can use `Decimal.toFixed()`
 3. If you need to parse the formatted string back to a number, remove commas first:
    ```typescript
    const formatted = formatSignificant(value); // "1,234.56"
-   const parsed = new Decimal(formatted.replace(/,/g, '')); // Remove commas before parsing
+   const parsed = new Decimal(formatted.replace(/,/g, "")); // Remove commas before parsing
    ```
 4. The new behavior is beneficial for most UI display purposes where readability is important
 
 **Rationale:** This change ensures:
+
 - Consistent formatting across all numeric ranges
 - No precision loss for large/small numbers
 - Better readability with thousand separators
@@ -51,7 +54,7 @@ To handle this change:
 
 - Comprehensive test suite (47 test cases) for `formatSignificant` function covering:
   - Very large numbers beyond safe integer range
-  - Very small numbers near scientific notation boundaries  
+  - Very small numbers near scientific notation boundaries
   - Edge cases: zeros, trailing zeros, boundary conditions
   - Real-world physics constants (speed of light, Planck length)
   - Relativistic velocities extremely close to c

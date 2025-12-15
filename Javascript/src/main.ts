@@ -1,514 +1,571 @@
-import { Chart, registerables } from 'chart.js';
-import { getInputElement, getButtonElement, getResultElement } from './ui/domUtils';
+import { Chart, registerables } from "chart.js";
+import { getInputElement, getButtonElement, getResultElement } from "./ui/domUtils";
 import {
-    createLorentzHandler,
-    createRapidityFromVelocityHandler,
-    createVelocityFromRapidityHandler,
-    createAccelHandler,
-    createFlipBurnHandler,
-    createTwinParadoxHandler,
-    createAddVelocitiesHandler,
-    createWarpDriveHandler,
-    createPionAccelTimeHandler,
-    createPionFuelFractionHandler,
-    createSpacetimeIntervalHandler,
-    createChartTimeModeHandler,
-    createMassChartSliderHandler,
-    initializeMassChartSlider,
-    createPositionVelocitySliderHandler,
-    initializePositionVelocitySlider
-} from './ui/eventHandlers';
-import { type ChartRegistry } from './charts/charts';
-import { drawMinkowskiDiagramD3, type MinkowskiData, type MinkowskiDiagramController } from './charts/minkowski';
-import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData, type TwinParadoxController } from './charts/minkowski-twins';
-import { createSimultaneityDiagram, type SimultaneityController } from './charts/simultaneity';
-import { initializeFromURL, setupURLSync, updateURL, applyPendingSliderValue, applyPendingDistanceSliderValue } from './urlState';
+	createLorentzHandler,
+	createRapidityFromVelocityHandler,
+	createVelocityFromRapidityHandler,
+	createAccelHandler,
+	createFlipBurnHandler,
+	createTwinParadoxHandler,
+	createAddVelocitiesHandler,
+	createWarpDriveHandler,
+	createPionAccelTimeHandler,
+	createPionFuelFractionHandler,
+	createSpacetimeIntervalHandler,
+	createChartTimeModeHandler,
+	createMassChartSliderHandler,
+	initializeMassChartSlider,
+	createPositionVelocitySliderHandler,
+	initializePositionVelocitySlider,
+} from "./ui/eventHandlers";
+import { type ChartRegistry } from "./charts/charts";
+import {
+	drawMinkowskiDiagramD3,
+	type MinkowskiData,
+	type MinkowskiDiagramController,
+} from "./charts/minkowski";
+import {
+	drawTwinParadoxMinkowski,
+	type TwinParadoxMinkowskiData,
+	type TwinParadoxController,
+} from "./charts/minkowski-twins";
+import { createSimultaneityDiagram, type SimultaneityController } from "./charts/simultaneity";
+import {
+	initializeFromURL,
+	setupURLSync,
+	updateURL,
+	applyPendingSliderValue,
+	applyPendingDistanceSliderValue,
+} from "./urlState";
 
 // Register Chart.js components
 Chart.register(...registerables);
 
-document.addEventListener('DOMContentLoaded', () => {
-    const chartRegistry: { current: ChartRegistry } = { current: new Map() };
+document.addEventListener("DOMContentLoaded", () => {
+	const chartRegistry: { current: ChartRegistry } = { current: new Map() };
 
-    // Store Minkowski diagram controller and data for updates
-    const minkowskiState: {
-        lastData: MinkowskiData | null,
-        controller: MinkowskiDiagramController | null
-    } = {
-        lastData: null,
-        controller: null
-    };
+	// Store Minkowski diagram controller and data for updates
+	const minkowskiState: {
+		lastData: MinkowskiData | null;
+		controller: MinkowskiDiagramController | null;
+	} = {
+		lastData: null,
+		controller: null,
+	};
 
-    // Store Twin Paradox Minkowski diagram controller and data for updates
-    const twinsMinkowskiState: {
-        lastData: TwinParadoxMinkowskiData | null,
-        controller: TwinParadoxController | null
-    } = {
-        lastData: null,
-        controller: null
-    };
+	// Store Twin Paradox Minkowski diagram controller and data for updates
+	const twinsMinkowskiState: {
+		lastData: TwinParadoxMinkowskiData | null;
+		controller: TwinParadoxController | null;
+	} = {
+		lastData: null,
+		controller: null,
+	};
 
-    // Store Simultaneity diagram controller
-    const simultaneityState: {
-        controller: SimultaneityController | null
-    } = {
-        controller: null
-    };
+	// Store Simultaneity diagram controller
+	const simultaneityState: {
+		controller: SimultaneityController | null;
+	} = {
+		controller: null,
+	};
 
-    // Store event handlers for cleanup
-    type EventHandler = EventListener | EventListenerObject;
-    const eventHandlers: Array<{ element: Element | Window, event: string, handler: EventHandler }> = [];
-    const addEventListener = (element: Element | Window | null, event: string, handler: EventHandler) => {
-        if (element) {
-            element.addEventListener(event, handler);
-            eventHandlers.push({ element, event, handler });
-        }
-    };
+	// Store event handlers for cleanup
+	type EventHandler = EventListener | EventListenerObject;
+	const eventHandlers: Array<{ element: Element | Window; event: string; handler: EventHandler }> =
+		[];
+	const addEventListener = (
+		element: Element | Window | null,
+		event: string,
+		handler: EventHandler
+	) => {
+		if (element) {
+			element.addEventListener(event, handler);
+			eventHandlers.push({ element, event, handler });
+		}
+	};
 
-    // Lorentz factor from velocity
-    addEventListener(
-        getButtonElement('lorentzButton'),
-        'click',
-        createLorentzHandler(
-            () => getInputElement('lorentzInput'),
-            () => getResultElement('resultLorentz')
-        )
-    );
+	// Lorentz factor from velocity
+	addEventListener(
+		getButtonElement("lorentzButton"),
+		"click",
+		createLorentzHandler(
+			() => getInputElement("lorentzInput"),
+			() => getResultElement("resultLorentz")
+		)
+	);
 
-    // Rapidity from velocity
-    addEventListener(
-        getButtonElement('velocityButton'),
-        'click',
-        createRapidityFromVelocityHandler(
-            () => getInputElement('velocityInput'),
-            () => getResultElement('resultVelocity')
-        )
-    );
+	// Rapidity from velocity
+	addEventListener(
+		getButtonElement("velocityButton"),
+		"click",
+		createRapidityFromVelocityHandler(
+			() => getInputElement("velocityInput"),
+			() => getResultElement("resultVelocity")
+		)
+	);
 
-    // Velocity from rapidity
-    addEventListener(
-        getButtonElement('rapidityButton'),
-        'click',
-        createVelocityFromRapidityHandler(
-            () => getInputElement('rapidityInput'),
-            () => getResultElement('resultRapidity')
-        )
-    );
+	// Velocity from rapidity
+	addEventListener(
+		getButtonElement("rapidityButton"),
+		"click",
+		createVelocityFromRapidityHandler(
+			() => getInputElement("rapidityInput"),
+			() => getResultElement("resultRapidity")
+		)
+	);
 
-    // Constant acceleration
-    const accelHandlerBase = createAccelHandler(
-        () => getInputElement('aAccelInput'),
-        () => getInputElement('aInput'),
-        () => getInputElement('aDryMassInput'),
-        () => getInputElement('aEfficiencyInput'),
-        () => [
-            getResultElement('resultA1'),
-            getResultElement('resultA2'),
-            getResultElement('resultA1b'),
-            getResultElement('resultA2b'),
-            getResultElement('resultAFuel'),
-            getResultElement('resultAFuelFraction'),
-            getResultElement('resultAStars'),
-            getResultElement('resultAGalaxyFraction')
-        ],
-        chartRegistry
-    );
+	// Constant acceleration
+	const accelHandlerBase = createAccelHandler(
+		() => getInputElement("aAccelInput"),
+		() => getInputElement("aInput"),
+		() => getInputElement("aDryMassInput"),
+		() => getInputElement("aEfficiencyInput"),
+		() => [
+			getResultElement("resultA1"),
+			getResultElement("resultA2"),
+			getResultElement("resultA1b"),
+			getResultElement("resultA2b"),
+			getResultElement("resultAFuel"),
+			getResultElement("resultAFuelFraction"),
+			getResultElement("resultAStars"),
+			getResultElement("resultAGalaxyFraction"),
+		],
+		chartRegistry
+	);
 
-    // Wrap handler to initialize sliders after chart update
-    const accelHandler = () => {
-        accelHandlerBase();
-        // Wait for chart to be updated before initializing sliders
-        // Chart update uses RAF + setTimeout(0), so 100ms provides margin
-        setTimeout(() => {
-            initializeMassChartSlider('accelMassChart', 'accelMassSlider', 'accelMassSliderValue', 'days', chartRegistry);
-            initializePositionVelocitySlider('accelPositionVelocity', 'accelPositionSlider', 'accelPositionSliderValue', chartRegistry);
-            // Apply any pending slider values from URL after initialization
-            applyPendingSliderValue('accelMassSlider', 'accelMassSliderValue', 'days', 'accelMassChart', chartRegistry);
-            applyPendingDistanceSliderValue('accelPositionSlider', 'accelPositionSliderValue', 'accelPositionVelocity', chartRegistry);
-        }, 100);
-    };
+	// Wrap handler to initialize sliders after chart update
+	const accelHandler = () => {
+		accelHandlerBase();
+		// Wait for chart to be updated before initializing sliders
+		// Chart update uses RAF + setTimeout(0), so 100ms provides margin
+		setTimeout(() => {
+			initializeMassChartSlider(
+				"accelMassChart",
+				"accelMassSlider",
+				"accelMassSliderValue",
+				"days",
+				chartRegistry
+			);
+			initializePositionVelocitySlider(
+				"accelPositionVelocity",
+				"accelPositionSlider",
+				"accelPositionSliderValue",
+				chartRegistry
+			);
+			// Apply any pending slider values from URL after initialization
+			applyPendingSliderValue(
+				"accelMassSlider",
+				"accelMassSliderValue",
+				"days",
+				"accelMassChart",
+				chartRegistry
+			);
+			applyPendingDistanceSliderValue(
+				"accelPositionSlider",
+				"accelPositionSliderValue",
+				"accelPositionVelocity",
+				chartRegistry
+			);
+		}, 100);
+	};
 
-    addEventListener(
-        getButtonElement('aButton'),
-        'click',
-        accelHandler
-    );
+	addEventListener(getButtonElement("aButton"), "click", accelHandler);
 
-    // Flip-and-burn
-    const flipHandlerBase = createFlipBurnHandler(
-        () => getInputElement('flipAccelInput'),
-        () => getInputElement('flipInput'),
-        () => getInputElement('flipDryMassInput'),
-        () => getInputElement('flipEfficiencyInput'),
-        () => [
-            getResultElement('resultFlip1'),
-            getResultElement('resultFlip2'),
-            getResultElement('resultFlip3'),
-            getResultElement('resultFlip4'),
-            getResultElement('resultFlip5'),
-            getResultElement('resultFlip6'),
-            getResultElement('resultFlipFuel'),
-            getResultElement('resultFlipFuelFraction'),
-            getResultElement('resultFlipStars'),
-            getResultElement('resultFlipGalaxyFraction')
-        ],
-        chartRegistry
-    );
+	// Flip-and-burn
+	const flipHandlerBase = createFlipBurnHandler(
+		() => getInputElement("flipAccelInput"),
+		() => getInputElement("flipInput"),
+		() => getInputElement("flipDryMassInput"),
+		() => getInputElement("flipEfficiencyInput"),
+		() => [
+			getResultElement("resultFlip1"),
+			getResultElement("resultFlip2"),
+			getResultElement("resultFlip3"),
+			getResultElement("resultFlip4"),
+			getResultElement("resultFlip5"),
+			getResultElement("resultFlip6"),
+			getResultElement("resultFlipFuel"),
+			getResultElement("resultFlipFuelFraction"),
+			getResultElement("resultFlipStars"),
+			getResultElement("resultFlipGalaxyFraction"),
+		],
+		chartRegistry
+	);
 
-    // Wrap handler to initialize sliders after chart update
-    const flipHandler = () => {
-        flipHandlerBase();
-        // Wait for chart to be updated before initializing sliders
-        // Chart update uses RAF + setTimeout(0), so 100ms provides margin
-        setTimeout(() => {
-            initializeMassChartSlider('flipMassChart', 'flipMassSlider', 'flipMassSliderValue', 'years', chartRegistry);
-            initializePositionVelocitySlider('flipPositionVelocity', 'flipPositionSlider', 'flipPositionSliderValue', chartRegistry);
-            // Apply any pending slider values from URL after initialization
-            applyPendingSliderValue('flipMassSlider', 'flipMassSliderValue', 'years', 'flipMassChart', chartRegistry);
-            applyPendingDistanceSliderValue('flipPositionSlider', 'flipPositionSliderValue', 'flipPositionVelocity', chartRegistry);
-        }, 100);
-    };
+	// Wrap handler to initialize sliders after chart update
+	const flipHandler = () => {
+		flipHandlerBase();
+		// Wait for chart to be updated before initializing sliders
+		// Chart update uses RAF + setTimeout(0), so 100ms provides margin
+		setTimeout(() => {
+			initializeMassChartSlider(
+				"flipMassChart",
+				"flipMassSlider",
+				"flipMassSliderValue",
+				"years",
+				chartRegistry
+			);
+			initializePositionVelocitySlider(
+				"flipPositionVelocity",
+				"flipPositionSlider",
+				"flipPositionSliderValue",
+				chartRegistry
+			);
+			// Apply any pending slider values from URL after initialization
+			applyPendingSliderValue(
+				"flipMassSlider",
+				"flipMassSliderValue",
+				"years",
+				"flipMassChart",
+				chartRegistry
+			);
+			applyPendingDistanceSliderValue(
+				"flipPositionSlider",
+				"flipPositionSliderValue",
+				"flipPositionVelocity",
+				chartRegistry
+			);
+		}, 100);
+	};
 
-    addEventListener(
-        getButtonElement('flipButton'),
-        'click',
-        flipHandler
-    );
+	addEventListener(getButtonElement("flipButton"), "click", flipHandler);
 
-    // Setup time mode toggles for all charts
-    const chartIds = ['accelVelocity', 'accelLorentz', 'accelRapidity',
-                      'flipVelocity', 'flipLorentz', 'flipRapidity'];
+	// Setup time mode toggles for all charts
+	const chartIds = [
+		"accelVelocity",
+		"accelLorentz",
+		"accelRapidity",
+		"flipVelocity",
+		"flipLorentz",
+		"flipRapidity",
+	];
 
-    chartIds.forEach(chartId => {
-        const handler = createChartTimeModeHandler(
-            chartId,
-            chartRegistry
-        );
+	chartIds.forEach(chartId => {
+		const handler = createChartTimeModeHandler(chartId, chartRegistry);
 
-        // Wire up both buttons for this chart
-        document.querySelectorAll(`[data-chart="${chartId}"]`).forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const mode = (e.target as HTMLButtonElement).dataset.mode as 'proper' | 'coordinate';
-                handler(mode);
-                updateURL();  // Persist to URL
-            });
-        });
-    });
+		// Wire up both buttons for this chart
+		document.querySelectorAll(`[data-chart="${chartId}"]`).forEach(btn => {
+			btn.addEventListener("click", e => {
+				const mode = (e.target as HTMLButtonElement).dataset.mode as "proper" | "coordinate";
+				handler(mode);
+				updateURL(); // Persist to URL
+			});
+		});
+	});
 
-    // Setup mass chart sliders
-    const accelMassSliderHandler = createMassChartSliderHandler(
-        'accelMassChart',
-        () => getInputElement('accelMassSlider'),
-        () => getResultElement('accelMassSliderValue'),
-        'days',
-        chartRegistry
-    );
-    addEventListener(getInputElement('accelMassSlider'), 'input', accelMassSliderHandler);
+	// Setup mass chart sliders
+	const accelMassSliderHandler = createMassChartSliderHandler(
+		"accelMassChart",
+		() => getInputElement("accelMassSlider"),
+		() => getResultElement("accelMassSliderValue"),
+		"days",
+		chartRegistry
+	);
+	addEventListener(getInputElement("accelMassSlider"), "input", accelMassSliderHandler);
 
-    const flipMassSliderHandler = createMassChartSliderHandler(
-        'flipMassChart',
-        () => getInputElement('flipMassSlider'),
-        () => getResultElement('flipMassSliderValue'),
-        'years',
-        chartRegistry
-    );
-    addEventListener(getInputElement('flipMassSlider'), 'input', flipMassSliderHandler);
+	const flipMassSliderHandler = createMassChartSliderHandler(
+		"flipMassChart",
+		() => getInputElement("flipMassSlider"),
+		() => getResultElement("flipMassSliderValue"),
+		"years",
+		chartRegistry
+	);
+	addEventListener(getInputElement("flipMassSlider"), "input", flipMassSliderHandler);
 
-    // Setup position/velocity chart sliders
-    const accelPositionSliderHandler = createPositionVelocitySliderHandler(
-        'accelPositionVelocity',
-        () => getInputElement('accelPositionSlider'),
-        () => getResultElement('accelPositionSliderValue'),
-        chartRegistry
-    );
-    addEventListener(getInputElement('accelPositionSlider'), 'input', accelPositionSliderHandler);
+	// Setup position/velocity chart sliders
+	const accelPositionSliderHandler = createPositionVelocitySliderHandler(
+		"accelPositionVelocity",
+		() => getInputElement("accelPositionSlider"),
+		() => getResultElement("accelPositionSliderValue"),
+		chartRegistry
+	);
+	addEventListener(getInputElement("accelPositionSlider"), "input", accelPositionSliderHandler);
 
-    const flipPositionSliderHandler = createPositionVelocitySliderHandler(
-        'flipPositionVelocity',
-        () => getInputElement('flipPositionSlider'),
-        () => getResultElement('flipPositionSliderValue'),
-        chartRegistry
-    );
-    addEventListener(getInputElement('flipPositionSlider'), 'input', flipPositionSliderHandler);
+	const flipPositionSliderHandler = createPositionVelocitySliderHandler(
+		"flipPositionVelocity",
+		() => getInputElement("flipPositionSlider"),
+		() => getResultElement("flipPositionSliderValue"),
+		chartRegistry
+	);
+	addEventListener(getInputElement("flipPositionSlider"), "input", flipPositionSliderHandler);
 
-    // Twin Paradox
-    const twinsCalculateHandler = createTwinParadoxHandler(
-        () => getInputElement('twinsVelocityInput'),
-        () => getInputElement('twinsTimeInput'),
-        () => [
-            getResultElement('resultTwins1'),
-            getResultElement('resultTwins2'),
-            getResultElement('resultTwins3'),
-            getResultElement('resultTwins4'),
-            getResultElement('resultTwins5'),
-            getResultElement('resultTwins6'),
-            getResultElement('resultTwins7'),
-            getResultElement('resultTwins8')
-        ],
-        chartRegistry,
-        (container, data, _controller) => {
-            if (twinsMinkowskiState.controller) {
-                // Update existing diagram
-                twinsMinkowskiState.controller.update(data);
-            } else {
-                // Create new diagram with velocity change callback
-                twinsMinkowskiState.controller = drawTwinParadoxMinkowski(container, data, (newVelocityC) => {
-                    // Update input field
-                    const velocityInput = getInputElement('twinsVelocityInput');
-                    if (velocityInput) {
-                        velocityInput.value = newVelocityC.toString();
-                        // Trigger calculation with new velocity (silent mode to avoid flicker)
-                        twinsCalculateHandler(true);
-                    }
-                });
-            }
-            twinsMinkowskiState.lastData = data;
-        }
-    );
+	// Twin Paradox
+	const twinsCalculateHandler = createTwinParadoxHandler(
+		() => getInputElement("twinsVelocityInput"),
+		() => getInputElement("twinsTimeInput"),
+		() => [
+			getResultElement("resultTwins1"),
+			getResultElement("resultTwins2"),
+			getResultElement("resultTwins3"),
+			getResultElement("resultTwins4"),
+			getResultElement("resultTwins5"),
+			getResultElement("resultTwins6"),
+			getResultElement("resultTwins7"),
+			getResultElement("resultTwins8"),
+		],
+		chartRegistry,
+		(container, data, _controller) => {
+			if (twinsMinkowskiState.controller) {
+				// Update existing diagram
+				twinsMinkowskiState.controller.update(data);
+			} else {
+				// Create new diagram with velocity change callback
+				twinsMinkowskiState.controller = drawTwinParadoxMinkowski(container, data, newVelocityC => {
+					// Update input field
+					const velocityInput = getInputElement("twinsVelocityInput");
+					if (velocityInput) {
+						velocityInput.value = newVelocityC.toString();
+						// Trigger calculation with new velocity (silent mode to avoid flicker)
+						twinsCalculateHandler(true);
+					}
+				});
+			}
+			twinsMinkowskiState.lastData = data;
+		}
+	);
 
-    addEventListener(getButtonElement('twinsButton'), 'click', () => twinsCalculateHandler());
+	addEventListener(getButtonElement("twinsButton"), "click", () => twinsCalculateHandler());
 
-    // Bidirectional sync: input field -> slider
-    const twinsInputHandler = (event: Event) => {
-        const velocityInput = event.target as HTMLInputElement;
-        const newVelocityC = parseFloat(velocityInput.value);
-        if (!isNaN(newVelocityC) && twinsMinkowskiState.controller?.updateSlider) {
-            twinsMinkowskiState.controller.updateSlider(newVelocityC);
-        }
-    };
-    addEventListener(getInputElement('twinsVelocityInput'), 'input', twinsInputHandler);
+	// Bidirectional sync: input field -> slider
+	const twinsInputHandler = (event: Event) => {
+		const velocityInput = event.target as HTMLInputElement;
+		const newVelocityC = parseFloat(velocityInput.value);
+		if (!isNaN(newVelocityC) && twinsMinkowskiState.controller?.updateSlider) {
+			twinsMinkowskiState.controller.updateSlider(newVelocityC);
+		}
+	};
+	addEventListener(getInputElement("twinsVelocityInput"), "input", twinsInputHandler);
 
-    // Handle twins tab - pre-calculate when first shown
-    const twinsTab = document.getElementById('twins-tab');
-    const twinsTabHandler = () => {
-        // Check if the diagram hasn't been generated yet
-        if (!twinsMinkowskiState.controller) {
-            // Trigger the twins paradox calculation
-            const twinsButton = getButtonElement('twinsButton');
-            twinsButton?.click();
-        }
-    };
-    addEventListener(twinsTab, 'shown.bs.tab', twinsTabHandler);
+	// Handle twins tab - pre-calculate when first shown
+	const twinsTab = document.getElementById("twins-tab");
+	const twinsTabHandler = () => {
+		// Check if the diagram hasn't been generated yet
+		if (!twinsMinkowskiState.controller) {
+			// Trigger the twins paradox calculation
+			const twinsButton = getButtonElement("twinsButton");
+			twinsButton?.click();
+		}
+	};
+	addEventListener(twinsTab, "shown.bs.tab", twinsTabHandler);
 
-    // Add velocities
-    addEventListener(
-        getButtonElement('addButton'),
-        'click',
-        createAddVelocitiesHandler(
-            () => getInputElement('v1Input'),
-            () => getInputElement('v2Input'),
-            () => getResultElement('resultAdd')
-        )
-    );
+	// Add velocities
+	addEventListener(
+		getButtonElement("addButton"),
+		"click",
+		createAddVelocitiesHandler(
+			() => getInputElement("v1Input"),
+			() => getInputElement("v2Input"),
+			() => getResultElement("resultAdd")
+		)
+	);
 
-    // Warp drive time travel
-    addEventListener(
-        getButtonElement('warpButton'),
-        'click',
-        createWarpDriveHandler(
-            () => getInputElement('warpDistanceInput'),
-            () => getInputElement('warpBoostInput'),
-            () => getInputElement('warpTransitInput'),
-            () => getInputElement('warpBoostDurationInput'),
-            () => [
-                getResultElement('resultWarpDisplacement'),
-                getResultElement('resultWarpSimultaneity'),
-                getResultElement('resultWarpEarthTime'),
-                getResultElement('resultWarpTravelerTime')
-            ]
-        )
-    );
+	// Warp drive time travel
+	addEventListener(
+		getButtonElement("warpButton"),
+		"click",
+		createWarpDriveHandler(
+			() => getInputElement("warpDistanceInput"),
+			() => getInputElement("warpBoostInput"),
+			() => getInputElement("warpTransitInput"),
+			() => getInputElement("warpBoostDurationInput"),
+			() => [
+				getResultElement("resultWarpDisplacement"),
+				getResultElement("resultWarpSimultaneity"),
+				getResultElement("resultWarpEarthTime"),
+				getResultElement("resultWarpTravelerTime"),
+			]
+		)
+	);
 
-    // Pion rocket acceleration time
-    addEventListener(
-        getButtonElement('pionAccelButton'),
-        'click',
-        createPionAccelTimeHandler(
-            () => getInputElement('pionFuelMassInput'),
-            () => getInputElement('pionDryMassInput'),
-            () => getInputElement('pionEfficiencyInput'),
-            () => getResultElement('resultPionAccel')
-        )
-    );
+	// Pion rocket acceleration time
+	addEventListener(
+		getButtonElement("pionAccelButton"),
+		"click",
+		createPionAccelTimeHandler(
+			() => getInputElement("pionFuelMassInput"),
+			() => getInputElement("pionDryMassInput"),
+			() => getInputElement("pionEfficiencyInput"),
+			() => getResultElement("resultPionAccel")
+		)
+	);
 
-    // Pion rocket fuel fraction
-    addEventListener(
-        getButtonElement('fuelFractionButton'),
-        'click',
-        createPionFuelFractionHandler(
-            () => getInputElement('fuelFractionAccelInput'),
-            () => getInputElement('fuelFractionTimeInput'),
-            () => getInputElement('fuelFractionEffInput'),
-            () => getInputElement('fuelFractionDryMassInput'),
-            () => getResultElement('resultFuelFraction'),
-            () => getResultElement('resultFuelMass')
-        )
-    );
+	// Pion rocket fuel fraction
+	addEventListener(
+		getButtonElement("fuelFractionButton"),
+		"click",
+		createPionFuelFractionHandler(
+			() => getInputElement("fuelFractionAccelInput"),
+			() => getInputElement("fuelFractionTimeInput"),
+			() => getInputElement("fuelFractionEffInput"),
+			() => getInputElement("fuelFractionDryMassInput"),
+			() => getResultElement("resultFuelFraction"),
+			() => getResultElement("resultFuelMass")
+		)
+	);
 
-    // Spacetime interval
-    addEventListener(
-        getButtonElement('spacetimeButton'),
-        'click',
-        createSpacetimeIntervalHandler(
-            () => getInputElement('spacetimeTime2'),
-            () => getInputElement('spacetimeX2'),
-            () => getInputElement('spacetimeVelocity'),
-            () => getResultElement('resultSpacetimeSquared'),
-            () => getResultElement('resultSpacetimeType'),
-            () => getResultElement('resultSpacetimeDeltaT'),
-            () => getResultElement('resultSpacetimeDeltaX'),
-            () => getResultElement('resultSpacetimeMinSep'),
-            () => getResultElement('resultSpacetimeVelocity'),
-            (container, data, _controller) => {
-                if (minkowskiState.controller) {
-                    // Update existing diagram
-                    minkowskiState.controller.update(data);
-                } else {
-                    // Create new diagram
-                    minkowskiState.controller = drawMinkowskiDiagramD3(container, data);
-                }
-                minkowskiState.lastData = data;
-            }
-        )
-    );
+	// Spacetime interval
+	addEventListener(
+		getButtonElement("spacetimeButton"),
+		"click",
+		createSpacetimeIntervalHandler(
+			() => getInputElement("spacetimeTime2"),
+			() => getInputElement("spacetimeX2"),
+			() => getInputElement("spacetimeVelocity"),
+			() => getResultElement("resultSpacetimeSquared"),
+			() => getResultElement("resultSpacetimeType"),
+			() => getResultElement("resultSpacetimeDeltaT"),
+			() => getResultElement("resultSpacetimeDeltaX"),
+			() => getResultElement("resultSpacetimeMinSep"),
+			() => getResultElement("resultSpacetimeVelocity"),
+			(container, data, _controller) => {
+				if (minkowskiState.controller) {
+					// Update existing diagram
+					minkowskiState.controller.update(data);
+				} else {
+					// Create new diagram
+					minkowskiState.controller = drawMinkowskiDiagramD3(container, data);
+				}
+				minkowskiState.lastData = data;
+			}
+		)
+	);
 
+	// Handle orientation changes and window resize with debounce
+	let resizeTimeout: number | undefined;
+	const handleResize = () => {
+		clearTimeout(resizeTimeout);
+		resizeTimeout = window.setTimeout(() => {
+			// Resize all Chart.js charts in the registry
+			chartRegistry.current.forEach(chart => {
+				chart.resize();
+			});
 
-    // Handle orientation changes and window resize with debounce
-    let resizeTimeout: number | undefined;
-    const handleResize = () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = window.setTimeout(() => {
-            // Resize all Chart.js charts in the registry
-            chartRegistry.current.forEach(chart => {
-                chart.resize();
-            });
+			// Update Minkowski diagram if it exists
+			if (minkowskiState.controller && minkowskiState.lastData) {
+				minkowskiState.controller.update(minkowskiState.lastData);
+			}
 
-            // Update Minkowski diagram if it exists
-            if (minkowskiState.controller && minkowskiState.lastData) {
-                minkowskiState.controller.update(minkowskiState.lastData);
-            }
+			// Update Twin Paradox Minkowski diagram if it exists
+			if (twinsMinkowskiState.controller && twinsMinkowskiState.lastData) {
+				twinsMinkowskiState.controller.update(twinsMinkowskiState.lastData);
+			}
+		}, 700);
+	};
 
-            // Update Twin Paradox Minkowski diagram if it exists
-            if (twinsMinkowskiState.controller && twinsMinkowskiState.lastData) {
-                twinsMinkowskiState.controller.update(twinsMinkowskiState.lastData);
-            }
-        }, 700);
-    };
+	addEventListener(window, "resize", handleResize);
+	addEventListener(window, "orientationchange", handleResize);
 
-    addEventListener(window, 'resize', handleResize);
-    addEventListener(window, 'orientationchange', handleResize);
+	// Handle tab changes - trigger calculation when spacetime tab is opened
+	const spacetimeTab = document.getElementById("spacetime-tab");
+	const spacetimeTabHandler = () => {
+		// Check if the diagram hasn't been generated yet
+		if (!minkowskiState.controller) {
+			// Trigger the spacetime calculation
+			const spacetimeButton = getButtonElement("spacetimeButton");
+			spacetimeButton?.click();
+		}
+	};
+	addEventListener(spacetimeTab, "shown.bs.tab", spacetimeTabHandler);
 
-    // Handle tab changes - trigger calculation when spacetime tab is opened
-    const spacetimeTab = document.getElementById('spacetime-tab');
-    const spacetimeTabHandler = () => {
-        // Check if the diagram hasn't been generated yet
-        if (!minkowskiState.controller) {
-            // Trigger the spacetime calculation
-            const spacetimeButton = getButtonElement('spacetimeButton');
-            spacetimeButton?.click();
-        }
-    };
-    addEventListener(spacetimeTab, 'shown.bs.tab', spacetimeTabHandler);
+	// Handle simultaneity tab - initialize diagram when opened
+	const simultaneityTab = document.getElementById("simultaneity-tab");
+	const simultaneityTabHandler = () => {
+		if (!simultaneityState.controller) {
+			const container = document.getElementById("simultaneityContainer");
+			if (container) {
+				// Small delay to ensure tab is fully visible
+				setTimeout(() => {
+					simultaneityState.controller = createSimultaneityDiagram(container);
+					// Restore velocity from text input if set
+					const input = document.getElementById("simVelocityInput") as HTMLInputElement;
+					if (input && parseFloat(input.value) !== 0) {
+						simultaneityState.controller?.updateSlider?.(parseFloat(input.value));
+					}
+				}, 100);
+			}
+		}
+	};
+	addEventListener(simultaneityTab, "shown.bs.tab", simultaneityTabHandler);
 
-    // Handle simultaneity tab - initialize diagram when opened
-    const simultaneityTab = document.getElementById('simultaneity-tab');
-    const simultaneityTabHandler = () => {
-        if (!simultaneityState.controller) {
-            const container = document.getElementById('simultaneityContainer');
-            if (container) {
-                // Small delay to ensure tab is fully visible
-                setTimeout(() => {
-                    simultaneityState.controller = createSimultaneityDiagram(container);
-                    // Restore velocity from text input if set
-                    const input = document.getElementById('simVelocityInput') as HTMLInputElement;
-                    if (input && parseFloat(input.value) !== 0) {
-                        simultaneityState.controller?.updateSlider?.(parseFloat(input.value));
-                    }
-                }, 100);
-            }
-        }
-    };
-    addEventListener(simultaneityTab, 'shown.bs.tab', simultaneityTabHandler);
+	// Simultaneity controls
+	const simVelocityInput = document.getElementById("simVelocityInput") as HTMLInputElement;
+	const simCalculateButton = document.getElementById("simCalculateButton");
+	const simResetButton = document.getElementById("simResetButton");
+	const simClearButton = document.getElementById("simClearButton");
 
-    // Simultaneity controls
-    const simVelocityInput = document.getElementById('simVelocityInput') as HTMLInputElement;
-    const simCalculateButton = document.getElementById('simCalculateButton');
-    const simResetButton = document.getElementById('simResetButton');
-    const simClearButton = document.getElementById('simClearButton');
+	// Function to update velocity from text input
+	const updateVelocityFromInput = () => {
+		if (!simVelocityInput) return;
 
-    // Function to update velocity from text input
-    const updateVelocityFromInput = () => {
-        if (!simVelocityInput) return;
+		let velocity = parseFloat(simVelocityInput.value);
 
-        let velocity = parseFloat(simVelocityInput.value);
+		// Validate and clamp velocity
+		if (isNaN(velocity)) {
+			velocity = 0;
+		} else {
+			velocity = Math.max(-0.99, Math.min(0.99, velocity));
+		}
 
-        // Validate and clamp velocity
-        if (isNaN(velocity)) {
-            velocity = 0;
-        } else {
-            velocity = Math.max(-0.99, Math.min(0.99, velocity));
-        }
+		// Update input field with clamped value
+		simVelocityInput.value = velocity.toString();
 
-        // Update input field with clamped value
-        simVelocityInput.value = velocity.toString();
+		if (simultaneityState.controller?.updateSlider) {
+			simultaneityState.controller.updateSlider(velocity);
+		}
+	};
 
-        if (simultaneityState.controller?.updateSlider) {
-            simultaneityState.controller.updateSlider(velocity);
-        }
-    };
+	// Calculate button click handler
+	addEventListener(simCalculateButton, "click", updateVelocityFromInput);
 
-    // Calculate button click handler
-    addEventListener(simCalculateButton, 'click', updateVelocityFromInput);
+	// Allow Enter key to trigger calculation
+	const simKeypressHandler = (event: KeyboardEvent) => {
+		if (event.key === "Enter") {
+			updateVelocityFromInput();
+		}
+	};
+	addEventListener(simVelocityInput, "keypress", simKeypressHandler as EventListener);
 
-    // Allow Enter key to trigger calculation
-    const simKeypressHandler = (event: KeyboardEvent) => {
-        if (event.key === 'Enter') {
-            updateVelocityFromInput();
-        }
-    };
-    addEventListener(simVelocityInput, 'keypress', simKeypressHandler as EventListener);
+	const simResetHandler = () => {
+		if (simultaneityState.controller) {
+			simultaneityState.controller.reset();
+			// Reset text input
+			if (simVelocityInput) {
+				simVelocityInput.value = "0";
+			}
+		}
+	};
+	addEventListener(simResetButton, "click", simResetHandler);
 
-    const simResetHandler = () => {
-        if (simultaneityState.controller) {
-            simultaneityState.controller.reset();
-            // Reset text input
-            if (simVelocityInput) {
-                simVelocityInput.value = '0';
-            }
-        }
-    };
-    addEventListener(simResetButton, 'click', simResetHandler);
+	const simClearHandler = () => {
+		if (simultaneityState.controller) {
+			simultaneityState.controller.clearAll();
+		}
+	};
+	addEventListener(simClearButton, "click", simClearHandler);
 
-    const simClearHandler = () => {
-        if (simultaneityState.controller) {
-            simultaneityState.controller.clearAll();
-        }
-    };
-    addEventListener(simClearButton, 'click', simClearHandler);
+	// Initialize from URL parameters and set up bidirectional sync
+	initializeFromURL();
+	const cleanupURLSync = setupURLSync();
 
-    // Initialize from URL parameters and set up bidirectional sync
-    initializeFromURL();
-    const cleanupURLSync = setupURLSync();
+	// Cleanup function to remove all event listeners
+	const cleanup = () => {
+		// Clear any pending resize timeout
+		clearTimeout(resizeTimeout);
 
-    // Cleanup function to remove all event listeners
-    const cleanup = () => {
-        // Clear any pending resize timeout
-        clearTimeout(resizeTimeout);
+		// Remove all tracked event listeners
+		eventHandlers.forEach(({ element, event, handler }) => {
+			element.removeEventListener(event, handler);
+		});
 
-        // Remove all tracked event listeners
-        eventHandlers.forEach(({ element, event, handler }) => {
-            element.removeEventListener(event, handler);
-        });
+		// Cleanup URL sync listeners
+		cleanupURLSync();
 
-        // Cleanup URL sync listeners
-        cleanupURLSync();
+		// Destroy chart controllers
+		minkowskiState.controller?.destroy();
+		twinsMinkowskiState.controller?.destroy();
+		simultaneityState.controller?.destroy();
+	};
 
-        // Destroy chart controllers
-        minkowskiState.controller?.destroy();
-        twinsMinkowskiState.controller?.destroy();
-        simultaneityState.controller?.destroy();
-    };
-
-    // Register cleanup on page unload
-    addEventListener(window, 'beforeunload', cleanup);
+	// Register cleanup on page unload
+	addEventListener(window, "beforeunload", cleanup);
 });

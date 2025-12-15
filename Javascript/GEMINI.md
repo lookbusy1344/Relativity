@@ -38,13 +38,15 @@ yarn upgrade-interactive
 ## Architecture
 
 ### Core Library (`relativity_lib.ts`)
+
 - Exports physics calculation functions using Decimal.js for precision
 - Configurable precision (default 150 decimal places)
 - Constants: speed of light (c), gravity (g), light year, etc.
 - Functions for: Lorentz factors, velocity addition, time dilation, length contraction, relativistic kinematics
 - Specialized calculations: flip-and-burn maneuvers, spacetime intervals, four-momentum
 
-### Web Interface (`main.ts`) 
+### Web Interface (`main.ts`)
+
 - DOM event handlers for calculator inputs
 - Calls library functions and displays formatted results
 - Handles multiple calculation types: velocity conversions, relativistic motion, velocity addition

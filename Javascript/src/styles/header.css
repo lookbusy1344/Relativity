@@ -13,7 +13,7 @@
 }
 
 .header::before {
-	content: '';
+	content: "";
 	position: absolute;
 	top: 0;
 	left: -100%;
@@ -24,7 +24,7 @@
 }
 
 .header h1 {
-	font-family: 'Orbitron', sans-serif;
+	font-family: "Orbitron", sans-serif;
 	color: var(--electric-cyan);
 	font-weight: 900;
 	margin-bottom: 0.5rem;
@@ -44,7 +44,7 @@
 	gap: 0.35rem;
 	color: var(--electric-cyan);
 	text-decoration: none;
-	font-family: 'Orbitron', sans-serif;
+	font-family: "Orbitron", sans-serif;
 	font-weight: 600;
 	font-size: 0.75rem;
 	text-transform: uppercase;
@@ -94,7 +94,7 @@
 	border-radius: 2px;
 	font-weight: 600;
 	margin-top: 1rem;
-	font-family: 'IBM Plex Mono', monospace;
+	font-family: "IBM Plex Mono", monospace;
 	letter-spacing: 1px;
 	box-shadow: 0 0 15px var(--glow-cyan);
 	animation: pulse 2s infinite;

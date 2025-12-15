@@ -1,6 +1,10 @@
 @keyframes scanline {
-	0% { transform: translateY(-100%); }
-	100% { transform: translateY(100vh); }
+	0% {
+		transform: translateY(-100%);
+	}
+	100% {
+		transform: translateY(100vh);
+	}
 }
 
 @keyframes fadeInUp {
@@ -15,11 +19,20 @@
 }
 
 @keyframes pulse {
-	0%, 100% { opacity: 1; }
-	50% { opacity: 0.6; }
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.6;
+	}
 }
 
 @keyframes shimmer {
-	0% { left: -100%; }
-	100% { left: 100%; }
+	0% {
+		left: -100%;
+	}
+	100% {
+		left: 100%;
+	}
 }

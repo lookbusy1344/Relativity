@@ -40,6 +40,7 @@ This is a **well-architected, production-quality** physics calculator with inter
 ### Suggestions for Improvement 📋
 
 1. **Consider extracting chart configurations** into a separate config file:
+
    ```typescript
    // charts/chartConfig.ts
    export const CHART_COLORS = { ... };
@@ -80,31 +81,36 @@ This is a **well-architected, production-quality** physics calculator with inter
    // Lines 49-81 and 172-182 contain identical constants
    // _computeStarsWithoutNormalization duplicates model parameters
    ```
-   
+
    **Recommendation:** Extract constants to module level:
+
    ```typescript
    const GALACTIC_MODEL = {
-     rhoLocal: 0.0034,
-     hR: 11500.0,
-     hZ: 2800.0,
-     // ...
+   	rhoLocal: 0.0034,
+   	hR: 11500.0,
+   	hZ: 2800.0,
+   	// ...
    } as const;
    ```
 
 2. **Magic numbers in `simultaneity.ts`:**
+
    ```typescript
-   const TRAIN_EXAMPLE_SCALE = 2 * C * 1.3;  // Line 61 - what is 1.3?
+   const TRAIN_EXAMPLE_SCALE = 2 * C * 1.3; // Line 61 - what is 1.3?
    ```
+
    Add a comment explaining the 1.3 padding factor.
 
 3. **Inconsistent null checking patterns:**
+
    ```typescript
    // eventHandlers.ts uses early return
    if (!input || !result) return;
-   
+
    // Some places use optional chaining
    chart?.destroy();
    ```
+
    Both are fine, but consistency would help.
 
 ---
@@ -118,6 +124,7 @@ All physics calculations are mathematically correct based on test coverage.
 ### Minor Edge Cases to Consider 🔍
 
 1. **Division by zero protection in `lorentzFactor`:**
+
    ```typescript
    // At v = c, denominator becomes 0
    // Currently returns NaN via checkVelocity(), which is correct
@@ -125,9 +132,10 @@ All physics calculations are mathematically correct based on test coverage.
    ```
 
 2. **`formatSignificant` with 0 decimal places and negative zero:**
+
    ```typescript
    // Line 649 handles -0 normalization, which is good
-   return result === '-0' ? '0' : result;
+   return result === "-0" ? "0" : result;
    ```
 
 3. **`simultaneity.ts` event limit:**
@@ -143,29 +151,37 @@ All physics calculations are mathematically correct based on test coverage.
 ### Well-Implemented Patterns ✅
 
 1. **Factory Pattern** for event handlers:
+
    ```typescript
    export function createLorentzHandler(
        getInput: () => HTMLInputElement | null,
        getResult: () => HTMLElement | null
    ): () => void { ... }
    ```
+
    This enables easy testing and decouples DOM from logic.
 
 2. **Controller Pattern** for D3 diagrams:
+
    ```typescript
    interface MinkowskiDiagramController {
-       update(data: MinkowskiData): void;
-       pause(): void;
-       play(): void;
-       destroy(): void;
+   	update(data: MinkowskiData): void;
+   	pause(): void;
+   	play(): void;
+   	destroy(): void;
    }
    ```
 
 3. **Module State Pattern** in `simultaneityState.ts`:
    ```typescript
    let currentEvents: SimultaneityEventData[] = [];
-   export function getEvents() { return currentEvents; }
-   export function setEvents(events) { currentEvents = events; notifySubscribers(); }
+   export function getEvents() {
+   	return currentEvents;
+   }
+   export function setEvents(events) {
+   	currentEvents = events;
+   	notifySubscribers();
+   }
    ```
 
 ### Suggestions 📋
@@ -190,12 +206,14 @@ All physics calculations are mathematically correct based on test coverage.
 ### Potential Improvements 📋
 
 1. **Memoization** for expensive physics calculations:
+
    ```typescript
    // flipAndBurn() with same parameters could be cached
    const memoizedFlipAndBurn = memoize(flipAndBurn, hashArgs);
    ```
 
 2. **Star estimation caching:**
+
    ```typescript
    // Already caches _modelTotalStars at 200,000 ly - good!
    // Could also cache intermediate results
@@ -212,11 +230,13 @@ All physics calculations are mathematically correct based on test coverage.
 ## 6. Accessibility & UX
 
 ### Present ✅
+
 - Semantic HTML structure
 - Keyboard navigable (Bootstrap tabs)
 - Tooltips on interactive elements
 
 ### Missing 📋
+
 - No ARIA labels on canvas charts
 - No keyboard controls for D3 sliders
 - No reduced-motion support for animations
@@ -226,6 +246,7 @@ All physics calculations are mathematically correct based on test coverage.
 ## 7. Security
 
 ### No Issues Found ✅
+
 - No `innerHTML` with user input
 - URL parameters validated with `isValidNumber()`
 - No external API calls
@@ -235,11 +256,13 @@ All physics calculations are mathematically correct based on test coverage.
 ## 8. Documentation
 
 ### Present ✅
+
 - JSDoc comments on physics functions with formulas
 - References to NASA papers for pion rocket calculations
 - Type definitions serve as documentation
 
 ### Could Improve 📋
+
 - README could explain the architecture
 - Minkowski diagram code could use more comments
 - No API documentation for library consumers
@@ -249,15 +272,18 @@ All physics calculations are mathematically correct based on test coverage.
 ## 9. Recommendations Summary
 
 ### High Priority
+
 1. Extract duplicated galactic model constants in `extra_lib.ts`
 2. Add comments for magic numbers (especially scaling factors)
 
 ### Medium Priority
+
 3. Split `main.ts` into smaller modules (~500 lines is borderline)
 4. Consider memoization for repeated physics calculations
 5. Add ARIA labels to charts
 
 ### Low Priority (Nice to Have)
+
 6. Centralized state management if features continue growing
 7. Reduced-motion media query support
 8. API documentation if library reuse is planned
@@ -266,14 +292,14 @@ All physics calculations are mathematically correct based on test coverage.
 
 ## 10. Code Metrics
 
-| Metric | Value | Assessment |
-|--------|-------|------------|
-| Test Count | 375 | ✅ Excellent |
-| Test Pass Rate | 100% | ✅ Excellent |
-| Type Coverage | ~95%+ | ✅ Strong |
-| Largest File | `eventHandlers.ts` (1087 lines) | ⚠️ Consider splitting |
-| Cyclomatic Complexity | Low-Medium | ✅ Acceptable |
-| External Dependencies | 6 runtime | ✅ Minimal |
+| Metric                | Value                           | Assessment            |
+| --------------------- | ------------------------------- | --------------------- |
+| Test Count            | 375                             | ✅ Excellent          |
+| Test Pass Rate        | 100%                            | ✅ Excellent          |
+| Type Coverage         | ~95%+                           | ✅ Strong             |
+| Largest File          | `eventHandlers.ts` (1087 lines) | ⚠️ Consider splitting |
+| Cyclomatic Complexity | Low-Medium                      | ✅ Acceptable         |
+| External Dependencies | 6 runtime                       | ✅ Minimal            |
 
 ---
 
