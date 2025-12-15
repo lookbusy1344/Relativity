@@ -369,16 +369,49 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		// Worldline: x = beta*ct
 		// Solving: ct = currentCt + beta*(beta*ct) => ct = gamma^2 * currentCt
 		layers.lightCone.selectAll("*").remove();
-		const coneExtent = scales.maxCoord * 0.8; // Slightly less than full extent
 		const gamma = state.gamma;
 		const intersectionCt = gamma * gamma * currentCt;
 		const intersectionX = beta * intersectionCt;
+
+		// Extend light cone to edges of diagram (use large extent to ensure full coverage)
+		const coneExtent = scales.maxCoord * 2;
 
 		// Light cone centered at intersection point
 		const futureConeX1 = intersectionX - coneExtent;
 		const futureConeX2 = intersectionX + coneExtent;
 		const pastConeX1 = intersectionX - coneExtent;
 		const pastConeX2 = intersectionX + coneExtent;
+
+		// Draw subtle light cone fill polygons (very subtle, more so than twins diagram)
+		const coneFillData = [
+			{
+				points: [
+					[intersectionX, intersectionCt],
+					[futureConeX2, intersectionCt + coneExtent],
+					[futureConeX2, intersectionCt - coneExtent],
+				],
+				class: "future",
+			},
+			{
+				points: [
+					[intersectionX, intersectionCt],
+					[pastConeX1, intersectionCt - coneExtent],
+					[pastConeX1, intersectionCt + coneExtent],
+				],
+				class: "past",
+			},
+		];
+
+		layers.lightCone
+			.selectAll("polygon.cone-fill")
+			.data(coneFillData)
+			.join("polygon")
+			.attr("class", "cone-fill")
+			.attr("points", d =>
+				d.points.map(p => `${scales.xScale(p[0])},${scales.yScale(p[1])}`).join(" ")
+			)
+			.attr("fill", `${D3_COLORS.photonGold}10`) // Very subtle fill (10 hex = ~6% opacity)
+			.attr("stroke", "none");
 
 		// Draw light cone boundary lines with reduced opacity (less prominent than twins diagram)
 		layers.lightCone
