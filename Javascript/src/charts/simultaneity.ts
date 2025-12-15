@@ -702,6 +702,11 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		updateTimeSeparations();
 		updateSpatialSeparations();
 
+		// When paused, manually render the now line since animation loop isn't running
+		if (!state.isAnimating) {
+			renderNowLine();
+		}
+
 		// Update velocity label on slider
 		velocityLabel.text(`${rl.formatSignificant(state.velocityDecimal, "9", 2)}c`);
 	}
