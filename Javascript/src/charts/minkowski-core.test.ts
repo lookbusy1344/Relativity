@@ -6,6 +6,7 @@ import {
 	lorentzTransform,
 	debounce,
 	createScaleSet,
+	calculateLightConeAtOrigin,
 } from "./minkowski-core";
 
 describe("Minkowski Core Utilities", () => {
@@ -198,6 +199,39 @@ describe("Minkowski Core Utilities", () => {
 
 			await new Promise(resolve => setTimeout(resolve, 60));
 			expect(receivedArgs).toEqual(["hello", 42, true]);
+		});
+	});
+
+	describe("calculateLightConeAtOrigin", () => {
+		it("returns light cone boundaries at 45 degrees from origin", () => {
+			const result = calculateLightConeAtOrigin(100, 10);
+			// Light cone extends from (x, ct) following the equation ct = ±x
+			// At current ct = 100, the cone should extend ±extent in x direction
+			expect(result.futureCone.x1).toBe(-10);
+			expect(result.futureCone.ct1).toBe(100 - 10);
+			expect(result.futureCone.x2).toBe(10);
+			expect(result.futureCone.ct2).toBe(100 + 10);
+
+			expect(result.pastCone.x1).toBe(-10);
+			expect(result.pastCone.ct1).toBe(100 + 10);
+			expect(result.pastCone.x2).toBe(10);
+			expect(result.pastCone.ct2).toBe(100 - 10);
+		});
+
+		it("handles zero current time", () => {
+			const result = calculateLightConeAtOrigin(0, 10);
+			expect(result.futureCone.x1).toBe(-10);
+			expect(result.futureCone.ct1).toBe(-10);
+			expect(result.futureCone.x2).toBe(10);
+			expect(result.futureCone.ct2).toBe(10);
+		});
+
+		it("handles negative current time", () => {
+			const result = calculateLightConeAtOrigin(-50, 10);
+			expect(result.futureCone.x1).toBe(-10);
+			expect(result.futureCone.ct1).toBe(-50 - 10);
+			expect(result.futureCone.x2).toBe(10);
+			expect(result.futureCone.ct2).toBe(-50 + 10);
 		});
 	});
 });

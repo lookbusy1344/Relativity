@@ -48,6 +48,7 @@ interface SimultaneityState {
 interface LayerGroups {
 	grid: Selection<SVGGElement, unknown, null, undefined>;
 	axes: Selection<SVGGElement, unknown, null, undefined>;
+	lightCone: Selection<SVGGElement, unknown, null, undefined>;
 	nowLine: Selection<SVGGElement, unknown, null, undefined>;
 	events: Selection<SVGGElement, unknown, null, undefined>;
 }
@@ -171,6 +172,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 	const layers: LayerGroups = {
 		grid: svg.append("g").attr("class", "grid-layer"),
 		axes: svg.append("g").attr("class", "axes-layer"),
+		lightCone: svg.append("g").attr("class", "light-cone-layer"),
 		nowLine: svg.append("g").attr("class", "now-line-layer"),
 		events: svg.append("g").attr("class", "events-layer"),
 	};
@@ -342,7 +344,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 	}
 
 	/**
-	 * Render animated "now" line
+	 * Render animated "now" line and light cone at origin
 	 */
 	function renderNowLine(): void {
 		const beta = state.velocity;
@@ -360,6 +362,44 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		// Animation range must expand by (1 + |beta|) for tilted lines to sweep all corners
 		const animationRange = scales.maxCoord * (1 + Math.abs(beta));
 		const currentCt = -animationRange + state.animationProgress * 2 * animationRange;
+
+		// Render light cone at origin of moving frame (x'=0)
+		// Find where "now" line intersects x'=0 worldline (x = beta*ct)
+		// Now line: ct = currentCt + beta*x
+		// Worldline: x = beta*ct
+		// Solving: ct = currentCt + beta*(beta*ct) => ct = gamma^2 * currentCt
+		layers.lightCone.selectAll("*").remove();
+		const coneExtent = scales.maxCoord * 0.8; // Slightly less than full extent
+		const gamma = state.gamma;
+		const intersectionCt = gamma * gamma * currentCt;
+		const intersectionX = beta * intersectionCt;
+
+		// Light cone centered at intersection point
+		const futureConeX1 = intersectionX - coneExtent;
+		const futureConeX2 = intersectionX + coneExtent;
+		const pastConeX1 = intersectionX - coneExtent;
+		const pastConeX2 = intersectionX + coneExtent;
+
+		// Draw light cone boundary lines with reduced opacity (less prominent than twins diagram)
+		layers.lightCone
+			.append("line")
+			.attr("x1", scales.xScale(futureConeX1))
+			.attr("y1", scales.yScale(intersectionCt - coneExtent))
+			.attr("x2", scales.xScale(futureConeX2))
+			.attr("y2", scales.yScale(intersectionCt + coneExtent))
+			.attr("stroke", `${D3_COLORS.photonGold}40`) // Reduced opacity
+			.attr("stroke-width", 1.5)
+			.attr("stroke-dasharray", "8,4");
+
+		layers.lightCone
+			.append("line")
+			.attr("x1", scales.xScale(pastConeX1))
+			.attr("y1", scales.yScale(intersectionCt + coneExtent))
+			.attr("x2", scales.xScale(pastConeX2))
+			.attr("y2", scales.yScale(intersectionCt - coneExtent))
+			.attr("stroke", `${D3_COLORS.photonGold}40`) // Reduced opacity
+			.attr("stroke-width", 1.5)
+			.attr("stroke-dasharray", "8,4");
 
 		// Line parallel to simultaneity line (horizontal in moving frame)
 		const x1 = -extent;

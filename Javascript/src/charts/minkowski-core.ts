@@ -61,6 +61,38 @@ export function lorentzTransform(
 }
 
 /**
+ * Calculate light cone geometry at the origin (x=0)
+ * Returns coordinates for future and past light cone boundaries at 45 degrees
+ */
+export function calculateLightConeAtOrigin(
+	currentCt: number,
+	extent: number
+): {
+	futureCone: { x1: number; ct1: number; x2: number; ct2: number };
+	pastCone: { x1: number; ct1: number; x2: number; ct2: number };
+} {
+	// Future light cone: ct increases as |x| increases from origin
+	// Line from (-extent, currentCt - extent) to (+extent, currentCt + extent)
+	const futureCone = {
+		x1: -extent,
+		ct1: currentCt - extent,
+		x2: extent,
+		ct2: currentCt + extent,
+	};
+
+	// Past light cone: ct decreases as |x| increases from origin
+	// Line from (-extent, currentCt + extent) to (+extent, currentCt - extent)
+	const pastCone = {
+		x1: -extent,
+		ct1: currentCt + extent,
+		x2: extent,
+		ct2: currentCt - extent,
+	};
+
+	return { futureCone, pastCone };
+}
+
+/**
  * Create coordinate scales for spacetime diagram
  * @param maxCoord Maximum coordinate value for scaling
  * @param size Canvas size in pixels
