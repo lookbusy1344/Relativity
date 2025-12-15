@@ -1,45 +1,48 @@
 {
-    "name": "relativity-calculator",
-    "version": "1.0.0",
-    "description": "Simple TypeScript project",
-    "type": "module",
-    "scripts": {
-        "dev": "vite",
-        "build": "yarn type-check && vite build",
-        "preview": "vite preview",
-        "type-check": "tsc --noEmit",
-        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-        "test": "vitest",
-        "test:ui": "vitest --ui",
-        "test:run": "vitest run"
-    },
-    "dependencies": {
-        "chart.js": "^4.5.1",
-        "d3-ease": "^3.0.1",
-        "d3-scale": "^4.0.2",
-        "d3-selection": "^3.0.0",
-        "d3-timer": "^3.0.1",
-        "d3-transition": "^3.0.1",
-        "decimal.js": "^10.6.0",
-        "seedrandom": "^3.0.5"
-    },
-    "devDependencies": {
-        "@testing-library/dom": "^10.4.1",
-        "@types/d3-ease": "^3.0.2",
-        "@types/d3-scale": "^4.0.9",
-        "@types/d3-selection": "^3.0.11",
-        "@types/d3-timer": "^3.0.2",
-        "@types/d3-transition": "^3.0.9",
-        "@types/seedrandom": "^3.0.8",
-        "@vitest/ui": "^4.0.15",
-        "esbuild": "^0.27.1",
-        "happy-dom": "^20.0.11",
-        "typescript": "^5.9.3",
-        "vite": "^7.2.7",
-        "vitest": "^4.0.15"
-    },
-    "resolutions": {
-        "glob": "^11.1.0"
-    },
-    "packageManager": "yarn@4.12.0"
+	"name": "relativity-calculator",
+	"version": "1.0.0",
+	"description": "Simple TypeScript project",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "yarn type-check && vite build",
+		"preview": "vite preview",
+		"type-check": "tsc --noEmit",
+		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+		"format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\" \"*.{json,md}\"",
+		"format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\" \"*.{json,md}\"",
+		"test": "vitest",
+		"test:ui": "vitest --ui",
+		"test:run": "vitest run"
+	},
+	"dependencies": {
+		"chart.js": "^4.5.1",
+		"d3-ease": "^3.0.1",
+		"d3-scale": "^4.0.2",
+		"d3-selection": "^3.0.0",
+		"d3-timer": "^3.0.1",
+		"d3-transition": "^3.0.1",
+		"decimal.js": "^10.6.0",
+		"seedrandom": "^3.0.5"
+	},
+	"devDependencies": {
+		"@testing-library/dom": "^10.4.1",
+		"@types/d3-ease": "^3.0.2",
+		"@types/d3-scale": "^4.0.9",
+		"@types/d3-selection": "^3.0.11",
+		"@types/d3-timer": "^3.0.2",
+		"@types/d3-transition": "^3.0.9",
+		"@types/seedrandom": "^3.0.8",
+		"@vitest/ui": "^4.0.15",
+		"esbuild": "^0.27.1",
+		"happy-dom": "^20.0.11",
+		"prettier": "^3.7.4",
+		"typescript": "^5.9.3",
+		"vite": "^7.2.7",
+		"vitest": "^4.0.15"
+	},
+	"resolutions": {
+		"glob": "^11.1.0"
+	},
+	"packageManager": "yarn@4.12.0"
 }

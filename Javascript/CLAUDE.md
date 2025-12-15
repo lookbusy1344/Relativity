@@ -20,6 +20,12 @@ yarn type-check
 # Lint code
 yarn lint
 
+# Format code
+yarn format
+
+# Check code formatting
+yarn format:check
+
 # Run tests (watch mode)
 yarn test
 
@@ -76,6 +82,7 @@ src/
 ## Architecture
 
 ### Core Library (`relativity_lib.ts`)
+
 - Exports physics calculation functions using Decimal.js for precision
 - Configurable precision (default 150 decimal places)
 - Constants: speed of light (c), gravity (g), light year, etc.
@@ -83,6 +90,7 @@ src/
 - Specialized calculations: flip-and-burn maneuvers, spacetime intervals, four-momentum, twin paradox
 
 ### Galactic Library (`extra_lib.ts`)
+
 - Milky Way star estimation using Monte Carlo integration
 - Three-component density model: exponential thin disk, Gaussian bulge, power-law halo
 - Shell-based integration ensuring monotonicity (larger spheres contain more stars)
@@ -90,10 +98,12 @@ src/
 - Calibrated to produce ~200 billion total stars in the galaxy
 
 ### UI Layer (`ui/`)
+
 - `domUtils.ts` - Type-safe DOM element access helpers
 - `eventHandlers.ts` - Factory functions creating event handlers for each calculator section
 
 ### Charts (`charts/`)
+
 - `charts.ts` - Chart.js chart lifecycle management and configuration
 - `dataGeneration.ts` - Converts physics calculations to chart-ready data
 - Minkowski spacetime diagrams (D3.js-based):
@@ -106,6 +116,7 @@ src/
   - `minkowski-colors.ts` - Color palette constants
 
 ### Styles (`styles/`)
+
 - Modular CSS architecture extracted from inline styles (830+ lines refactored)
 - `variables.css` - CSS custom properties for theming
 - `animations.css` - All keyframe animations for UI elements
@@ -115,10 +126,12 @@ src/
 - `responsive.css` - Mobile-first responsive design with breakpoints for all visualizations
 
 ### Testing Utilities (`test-utils/`)
+
 - `dom-helpers.ts` - DOM manipulation utilities for unit tests
 - Provides helpers for creating test DOM environments in Vitest
 
 ### URL State (`urlState.ts`)
+
 - Bidirectional sync between URL parameters and calculator inputs
 - Deep linking support for sharing calculations
 
@@ -154,6 +167,7 @@ src/
 - Tests are located in `src/relativity_lib.test.ts` and other `*.test.ts` files
 
 **Test Coverage Includes**:
+
 - Lorentz factor calculations
 - Rapidity conversions (velocity ↔ rapidity)
 - Relativistic velocity addition
@@ -169,6 +183,23 @@ src/
 - Run `yarn build` to verify the production build completes without errors
 - Both commands must pass before considering work complete
 - These checks catch issues early and ensure the codebase remains buildable
+
+### Code Formatting
+
+**IMPORTANT**: Maintain consistent code formatting across the codebase using Prettier.
+
+- Run `yarn format:check` to verify all files conform to the formatting rules
+- Run `yarn format` to automatically format all source files
+- Format checking should be performed alongside type checking and testing before committing changes
+- Configuration is in `.prettierrc.json` (tabs, semicolons, 100-char line width)
+- Files excluded via `.prettierignore` (node_modules, dist, build artifacts)
+
+**Pre-commit checklist**:
+
+1. `yarn test:run` - Verify all tests pass
+2. `yarn type-check` - Verify TypeScript compilation succeeds
+3. `yarn format:check` - Verify code formatting is consistent
+4. `yarn build` - Verify production build completes
 
 ### Troubleshooting
 
@@ -201,7 +232,9 @@ To maintain calculation accuracy throughout the application:
 ## Recent Major Features
 
 ### Chart Scaling and Time Mode Controls (Dec 2025)
+
 Enhanced chart functionality for better data visualization:
+
 - X-axis time scale sliders for mass charts (proper time and coordinate time)
 - Per-chart time mode toggles (coordinate vs proper time)
 - Unified slider styling across all range inputs
@@ -210,7 +243,9 @@ Enhanced chart functionality for better data visualization:
 - Better proper time visibility through dynamic x-axis scaling
 
 ### Mass Scale and Astronomical Features (Dec 2025)
+
 Advanced mass calculations and astronomical context:
+
 - Smart mass unit formatting (Mount Everest, Moon, Supercluster, Observable Universe)
 - Milky Way star estimation using Monte Carlo integration
 - Three-component galactic density model (disk, bulge, halo)
@@ -218,7 +253,9 @@ Advanced mass calculations and astronomical context:
 - Dry mass and nozzle efficiency inputs for Constant Acceleration tab
 
 ### Relativity of Simultaneity (Nov 2025)
+
 Interactive visualization demonstrating how simultaneity changes between reference frames:
+
 - Click-to-place event system (max 4 events)
 - Pre-loaded with Einstein's train thought experiment
 - Animated "now" line sweeping through diagram with event flashing
@@ -228,6 +265,7 @@ Interactive visualization demonstrating how simultaneity changes between referen
 - Mobile-responsive with controls repositioned below diagram on small screens
 
 ### Twin Paradox Enhancements (Nov 2025)
+
 - Interactive velocity slider embedded in diagram
 - Animated worldline with play/pause controls
 - Light cones visualization at origin and turnaround
@@ -235,7 +273,9 @@ Interactive visualization demonstrating how simultaneity changes between referen
 - Mobile-optimized layout with stacked controls
 
 ### CSS Architecture Refactoring (Nov 2025)
+
 Extracted 830+ lines of inline CSS into modular files:
+
 - Improved maintainability through separation of concerns
 - Theme variables in dedicated file
 - Centralized animation definitions
