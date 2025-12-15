@@ -470,7 +470,6 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
             cancelAnimationFrame(animationFrameId);
             animationFrameId = null;
         }
-        layers.nowLine.selectAll('*').remove();
     }
 
     /**
