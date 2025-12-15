@@ -248,7 +248,10 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 
         // Moving frame axes (transformed)
         if (Math.abs(beta) > 0.001) {
-            const axisExtent = scales.maxCoord;
+            // For tilted axes, extend far enough to cover full diagram
+            // Clamp beta to avoid excessive extent at low velocities
+            const minBeta = 0.1;
+            const axisExtent = scales.maxCoord / Math.max(Math.abs(beta), minBeta);
 
             // X' axis (tilted)
             const x1Prime = -axisExtent;
@@ -331,10 +334,19 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
      */
     function renderNowLine(): void {
         const beta = state.velocity;
-        const extent = scales.maxCoord;
+
+        // For tilted lines, extend far enough to cover full diagram height
+        // extent = maxCoord / |beta| ensures vertical span = 2 * maxCoord
+        // Clamp beta to avoid excessive extent at low velocities
+        const minBeta = 0.1;
+        const extent = Math.abs(beta) > 0.001
+            ? scales.maxCoord / Math.max(Math.abs(beta), minBeta)
+            : scales.maxCoord;
 
         // Calculate current "now" position based on animation progress
-        const currentCt = -scales.maxCoord + (state.animationProgress * 2 * scales.maxCoord);
+        // Animation range must expand by (1 + |beta|) for tilted lines to sweep all corners
+        const animationRange = scales.maxCoord * (1 + Math.abs(beta));
+        const currentCt = -animationRange + (state.animationProgress * 2 * animationRange);
 
         // Line parallel to simultaneity line (horizontal in moving frame)
         const x1 = -extent;
@@ -374,7 +386,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
      */
     function checkEventFlashes(): void {
         const beta = state.velocity;
-        const currentCt = -scales.maxCoord + (state.animationProgress * 2 * scales.maxCoord);
+        // Animation range must match renderNowLine calculation
+        const animationRange = scales.maxCoord * (1 + Math.abs(beta));
+        const currentCt = -animationRange + (state.animationProgress * 2 * animationRange);
 
         state.events.forEach(event => {
             // Calculate the ct coordinate of the now line at this event's x position
