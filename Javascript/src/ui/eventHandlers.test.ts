@@ -458,6 +458,101 @@ describe("Event Handler Factories", () => {
 			// Small counts (< 1000) should also have tilde prefix
 			expect(starText).toMatch(/^~\d+$/);
 		});
+
+		it("accepts light years with 4 decimal places", async () => {
+			const accelInput = document.createElement("input");
+			accelInput.value = "1";
+			const distanceInput = document.createElement("input");
+			distanceInput.value = "0.0028"; // 4 decimal places (approximately 1 light day)
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "500";
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+
+			const resultFlip1 = document.createElement("span");
+
+			document.body.appendChild(resultFlip1);
+
+			const getAccel = vi.fn(() => accelInput);
+			const getDistance = vi.fn(() => distanceInput);
+			const getDryMass = vi.fn(() => dryMassInput);
+			const getEfficiency = vi.fn(() => efficiencyInput);
+			const getResults = vi.fn(() => [
+				resultFlip1,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+			]);
+			const chartRegistry = { current: new Map() };
+
+			const handler = createFlipBurnHandler(
+				getAccel,
+				getDistance,
+				getDryMass,
+				getEfficiency,
+				getResults,
+				chartRegistry
+			);
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			// Verify that the distance input was NOT clamped to minimum
+			expect(distanceInput.value).toBe("0.0028");
+			// Verify that a result was calculated
+			expect(resultFlip1.textContent).not.toBe("-");
+			expect(resultFlip1.textContent).toBeTruthy();
+		});
+
+		it("clamps distance below 0.0001 to minimum", async () => {
+			const accelInput = document.createElement("input");
+			accelInput.value = "1";
+			const distanceInput = document.createElement("input");
+			distanceInput.value = "0.00005"; // Below minimum
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "500";
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+
+			const getAccel = vi.fn(() => accelInput);
+			const getDistance = vi.fn(() => distanceInput);
+			const getDryMass = vi.fn(() => dryMassInput);
+			const getEfficiency = vi.fn(() => efficiencyInput);
+			const getResults = vi.fn(() => [
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+			]);
+			const chartRegistry = { current: new Map() };
+
+			const handler = createFlipBurnHandler(
+				getAccel,
+				getDistance,
+				getDryMass,
+				getEfficiency,
+				getResults,
+				chartRegistry
+			);
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			// Verify that the distance input was clamped to minimum
+			expect(distanceInput.value).toBe("0.0001");
+		});
 	});
 
 	describe("createTwinParadoxHandler", () => {

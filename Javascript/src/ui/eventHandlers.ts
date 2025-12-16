@@ -407,9 +407,9 @@ export function createFlipBurnHandler(
 		let distanceLightYearsStr = distanceInput.value ?? "0";
 		try {
 			const distanceLYDec = rl.ensure(distanceLightYearsStr);
-			if (distanceLYDec.lt(0.01)) {
-				distanceLightYearsStr = "0.01";
-				distanceInput.value = "0.01";
+			if (distanceLYDec.lt(0.0001)) {
+				distanceLightYearsStr = "0.0001";
+				distanceInput.value = "0.0001";
 			} else if (distanceLYDec.gt(50000000000)) {
 				distanceLightYearsStr = "50000000000";
 				distanceInput.value = "50000000000";
