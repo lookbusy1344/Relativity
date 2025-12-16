@@ -161,7 +161,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		referenceEventId: "A",
 		isAnimating: true,
 		animationProgress: 0,
-		showLightCone: true,
+		showLightCone: false,
 	};
 	let animationFrameId: number | null = null;
 	let lastTimestamp = 0;
@@ -181,6 +181,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 
 	// Calculate initial scales based on train example
 	scales = createScaleSet(TRAIN_EXAMPLE_SCALE, size);
+
+	// Initially hide light cone layer
+	layers.lightCone.style("display", "none");
 
 	/**
 	 * Render grid

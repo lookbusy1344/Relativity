@@ -28,6 +28,18 @@ describe("Simultaneity Diagram", () => {
 			expect(lightConeButton?.textContent).toContain("Light cone");
 		});
 
+		it("light cone is hidden by default", () => {
+			createSimultaneityDiagram(container);
+
+			// Find the light cone layer in SVG
+			const lightConeLayer = container.querySelector(".light-cone-layer") as SVGGElement;
+			expect(lightConeLayer).toBeDefined();
+
+			// Should be hidden by default
+			const initialDisplay = window.getComputedStyle(lightConeLayer).display;
+			expect(initialDisplay).toBe("none");
+		});
+
 		it("toggles light cone visibility when clicked", () => {
 			const controller = createSimultaneityDiagram(container);
 
@@ -41,19 +53,19 @@ describe("Simultaneity Diagram", () => {
 			const lightConeLayer = container.querySelector(".light-cone-layer") as SVGGElement;
 			expect(lightConeLayer).toBeDefined();
 
-			// Initially visible (opacity 1 or display not none)
+			// Initially hidden (display none)
 			const initialDisplay = window.getComputedStyle(lightConeLayer).display;
-			expect(initialDisplay).not.toBe("none");
+			expect(initialDisplay).toBe("none");
 
-			// Click to hide
-			lightConeButton?.click();
-			const hiddenDisplay = window.getComputedStyle(lightConeLayer).display;
-			expect(hiddenDisplay).toBe("none");
-
-			// Click to show again
+			// Click to show
 			lightConeButton?.click();
 			const shownDisplay = window.getComputedStyle(lightConeLayer).display;
 			expect(shownDisplay).not.toBe("none");
+
+			// Click to hide again
+			lightConeButton?.click();
+			const hiddenDisplay = window.getComputedStyle(lightConeLayer).display;
+			expect(hiddenDisplay).toBe("none");
 
 			controller.destroy();
 		});
