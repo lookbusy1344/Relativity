@@ -40,6 +40,7 @@ interface SimultaneityState {
 	referenceEventId: string | null;
 	isAnimating: boolean;
 	animationProgress: number; // 0 to 1
+	showLightCone: boolean;
 }
 
 /**
@@ -160,6 +161,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		referenceEventId: "A",
 		isAnimating: true,
 		animationProgress: 0,
+		showLightCone: true,
 	};
 	let animationFrameId: number | null = null;
 	let lastTimestamp = 0;
@@ -362,6 +364,13 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		// Animation range must expand by (1 + |beta|) for tilted lines to sweep all corners
 		const animationRange = scales.maxCoord * (1 + Math.abs(beta));
 		const currentCt = -animationRange + state.animationProgress * 2 * animationRange;
+
+		// Toggle light cone visibility
+		if (state.showLightCone) {
+			layers.lightCone.style("display", null);
+		} else {
+			layers.lightCone.style("display", "none");
+		}
 
 		// Render light cone at origin of moving frame (x'=0)
 		// Find where "now" line intersects x'=0 worldline (x = beta*ct)
@@ -911,8 +920,14 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.style("text-align", "right")
 		.text("0.00c");
 
+	// Create button container for play/pause and light cone toggle
+	const buttonContainer = controlContainer
+		.append("div")
+		.style("display", "flex")
+		.style("gap", "8px");
+
 	// Create Play/Pause button
-	const playPauseButton = controlContainer
+	const playPauseButton = buttonContainer
 		.append("button")
 		.attr("class", "simultaneity-toggle-button")
 		.text("⏸ Pause")
@@ -944,6 +959,36 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 				startAnimation();
 				playPauseButton.text("⏸ Pause");
 			}
+		});
+
+	// Create Light Cone toggle button
+	void buttonContainer
+		.append("button")
+		.attr("class", "simultaneity-toggle-button")
+		.text("Light cone")
+		.style("padding", "8px 16px")
+		.style("background", "rgba(10, 14, 39, 0.9)")
+		.style("border", "1px solid rgba(0, 217, 255, 0.4)")
+		.style("color", "#e8f1f5")
+		.style("font-family", "'IBM Plex Mono', monospace")
+		.style("font-size", "12px")
+		.style("cursor", "pointer")
+		.style("border-radius", "4px")
+		.style("box-shadow", "0 0 10px rgba(0, 217, 255, 0.3)")
+		.style("transition", "all 200ms")
+		.on("mouseenter", function () {
+			select(this)
+				.style("background", "rgba(0, 217, 255, 0.2)")
+				.style("box-shadow", "0 0 15px rgba(0, 217, 255, 0.5)");
+		})
+		.on("mouseleave", function () {
+			select(this)
+				.style("background", "rgba(10, 14, 39, 0.9)")
+				.style("box-shadow", "0 0 10px rgba(0, 217, 255, 0.3)");
+		})
+		.on("click", () => {
+			state.showLightCone = !state.showLightCone;
+			renderNowLine();
 		});
 
 	// Create time separation display container (bottom-right of diagram)
