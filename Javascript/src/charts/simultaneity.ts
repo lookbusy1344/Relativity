@@ -920,6 +920,54 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.style("text-align", "right")
 		.text("0.00c");
 
+	// Create position slider container (hidden when animating)
+	const positionSliderContainer = controlContainer
+		.append("div")
+		.attr("class", "simultaneity-position-slider-container")
+		.style("display", "none")
+		.style("align-items", "center")
+		.style("gap", "8px")
+		.style("padding", "8px 12px")
+		.style("background", "rgba(10, 14, 39, 0.9)")
+		.style("border", "1px solid rgba(0, 217, 255, 0.4)")
+		.style("border-radius", "4px")
+		.style("box-shadow", "0 0 10px rgba(0, 217, 255, 0.3)");
+
+	positionSliderContainer
+		.append("label")
+		.style("color", "#00d9ff")
+		.style("font-family", "'IBM Plex Mono', monospace")
+		.style("font-size", "11px")
+		.style("font-weight", "600")
+		.text("Position:");
+
+	const positionSlider = positionSliderContainer
+		.append("input")
+		.attr("type", "range")
+		.attr("id", "simPositionSlider")
+		.attr("min", "0")
+		.attr("max", "1")
+		.attr("step", "0.001")
+		.attr("value", "0")
+		.style("width", "200px")
+		.style("cursor", "pointer")
+		.on("input", function () {
+			const progress = parseFloat((this as HTMLInputElement).value);
+			state.animationProgress = progress;
+			positionLabel.text(`${Math.round(progress * 100)}%`);
+			renderNowLine();
+		});
+
+	const positionLabel = positionSliderContainer
+		.append("span")
+		.style("color", "#e8f1f5")
+		.style("font-family", "'IBM Plex Mono', monospace")
+		.style("font-size", "11px")
+		.style("font-weight", "600")
+		.style("min-width", "50px")
+		.style("text-align", "right")
+		.text("0%");
+
 	// Create button container for play/pause and light cone toggle
 	const buttonContainer = controlContainer
 		.append("div")
@@ -955,9 +1003,18 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 			if (state.isAnimating) {
 				stopAnimation();
 				playPauseButton.text("▶ Play");
+				// Show position slider when paused
+				positionSliderContainer.style("display", "flex");
+				// Update position slider to current progress
+				positionSlider.property("value", state.animationProgress);
+				positionLabel.text(`${Math.round(state.animationProgress * 100)}%`);
+				// Ensure now line is rendered at current position
+				renderNowLine();
 			} else {
 				startAnimation();
 				playPauseButton.text("⏸ Pause");
+				// Hide position slider when animating
+				positionSliderContainer.style("display", "none");
 			}
 		});
 
