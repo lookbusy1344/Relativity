@@ -172,5 +172,28 @@ describe("Simultaneity Diagram", () => {
 
 			controller.destroy();
 		});
+
+		it("hides position slider when reset is called after pausing", () => {
+			const controller = createSimultaneityDiagram(container);
+
+			// Pause the animation first
+			const buttons = Array.from(document.querySelectorAll("button"));
+			const pauseButton = buttons.find(btn => btn.textContent?.includes("Pause"));
+			pauseButton?.click();
+
+			// Position slider should be visible
+			const positionSliderContainer = document.querySelector(
+				".simultaneity-position-slider-container"
+			) as HTMLDivElement;
+			expect(positionSliderContainer?.style.display).not.toBe("none");
+
+			// Reset the diagram
+			controller.reset();
+
+			// Position slider should be hidden again
+			expect(positionSliderContainer?.style.display).toBe("none");
+
+			controller.destroy();
+		});
 	});
 });

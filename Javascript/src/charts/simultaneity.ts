@@ -1270,6 +1270,8 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 				startAnimation();
 			}
 			playPauseButton.text("⏸ Pause");
+			// Hide position slider since animation is running
+			positionSliderContainer.style("display", "none");
 		},
 		clearAll,
 		destroy: () => {
