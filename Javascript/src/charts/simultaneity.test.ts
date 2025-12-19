@@ -196,4 +196,115 @@ describe("Simultaneity Diagram", () => {
 			controller.destroy();
 		});
 	});
+
+	describe("Light Cone Coverage at High Velocities", () => {
+		it("light cone extends far enough at high velocities (0.7c)", () => {
+			const controller = createSimultaneityDiagram(container);
+
+			// Enable light cone
+			const buttons = Array.from(document.querySelectorAll("button"));
+			const lightConeButton = buttons.find(btn => btn.textContent?.includes("Light cone"));
+			lightConeButton?.click();
+
+			// Set high velocity (0.7c)
+			const velocitySlider = document.getElementById("simVelocitySlider") as HTMLInputElement;
+			expect(velocitySlider).toBeDefined();
+			velocitySlider.value = "0.7";
+			velocitySlider.dispatchEvent(new Event("input", { bubbles: true }));
+
+			// Pause animation to get stable light cone position
+			const pauseButton = buttons.find(btn => btn.textContent?.includes("Pause"));
+			pauseButton?.click();
+
+			// Find light cone polygons
+			const lightConeLayer = container.querySelector(".light-cone-layer") as SVGGElement;
+			const polygons = lightConeLayer.querySelectorAll("polygon.cone-fill");
+
+			// At least one polygon should exist (future or past cone)
+			expect(polygons.length).toBeGreaterThan(0);
+
+			// Get SVG dimensions from container
+			const svg = container.querySelector("svg") as SVGSVGElement;
+			const svgRect = svg.getBoundingClientRect();
+
+			// Check that at least one polygon has points that extend across the diagram
+			// At high velocities, the light cone should be visible and extend significantly
+			let hasExtendedCone = false;
+			polygons.forEach(polygon => {
+				const points = polygon.getAttribute("points");
+				if (points) {
+					// Parse points and check if they span a significant portion of the diagram
+					const coords = points
+						.trim()
+						.split(/\s+/)
+						.map(pair => pair.split(",").map(Number));
+					const xCoords = coords.map(c => c[0]);
+					const yCoords = coords.map(c => c[1]);
+					const xRange = Math.max(...xCoords) - Math.min(...xCoords);
+					const yRange = Math.max(...yCoords) - Math.min(...yCoords);
+
+					// Light cone should span at least 50% of the diagram width
+					if (xRange > svgRect.width * 0.5 && yRange > svgRect.height * 0.5) {
+						hasExtendedCone = true;
+					}
+				}
+			});
+
+			expect(hasExtendedCone).toBe(true);
+
+			controller.destroy();
+		});
+
+		it("light cone extends far enough at very high velocities (0.9c)", () => {
+			const controller = createSimultaneityDiagram(container);
+
+			// Enable light cone
+			const buttons = Array.from(document.querySelectorAll("button"));
+			const lightConeButton = buttons.find(btn => btn.textContent?.includes("Light cone"));
+			lightConeButton?.click();
+
+			// Set very high velocity (0.9c)
+			const velocitySlider = document.getElementById("simVelocitySlider") as HTMLInputElement;
+			expect(velocitySlider).toBeDefined();
+			velocitySlider.value = "0.9";
+			velocitySlider.dispatchEvent(new Event("input", { bubbles: true }));
+
+			// Pause animation
+			const pauseButton = buttons.find(btn => btn.textContent?.includes("Pause"));
+			pauseButton?.click();
+
+			// Find light cone polygons
+			const lightConeLayer = container.querySelector(".light-cone-layer") as SVGGElement;
+			const polygons = lightConeLayer.querySelectorAll("polygon.cone-fill");
+
+			expect(polygons.length).toBeGreaterThan(0);
+
+			// Verify light cone extends significantly
+			let hasExtendedCone = false;
+			polygons.forEach(polygon => {
+				const points = polygon.getAttribute("points");
+				if (points) {
+					const coords = points
+						.trim()
+						.split(/\s+/)
+						.map(pair => pair.split(",").map(Number));
+					const xCoords = coords.map(c => c[0]);
+					const yCoords = coords.map(c => c[1]);
+					const xRange = Math.max(...xCoords) - Math.min(...xCoords);
+					const yRange = Math.max(...yCoords) - Math.min(...yCoords);
+
+					// At 0.9c, cone should span most of the diagram
+					const svg = container.querySelector("svg") as SVGSVGElement;
+					const svgRect = svg.getBoundingClientRect();
+					if (xRange > svgRect.width * 0.6 && yRange > svgRect.height * 0.6) {
+						hasExtendedCone = true;
+					}
+				}
+			});
+
+			expect(hasExtendedCone).toBe(true);
+
+			controller.destroy();
+		});
+	});
 });
