@@ -386,7 +386,10 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		const intersectionX = beta * intersectionCt;
 
 		// Extend light cone to edges of diagram (use large extent to ensure full coverage)
-		const coneExtent = scales.maxCoord * 2;
+		// At high velocities, the intersection point moves far from origin due to gamma² factor
+		// Required: coneExtent ≥ intersectionCt + maxCoord = gamma² * maxCoord * (1 + |beta|) + maxCoord
+		// Add 10% safety margin for floating point errors
+		const coneExtent = scales.maxCoord * (gamma * gamma * (1 + Math.abs(beta)) + 1) * 1.1;
 
 		// Light cone centered at intersection point
 		const futureConeX1 = intersectionX - coneExtent;
