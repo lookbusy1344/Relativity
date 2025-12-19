@@ -524,18 +524,7 @@ describe("Event Handler Factories", () => {
 			const getDistance = vi.fn(() => distanceInput);
 			const getDryMass = vi.fn(() => dryMassInput);
 			const getEfficiency = vi.fn(() => efficiencyInput);
-			const getResults = vi.fn(() => [
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-			]);
+			const getResults = vi.fn(() => [null, null, null, null, null, null, null, null, null, null]);
 			const chartRegistry = { current: new Map() };
 
 			const handler = createFlipBurnHandler(
