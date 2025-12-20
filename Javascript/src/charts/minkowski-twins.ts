@@ -867,6 +867,7 @@ export function drawTwinParadoxMinkowski(
 		.style("touch-action", "none") // Disable all touch gestures on slider to enable custom handling
 		.on("touchstart", function (event: TouchEvent) {
 			// Mark slider as active when touch starts on it
+			if (!event.touches || !event.touches[0]) return;
 			isSliderActive = true;
 			const touch = event.touches[0];
 			sliderTouchStartX = touch.clientX;
@@ -877,6 +878,7 @@ export function drawTwinParadoxMinkowski(
 				return;
 			}
 			// Check if this is a scroll gesture (primarily vertical movement)
+			if (!event.touches || !event.touches[0]) return;
 			const touch = event.touches[0];
 			const deltaX = Math.abs(touch.clientX - sliderTouchStartX);
 			const deltaY = Math.abs(touch.clientY - sliderTouchStartY);
