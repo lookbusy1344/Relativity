@@ -84,6 +84,24 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	};
 
+	// Help button handlers - initialize Bootstrap modals
+	document.querySelectorAll(".help-btn").forEach(btn => {
+		btn.addEventListener("click", () => {
+			const targetId = btn.getAttribute("data-help-target");
+			if (targetId) {
+				const modalElement = document.getElementById(targetId);
+				if (modalElement) {
+					// Bootstrap 5 Modal API - requires bootstrap global
+					const Modal = (window as any).bootstrap.Modal;
+					if (Modal) {
+						const modal = new Modal(modalElement);
+						modal.show();
+					}
+				}
+			}
+		});
+	});
+
 	// Lorentz factor from velocity
 	addEventListener(
 		getButtonElement("lorentzButton"),

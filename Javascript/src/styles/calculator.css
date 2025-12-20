@@ -360,3 +360,122 @@ input[type="range"]:active::-webkit-slider-thumb {
 input[type="range"]:active::-moz-range-thumb {
 	transform: scale(0.95);
 }
+
+/* Help button styling */
+.help-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	margin-left: 0.75rem;
+	background: transparent;
+	border: 2px solid var(--electric-cyan);
+	border-radius: 50%;
+	color: var(--electric-cyan);
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 0.85rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	padding: 0;
+	line-height: 1;
+}
+
+.help-btn:hover {
+	background: var(--electric-cyan);
+	color: var(--space-black);
+	box-shadow: 0 0 15px var(--glow-cyan);
+	transform: scale(1.1);
+}
+
+.help-btn:active {
+	transform: scale(0.95);
+}
+
+/* Help modal styling */
+.help-modal {
+	background: var(--panel-gray);
+	border: 2px solid var(--electric-cyan);
+	border-radius: 0;
+	box-shadow: 0 0 40px rgba(0, 217, 255, 0.4);
+}
+
+.help-modal .modal-header {
+	background: rgba(0, 0, 0, 0.5);
+	border-bottom: 2px solid var(--electric-cyan);
+	padding: 1.5rem;
+}
+
+.help-modal .modal-title {
+	color: var(--electric-cyan);
+	font-family: "Orbitron", sans-serif;
+	font-size: 1.25rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 1.5px;
+}
+
+.help-modal .btn-close {
+	filter: invert(1);
+	opacity: 0.7;
+	transition: opacity 0.2s ease;
+}
+
+.help-modal .btn-close:hover {
+	opacity: 1;
+}
+
+.help-modal .modal-body {
+	background: var(--panel-gray);
+	color: var(--soft-white);
+	font-family: "IBM Plex Mono", monospace;
+	font-size: 0.95rem;
+	line-height: 1.7;
+	padding: 2rem;
+}
+
+.help-modal .modal-body h3 {
+	color: var(--scientific-green);
+	font-family: "Orbitron", sans-serif;
+	font-size: 1rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	margin-top: 1.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.help-modal .modal-body h3:first-child {
+	margin-top: 0;
+}
+
+.help-modal .modal-body p {
+	margin-bottom: 1rem;
+}
+
+.help-modal .modal-body ul {
+	margin-left: 1.5rem;
+	margin-bottom: 1rem;
+}
+
+.help-modal .modal-body li {
+	margin-bottom: 0.5rem;
+	color: var(--soft-white);
+}
+
+.help-modal .modal-body strong {
+	color: var(--electric-cyan);
+	font-weight: 600;
+}
+
+.help-modal .modal-body em {
+	color: var(--scientific-green);
+	font-style: italic;
+}
+
+/* Modal backdrop with cyan tint */
+.modal-backdrop.show {
+	opacity: 0.7;
+	background-color: rgba(0, 20, 40, 0.9);
+}

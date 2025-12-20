@@ -63,7 +63,10 @@
 				<!-- Relativistic Motion Tab -->
 				<div class="tab-pane fade show active" id="motion" role="tabpanel">
 					<div class="calc-section">
-						<div class="calc-label">Constant Acceleration</div>
+						<div class="calc-label">
+							Constant Acceleration
+							<button class="help-btn" data-help-target="const-accel-help">?</button>
+						</div>
 						<div class="input-group-custom">
 							<div style="flex: 1; min-width: 150px;">
 								<div class="input-label">Acceleration (g)</div>
@@ -211,7 +214,10 @@
 				<!-- Space Travel Tab -->
 				<div class="tab-pane fade" id="travel" role="tabpanel">
 					<div class="calc-section">
-						<div class="calc-label">Flip-and-Burn Maneuver</div>
+						<div class="calc-label">
+							Flip-and-Burn Maneuver
+							<button class="help-btn" data-help-target="flip-burn-help">?</button>
+						</div>
 						<div class="input-group-custom">
 							<div style="flex: 1; min-width: 150px;">
 								<div class="input-label">Accel (g)</div>
@@ -363,6 +369,7 @@
 					<div class="calc-section">
 						<div class="calc-label">
 							Twin Paradox Calculator
+							<button class="help-btn" data-help-target="twin-paradox-help">?</button>
 							<a href="https://en.wikipedia.org/wiki/Twin_paradox" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
 						</div>
 						<div class="input-group-custom">
@@ -449,6 +456,7 @@
 					<div class="calc-section">
 						<div class="calc-label">
 							Relativity of Simultaneity
+							<button class="help-btn" data-help-target="simultaneity-help">?</button>
 							<a href="https://en.wikipedia.org/wiki/Relativity_of_simultaneity" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
 						</div>
 
@@ -707,6 +715,7 @@
 					<div class="calc-section">
 						<div class="calc-label">
 							Spacetime Interval Calculator
+							<button class="help-btn" data-help-target="spacetime-help">?</button>
 							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
 						</div>
 						<div class="input-group-custom">
@@ -791,6 +800,167 @@
 				</div>
 			</div>
 		</div>
+
+	<!-- Help Modals -->
+	<div class="modal fade" id="const-accel-help" tabindex="-1" aria-labelledby="const-accel-help-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content help-modal">
+				<div class="modal-header">
+					<h5 class="modal-title" id="const-accel-help-title">Constant Acceleration</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3>What is it?</h3>
+					<p>Models a spacecraft undergoing constant proper acceleration as experienced by the crew. This is the most comfortable way to travel through space - maintaining 1g provides artificial gravity throughout the journey, allowing crew to live normally while achieving relativistic velocities.</p>
+
+					<h3>How it works</h3>
+					<p>The calculator uses the relativistic rocket equation to compute velocity, time dilation, and distance covered under constant acceleration. As the ship approaches light speed, several remarkable effects emerge: time dilation becomes extreme (crew ages slowly compared to Earth), the universe ahead appears length-contracted, and energy requirements grow exponentially. The antimatter fuel calculations use the charged-pion rocket model with configurable nozzle efficiency, showing the mass-energy conversion needed to sustain acceleration.</p>
+
+					<h3>Practical applications</h3>
+					<p>This calculator models realistic interstellar travel scenarios. At 1g acceleration, you could reach the nearest stars in just a few years of ship time, though decades would pass on Earth. It answers questions like: How long to reach Alpha Centauri? How much antimatter fuel is needed? What velocity would you achieve? The galactic range calculations show how much of the Milky Way becomes accessible - at high accelerations and long durations, vast portions of the galaxy come within reach of a single human lifetime (from the crew's perspective).</p>
+
+					<h3>Understanding the results</h3>
+					<p><strong>Proper time</strong> is what the crew experiences. <strong>Coordinate time</strong> is what Earth observers measure - always longer due to time dilation. <strong>Velocity</strong> shows how close to light speed you get. <strong>Distance</strong> is measured in the Earth frame. <strong>Antimatter fuel</strong> shows the total matter-antimatter mass needed (half matter, half antimatter). <strong>Fuel fraction</strong> indicates what percentage of initial mass must be fuel - values above 0.9 indicate extremely challenging missions. <strong>Stars in range</strong> estimates how many stellar systems you could reach.</p>
+
+					<h3>Key insights</h3>
+					<ul>
+						<li><strong>Time dilation is asymmetric:</strong> The crew ages less than Earth - this isn't reciprocal because the ship accelerates (breaks symmetry).</li>
+						<li><strong>Fuel requirements are exponential:</strong> Doubling travel time requires exponentially more fuel due to the rocket equation.</li>
+						<li><strong>Approaching c is asymptotic:</strong> You can get arbitrarily close to light speed but never reach it - energy requirements diverge.</li>
+						<li><strong>Coordinate time grows faster:</strong> Long journeys might take only years for crew but centuries for Earth.</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="flip-burn-help" tabindex="-1" aria-labelledby="flip-burn-help-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content help-modal">
+				<div class="modal-header">
+					<h5 class="modal-title" id="flip-burn-help-title">Flip-and-Burn Maneuver</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3>What is it?</h3>
+					<p>The flip-and-burn is the most efficient brachistochrone trajectory for point-to-point space travel. You accelerate continuously for the first half of the journey, flip the ship 180 degrees at the midpoint, then decelerate for the second half. This provides continuous artificial gravity throughout the trip and minimizes travel time for a given acceleration. Fans of <em>The Expanse</em> will recognize this as the standard method of interplanetary travel in that scientifically-grounded series.</p>
+
+					<h3>How it works</h3>
+					<p>The calculator determines the proper time, coordinate time, and peak velocity needed to reach a target distance using constant acceleration to midpoint, then constant deceleration. The math accounts for special relativistic effects - as you accelerate toward light speed, time dilation becomes significant and the effective "felt" distance contracts. The antimatter fuel calculations show total fuel requirements for the complete round trip maneuver. At relativistic speeds, the flip point occurs when you've covered half the coordinate distance.</p>
+
+					<h3>Practical applications</h3>
+					<p>This is how ships in <em>The Expanse</em> travel between planets - constant thrust provides artificial gravity as a bonus, eliminating health problems from zero-g exposure. The calculator answers mission planning questions: How long to reach Mars at 0.3g? What about Proxima Centauri at 1g? What peak velocity would you achieve? For interstellar distances, even modest accelerations can reach significant fractions of light speed. The fuel calculations show whether a mission is practical - fuel fractions above 0.95 indicate marginal feasibility even with perfect antimatter rockets.</p>
+
+					<h3>Understanding the results</h3>
+					<p><strong>Proper time</strong> is the trip duration experienced by the crew - this is what matters for human endurance. <strong>Coordinate time</strong> is the duration measured by stationary observers at origin and destination. <strong>Peak velocity</strong> occurs at the flip point (midpoint) and shows maximum speed achieved. <strong>Peak Lorentz factor</strong> indicates maximum time dilation - values above 2 mean time passes twice as fast for external observers. The <strong>fuel calculations</strong> show total antimatter fuel needed and what fraction of launch mass must be fuel.</p>
+
+					<h3>Key insights</h3>
+					<ul>
+						<li><strong>Artificial gravity is free:</strong> The constant acceleration needed for efficient travel provides 1g throughout the journey - no rotating habitats needed.</li>
+						<li><strong>Symmetry is elegant:</strong> The trajectory is perfectly symmetric - acceleration and deceleration phases are mirror images.</li>
+						<li><strong>Time dilation matters at relativistic speeds:</strong> For long interstellar trips, crew time can be significantly less than coordinate time.</li>
+						<li><strong>The Expanse gets it right:</strong> This is realistic physics for a torch ship with high thrust and delta-v capability.</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="twin-paradox-help" tabindex="-1" aria-labelledby="twin-paradox-help-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content help-modal">
+				<div class="modal-header">
+					<h5 class="modal-title" id="twin-paradox-help-title">Twin Paradox</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3>What is it?</h3>
+					<p>The twin paradox is one of the most famous thought experiments in special relativity. One twin travels to a distant star at relativistic velocity and returns, while the other stays on Earth. When they reunite, the traveling twin has aged less - this is a real physical effect, not a symmetry or illusion. It demonstrates that time dilation is an absolute, measurable phenomenon when acceleration breaks the symmetry between reference frames.</p>
+
+					<h3>How it works</h3>
+					<p>The traveling twin experiences less proper time because their worldline through spacetime is shorter when measured by the spacetime interval (the invariant quantity). The key is that the twins' situations are <em>not</em> symmetric: the traveling twin must accelerate to turn around, breaking the equivalence of their reference frames. The Earth twin remains in an inertial frame the entire time, while the traveling twin switches from outbound to inbound frame at the turnaround point. The Minkowski diagram visualizes this asymmetry clearly, showing how the twins' worldlines differ in spacetime.</p>
+
+					<h3>Practical applications</h3>
+					<p>This isn't just theoretical - it's been confirmed experimentally with atomic clocks on aircraft and satellites. The calculator lets you explore the magnitude of the effect: at 0.8c for 4 years ship time, nearly 7 years pass on Earth - a 3-year age difference. At higher velocities, the difference becomes dramatic. This is relevant for any relativistic space travel scenario: astronauts on long missions would return younger than their Earth-bound contemporaries. It also affects GPS satellites (though only by microseconds due to their low velocities).</p>
+
+					<h3>Understanding the results</h3>
+					<p><strong>Traveling twin's age</strong> is the proper time experienced during the journey. <strong>Earth twin's age</strong> is the coordinate time that passes on Earth. <strong>Age difference</strong> shows how much younger the traveler is upon return. <strong>Lorentz factor</strong> quantifies time dilation at cruising velocity. <strong>One-way distance</strong> is how far the traveler goes before turning around, measured in the Earth frame. The <strong>Minkowski diagram</strong> shows both reference frames and illustrates why the asymmetry exists - watch how simultaneity lines tilt differently for each twin.</p>
+
+					<h3>Key insights</h3>
+					<ul>
+						<li><strong>It's not a paradox - it's asymmetric:</strong> The traveling twin accelerates; the Earth twin doesn't. This breaks the symmetry.</li>
+						<li><strong>Time dilation is absolute:</strong> Both twins agree on who aged less when they reunite - there's no ambiguity.</li>
+						<li><strong>The turnaround is key:</strong> Switching reference frames at the turnaround point is what makes the traveling twin age less.</li>
+						<li><strong>It's been experimentally verified:</strong> This isn't philosophy - it's measured physics with atomic clocks.</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="simultaneity-help" tabindex="-1" aria-labelledby="simultaneity-help-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content help-modal">
+				<div class="modal-header">
+					<h5 class="modal-title" id="simultaneity-help-title">Relativity of Simultaneity</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3>What is it?</h3>
+					<p>The relativity of simultaneity is the principle that events simultaneous in one reference frame are <em>not</em> simultaneous in another frame moving relative to it. There is no absolute "now" across space - simultaneity depends on your reference frame. This is Einstein's great insight from the train thought experiment: lightning strikes simultaneous for an observer on the platform may not be simultaneous for an observer on a moving train.</p>
+
+					<h3>How it works</h3>
+					<p>The Lorentz transformation shows how time and space coordinates mix when changing reference frames. Events separated in space that occur at the same time in one frame will have different time coordinates in a moving frame. The effect scales with distance and velocity: Δt' = γ(Δt - vΔx/c²). For events at the same location, simultaneity is preserved, but for spatially separated events, different observers disagree on temporal order (for spacelike-separated events). The interactive diagram shows this visually: tilted simultaneity lines in the moving frame cut through spacetime differently than horizontal lines in the rest frame.</p>
+
+					<h3>Practical applications</h3>
+					<p>Place up to 4 events on the diagram by clicking. The calculator shows each event's coordinates in both the rest frame and a moving frame. Watch how events simultaneous in one frame become non-simultaneous in the other - and vice versa. The pre-loaded Einstein train scenario demonstrates the classic thought experiment. The temporal order display shows whether events can influence each other (timelike separation) or are causally independent (spacelike separation). This visualization helps build intuition for how spacetime works - time and space are intertwined, not separate.</p>
+
+					<h3>Understanding the results</h3>
+					<p><strong>Rest frame (ct, x)</strong> coordinates are measured in the stationary reference frame where the first event is placed. <strong>Moving frame (ct', x')</strong> coordinates show the same events as measured by an observer moving at the specified velocity. <strong>Temporal order</strong> indicates whether events can causally influence each other: "timelike" means one can affect the other, "spacelike" means they're causally disconnected, "lightlike" means they're connected by a light signal. The animated "now" line sweeps through the diagram, showing how simultaneity surfaces differ between frames.</p>
+
+					<h3>Key insights</h3>
+					<ul>
+						<li><strong>No absolute simultaneity:</strong> "Now" across distant locations depends on your reference frame - there's no universal present moment.</li>
+						<li><strong>Causality is preserved:</strong> While simultaneity is relative, cause-effect relationships are absolute - no frame reverses causal order for timelike events.</li>
+						<li><strong>Distance matters:</strong> The larger the spatial separation, the larger the disagreement about simultaneity between frames.</li>
+						<li><strong>Einstein's train works:</strong> The classic thought experiment is quantitatively accurate - the moving observer really does see lightning strikes at different times.</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="spacetime-help" tabindex="-1" aria-labelledby="spacetime-help-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content help-modal">
+				<div class="modal-header">
+					<h5 class="modal-title" id="spacetime-help-title">Spacetime Interval</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3>What is it?</h3>
+					<p>The spacetime interval is the invariant "distance" between two events in spacetime. Unlike spatial distance or time duration (which change between reference frames), the spacetime interval is the same for all observers. It's the fundamental geometric quantity of special relativity, analogous to how the length of a stick is invariant in Euclidean geometry even when you rotate your coordinate system. The formula is Δs² = (cΔt)² - Δx², combining time and space with opposite signs.</p>
+
+					<h3>How it works</h3>
+					<p>The calculator computes the spacetime interval between the origin and an event at (t, x), then shows how coordinates transform to a moving reference frame while the interval remains unchanged. The sign of Δs² determines the causal relationship: <strong>positive (timelike)</strong> means events can influence each other, <strong>negative (spacelike)</strong> means they're causally disconnected, and <strong>zero (lightlike)</strong> means they're connected by a light signal. The Lorentz transformation shows how mixing time and space coordinates leaves the interval invariant - this is the deep symmetry of spacetime.</p>
+
+					<h3>Practical applications</h3>
+					<p>Understanding spacetime intervals is fundamental to relativistic physics. The calculator shows the interval squared, its interpretation (timelike/spacelike/lightlike), and the transformed coordinates in a moving frame. For timelike intervals, the minimum separation is the proper time - the time measured by a clock traveling between the events. For spacelike intervals, the minimum separation is the proper distance - the distance measured in a frame where the events are simultaneous. The Minkowski diagram visualizes both reference frames, showing how the interval connects the events regardless of coordinate choice.</p>
+
+					<h3>Understanding the results</h3>
+					<p><strong>Interval squared</strong> is the invariant quantity Δs² = (cΔt)² - Δx². Positive means timelike, negative means spacelike, zero means lightlike. <strong>Interpretation</strong> explains the causal relationship between events. <strong>Δt' and Δx' (transformed)</strong> show coordinates in the moving frame - notice the interval remains the same despite coordinate changes. <strong>Minimum separation</strong> is the proper time (for timelike) or proper distance (for spacelike). <strong>Required velocity</strong> is the frame velocity needed to make events simultaneous (spacelike) or co-located (timelike).</p>
+
+					<h3>Key insights</h3>
+					<ul>
+						<li><strong>Spacetime is unified:</strong> Time and space mix under Lorentz transformations, but the spacetime interval is invariant - it's the true geometry.</li>
+						<li><strong>Light cones define causality:</strong> Timelike intervals lie inside the light cone, spacelike outside - this determines what can influence what.</li>
+						<li><strong>All observers agree on the interval:</strong> While they disagree on time and distance separately, the interval is the same for everyone.</li>
+						<li><strong>Proper time is maximized by inertial paths:</strong> The twin paradox follows from the fact that spacetime intervals measure proper time along worldlines.</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script type="module" src="/src/main.ts"></script>
