@@ -876,7 +876,8 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.style("background", "rgba(10, 14, 39, 0.9)")
 		.style("border", "1px solid rgba(0, 217, 255, 0.4)")
 		.style("border-radius", "4px")
-		.style("box-shadow", "0 0 10px rgba(0, 217, 255, 0.3)");
+		.style("box-shadow", "0 0 10px rgba(0, 217, 255, 0.3)")
+		.style("touch-action", "pan-y"); // Allow vertical scrolling, prevent horizontal pan on slider container
 
 	sliderContainer
 		.append("label")
@@ -889,6 +890,12 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 	// Debounce timer for URL updates
 	let urlUpdateTimer: number | undefined;
 
+	// Track velocity slider interaction state to prevent scroll interference
+	let isVelocitySliderActive = false;
+	let velocitySliderTouchStartX = 0;
+	let velocitySliderTouchStartY = 0;
+	const MIN_VELOCITY_GESTURE_THRESHOLD = 10; // Minimum pixels of movement to detect gesture direction
+
 	const velocitySlider = sliderContainer
 		.append("input")
 		.attr("type", "range")
@@ -899,6 +906,45 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.attr("value", "0")
 		.style("width", "200px")
 		.style("cursor", "pointer")
+		.style("touch-action", "none") // Disable all touch gestures on slider to enable custom handling
+		.on("touchstart", function (event: TouchEvent) {
+			// Mark slider as active when touch starts on it
+			if (!event.touches || !event.touches[0]) return;
+			isVelocitySliderActive = true;
+			const touch = event.touches[0];
+			velocitySliderTouchStartX = touch.clientX;
+			velocitySliderTouchStartY = touch.clientY;
+		})
+		.on("touchmove", function (event: TouchEvent) {
+			if (!isVelocitySliderActive) {
+				return;
+			}
+			// Check if this is a scroll gesture (primarily vertical movement)
+			if (!event.touches || !event.touches[0]) return;
+			const touch = event.touches[0];
+			const deltaX = Math.abs(touch.clientX - velocitySliderTouchStartX);
+			const deltaY = Math.abs(touch.clientY - velocitySliderTouchStartY);
+			
+			// Only decide gesture type once we have meaningful movement
+			const hasMeaningfulMovement = deltaX > MIN_VELOCITY_GESTURE_THRESHOLD || deltaY > MIN_VELOCITY_GESTURE_THRESHOLD;
+			
+			if (hasMeaningfulMovement) {
+				// If vertical movement is greater than horizontal, treat as scroll
+				if (deltaY > deltaX) {
+					// This looks like a scroll gesture, deactivate slider
+					isVelocitySliderActive = false;
+					return;
+				}
+				// Otherwise, this is a slider interaction, prevent scrolling
+				event.preventDefault();
+			}
+		})
+		.on("touchend", function () {
+			isVelocitySliderActive = false;
+		})
+		.on("touchcancel", function () {
+			isVelocitySliderActive = false;
+		})
 		.on("input", function () {
 			const velocity = parseFloat((this as HTMLInputElement).value);
 			updateVelocity(velocity);
@@ -937,7 +983,8 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.style("background", "rgba(10, 14, 39, 0.9)")
 		.style("border", "1px solid rgba(0, 217, 255, 0.4)")
 		.style("border-radius", "4px")
-		.style("box-shadow", "0 0 10px rgba(0, 217, 255, 0.3)");
+		.style("box-shadow", "0 0 10px rgba(0, 217, 255, 0.3)")
+		.style("touch-action", "pan-y"); // Allow vertical scrolling, prevent horizontal pan on slider container
 
 	positionSliderContainer
 		.append("label")
@@ -946,6 +993,12 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.style("font-size", "11px")
 		.style("font-weight", "600")
 		.text("Position:");
+
+	// Track position slider interaction state to prevent scroll interference
+	let isSimPositionSliderActive = false;
+	let simPositionSliderTouchStartX = 0;
+	let simPositionSliderTouchStartY = 0;
+	const MIN_SIM_POSITION_GESTURE_THRESHOLD = 10; // Minimum pixels of movement to detect gesture direction
 
 	const positionSlider = positionSliderContainer
 		.append("input")
@@ -957,6 +1010,45 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.attr("value", "0")
 		.style("width", "200px")
 		.style("cursor", "pointer")
+		.style("touch-action", "none") // Disable all touch gestures on slider to enable custom handling
+		.on("touchstart", function (event: TouchEvent) {
+			// Mark slider as active when touch starts on it
+			if (!event.touches || !event.touches[0]) return;
+			isSimPositionSliderActive = true;
+			const touch = event.touches[0];
+			simPositionSliderTouchStartX = touch.clientX;
+			simPositionSliderTouchStartY = touch.clientY;
+		})
+		.on("touchmove", function (event: TouchEvent) {
+			if (!isSimPositionSliderActive) {
+				return;
+			}
+			// Check if this is a scroll gesture (primarily vertical movement)
+			if (!event.touches || !event.touches[0]) return;
+			const touch = event.touches[0];
+			const deltaX = Math.abs(touch.clientX - simPositionSliderTouchStartX);
+			const deltaY = Math.abs(touch.clientY - simPositionSliderTouchStartY);
+			
+			// Only decide gesture type once we have meaningful movement
+			const hasMeaningfulMovement = deltaX > MIN_SIM_POSITION_GESTURE_THRESHOLD || deltaY > MIN_SIM_POSITION_GESTURE_THRESHOLD;
+			
+			if (hasMeaningfulMovement) {
+				// If vertical movement is greater than horizontal, treat as scroll
+				if (deltaY > deltaX) {
+					// This looks like a scroll gesture, deactivate slider
+					isSimPositionSliderActive = false;
+					return;
+				}
+				// Otherwise, this is a slider interaction, prevent scrolling
+				event.preventDefault();
+			}
+		})
+		.on("touchend", function () {
+			isSimPositionSliderActive = false;
+		})
+		.on("touchcancel", function () {
+			isSimPositionSliderActive = false;
+		})
 		.on("input", function () {
 			const progress = parseFloat((this as HTMLInputElement).value);
 			state.animationProgress = progress;

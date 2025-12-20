@@ -1232,7 +1232,8 @@ export function drawMinkowskiDiagramD3(
 		.append("div")
 		.style("display", "none")
 		.style("align-items", "center")
-		.style("gap", "8px");
+		.style("gap", "8px")
+		.style("touch-action", "pan-y"); // Allow vertical scrolling, prevent horizontal pan on slider container
 
 	sliderContainer
 		.append("label")
@@ -1240,6 +1241,12 @@ export function drawMinkowskiDiagramD3(
 		.style("font-family", "'IBM Plex Mono', monospace")
 		.style("font-size", "11px")
 		.text("Position:");
+
+	// Track slider interaction state to prevent scroll interference
+	let isPositionSliderActive = false;
+	let positionSliderTouchStartX = 0;
+	let positionSliderTouchStartY = 0;
+	const MIN_POSITION_GESTURE_THRESHOLD = 10; // Minimum pixels of movement to detect gesture direction
 
 	sliderContainer
 		.append("input")
@@ -1249,6 +1256,45 @@ export function drawMinkowskiDiagramD3(
 		.attr("value", "0")
 		.style("width", "200px")
 		.style("cursor", "pointer")
+		.style("touch-action", "none") // Disable all touch gestures on slider to enable custom handling
+		.on("touchstart", function (event: TouchEvent) {
+			// Mark slider as active when touch starts on it
+			if (!event.touches || !event.touches[0]) return;
+			isPositionSliderActive = true;
+			const touch = event.touches[0];
+			positionSliderTouchStartX = touch.clientX;
+			positionSliderTouchStartY = touch.clientY;
+		})
+		.on("touchmove", function (event: TouchEvent) {
+			if (!isPositionSliderActive) {
+				return;
+			}
+			// Check if this is a scroll gesture (primarily vertical movement)
+			if (!event.touches || !event.touches[0]) return;
+			const touch = event.touches[0];
+			const deltaX = Math.abs(touch.clientX - positionSliderTouchStartX);
+			const deltaY = Math.abs(touch.clientY - positionSliderTouchStartY);
+			
+			// Only decide gesture type once we have meaningful movement
+			const hasMeaningfulMovement = deltaX > MIN_POSITION_GESTURE_THRESHOLD || deltaY > MIN_POSITION_GESTURE_THRESHOLD;
+			
+			if (hasMeaningfulMovement) {
+				// If vertical movement is greater than horizontal, treat as scroll
+				if (deltaY > deltaX) {
+					// This looks like a scroll gesture, deactivate slider
+					isPositionSliderActive = false;
+					return;
+				}
+				// Otherwise, this is a slider interaction, prevent scrolling
+				event.preventDefault();
+			}
+		})
+		.on("touchend", function () {
+			isPositionSliderActive = false;
+		})
+		.on("touchcancel", function () {
+			isPositionSliderActive = false;
+		})
 		.on("input", function () {
 			const value = parseFloat((this as HTMLInputElement).value) / 50;
 			animation.setPosition(value);
