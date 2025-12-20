@@ -881,14 +881,19 @@ export function drawTwinParadoxMinkowski(
 			const deltaX = Math.abs(touch.clientX - sliderTouchStartX);
 			const deltaY = Math.abs(touch.clientY - sliderTouchStartY);
 			
-			// If vertical movement is greater than horizontal, treat as scroll
-			if (deltaY > deltaX && deltaY > MIN_GESTURE_THRESHOLD) {
-				// This looks like a scroll gesture, deactivate slider
-				isSliderActive = false;
-				return;
+			// Only decide gesture type once we have meaningful movement
+			const hasMeaningfulMovement = deltaX > MIN_GESTURE_THRESHOLD || deltaY > MIN_GESTURE_THRESHOLD;
+			
+			if (hasMeaningfulMovement) {
+				// If vertical movement is greater than horizontal, treat as scroll
+				if (deltaY > deltaX) {
+					// This looks like a scroll gesture, deactivate slider
+					isSliderActive = false;
+					return;
+				}
+				// Otherwise, this is a slider interaction, prevent scrolling
+				event.preventDefault();
 			}
-			// Otherwise, this is a slider interaction, prevent scrolling
-			event.preventDefault();
 		})
 		.on("touchend", function () {
 			isSliderActive = false;
