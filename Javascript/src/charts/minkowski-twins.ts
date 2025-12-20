@@ -851,6 +851,7 @@ export function drawTwinParadoxMinkowski(
 	let isSliderActive = false;
 	let sliderTouchStartX = 0;
 	let sliderTouchStartY = 0;
+	const MIN_GESTURE_THRESHOLD = 10; // Minimum pixels of movement to detect gesture direction
 
 	// Slider input
 	const velocitySlider = velocitySliderContainer
@@ -863,7 +864,7 @@ export function drawTwinParadoxMinkowski(
 		.attr("class", "velocity-slider-input")
 		.style("width", "200px")
 		.style("cursor", "pointer")
-		.style("touch-action", "none") // Prevent default touch behavior on the slider itself
+		.style("touch-action", "none") // Disable all touch gestures on slider to enable custom handling
 		.on("touchstart", function (event: TouchEvent) {
 			// Mark slider as active when touch starts on it
 			isSliderActive = true;
@@ -881,7 +882,7 @@ export function drawTwinParadoxMinkowski(
 			const deltaY = Math.abs(touch.clientY - sliderTouchStartY);
 			
 			// If vertical movement is greater than horizontal, treat as scroll
-			if (deltaY > deltaX && deltaY > 10) {
+			if (deltaY > deltaX && deltaY > MIN_GESTURE_THRESHOLD) {
 				// This looks like a scroll gesture, deactivate slider
 				isSliderActive = false;
 				return;
