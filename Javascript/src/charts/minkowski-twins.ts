@@ -895,7 +895,7 @@ export function drawTwinParadoxMinkowski(
 		.on("touchcancel", function () {
 			isSliderActive = false;
 		})
-		.on("input", function () {
+		.on("input", function (event: Event) {
 			// Only process input if slider is active or this is not a touch event
 			// This prevents spurious input events during scrolling
 			if (!isSliderActive && event instanceof TouchEvent) {
