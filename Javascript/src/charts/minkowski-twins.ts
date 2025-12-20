@@ -832,7 +832,8 @@ export function drawTwinParadoxMinkowski(
 		.style("border", `1px solid ${D3_COLORS.tooltipBorder}`)
 		.style("border-radius", "4px")
 		.style("box-shadow", `0 0 10px ${D3_COLORS.tooltipBorder}60`)
-		.style("z-index", "1000");
+		.style("z-index", "1000")
+		.style("touch-action", "pan-y"); // Allow vertical scrolling, prevent horizontal pan on slider container
 
 	// Value display
 	const velocityValueDisplay = velocitySliderContainer
@@ -846,6 +847,11 @@ export function drawTwinParadoxMinkowski(
 		.style("text-align", "right")
 		.text(`v = ${rl.formatSignificant(data.velocityCDecimal, "9", 3)}c`);
 
+	// Track slider interaction state to prevent scroll interference
+	let isSliderActive = false;
+	let sliderTouchStartX = 0;
+	let sliderTouchStartY = 0;
+
 	// Slider input
 	const velocitySlider = velocitySliderContainer
 		.append("input")
@@ -857,7 +863,45 @@ export function drawTwinParadoxMinkowski(
 		.attr("class", "velocity-slider-input")
 		.style("width", "200px")
 		.style("cursor", "pointer")
+		.style("touch-action", "none") // Prevent default touch behavior on the slider itself
+		.on("touchstart", function (event: TouchEvent) {
+			// Mark slider as active when touch starts on it
+			isSliderActive = true;
+			const touch = event.touches[0];
+			sliderTouchStartX = touch.clientX;
+			sliderTouchStartY = touch.clientY;
+		})
+		.on("touchmove", function (event: TouchEvent) {
+			if (!isSliderActive) {
+				return;
+			}
+			// Check if this is a scroll gesture (primarily vertical movement)
+			const touch = event.touches[0];
+			const deltaX = Math.abs(touch.clientX - sliderTouchStartX);
+			const deltaY = Math.abs(touch.clientY - sliderTouchStartY);
+			
+			// If vertical movement is greater than horizontal, treat as scroll
+			if (deltaY > deltaX && deltaY > 10) {
+				// This looks like a scroll gesture, deactivate slider
+				isSliderActive = false;
+				return;
+			}
+			// Otherwise, this is a slider interaction, prevent scrolling
+			event.preventDefault();
+		})
+		.on("touchend", function () {
+			isSliderActive = false;
+		})
+		.on("touchcancel", function () {
+			isSliderActive = false;
+		})
 		.on("input", function () {
+			// Only process input if slider is active or this is not a touch event
+			// This prevents spurious input events during scrolling
+			if (!isSliderActive && event instanceof TouchEvent) {
+				return;
+			}
+
 			const newVelocityC = parseFloat((this as HTMLInputElement).value);
 			// Update display immediately for responsive feedback
 			velocityValueDisplay.text(`v = ${rl.formatSignificant(rl.ensure(newVelocityC), "9", 3)}c`);
