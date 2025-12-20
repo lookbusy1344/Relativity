@@ -895,13 +895,7 @@ export function drawTwinParadoxMinkowski(
 		.on("touchcancel", function () {
 			isSliderActive = false;
 		})
-		.on("input", function (event: Event) {
-			// Only process input if slider is active or this is not a touch event
-			// This prevents spurious input events during scrolling
-			if (!isSliderActive && event instanceof TouchEvent) {
-				return;
-			}
-
+		.on("input", function () {
 			const newVelocityC = parseFloat((this as HTMLInputElement).value);
 			// Update display immediately for responsive feedback
 			velocityValueDisplay.text(`v = ${rl.formatSignificant(rl.ensure(newVelocityC), "9", 3)}c`);
