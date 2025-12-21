@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import Decimal from "decimal.js";
+import { select } from "d3-selection";
 import {
 	formatCoordinate,
 	calculateGamma,
@@ -7,6 +8,8 @@ import {
 	debounce,
 	createScaleSet,
 	calculateLightConeAtOrigin,
+	createSliderTouchState,
+	attachSliderTouchHandlers,
 } from "./minkowski-core";
 
 describe("Minkowski Core Utilities", () => {
@@ -232,6 +235,401 @@ describe("Minkowski Core Utilities", () => {
 			expect(result.futureCone.ct1).toBe(-50 - 10);
 			expect(result.futureCone.x2).toBe(10);
 			expect(result.futureCone.ct2).toBe(-50 + 10);
+		});
+	});
+
+	describe("Touch Event Handling", () => {
+		describe("createSliderTouchState", () => {
+			it("creates state with isActive false", () => {
+				const state = createSliderTouchState();
+				expect(state.isActive).toBe(false);
+			});
+
+			it("initializes start coordinates to zero", () => {
+				const state = createSliderTouchState();
+				expect(state.startX).toBe(0);
+				expect(state.startY).toBe(0);
+			});
+
+			it("creates independent state objects", () => {
+				const state1 = createSliderTouchState();
+				const state2 = createSliderTouchState();
+				state1.isActive = true;
+				expect(state2.isActive).toBe(false);
+			});
+		});
+
+		describe("attachSliderTouchHandlers", () => {
+			let container: HTMLDivElement;
+			let slider: HTMLInputElement;
+			let consoleErrorSpy: any;
+			let consoleWarnSpy: any;
+			let consoleDebugSpy: any;
+
+			// Helper to create mock Touch object
+			const createTouch = (x: number, y: number): Touch => ({
+				clientX: x,
+				clientY: y,
+				identifier: 0,
+				pageX: x,
+				pageY: y,
+				screenX: x,
+				screenY: y,
+				radiusX: 0,
+				radiusY: 0,
+				rotationAngle: 0,
+				force: 1,
+				target: slider,
+			});
+
+			// Helper to create mock TouchEvent
+			const createTouchEvent = (
+				type: string,
+				touches: Touch[],
+				options: { cancelable?: boolean; bubbles?: boolean } = {}
+			): TouchEvent => {
+				const event = new Event(type, {
+					cancelable: options.cancelable ?? true,
+					bubbles: options.bubbles ?? true,
+				}) as any;
+				event.touches = touches;
+				event.changedTouches = touches;
+				event.targetTouches = touches;
+				return event as TouchEvent;
+			};
+
+			beforeEach(() => {
+				// Create DOM elements
+				container = document.createElement("div");
+				slider = document.createElement("input");
+				slider.type = "range";
+				container.appendChild(slider);
+				document.body.appendChild(container);
+
+				// Spy on console methods
+				consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+				consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+				consoleDebugSpy = vi.spyOn(console, "debug").mockImplementation(() => {});
+			});
+
+			afterEach(() => {
+				document.body.removeChild(container);
+				consoleErrorSpy.mockRestore();
+				consoleWarnSpy.mockRestore();
+				consoleDebugSpy.mockRestore();
+			});
+
+			describe("Gesture Direction Detection", () => {
+				it("prevents default for horizontal swipe (slider interaction)", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					// Touchstart at origin
+					const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart);
+					expect(state.isActive).toBe(true);
+
+					// Touchmove horizontally (deltaX=50, deltaY=5)
+					const touchMove = createTouchEvent("touchmove", [createTouch(150, 105)]);
+					const preventDefaultSpy = vi.spyOn(touchMove, "preventDefault");
+					slider.dispatchEvent(touchMove);
+
+					expect(preventDefaultSpy).toHaveBeenCalled();
+					expect(state.isActive).toBe(true);
+				});
+
+				it("allows vertical swipe to scroll (no preventDefault)", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					// Touchstart at origin
+					const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart);
+					expect(state.isActive).toBe(true);
+
+					// Touchmove vertically (deltaX=5, deltaY=50)
+					const touchMove = createTouchEvent("touchmove", [createTouch(105, 150)]);
+					const preventDefaultSpy = vi.spyOn(touchMove, "preventDefault");
+					slider.dispatchEvent(touchMove);
+
+					expect(preventDefaultSpy).not.toHaveBeenCalled();
+					expect(state.isActive).toBe(false); // Deactivated for scroll
+				});
+
+				it("waits for movement above threshold before deciding", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					// Touchstart
+					const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart);
+
+					// Small movement below threshold (9px)
+					const touchMove1 = createTouchEvent("touchmove", [createTouch(109, 100)]);
+					const preventDefaultSpy1 = vi.spyOn(touchMove1, "preventDefault");
+					slider.dispatchEvent(touchMove1);
+
+					// Should not decide yet
+					expect(preventDefaultSpy1).not.toHaveBeenCalled();
+					expect(state.isActive).toBe(true);
+				});
+
+				it("detects horizontal gesture at threshold boundary (11px)", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart);
+
+					// Movement just above threshold (11px horizontal, 0px vertical)
+					const touchMove = createTouchEvent("touchmove", [createTouch(111, 100)]);
+					const preventDefaultSpy = vi.spyOn(touchMove, "preventDefault");
+					slider.dispatchEvent(touchMove);
+
+					expect(preventDefaultSpy).toHaveBeenCalled();
+				});
+
+				it("detects vertical gesture at threshold boundary (11px)", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart);
+
+					// Movement just above threshold (0px horizontal, 11px vertical)
+					const touchMove = createTouchEvent("touchmove", [createTouch(100, 111)]);
+					const preventDefaultSpy = vi.spyOn(touchMove, "preventDefault");
+					slider.dispatchEvent(touchMove);
+
+					expect(preventDefaultSpy).not.toHaveBeenCalled();
+					expect(state.isActive).toBe(false);
+				});
+
+				it("handles diagonal movement (uses dominant axis)", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart);
+
+					// Diagonal: 30px horizontal, 20px vertical (horizontal dominant)
+					const touchMove = createTouchEvent("touchmove", [createTouch(130, 120)]);
+					const preventDefaultSpy = vi.spyOn(touchMove, "preventDefault");
+					slider.dispatchEvent(touchMove);
+
+					expect(preventDefaultSpy).toHaveBeenCalled();
+					expect(state.isActive).toBe(true);
+				});
+			});
+
+			describe("Null Safety", () => {
+				it("handles null touches on touchstart with error logging", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					// Create event with null touches
+					const touchStart = createTouchEvent("touchstart", []);
+					(touchStart as any).touches = null;
+					slider.dispatchEvent(touchStart);
+
+					expect(consoleErrorSpy).toHaveBeenCalledWith(
+						expect.stringContaining("[Touch Error] TouchEvent.touches missing")
+					);
+					expect(state.isActive).toBe(false);
+				});
+
+				it("handles empty touches array on touchstart", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					const touchStart = createTouchEvent("touchstart", []);
+					slider.dispatchEvent(touchStart);
+
+					expect(consoleErrorSpy).toHaveBeenCalled();
+					expect(state.isActive).toBe(false);
+				});
+
+				it("handles null touches on touchmove with warning", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					// Start touch normally
+					const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart);
+					expect(state.isActive).toBe(true);
+
+					// Touch lost during gesture
+					const touchMove = createTouchEvent("touchmove", []);
+					(touchMove as any).touches = null;
+					slider.dispatchEvent(touchMove);
+
+					expect(consoleWarnSpy).toHaveBeenCalledWith(
+						expect.stringContaining("[Touch Warning] Touch data lost")
+					);
+					expect(state.isActive).toBe(false);
+				});
+
+				it("ignores touchmove when slider is inactive", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					// Touchmove without touchstart
+					const touchMove = createTouchEvent("touchmove", [createTouch(100, 100)]);
+					const preventDefaultSpy = vi.spyOn(touchMove, "preventDefault");
+					slider.dispatchEvent(touchMove);
+
+					expect(preventDefaultSpy).not.toHaveBeenCalled();
+					expect(consoleWarnSpy).not.toHaveBeenCalled();
+				});
+			});
+
+			describe("State Management Through Touch Lifecycle", () => {
+				it("activates on touchstart", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					expect(state.isActive).toBe(false);
+
+					const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart);
+
+					expect(state.isActive).toBe(true);
+				});
+
+				it("captures start coordinates on touchstart", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					const touchStart = createTouchEvent("touchstart", [createTouch(150, 250)]);
+					slider.dispatchEvent(touchStart);
+
+					expect(state.startX).toBe(150);
+					expect(state.startY).toBe(250);
+				});
+
+				it("deactivates on touchend", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart);
+					expect(state.isActive).toBe(true);
+
+					const touchEnd = createTouchEvent("touchend", []);
+					slider.dispatchEvent(touchEnd);
+					expect(state.isActive).toBe(false);
+				});
+
+				it("deactivates on touchcancel with debug logging", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart);
+					expect(state.isActive).toBe(true);
+
+					const touchCancel = createTouchEvent("touchcancel", []);
+					slider.dispatchEvent(touchCancel);
+
+					expect(state.isActive).toBe(false);
+					expect(consoleDebugSpy).toHaveBeenCalledWith(
+						expect.stringContaining("[Touch Debug] Slider gesture cancelled by system")
+					);
+				});
+
+				it("handles rapid touch start/end cycles", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					// Multiple quick touches
+					for (let i = 0; i < 5; i++) {
+						const touchStart = createTouchEvent("touchstart", [createTouch(100, 100)]);
+						slider.dispatchEvent(touchStart);
+						expect(state.isActive).toBe(true);
+
+						const touchEnd = createTouchEvent("touchend", []);
+						slider.dispatchEvent(touchEnd);
+						expect(state.isActive).toBe(false);
+					}
+				});
+
+				it("maintains independent state across multiple sliders", () => {
+					const state1 = createSliderTouchState();
+					const state2 = createSliderTouchState();
+
+					const slider2 = document.createElement("input");
+					slider2.type = "range";
+					container.appendChild(slider2);
+
+					attachSliderTouchHandlers(select(slider), state1);
+					attachSliderTouchHandlers(select(slider2), state2);
+
+					// Activate first slider
+					const touchStart1 = createTouchEvent("touchstart", [createTouch(100, 100)]);
+					slider.dispatchEvent(touchStart1);
+
+					expect(state1.isActive).toBe(true);
+					expect(state2.isActive).toBe(false);
+
+					// Activate second slider
+					const touchStart2 = createTouchEvent("touchstart", [createTouch(200, 200)]);
+					slider2.dispatchEvent(touchStart2);
+
+					expect(state1.isActive).toBe(true);
+					expect(state2.isActive).toBe(true);
+				});
+			});
+
+			describe("CSS Properties", () => {
+				it("sets touch-action: none on slider", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					attachSliderTouchHandlers(selection, state);
+
+					expect(slider.style.touchAction).toBe("none");
+				});
+			});
+
+			describe("Method Chaining", () => {
+				it("returns selection for method chaining", () => {
+					const state = createSliderTouchState();
+					const selection = select(slider);
+					const result = attachSliderTouchHandlers(selection, state);
+
+					expect(result).toBe(selection);
+				});
+
+				it("allows chaining with other D3 methods", () => {
+					const state = createSliderTouchState();
+					let inputFired = false;
+
+					select(slider)
+						.call(sel => attachSliderTouchHandlers(sel, state))
+						.on("input", () => {
+							inputFired = true;
+						});
+
+					const inputEvent = new Event("input");
+					slider.dispatchEvent(inputEvent);
+
+					expect(inputFired).toBe(true);
+				});
+			});
 		});
 	});
 });
