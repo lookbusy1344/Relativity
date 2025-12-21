@@ -450,7 +450,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	// Handle orientation changes and window resize with debounce
 	let resizeTimeout: number | undefined;
+	let lastInnerWidth = window.innerWidth;
 	const handleResize = () => {
+		// iOS Safari fires resize during scroll (height-only visual viewport changes)
+		if (window.innerWidth === lastInnerWidth) return;
+		lastInnerWidth = window.innerWidth;
+
 		clearTimeout(resizeTimeout);
 		resizeTimeout = window.setTimeout(() => {
 			// Resize all Chart.js charts in the registry
