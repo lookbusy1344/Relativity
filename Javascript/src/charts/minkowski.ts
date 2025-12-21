@@ -12,7 +12,13 @@ import type {
 	AnimationController,
 	MinkowskiData,
 } from "./minkowski-types";
-import { C, debounce, formatCoordinate } from "./minkowski-core";
+import {
+	C,
+	debounce,
+	formatCoordinate,
+	createSliderTouchState,
+	attachSliderTouchHandlers,
+} from "./minkowski-core";
 import * as rl from "../relativity_lib";
 
 /**
@@ -920,6 +926,16 @@ function setupTooltips(
 	let touchedElement: any = null;
 
 	svg.on("touchstart", function (event) {
+		// Defensive check: TouchEvent.touches should always exist per spec
+		if (!event.touches || !event.touches[0]) {
+			console.error(
+				"[Touch Error] TouchEvent.touches missing on SVG touchstart. " +
+					"This indicates a browser bug or non-standard touch implementation. " +
+					`Target: ${(event.target as SVGElement)?.tagName}, ` +
+					`UserAgent: ${navigator.userAgent}`
+			);
+			return;
+		}
 		const touch = event.touches[0];
 		const targetElement = event.target as SVGElement;
 
@@ -1243,62 +1259,21 @@ export function drawMinkowskiDiagramD3(
 		.text("Position:");
 
 	// Track slider interaction state to prevent scroll interference
-	let isPositionSliderActive = false;
-	let positionSliderTouchStartX = 0;
-	let positionSliderTouchStartY = 0;
-	const MIN_POSITION_GESTURE_THRESHOLD = 10; // Minimum pixels of movement to detect gesture direction
+	const positionSliderTouchState = createSliderTouchState();
 
-	sliderContainer
+	const positionSliderBase = sliderContainer
 		.append("input")
 		.attr("type", "range")
 		.attr("min", "0")
 		.attr("max", "50")
 		.attr("value", "0")
 		.style("width", "200px")
-		.style("cursor", "pointer")
-		.style("touch-action", "none") // Disable all touch gestures on slider to enable custom handling
-		.on("touchstart", function (event: TouchEvent) {
-			// Mark slider as active when touch starts on it
-			if (!event.touches || !event.touches[0]) return;
-			isPositionSliderActive = true;
-			const touch = event.touches[0];
-			positionSliderTouchStartX = touch.clientX;
-			positionSliderTouchStartY = touch.clientY;
-		})
-		.on("touchmove", function (event: TouchEvent) {
-			if (!isPositionSliderActive) {
-				return;
-			}
-			// Check if this is a scroll gesture (primarily vertical movement)
-			if (!event.touches || !event.touches[0]) return;
-			const touch = event.touches[0];
-			const deltaX = Math.abs(touch.clientX - positionSliderTouchStartX);
-			const deltaY = Math.abs(touch.clientY - positionSliderTouchStartY);
-			
-			// Only decide gesture type once we have meaningful movement
-			const hasMeaningfulMovement = deltaX > MIN_POSITION_GESTURE_THRESHOLD || deltaY > MIN_POSITION_GESTURE_THRESHOLD;
-			
-			if (hasMeaningfulMovement) {
-				// If vertical movement is greater than horizontal, treat as scroll
-				if (deltaY > deltaX) {
-					// This looks like a scroll gesture, deactivate slider
-					isPositionSliderActive = false;
-					return;
-				}
-				// Otherwise, this is a slider interaction, prevent scrolling
-				event.preventDefault();
-			}
-		})
-		.on("touchend", function () {
-			isPositionSliderActive = false;
-		})
-		.on("touchcancel", function () {
-			isPositionSliderActive = false;
-		})
-		.on("input", function () {
-			const value = parseFloat((this as HTMLInputElement).value) / 50;
-			animation.setPosition(value);
-		});
+		.style("cursor", "pointer");
+
+	attachSliderTouchHandlers(positionSliderBase, positionSliderTouchState).on("input", function () {
+		const value = parseFloat((this as HTMLInputElement).value) / 50;
+		animation.setPosition(value);
+	});
 
 	// Start auto-play frame animation
 	let animation = startFrameAnimation(svg, scales, data, () => {

@@ -479,3 +479,99 @@ export function createTooltip(container: HTMLElement): TooltipController {
 		},
 	};
 }
+
+/**
+ * Minimum pixels of movement required to classify a gesture as horizontal or vertical.
+ * Prevents premature gesture classification from minor touch jitter.
+ */
+const MIN_GESTURE_THRESHOLD = 10;
+
+/**
+ * State tracker for touch gesture handling on slider elements.
+ * Distinguishes between horizontal slider drags and vertical page scrolls.
+ */
+export interface SliderTouchState {
+	isActive: boolean;
+	startX: number;
+	startY: number;
+}
+
+/**
+ * Creates a fresh touch state object for slider gesture tracking.
+ */
+export function createSliderTouchState(): SliderTouchState {
+	return { isActive: false, startX: 0, startY: 0 };
+}
+
+/**
+ * Attaches touch event handlers to a D3 selection for distinguishing
+ * between horizontal slider interactions and vertical page scrolling.
+ *
+ * This enables sliders embedded in scrollable pages to work correctly
+ * on touch devices: horizontal swipes control the slider while vertical
+ * swipes scroll the page.
+ *
+ * @param selection - D3 selection of the input element
+ * @param state - Mutable state object for tracking touch gesture
+ * @returns The same selection for method chaining
+ */
+export function attachSliderTouchHandlers<T extends Element>(
+	selection: Selection<T, unknown, null, undefined>,
+	state: SliderTouchState
+): Selection<T, unknown, null, undefined> {
+	return selection
+		.style("touch-action", "none")
+		.on("touchstart", function (event: TouchEvent) {
+			// Defensive check: TouchEvent.touches should always exist per spec
+			if (!event.touches || !event.touches[0]) {
+				console.error(
+					"[Touch Error] TouchEvent.touches missing on slider touchstart. " +
+						"This indicates a browser bug or non-standard touch implementation. " +
+						`UserAgent: ${navigator.userAgent}`
+				);
+				return;
+			}
+			state.isActive = true;
+			const touch = event.touches[0];
+			state.startX = touch.clientX;
+			state.startY = touch.clientY;
+		})
+		.on("touchmove", function (event: TouchEvent) {
+			if (!state.isActive) return;
+			// Defensive check for mid-gesture touch loss
+			if (!event.touches || !event.touches[0]) {
+				console.warn(
+					"[Touch Warning] Touch data lost during active slider gesture. " +
+						"This may indicate touch cancellation or browser bug. Deactivating slider."
+				);
+				state.isActive = false;
+				return;
+			}
+
+			const touch = event.touches[0];
+			const deltaX = Math.abs(touch.clientX - state.startX);
+			const deltaY = Math.abs(touch.clientY - state.startY);
+			const hasMeaningfulMovement =
+				deltaX > MIN_GESTURE_THRESHOLD || deltaY > MIN_GESTURE_THRESHOLD;
+
+			if (hasMeaningfulMovement) {
+				if (deltaY > deltaX) {
+					// Vertical movement dominant - allow page scroll
+					state.isActive = false;
+				} else {
+					// Horizontal movement dominant - control slider
+					event.preventDefault();
+				}
+			}
+		})
+		.on("touchend", function () {
+			state.isActive = false;
+		})
+		.on("touchcancel", function () {
+			console.debug(
+				"[Touch Debug] Slider gesture cancelled by system. " +
+					"This is normal when OS interrupts (calls, notifications, etc.)"
+			);
+			state.isActive = false;
+		});
+}

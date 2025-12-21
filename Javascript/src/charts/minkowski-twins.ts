@@ -16,6 +16,8 @@ import {
 	renderStandardAxes,
 	renderTransformedAxes,
 	createTooltip,
+	createSliderTouchState,
+	attachSliderTouchHandlers,
 } from "./minkowski-core";
 import * as rl from "../relativity_lib";
 
@@ -848,13 +850,10 @@ export function drawTwinParadoxMinkowski(
 		.text(`v = ${rl.formatSignificant(data.velocityCDecimal, "9", 3)}c`);
 
 	// Track slider interaction state to prevent scroll interference
-	let isSliderActive = false;
-	let sliderTouchStartX = 0;
-	let sliderTouchStartY = 0;
-	const MIN_GESTURE_THRESHOLD = 10; // Minimum pixels of movement to detect gesture direction
+	const sliderTouchState = createSliderTouchState();
 
 	// Slider input
-	const velocitySlider = velocitySliderContainer
+	const velocitySliderBase = velocitySliderContainer
 		.append("input")
 		.attr("type", "range")
 		.attr("min", "0.001")
@@ -863,47 +862,11 @@ export function drawTwinParadoxMinkowski(
 		.attr("value", data.velocityC.toString())
 		.attr("class", "velocity-slider-input")
 		.style("width", "200px")
-		.style("cursor", "pointer")
-		.style("touch-action", "none") // Disable all touch gestures on slider to enable custom handling
-		.on("touchstart", function (event: TouchEvent) {
-			// Mark slider as active when touch starts on it
-			if (!event.touches || !event.touches[0]) return;
-			isSliderActive = true;
-			const touch = event.touches[0];
-			sliderTouchStartX = touch.clientX;
-			sliderTouchStartY = touch.clientY;
-		})
-		.on("touchmove", function (event: TouchEvent) {
-			if (!isSliderActive) {
-				return;
-			}
-			// Check if this is a scroll gesture (primarily vertical movement)
-			if (!event.touches || !event.touches[0]) return;
-			const touch = event.touches[0];
-			const deltaX = Math.abs(touch.clientX - sliderTouchStartX);
-			const deltaY = Math.abs(touch.clientY - sliderTouchStartY);
-			
-			// Only decide gesture type once we have meaningful movement
-			const hasMeaningfulMovement = deltaX > MIN_GESTURE_THRESHOLD || deltaY > MIN_GESTURE_THRESHOLD;
-			
-			if (hasMeaningfulMovement) {
-				// If vertical movement is greater than horizontal, treat as scroll
-				if (deltaY > deltaX) {
-					// This looks like a scroll gesture, deactivate slider
-					isSliderActive = false;
-					return;
-				}
-				// Otherwise, this is a slider interaction, prevent scrolling
-				event.preventDefault();
-			}
-		})
-		.on("touchend", function () {
-			isSliderActive = false;
-		})
-		.on("touchcancel", function () {
-			isSliderActive = false;
-		})
-		.on("input", function () {
+		.style("cursor", "pointer");
+
+	const velocitySlider = attachSliderTouchHandlers(velocitySliderBase, sliderTouchState).on(
+		"input",
+		function () {
 			const newVelocityC = parseFloat((this as HTMLInputElement).value);
 			// Update display immediately for responsive feedback
 			velocityValueDisplay.text(`v = ${rl.formatSignificant(rl.ensure(newVelocityC), "9", 3)}c`);
@@ -921,7 +884,8 @@ export function drawTwinParadoxMinkowski(
 				}
 				velocityUpdateTimeout = null;
 			}, 300);
-		});
+		}
+	);
 
 	// Pause animation when tab is hidden
 	const visibilityChangeHandler = () => {

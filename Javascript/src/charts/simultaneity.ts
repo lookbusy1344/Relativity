@@ -13,6 +13,8 @@ import {
 	setupSVG,
 	createAxisDefinitions,
 	debounce,
+	createSliderTouchState,
+	attachSliderTouchHandlers,
 } from "./minkowski-core";
 import { updateURL } from "../urlState";
 import * as simultaneityState from "./simultaneityState";
@@ -891,12 +893,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 	let urlUpdateTimer: number | undefined;
 
 	// Track velocity slider interaction state to prevent scroll interference
-	let isVelocitySliderActive = false;
-	let velocitySliderTouchStartX = 0;
-	let velocitySliderTouchStartY = 0;
-	const MIN_VELOCITY_GESTURE_THRESHOLD = 10; // Minimum pixels of movement to detect gesture direction
+	const velocitySliderTouchState = createSliderTouchState();
 
-	const velocitySlider = sliderContainer
+	const velocitySliderBase = sliderContainer
 		.append("input")
 		.attr("type", "range")
 		.attr("id", "simVelocitySlider")
@@ -905,47 +904,11 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.attr("step", "0.01")
 		.attr("value", "0")
 		.style("width", "200px")
-		.style("cursor", "pointer")
-		.style("touch-action", "none") // Disable all touch gestures on slider to enable custom handling
-		.on("touchstart", function (event: TouchEvent) {
-			// Mark slider as active when touch starts on it
-			if (!event.touches || !event.touches[0]) return;
-			isVelocitySliderActive = true;
-			const touch = event.touches[0];
-			velocitySliderTouchStartX = touch.clientX;
-			velocitySliderTouchStartY = touch.clientY;
-		})
-		.on("touchmove", function (event: TouchEvent) {
-			if (!isVelocitySliderActive) {
-				return;
-			}
-			// Check if this is a scroll gesture (primarily vertical movement)
-			if (!event.touches || !event.touches[0]) return;
-			const touch = event.touches[0];
-			const deltaX = Math.abs(touch.clientX - velocitySliderTouchStartX);
-			const deltaY = Math.abs(touch.clientY - velocitySliderTouchStartY);
-			
-			// Only decide gesture type once we have meaningful movement
-			const hasMeaningfulMovement = deltaX > MIN_VELOCITY_GESTURE_THRESHOLD || deltaY > MIN_VELOCITY_GESTURE_THRESHOLD;
-			
-			if (hasMeaningfulMovement) {
-				// If vertical movement is greater than horizontal, treat as scroll
-				if (deltaY > deltaX) {
-					// This looks like a scroll gesture, deactivate slider
-					isVelocitySliderActive = false;
-					return;
-				}
-				// Otherwise, this is a slider interaction, prevent scrolling
-				event.preventDefault();
-			}
-		})
-		.on("touchend", function () {
-			isVelocitySliderActive = false;
-		})
-		.on("touchcancel", function () {
-			isVelocitySliderActive = false;
-		})
-		.on("input", function () {
+		.style("cursor", "pointer");
+
+	const velocitySlider = attachSliderTouchHandlers(velocitySliderBase, velocitySliderTouchState).on(
+		"input",
+		function () {
 			const velocity = parseFloat((this as HTMLInputElement).value);
 			updateVelocity(velocity);
 
@@ -960,7 +923,8 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 			urlUpdateTimer = window.setTimeout(() => {
 				updateURL();
 			}, 500);
-		});
+		}
+	);
 
 	const velocityLabel = sliderContainer
 		.append("span")
@@ -995,12 +959,9 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.text("Position:");
 
 	// Track position slider interaction state to prevent scroll interference
-	let isSimPositionSliderActive = false;
-	let simPositionSliderTouchStartX = 0;
-	let simPositionSliderTouchStartY = 0;
-	const MIN_SIM_POSITION_GESTURE_THRESHOLD = 10; // Minimum pixels of movement to detect gesture direction
+	const positionSliderTouchState = createSliderTouchState();
 
-	const positionSlider = positionSliderContainer
+	const positionSliderBase = positionSliderContainer
 		.append("input")
 		.attr("type", "range")
 		.attr("id", "simPositionSlider")
@@ -1009,52 +970,17 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.attr("step", "0.001")
 		.attr("value", "0")
 		.style("width", "200px")
-		.style("cursor", "pointer")
-		.style("touch-action", "none") // Disable all touch gestures on slider to enable custom handling
-		.on("touchstart", function (event: TouchEvent) {
-			// Mark slider as active when touch starts on it
-			if (!event.touches || !event.touches[0]) return;
-			isSimPositionSliderActive = true;
-			const touch = event.touches[0];
-			simPositionSliderTouchStartX = touch.clientX;
-			simPositionSliderTouchStartY = touch.clientY;
-		})
-		.on("touchmove", function (event: TouchEvent) {
-			if (!isSimPositionSliderActive) {
-				return;
-			}
-			// Check if this is a scroll gesture (primarily vertical movement)
-			if (!event.touches || !event.touches[0]) return;
-			const touch = event.touches[0];
-			const deltaX = Math.abs(touch.clientX - simPositionSliderTouchStartX);
-			const deltaY = Math.abs(touch.clientY - simPositionSliderTouchStartY);
-			
-			// Only decide gesture type once we have meaningful movement
-			const hasMeaningfulMovement = deltaX > MIN_SIM_POSITION_GESTURE_THRESHOLD || deltaY > MIN_SIM_POSITION_GESTURE_THRESHOLD;
-			
-			if (hasMeaningfulMovement) {
-				// If vertical movement is greater than horizontal, treat as scroll
-				if (deltaY > deltaX) {
-					// This looks like a scroll gesture, deactivate slider
-					isSimPositionSliderActive = false;
-					return;
-				}
-				// Otherwise, this is a slider interaction, prevent scrolling
-				event.preventDefault();
-			}
-		})
-		.on("touchend", function () {
-			isSimPositionSliderActive = false;
-		})
-		.on("touchcancel", function () {
-			isSimPositionSliderActive = false;
-		})
-		.on("input", function () {
+		.style("cursor", "pointer");
+
+	const positionSlider = attachSliderTouchHandlers(positionSliderBase, positionSliderTouchState).on(
+		"input",
+		function () {
 			const progress = parseFloat((this as HTMLInputElement).value);
 			state.animationProgress = progress;
 			positionLabel.text(`${Math.round(progress * 100)}%`);
 			renderNowLine();
-		});
+		}
+	);
 
 	const positionLabel = positionSliderContainer
 		.append("span")
