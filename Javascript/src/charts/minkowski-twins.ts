@@ -664,7 +664,6 @@ export function drawTwinParadoxMinkowski(
 	onVelocityChange?: (velocityC: number) => void
 ): TwinParadoxController {
 	const size = 900;
-	const beta = data.velocityC;
 	let isSliderUpdate = false;
 
 	// Calculate key events
@@ -678,6 +677,7 @@ export function drawTwinParadoxMinkowski(
 
 	// Initial render
 	renderStandardAxes(svg, scales, { ctLabel: "ct (Earth)", xLabel: "x" });
+	const beta = data.velocityC;
 
 	// Render outbound frame axes (green)
 	renderTransformedAxes(
@@ -891,6 +891,7 @@ export function drawTwinParadoxMinkowski(
 	const resizeHandler = debounce(() => {
 		events = calculateEvents(data);
 		scales = createScaleSet(events.maxCoord, size);
+		const beta = data.velocityC;
 
 		// Re-render everything
 		svg.select("g.axes").selectAll("*").remove();
@@ -933,7 +934,8 @@ export function drawTwinParadoxMinkowski(
 	// Public controller API
 	const controller: TwinParadoxController = {
 		update(newData: TwinParadoxMinkowskiData) {
-			const twinsData = newData;
+			data = newData;
+			const twinsData = data;
 			// Re-calculate and re-render with new data
 			events = calculateEvents(twinsData);
 			scales = createScaleSet(events.maxCoord, size);
