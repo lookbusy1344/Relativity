@@ -1298,7 +1298,12 @@ export function drawMinkowskiDiagramD3(
 	document.addEventListener("visibilitychange", visibilityChangeHandler);
 
 	// Resize handler
+	let lastInnerWidth = window.innerWidth;
 	const resizeHandler = debounce(() => {
+		// iOS Safari fires resize during scroll (height-only visual viewport changes)
+		if (window.innerWidth === lastInnerWidth) return;
+		lastInnerWidth = window.innerWidth;
+
 		scales = createScales(data, size);
 		renderLightCones(svg, scales, data, false);
 		renderSimultaneityLines(svg, scales, data, false);

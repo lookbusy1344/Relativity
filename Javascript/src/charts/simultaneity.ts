@@ -1238,7 +1238,12 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 	startAnimation();
 
 	// Resize handler for orientation changes and window resizing
+	let lastInnerWidth = window.innerWidth;
 	const resizeHandler = debounce(() => {
+		// iOS Safari fires resize during scroll (height-only visual viewport changes)
+		if (window.innerWidth === lastInnerWidth) return;
+		lastInnerWidth = window.innerWidth;
+
 		render();
 	}, 150);
 

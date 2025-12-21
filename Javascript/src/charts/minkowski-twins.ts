@@ -888,7 +888,12 @@ export function drawTwinParadoxMinkowski(
 	document.addEventListener("visibilitychange", visibilityChangeHandler);
 
 	// Resize handler
+	let lastInnerWidth = window.innerWidth;
 	const resizeHandler = debounce(() => {
+		// iOS Safari fires resize during scroll (height-only visual viewport changes)
+		if (window.innerWidth === lastInnerWidth) return;
+		lastInnerWidth = window.innerWidth;
+
 		events = calculateEvents(data);
 		scales = createScaleSet(events.maxCoord, size);
 		const beta = data.velocityC;
