@@ -23,7 +23,8 @@ export type ChartDataPointWithVelocity = {
 
 export function generateAccelChartData(
 	accelG: number,
-	durationDays: number
+	durationDays: number,
+	nozzleEfficiency: number
 ): {
 	properTimeVelocity: ChartDataPoint[];
 	coordTimeVelocity: ChartDataPoint[];
@@ -31,10 +32,7 @@ export function generateAccelChartData(
 	coordTimeRapidity: ChartDataPoint[];
 	properTimeTimeDilation: ChartDataPoint[];
 	coordTimeTimeDilation: ChartDataPoint[];
-	properTimeMassRemaining40: ChartDataPoint[];
-	properTimeMassRemaining50: ChartDataPoint[];
-	properTimeMassRemaining60: ChartDataPoint[];
-	properTimeMassRemaining70: ChartDataPoint[];
+	properTimeMassRemaining: ChartDataPoint[];
 	positionVelocity: ChartDataPoint[]; // NEW: {x: distance_ly, y: velocity_c}
 	spacetimeWorldline: ChartDataPointWithVelocity[]; // NEW: {x: coord_time_years, y: distance_ly, velocity}
 } {
@@ -48,10 +46,7 @@ export function generateAccelChartData(
 	const coordTimeRapidity: ChartDataPoint[] = [];
 	const properTimeTimeDilation: ChartDataPoint[] = [];
 	const coordTimeTimeDilation: ChartDataPoint[] = [];
-	const properTimeMassRemaining40: ChartDataPoint[] = [];
-	const properTimeMassRemaining50: ChartDataPoint[] = [];
-	const properTimeMassRemaining60: ChartDataPoint[] = [];
-	const properTimeMassRemaining70: ChartDataPoint[] = [];
+	const properTimeMassRemaining: ChartDataPoint[] = [];
 	const positionVelocity: ChartDataPoint[] = [];
 	const spacetimeWorldline: ChartDataPointWithVelocity[] = [];
 
@@ -74,25 +69,10 @@ export function generateAccelChartData(
 		const tDaysDecimal = t.div(rl.ensure(60 * 60 * 24));
 		const tDays = tDaysDecimal.toNumber();
 
-		// Calculate mass remaining as percentage for all nozzle efficiencies
-		const fuelPercents = rl.pionRocketFuelFractionsMultiple(
-			tauDecimal,
-			accel,
-			[0.7, 0.75, 0.8, 0.85]
-		);
-		const [
-			massRemaining70Decimal,
-			massRemaining75Decimal,
-			massRemaining80Decimal,
-			massRemaining85Decimal,
-		] = fuelPercents.map(fp => rl.ensure(100).minus(fp));
-
-		const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] = [
-			massRemaining70Decimal,
-			massRemaining75Decimal,
-			massRemaining80Decimal,
-			massRemaining85Decimal,
-		].map(d => d.toNumber());
+		// Calculate mass remaining as percentage for selected nozzle efficiency
+		const fuelFraction = rl.pionRocketFuelFraction(tauDecimal, accel, nozzleEfficiency);
+		const massRemainingDecimal = rl.one.minus(fuelFraction).mul(100);
+		const massRemaining = massRemainingDecimal.toNumber();
 
 		properTimeVelocity.push({
 			x: tauDays,
@@ -135,32 +115,11 @@ export function generateAccelChartData(
 			xDecimal: tDaysDecimal,
 			yDecimal: timeDilationDecimal,
 		});
-		properTimeMassRemaining40.push({
+		properTimeMassRemaining.push({
 			x: tauDays,
-			y: massRemaining70,
+			y: massRemaining,
 			xDecimal: tauDaysDecimal,
-			yDecimal: massRemaining70Decimal,
-		});
-
-		properTimeMassRemaining50.push({
-			x: tauDays,
-			y: massRemaining75,
-			xDecimal: tauDaysDecimal,
-			yDecimal: massRemaining75Decimal,
-		});
-
-		properTimeMassRemaining60.push({
-			x: tauDays,
-			y: massRemaining80,
-			xDecimal: tauDaysDecimal,
-			yDecimal: massRemaining80Decimal,
-		});
-
-		properTimeMassRemaining70.push({
-			x: tauDays,
-			y: massRemaining85,
-			xDecimal: tauDaysDecimal,
-			yDecimal: massRemaining85Decimal,
+			yDecimal: massRemainingDecimal,
 		});
 
 		// Calculate distance for phase space plots
@@ -197,10 +156,7 @@ export function generateAccelChartData(
 		coordTimeRapidity,
 		properTimeTimeDilation,
 		coordTimeTimeDilation,
-		properTimeMassRemaining40,
-		properTimeMassRemaining50,
-		properTimeMassRemaining60,
-		properTimeMassRemaining70,
+		properTimeMassRemaining,
 		positionVelocity,
 		spacetimeWorldline,
 	};
@@ -208,7 +164,8 @@ export function generateAccelChartData(
 
 export function generateFlipBurnChartData(
 	accelG: number,
-	distanceLightYears: number
+	distanceLightYears: number,
+	nozzleEfficiency: number
 ): {
 	properTimeVelocity: ChartDataPoint[];
 	coordTimeVelocity: ChartDataPoint[];
@@ -216,10 +173,7 @@ export function generateFlipBurnChartData(
 	coordTimeRapidity: ChartDataPoint[];
 	properTimeLorentz: ChartDataPoint[];
 	coordTimeLorentz: ChartDataPoint[];
-	properTimeMassRemaining40: ChartDataPoint[];
-	properTimeMassRemaining50: ChartDataPoint[];
-	properTimeMassRemaining60: ChartDataPoint[];
-	properTimeMassRemaining70: ChartDataPoint[];
+	properTimeMassRemaining: ChartDataPoint[];
 	positionVelocityAccel: ChartDataPoint[]; // NEW: acceleration phase
 	positionVelocityDecel: ChartDataPoint[]; // NEW: deceleration phase
 	spacetimeWorldline: ChartDataPointWithVelocity[]; // NEW: S-curve with velocity
@@ -236,10 +190,7 @@ export function generateFlipBurnChartData(
 	const coordTimeRapidity: ChartDataPoint[] = [];
 	const properTimeLorentz: ChartDataPoint[] = [];
 	const coordTimeLorentz: ChartDataPoint[] = [];
-	const properTimeMassRemaining40: ChartDataPoint[] = [];
-	const properTimeMassRemaining50: ChartDataPoint[] = [];
-	const properTimeMassRemaining60: ChartDataPoint[] = [];
-	const properTimeMassRemaining70: ChartDataPoint[] = [];
+	const properTimeMassRemaining: ChartDataPoint[] = [];
 	const positionVelocityAccel: ChartDataPoint[] = [];
 	const positionVelocityDecel: ChartDataPoint[] = [];
 	const spacetimeWorldline: ChartDataPointWithVelocity[] = [];
@@ -266,20 +217,9 @@ export function generateFlipBurnChartData(
 		const tYears = tYearsDecimal.toNumber();
 
 		// Calculate mass remaining (fuel burned for thrust time so far)
-		const fuelPercents = rl.pionRocketFuelFractionsMultiple(tau, accel, [0.7, 0.75, 0.8, 0.85]);
-		const [
-			massRemaining70Decimal,
-			massRemaining75Decimal,
-			massRemaining80Decimal,
-			massRemaining85Decimal,
-		] = fuelPercents.map(fp => rl.ensure(100).minus(fp));
-
-		const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] = [
-			massRemaining70Decimal,
-			massRemaining75Decimal,
-			massRemaining80Decimal,
-			massRemaining85Decimal,
-		].map(d => d.toNumber());
+		const fuelFraction = rl.pionRocketFuelFraction(tau, accel, nozzleEfficiency);
+		const massRemainingDecimal = rl.one.minus(fuelFraction).mul(100);
+		const massRemaining = massRemainingDecimal.toNumber();
 
 		properTimeVelocity.push({
 			x: tauYears,
@@ -323,32 +263,11 @@ export function generateFlipBurnChartData(
 			yDecimal: timeDilationDecimal,
 		});
 
-		properTimeMassRemaining40.push({
+		properTimeMassRemaining.push({
 			x: tauYears,
-			y: massRemaining70,
+			y: massRemaining,
 			xDecimal: tauYearsDecimal,
-			yDecimal: massRemaining70Decimal,
-		});
-
-		properTimeMassRemaining50.push({
-			x: tauYears,
-			y: massRemaining75,
-			xDecimal: tauYearsDecimal,
-			yDecimal: massRemaining75Decimal,
-		});
-
-		properTimeMassRemaining60.push({
-			x: tauYears,
-			y: massRemaining80,
-			xDecimal: tauYearsDecimal,
-			yDecimal: massRemaining80Decimal,
-		});
-
-		properTimeMassRemaining70.push({
-			x: tauYears,
-			y: massRemaining85,
-			xDecimal: tauYearsDecimal,
-			yDecimal: massRemaining85Decimal,
+			yDecimal: massRemainingDecimal,
 		});
 
 		// Calculate distance traveled so far
@@ -397,24 +316,9 @@ export function generateFlipBurnChartData(
 		// Total thrust time = half (accel) + time into decel phase
 		const decelThrust = halfProperTimeSeconds.sub(tauAccel);
 		const totalThrustTime = halfProperTimeSeconds.plus(decelThrust);
-		const fuelPercents = rl.pionRocketFuelFractionsMultiple(
-			totalThrustTime,
-			accel,
-			[0.7, 0.75, 0.8, 0.85]
-		);
-		const [
-			massRemaining70Decimal,
-			massRemaining75Decimal,
-			massRemaining80Decimal,
-			massRemaining85Decimal,
-		] = fuelPercents.map(fp => rl.ensure(100).minus(fp));
-
-		const [massRemaining70, massRemaining75, massRemaining80, massRemaining85] = [
-			massRemaining70Decimal,
-			massRemaining75Decimal,
-			massRemaining80Decimal,
-			massRemaining85Decimal,
-		].map(d => d.toNumber());
+		const fuelFraction = rl.pionRocketFuelFraction(totalThrustTime, accel, nozzleEfficiency);
+		const massRemainingDecimal = rl.one.minus(fuelFraction).mul(100);
+		const massRemaining = massRemainingDecimal.toNumber();
 
 		const tAccel = rl.coordinateTime(accel, tauAccel);
 		const tDecel = res.coordTime.sub(tAccel);
@@ -463,32 +367,11 @@ export function generateFlipBurnChartData(
 			yDecimal: timeDilationDecimal,
 		});
 
-		properTimeMassRemaining40.push({
+		properTimeMassRemaining.push({
 			x: tauYears,
-			y: massRemaining70,
+			y: massRemaining,
 			xDecimal: tauYearsDecimal,
-			yDecimal: massRemaining70Decimal,
-		});
-
-		properTimeMassRemaining50.push({
-			x: tauYears,
-			y: massRemaining75,
-			xDecimal: tauYearsDecimal,
-			yDecimal: massRemaining75Decimal,
-		});
-
-		properTimeMassRemaining60.push({
-			x: tauYears,
-			y: massRemaining80,
-			xDecimal: tauYearsDecimal,
-			yDecimal: massRemaining80Decimal,
-		});
-
-		properTimeMassRemaining70.push({
-			x: tauYears,
-			y: massRemaining85,
-			xDecimal: tauYearsDecimal,
-			yDecimal: massRemaining85Decimal,
+			yDecimal: massRemainingDecimal,
 		});
 
 		// During deceleration, distance continues increasing from halfDistance to totalDistance
@@ -525,10 +408,7 @@ export function generateFlipBurnChartData(
 		coordTimeRapidity,
 		properTimeLorentz,
 		coordTimeLorentz,
-		properTimeMassRemaining40,
-		properTimeMassRemaining50,
-		properTimeMassRemaining60,
-		properTimeMassRemaining70,
+		properTimeMassRemaining,
 		positionVelocityAccel,
 		positionVelocityDecel,
 		spacetimeWorldline,
