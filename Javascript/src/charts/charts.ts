@@ -344,10 +344,7 @@ export function updateAccelCharts(
 	newRegistry = updateChart(
 		newRegistry,
 		"accelMassChart",
-		createMassRemainingDatasets(
-			data.properTimeMassRemaining,
-			nozzleEfficiency
-		),
+		createMassRemainingDatasets(data.properTimeMassRemaining, nozzleEfficiency),
 		{
 			primaryColor: "#ffaa00",
 			secondaryColor: "#00ff9f",
@@ -471,10 +468,7 @@ export function updateFlipBurnCharts(
 	newRegistry = updateChart(
 		newRegistry,
 		"flipMassChart",
-		createMassRemainingDatasets(
-			data.properTimeMassRemaining,
-			nozzleEfficiency
-		),
+		createMassRemainingDatasets(data.properTimeMassRemaining, nozzleEfficiency),
 		{
 			primaryColor: "#ffaa00",
 			secondaryColor: "#00ff9f",

@@ -70,12 +70,8 @@ export function generateAccelChartData(
 		const tDays = tDaysDecimal.toNumber();
 
 		// Calculate mass remaining as percentage for selected nozzle efficiency
-		const fuelPercent = rl.pionRocketFuelFraction(
-			tauDecimal,
-			accel,
-			nozzleEfficiency
-		);
-		const massRemainingDecimal = rl.ensure(100).minus(fuelPercent);
+		const fuelFraction = rl.pionRocketFuelFraction(tauDecimal, accel, nozzleEfficiency);
+		const massRemainingDecimal = rl.one.minus(fuelFraction).mul(100);
 		const massRemaining = massRemainingDecimal.toNumber();
 
 		properTimeVelocity.push({
@@ -221,8 +217,8 @@ export function generateFlipBurnChartData(
 		const tYears = tYearsDecimal.toNumber();
 
 		// Calculate mass remaining (fuel burned for thrust time so far)
-		const fuelPercent = rl.pionRocketFuelFraction(tau, accel, nozzleEfficiency);
-		const massRemainingDecimal = rl.ensure(100).minus(fuelPercent);
+		const fuelFraction = rl.pionRocketFuelFraction(tau, accel, nozzleEfficiency);
+		const massRemainingDecimal = rl.one.minus(fuelFraction).mul(100);
 		const massRemaining = massRemainingDecimal.toNumber();
 
 		properTimeVelocity.push({
@@ -320,12 +316,8 @@ export function generateFlipBurnChartData(
 		// Total thrust time = half (accel) + time into decel phase
 		const decelThrust = halfProperTimeSeconds.sub(tauAccel);
 		const totalThrustTime = halfProperTimeSeconds.plus(decelThrust);
-		const fuelPercent = rl.pionRocketFuelFraction(
-			totalThrustTime,
-			accel,
-			nozzleEfficiency
-		);
-		const massRemainingDecimal = rl.ensure(100).minus(fuelPercent);
+		const fuelFraction = rl.pionRocketFuelFraction(totalThrustTime, accel, nozzleEfficiency);
+		const massRemainingDecimal = rl.one.minus(fuelFraction).mul(100);
 		const massRemaining = massRemainingDecimal.toNumber();
 
 		const tAccel = rl.coordinateTime(accel, tauAccel);

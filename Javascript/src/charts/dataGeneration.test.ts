@@ -84,6 +84,29 @@ describe("Data Generation Functions", () => {
 			});
 		});
 
+		it("mass remaining decreases significantly over time", () => {
+			const accelG = 1;
+			const durationDays = 365;
+			const result = generateAccelChartData(accelG, durationDays, 0.85);
+
+			// At start, should have 100% mass
+			const firstMass = result.properTimeMassRemaining[0].y;
+			expect(firstMass).toBeCloseTo(100, 1);
+
+			// After a year at 1g with 85% efficiency, significant fuel should be consumed
+			const lastMass = result.properTimeMassRemaining[result.properTimeMassRemaining.length - 1].y;
+
+			// Mass should decrease monotonically (fuel is consumed)
+			for (let i = 1; i < result.properTimeMassRemaining.length; i++) {
+				expect(result.properTimeMassRemaining[i].y).toBeLessThanOrEqual(
+					result.properTimeMassRemaining[i - 1].y
+				);
+			}
+
+			// Final mass should be significantly less than 100% (at least 10% fuel consumed)
+			expect(firstMass - lastMass).toBeGreaterThan(10);
+		});
+
 		it("generates correct number of data points", () => {
 			const accelG = 1;
 			const durationDays = 365;
@@ -188,6 +211,29 @@ describe("Data Generation Functions", () => {
 			// Velocity should stay low for short distances
 			const maxVelocity = Math.max(...result.properTimeVelocity.map(p => Math.abs(p.y)));
 			expect(maxVelocity).toBeLessThan(0.5);
+		});
+
+		it("mass remaining decreases significantly for long trips", () => {
+			const accelG = 1;
+			const distanceLightYears = 10;
+			const result = generateFlipBurnChartData(accelG, distanceLightYears, 0.85);
+
+			// At start, should have 100% mass
+			const firstMass = result.properTimeMassRemaining[0].y;
+			expect(firstMass).toBeCloseTo(100, 1);
+
+			// After 10 light year flip-and-burn trip, significant fuel should be consumed
+			const lastMass = result.properTimeMassRemaining[result.properTimeMassRemaining.length - 1].y;
+
+			// Mass should decrease monotonically (fuel is consumed)
+			for (let i = 1; i < result.properTimeMassRemaining.length; i++) {
+				expect(result.properTimeMassRemaining[i].y).toBeLessThanOrEqual(
+					result.properTimeMassRemaining[i - 1].y
+				);
+			}
+
+			// Final mass should be significantly less than 100% (at least 10% fuel consumed)
+			expect(firstMass - lastMass).toBeGreaterThan(10);
 		});
 	});
 
