@@ -336,8 +336,9 @@ export function createAccelHandler(
 				// Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
 				const accelG = parseFloat(accelGStr);
 				const durationDays = parseFloat(timeStr);
-				const data = generateAccelChartData(accelG, durationDays);
-				chartRegistry.current = updateAccelCharts(chartRegistry.current, data, {
+				const efficiencyNum = parseFloat(efficiencyStr);
+				const data = generateAccelChartData(accelG, durationDays, efficiencyNum);
+				chartRegistry.current = updateAccelCharts(chartRegistry.current, data, efficiencyNum, {
 					velocity: chartTimeModes.accelVelocity,
 					lorentz: chartTimeModes.accelLorentz,
 					rapidity: chartTimeModes.accelRapidity,
@@ -513,8 +514,9 @@ export function createFlipBurnHandler(
 					if (resultFlipStars) setElement(resultFlipStars, starsFormatted, "");
 					if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, fractionPercent, "%");
 				}
-				const data = generateFlipBurnChartData(accelG, distanceLightYears);
-				chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data, {
+				const efficiencyNum = parseFloat(efficiencyStr);
+				const data = generateFlipBurnChartData(accelG, distanceLightYears, efficiencyNum);
+				chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data, efficiencyNum, {
 					velocity: chartTimeModes.flipVelocity,
 					lorentz: chartTimeModes.flipLorentz,
 					rapidity: chartTimeModes.flipRapidity,

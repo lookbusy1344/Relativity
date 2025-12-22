@@ -11,7 +11,7 @@ describe("Data Generation Functions", () => {
 		it("returns expected data structure", () => {
 			const accelG = 1;
 			const durationDays = 365;
-			const result = generateAccelChartData(accelG, durationDays);
+			const result = generateAccelChartData(accelG, durationDays, 0.85);
 
 			expect(result).toHaveProperty("properTimeVelocity");
 			expect(result).toHaveProperty("coordTimeVelocity");
@@ -27,7 +27,7 @@ describe("Data Generation Functions", () => {
 		it("velocity data never exceeds 1 (c)", () => {
 			const accelG = 1;
 			const durationDays = 3650; // 10 years
-			const result = generateAccelChartData(accelG, durationDays);
+			const result = generateAccelChartData(accelG, durationDays, 0.85);
 
 			result.properTimeVelocity.forEach(point => {
 				expect(point.y).toBeLessThan(1);
@@ -43,7 +43,7 @@ describe("Data Generation Functions", () => {
 		it("velocity data is monotonically increasing", () => {
 			const accelG = 1;
 			const durationDays = 365;
-			const result = generateAccelChartData(accelG, durationDays);
+			const result = generateAccelChartData(accelG, durationDays, 0.85);
 
 			for (let i = 1; i < result.properTimeVelocity.length; i++) {
 				expect(result.properTimeVelocity[i].y).toBeGreaterThanOrEqual(
@@ -55,7 +55,7 @@ describe("Data Generation Functions", () => {
 		it("rapidity data increases monotonically", () => {
 			const accelG = 1;
 			const durationDays = 365;
-			const result = generateAccelChartData(accelG, durationDays);
+			const result = generateAccelChartData(accelG, durationDays, 0.85);
 
 			for (let i = 1; i < result.properTimeRapidity.length; i++) {
 				expect(result.properTimeRapidity[i].y).toBeGreaterThan(result.properTimeRapidity[i - 1].y);
@@ -65,7 +65,7 @@ describe("Data Generation Functions", () => {
 		it("time dilation is between 0 and 1", () => {
 			const accelG = 1;
 			const durationDays = 365;
-			const result = generateAccelChartData(accelG, durationDays);
+			const result = generateAccelChartData(accelG, durationDays, 0.85);
 
 			result.properTimeTimeDilation.forEach(point => {
 				expect(point.y).toBeGreaterThan(0);
@@ -76,9 +76,9 @@ describe("Data Generation Functions", () => {
 		it("mass remaining percentages are between 0 and 100", () => {
 			const accelG = 1;
 			const durationDays = 365;
-			const result = generateAccelChartData(accelG, durationDays);
+			const result = generateAccelChartData(accelG, durationDays, 0.85);
 
-			result.properTimeMassRemaining40.forEach(point => {
+			result.properTimeMassRemaining.forEach(point => {
 				expect(point.y).toBeGreaterThanOrEqual(0);
 				expect(point.y).toBeLessThanOrEqual(100);
 			});
@@ -87,7 +87,7 @@ describe("Data Generation Functions", () => {
 		it("generates correct number of data points", () => {
 			const accelG = 1;
 			const durationDays = 365;
-			const result = generateAccelChartData(accelG, durationDays);
+			const result = generateAccelChartData(accelG, durationDays, 0.85);
 
 			// Proper time arrays should have 101 points (0 to 100 inclusive)
 			expect(result.properTimeVelocity.length).toBe(101);
@@ -111,7 +111,7 @@ describe("Data Generation Functions", () => {
 		it("handles very short durations", () => {
 			const accelG = 1;
 			const durationDays = 1;
-			const result = generateAccelChartData(accelG, durationDays);
+			const result = generateAccelChartData(accelG, durationDays, 0.85);
 
 			expect(result.properTimeVelocity.length).toBeGreaterThan(0);
 			expect(result.properTimeVelocity[0].y).toBeGreaterThanOrEqual(0);
@@ -122,7 +122,7 @@ describe("Data Generation Functions", () => {
 		it("returns expected data structure", () => {
 			const accelG = 1;
 			const distanceLightYears = 10;
-			const result = generateFlipBurnChartData(accelG, distanceLightYears);
+			const result = generateFlipBurnChartData(accelG, distanceLightYears, 0.85);
 
 			expect(result).toHaveProperty("properTimeVelocity");
 			expect(result).toHaveProperty("coordTimeVelocity");
@@ -135,7 +135,7 @@ describe("Data Generation Functions", () => {
 		it("final velocity is near zero (decelerated to stop)", () => {
 			const accelG = 1;
 			const distanceLightYears = 10;
-			const result = generateFlipBurnChartData(accelG, distanceLightYears);
+			const result = generateFlipBurnChartData(accelG, distanceLightYears, 0.85);
 
 			const finalVelocity = result.properTimeVelocity[result.properTimeVelocity.length - 1].y;
 			// Final velocity should be very close to zero (ship has stopped)
@@ -145,7 +145,7 @@ describe("Data Generation Functions", () => {
 		it("velocity peaks at midpoint", () => {
 			const accelG = 1;
 			const distanceLightYears = 10;
-			const result = generateFlipBurnChartData(accelG, distanceLightYears);
+			const result = generateFlipBurnChartData(accelG, distanceLightYears, 0.85);
 
 			const midIndex = Math.floor(result.properTimeVelocity.length / 2);
 			const peakVelocity = result.properTimeVelocity[midIndex].y;
@@ -159,7 +159,7 @@ describe("Data Generation Functions", () => {
 		it("velocity never exceeds c", () => {
 			const accelG = 1;
 			const distanceLightYears = 100000; // Very long distance
-			const result = generateFlipBurnChartData(accelG, distanceLightYears);
+			const result = generateFlipBurnChartData(accelG, distanceLightYears, 0.85);
 
 			result.properTimeVelocity.forEach(point => {
 				expect(Math.abs(point.y)).toBeLessThan(1);
@@ -169,7 +169,7 @@ describe("Data Generation Functions", () => {
 		it("distance increases monotonically during acceleration", () => {
 			const accelG = 1;
 			const distanceLightYears = 10;
-			const result = generateFlipBurnChartData(accelG, distanceLightYears);
+			const result = generateFlipBurnChartData(accelG, distanceLightYears, 0.85);
 
 			// Check acceleration phase
 			for (let i = 1; i < result.positionVelocityAccel.length; i++) {
@@ -182,7 +182,7 @@ describe("Data Generation Functions", () => {
 		it("handles very short distances", () => {
 			const accelG = 1;
 			const distanceLightYears = 0.01;
-			const result = generateFlipBurnChartData(accelG, distanceLightYears);
+			const result = generateFlipBurnChartData(accelG, distanceLightYears, 0.85);
 
 			expect(result.properTimeVelocity.length).toBeGreaterThan(0);
 			// Velocity should stay low for short distances

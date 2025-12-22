@@ -95,47 +95,16 @@ function createArrowIndicators(
  * Create standard mass remaining dataset configuration for fuel charts
  */
 function createMassRemainingDatasets(
-	data70: { x: number; y: number }[],
-	data75: { x: number; y: number }[],
-	data80: { x: number; y: number }[],
-	data85: { x: number; y: number }[]
+	data: { x: number; y: number }[],
+	nozzleEfficiency: number
 ): ChartDataset[] {
+	const efficiencyPercent = Math.round(nozzleEfficiency * 100);
 	return [
 		{
-			label: "70% Nozzle Efficiency",
-			data: data70,
-			borderColor: "#ff5555",
-			backgroundColor: "rgba(255, 85, 85, 0.1)",
-			borderWidth: 2,
-			fill: false,
-			tension: 0.4,
-			pointRadius: 0,
-		},
-		{
-			label: "75% Nozzle Efficiency",
-			data: data75,
+			label: `${efficiencyPercent}% Nozzle Efficiency`,
+			data: data,
 			borderColor: "#ffaa00",
 			backgroundColor: "rgba(255, 170, 0, 0.1)",
-			borderWidth: 2,
-			fill: false,
-			tension: 0.4,
-			pointRadius: 0,
-		},
-		{
-			label: "80% Nozzle Efficiency",
-			data: data80,
-			borderColor: "#00ff9f",
-			backgroundColor: "rgba(0, 255, 159, 0.1)",
-			borderWidth: 2,
-			fill: false,
-			tension: 0.4,
-			pointRadius: 0,
-		},
-		{
-			label: "85% Nozzle Efficiency",
-			data: data85,
-			borderColor: "#aa55ff",
-			backgroundColor: "rgba(170, 85, 255, 0.1)",
 			borderWidth: 2,
 			fill: false,
 			tension: 0.4,
@@ -297,6 +266,7 @@ export function destroyAll(registry: ChartRegistry): ChartRegistry {
 export function updateAccelCharts(
 	registry: ChartRegistry,
 	data: ReturnType<typeof generateAccelChartData>,
+	nozzleEfficiency: number,
 	timeModes: {
 		velocity: "proper" | "coordinate";
 		lorentz: "proper" | "coordinate";
@@ -375,10 +345,8 @@ export function updateAccelCharts(
 		newRegistry,
 		"accelMassChart",
 		createMassRemainingDatasets(
-			data.properTimeMassRemaining40,
-			data.properTimeMassRemaining50,
-			data.properTimeMassRemaining60,
-			data.properTimeMassRemaining70
+			data.properTimeMassRemaining,
+			nozzleEfficiency
 		),
 		{
 			primaryColor: "#ffaa00",
@@ -424,6 +392,7 @@ export function updateAccelCharts(
 export function updateFlipBurnCharts(
 	registry: ChartRegistry,
 	data: ReturnType<typeof generateFlipBurnChartData>,
+	nozzleEfficiency: number,
 	timeModes: {
 		velocity: "proper" | "coordinate";
 		lorentz: "proper" | "coordinate";
@@ -435,7 +404,7 @@ export function updateFlipBurnCharts(
 	// Calculate max x values for both proper and coordinate time
 	const maxProperTime = Math.max(...data.properTimeVelocity.map(d => d.x));
 	const maxCoordTime = Math.max(...data.coordTimeVelocity.map(d => d.x));
-	const maxMassProperTime = Math.max(...data.properTimeMassRemaining50.map(d => d.x));
+	const maxMassProperTime = Math.max(...data.properTimeMassRemaining.map(d => d.x));
 
 	// Velocity Chart - x-axis based on selected mode
 	const velocityChartXMax = timeModes.velocity === "proper" ? maxProperTime : maxCoordTime;
@@ -503,10 +472,8 @@ export function updateFlipBurnCharts(
 		newRegistry,
 		"flipMassChart",
 		createMassRemainingDatasets(
-			data.properTimeMassRemaining40,
-			data.properTimeMassRemaining50,
-			data.properTimeMassRemaining60,
-			data.properTimeMassRemaining70
+			data.properTimeMassRemaining,
+			nozzleEfficiency
 		),
 		{
 			primaryColor: "#ffaa00",
