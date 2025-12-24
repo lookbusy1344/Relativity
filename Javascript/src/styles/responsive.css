@@ -249,6 +249,16 @@
 		font-size: 0.8rem;
 	}
 
+	/* Allow 2 input fields per row on phones */
+	.input-group-custom {
+		flex-direction: row;
+	}
+
+	.input-group-custom > div {
+		min-width: calc(50% - 0.375rem) !important;
+		flex: 1 1 calc(50% - 0.375rem);
+	}
+
 	.result-grid {
 		grid-template-columns: 1fr;
 		gap: 0.5rem;
