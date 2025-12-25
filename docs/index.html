@@ -3,83 +3,983 @@
 
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Special Relativity</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>Special Relativity Calculator</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-	<style>
-		.text-box {
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-		}
-	</style>
-  <script type="module" crossorigin src="assets/index-986a69df.js"></script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="./assets/index-Bqfkb5Ws.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DfBEUJ87.css">
 </head>
 
 <body>
-	<div class="container mt-4">
-		<h2 class="text-center">Special Relativity Calculator</h2>
-		<div class="row mb-4">
-			<div class="col-12">
-				<h5 class="text-center">Speed of light is 299792458 m/s</h5>
+	<div class="main-container">
+		<div class="header">
+			<a href="https://github.com/lookbusy1344/Relativity" class="github-link" target="_blank" rel="noopener noreferrer">
+				<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+					<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+				</svg>
+				<span>GitHub</span>
+			</a>
+			<h1>Special Relativity Calculator</h1>
+			<p class="subtitle">High-precision relativistic physics calculations</p>
+			<div class="speed-of-light">c = 299,792,458 m/s</div>
+		</div>
+
+		<div class="calculator-card">
+			<ul class="nav nav-tabs" id="calculatorTabs" role="tablist">
+				<li class="nav-item" role="presentation">
+					<button class="nav-link active" id="motion-tab" data-bs-toggle="tab" data-bs-target="#motion"
+						type="button" role="tab">Const accel</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="travel-tab" data-bs-toggle="tab" data-bs-target="#travel"
+						type="button" role="tab">Flip</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="spacetime-tab" data-bs-toggle="tab"
+						data-bs-target="#spacetime" type="button" role="tab">Spacetime</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="simultaneity-tab" data-bs-toggle="tab"
+						data-bs-target="#simultaneity" type="button" role="tab">Simultaneity</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="twins-tab" data-bs-toggle="tab" data-bs-target="#twins"
+						type="button" role="tab">Twin Paradox</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="conversions-tab" data-bs-toggle="tab"
+						data-bs-target="#conversions" type="button" role="tab">Calc</button>
+				</li>
+			</ul>
+
+			<div class="tab-content" id="calculatorTabContent">
+				<!-- Relativistic Motion Tab -->
+				<div class="tab-pane fade show active" id="motion" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">
+							Constant Acceleration
+							<button class="help-btn" data-help-target="const-accel-help">?</button>
+							<a href="https://en.wikipedia.org/wiki/Space_travel_using_constant_acceleration" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Acceleration (g)</div>
+								<input type="number" id="aAccelInput" placeholder="Enter g" value="1"
+									class="form-control" step="0.1" min="0.1" max="100">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Proper Time (days)</div>
+								<input type="number" id="aInput" placeholder="Enter days" value="365"
+									class="form-control" step="0.1" min="0.1" max="60000">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Dry Mass (kg)</div>
+								<input type="number" id="aDryMassInput" placeholder="e.g., 500" value="500"
+									class="form-control" step="100" min="1" max="100000000">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Nozzle effic</div>
+								<input type="number" id="aEfficiencyInput" placeholder="e.g., 0.85" value="0.85"
+									class="form-control" step="0.01" min="0.01" max="0.99">
+							</div>
+							<button type="button" class="btn-calculate" id="aButton"
+								>Calculate</button>
+						</div>
+						<div class="result-grid">
+							<div class="result-item">
+								<div class="result-item-label">Coordinate time</div>
+								<div class="result-item-value" id="resultA2">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Velocity (m/s)</div>
+								<div class="result-item-value" id="resultA1">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Velocity (c)</div>
+								<div class="result-item-value" id="resultA1b">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Distance</div>
+								<div class="result-item-value" id="resultA2b">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Antimatter rocket fuel</div>
+								<div class="result-item-value" id="resultAFuel">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Fuel Fraction</div>
+								<div class="result-item-value" id="resultAFuelFraction">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Est stars in range</div>
+								<div class="result-item-value" id="resultAStars">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Fraction of galaxy</div>
+								<div class="result-item-value" id="resultAGalaxyFraction">-</div>
+							</div>
+						</div>
+
+						<!-- Constant Acceleration Charts -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap;">
+								Velocity over Time
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+								<div class="chart-time-mode-toggle">
+									<button type="button" class="chart-time-mode-btn active" data-chart="accelVelocity" data-mode="proper">Proper</button>
+									<button type="button" class="chart-time-mode-btn" data-chart="accelVelocity" data-mode="coordinate">Coord</button>
+								</div>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelVelocityChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap;">
+								Time Dilation Factor
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+								<div class="chart-time-mode-toggle">
+									<button type="button" class="chart-time-mode-btn active" data-chart="accelLorentz" data-mode="proper">Proper</button>
+									<button type="button" class="chart-time-mode-btn" data-chart="accelLorentz" data-mode="coordinate">Coord</button>
+								</div>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelLorentzChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap;">
+								Rapidity over Time
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+								<div class="chart-time-mode-toggle">
+									<button type="button" class="chart-time-mode-btn active" data-chart="accelRapidity" data-mode="proper">Proper</button>
+									<button type="button" class="chart-time-mode-btn" data-chart="accelRapidity" data-mode="coordinate">Coord</button>
+								</div>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelRapidityChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem;">
+								<span>Ship mass over time - charged-pion antimatter rocket</span>
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+								<div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto;">
+									<label for="accelMassSlider" style="font-size: 0.7rem; color: #00d9ff; white-space: nowrap;">Time Scale:</label>
+									<input type="range" id="accelMassSlider" min="50" max="365" value="365" step="1" style="width: 150px;">
+									<span id="accelMassSliderValue" style="font-size: 0.7rem; color: #00ff9f; min-width: 80px;">365 days</span>
+								</div>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelMassChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem;">
+								<span>Velocity over Distance</span>
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Solar%20system.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+								<div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto;">
+									<label for="accelPositionSlider" style="font-size: 0.7rem; color: #00d9ff; white-space: nowrap;">Distance Scale:</label>
+									<input type="range" id="accelPositionSlider" min="0" max="10" value="10" step="0.5" style="width: 150px;">
+									<span id="accelPositionSliderValue" style="font-size: 0.7rem; color: #00ff9f; min-width: 80px;">10 ly</span>
+								</div>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelPositionVelocityChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Spacetime Worldline
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="accelSpacetimeChart"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Space Travel Tab -->
+				<div class="tab-pane fade" id="travel" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">
+							Flip-and-Burn Maneuver
+							<button class="help-btn" data-help-target="flip-burn-help">?</button>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Accel (g)</div>
+								<input type="number" id="flipAccelInput" placeholder="Enter g" value="1"
+									class="form-control" step="0.1" min="0.1" max="100">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Light years</div>
+								<input type="number" id="flipInput" placeholder="Enter distance" value="4"
+									class="form-control" step="0.0001" min="0.0001" max="50000000000">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Dry Mass (kg)</div>
+								<input type="number" id="flipDryMassInput" placeholder="e.g., 500" value="500"
+									class="form-control" step="100" min="1" max="100000000">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Nozzle effic</div>
+								<input type="number" id="flipEfficiencyInput" placeholder="e.g., 0.85" value="0.85"
+									class="form-control" step="0.01" min="0.01" max="0.99">
+							</div>
+							<button type="button" class="btn-calculate" id="flipButton"
+								>Calculate</button>
+						</div>
+						<div class="result-grid">
+							<div class="result-item">
+								<div class="result-item-label">Proper Time</div>
+								<div class="result-item-value" id="resultFlip1">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Coordinate Time</div>
+								<div class="result-item-value" id="resultFlip4">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Peak Velocity</div>
+								<div class="result-item-value" id="resultFlip2">-</div>
+								<div class="result-item-value" id="resultFlip5" style="font-size: 0.875rem; margin-top: 0.25rem;">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Peak Lorentz</div>
+								<div class="result-item-value" id="resultFlip3">-</div>
+								<div class="result-item-value" id="resultFlip6" style="font-size: 0.875rem; margin-top: 0.25rem;">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Antimatter rocket fuel</div>
+								<div class="result-item-value" id="resultFlipFuel">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Fuel Fraction</div>
+								<div class="result-item-value" id="resultFlipFuelFraction">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Est stars in range</div>
+								<div class="result-item-value" id="resultFlipStars">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Fraction of galaxy</div>
+								<div class="result-item-value" id="resultFlipGalaxyFraction">-</div>
+							</div>
+						</div>
+
+						<!-- Flip-and-Burn Charts -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap;">
+								Velocity over Time
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+								<div class="chart-time-mode-toggle">
+									<button type="button" class="chart-time-mode-btn active" data-chart="flipVelocity" data-mode="proper">Proper</button>
+									<button type="button" class="chart-time-mode-btn" data-chart="flipVelocity" data-mode="coordinate">Coord</button>
+								</div>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="flipVelocityChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap;">
+								Time Dilation Factor
+								<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+								<div class="chart-time-mode-toggle">
+									<button type="button" class="chart-time-mode-btn active" data-chart="flipLorentz" data-mode="proper">Proper</button>
+									<button type="button" class="chart-time-mode-btn" data-chart="flipLorentz" data-mode="coordinate">Coord</button>
+								</div>
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="flipLorentzChart"></canvas>
+						</div>
+					</div>
+
+					<div style="margin-top: 1.5rem;">
+						<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap;">
+							Rapidity over Time
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							<div class="chart-time-mode-toggle">
+								<button type="button" class="chart-time-mode-btn active" data-chart="flipRapidity" data-mode="proper">Proper</button>
+								<button type="button" class="chart-time-mode-btn" data-chart="flipRapidity" data-mode="coordinate">Coord</button>
+							</div>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="flipRapidityChart"></canvas>
+							</div>
+						</div>
+
+					<div style="margin-top: 1.5rem;">
+						<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem;">
+							<span>Ship mass over time - charged-pion antimatter rocket</span>
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							<div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto;">
+								<label for="flipMassSlider" style="font-size: 0.7rem; color: #00d9ff; white-space: nowrap;">Time Scale:</label>
+								<input type="range" id="flipMassSlider" min="0.5" max="4" value="4" step="0.1" style="width: 150px;">
+								<span id="flipMassSliderValue" style="font-size: 0.7rem; color: #00ff9f; min-width: 80px;">4.0 years</span>
+							</div>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="flipMassChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+						<div class="input-label" style="margin-bottom: 0.5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 1rem;">
+							<span>Velocity over Distance</span>
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Universe.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+							<div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto;">
+								<label for="flipPositionSlider" style="font-size: 0.7rem; color: #00d9ff; white-space: nowrap;">Distance Scale:</label>
+								<input type="range" id="flipPositionSlider" min="0" max="10" value="10" step="0.5" style="width: 150px;">
+								<span id="flipPositionSliderValue" style="font-size: 0.7rem; color: #00ff9f; min-width: 80px;">10 ly</span>
+							</div>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="flipPositionVelocityChart"></canvas>
+						</div>
+					</div>
+
+						<div style="margin-top: 1.5rem;">
+						<div class="input-label" style="margin-bottom: 0.5rem;">
+							Spacetime Worldline
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+							<canvas id="flipSpacetimeChart"></canvas>
+						</div>
+					</div>
+					</div>
+				</div>
+
+				<!-- Twin Paradox Tab -->
+				<div class="tab-pane fade" id="twins" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">
+							Twin Paradox Calculator
+							<button class="help-btn" data-help-target="twin-paradox-help">?</button>
+							<a href="https://en.wikipedia.org/wiki/Twin_paradox" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Velocity (c)</div>
+								<input type="number" id="twinsVelocityInput" placeholder="e.g., 0.8" value="0.8"
+									class="form-control" step="0.01" min="0.001" max="0.999">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Proper Time (years)</div>
+								<input type="number" id="twinsTimeInput" placeholder="Enter years" value="4"
+									class="form-control" step="0.01" min="0.01" max="1000">
+							</div>
+							<button type="button" class="btn-calculate" id="twinsButton"
+								>Calculate</button>
+						</div>
+						<div class="result-grid">
+							<div class="result-item">
+								<div class="result-item-label">Traveling Twin's Age</div>
+								<div class="result-item-value" id="resultTwins1">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Earth Twin's Age</div>
+								<div class="result-item-value" id="resultTwins2">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Age Difference</div>
+								<div class="result-item-value" id="resultTwins3">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Lorentz Factor</div>
+								<div class="result-item-value" id="resultTwins4">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Velocity</div>
+								<div class="result-item-value" id="resultTwins5">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">One-way Distance</div>
+								<div class="result-item-value" id="resultTwins6">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Total Distance</div>
+								<div class="result-item-value" id="resultTwins7">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Rapidity</div>
+								<div class="result-item-value" id="resultTwins8">-</div>
+							</div>
+						</div>
+
+						<!-- Twin Paradox Charts -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Comparative Aging (Dual Timeline)
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="twinsAgingChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Distance from Earth
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2);">
+								<canvas id="twinsDistanceChart"></canvas>
+							</div>
+						</div>
+
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Minkowski Diagram - Dual Reference Frames
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2); width: 100%; max-width: 900px;">
+								<div id="twinsMinkowskiContainer" style="position: relative; width: 100%; max-width: 900px;"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Simultaneity Tab -->
+				<div class="tab-pane fade" id="simultaneity" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">
+							Relativity of Simultaneity
+							<button class="help-btn" data-help-target="simultaneity-help">?</button>
+							<a href="https://en.wikipedia.org/wiki/Relativity_of_simultaneity" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+
+						<!-- Controls -->
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Relative velocity (c)</div>
+								<input type="number" id="simVelocityInput"
+									   min="-0.99" max="0.99" step="0.01" value="0"
+									   class="form-control" placeholder="e.g., 0.5">
+							</div>
+							<button type="button" class="btn-calculate" id="simCalculateButton">Calculate</button>
+							<button type="button" class="btn-calculate" id="simResetButton">Reset</button>
+							<button type="button" class="btn-calculate" id="simClearButton">Clear All</button>
+						</div>
+
+						<!-- Instructions -->
+						<div class="result-box" style="margin-top: 1rem; text-align: center;">
+							Click to place/remove events (max 4). First event is reference.
+						</div>
+
+						<!-- Coordinate Display -->
+						<div class="result-grid" id="simCoordinateDisplay" style="margin-top: 1rem; display: none;">
+							<div class="result-item">
+								<div class="result-item-label">Event</div>
+								<div class="result-item-value" id="simEventLabel">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Rest Frame (ct, x)</div>
+								<div class="result-item-value" id="simRestCoords">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Moving Frame (ct', x')</div>
+								<div class="result-item-value" id="simMovingCoords">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Temporal Order</div>
+								<div class="result-item-value" id="simTemporalOrder">-</div>
+							</div>
+						</div>
+
+						<!-- Diagram -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Interactive Minkowski Diagram
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2); width: 100%; max-width: 900px;">
+								<div id="simultaneityContainer" style="position: relative; width: 100%; max-width: 900px;"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Conversions Tab -->
+				<div class="tab-pane fade" id="conversions" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">
+							Lorentz Factor from Velocity
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Time%20dilation.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity (m/s)</div>
+								<input type="number" id="lorentzInput" placeholder="Enter velocity"
+									value="299792457" class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="lorentzButton"
+								>Calculate</button>
+							<div class="result-box" id="resultLorentz" >-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Velocity to Rapidity
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity (m/s)</div>
+								<input type="number" id="velocityInput" placeholder="Enter velocity"
+									value="299792457" class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="velocityButton"
+								>Calculate</button>
+							<div class="result-box" id="resultVelocity" >-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Rapidity to Velocity
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Rapidity</div>
+								<input type="number" id="rapidityInput" placeholder="Enter rapidity"
+									value="10.10587" class="form-control">
+							</div>
+							<button type="button" class="btn-calculate" id="rapidityButton"
+								>Calculate</button>
+							<div class="result-box" id="resultRapidity" >-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Relativistic Velocity Addition
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Velocity%20adding.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity 1 (fraction of c)</div>
+								<input type="number" id="v1Input" placeholder="e.g., 0.9" value="0.9"
+									class="form-control" step="0.01">
+							</div>
+							<div style="flex: 1; min-width: 200px;">
+								<div class="input-label">Velocity 2 (fraction of c)</div>
+								<input type="number" id="v2Input" placeholder="e.g., 0.9" value="0.9"
+									class="form-control" step="0.01">
+							</div>
+							<button type="button" class="btn-calculate" id="addButton"
+								>Calculate</button>
+						</div>
+						<div style="margin-top: 1rem;">
+							<div class="result-item-label">Combined Velocity</div>
+							<div class="result-box" id="resultAdd">-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Charged-pion rocket at 1g
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Fuel Mass (kg)</div>
+								<input type="number" id="pionFuelMassInput" placeholder="e.g., 1000" value="1000"
+									class="form-control" step="100">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Dry Mass (kg)</div>
+								<input type="number" id="pionDryMassInput" placeholder="e.g., 500" value="500"
+									class="form-control" step="100">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Efficiency (0-1)</div>
+								<input type="number" id="pionEfficiencyInput" placeholder="e.g., 0.85" value="0.85"
+									class="form-control" step="0.01" min="0" max="1">
+							</div>
+							<button type="button" class="btn-calculate" id="pionAccelButton"
+								>Calculate</button>
+						</div>
+						<div style="margin-top: 1rem;">
+							<div class="result-item-label">Time at constant 1g</div>
+							<div class="result-box" id="resultPionAccel">-</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Fuel Fraction Calculator
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Antimatter%20rocket.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 120px;">
+								<div class="input-label">Acceleration (g)</div>
+								<input type="number" id="fuelFractionAccelInput" placeholder="e.g., 1" value="1"
+									class="form-control" step="0.01" min="0.01" max="100">
+							</div>
+							<div style="flex: 1; min-width: 120px;">
+								<div class="input-label">Thrust Time (days)</div>
+								<input type="number" id="fuelFractionTimeInput" placeholder="e.g., 365" value="365"
+									class="form-control" step="1" min="0">
+							</div>
+							<div style="flex: 1; min-width: 120px;">
+								<div class="input-label">Efficiency (0-1)</div>
+								<input type="number" id="fuelFractionEffInput" placeholder="e.g., 0.85" value="0.85"
+									class="form-control" step="0.01" min="0" max="1">
+							</div>
+							<div style="flex: 1; min-width: 120px;">
+								<div class="input-label">Dry Mass (kg)</div>
+								<input type="number" id="fuelFractionDryMassInput" placeholder="e.g., 500" value="500"
+									class="form-control" step="100" min="0">
+							</div>
+							<button type="button" class="btn-calculate" id="fuelFractionButton"
+								>Calculate</button>
+						</div>
+						<div class="result-grid" style="margin-top: 1rem;">
+							<div class="result-item">
+								<div class="result-item-label">Fuel Fraction</div>
+								<div class="result-item-value" id="resultFuelFraction">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Fuel Mass Required</div>
+								<div class="result-item-value" id="resultFuelMass">-</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="calc-section">
+						<div class="calc-label">
+							Warp Drive Time Travel
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/FTL%20Travel.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Distance (light-minutes)</div>
+								<input type="number" id="warpDistanceInput" placeholder="e.g., 30" value="30"
+									class="form-control" step="0.01" min="0.01">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Boost velocity (c)</div>
+								<input type="number" id="warpBoostInput" placeholder="e.g., 0.9" value="0.9"
+									class="form-control" step="0.01" min="0.001" max="0.999">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">FTL transit time, one-way (minutes)</div>
+								<input type="number" id="warpTransitInput" placeholder="e.g., 0" value="0"
+									class="form-control" step="0.1" min="0">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Boost duration (minutes)</div>
+								<input type="number" id="warpBoostDurationInput" placeholder="e.g., 0" value="0"
+									class="form-control" step="0.1" min="0">
+							</div>
+							<button type="button" class="btn-calculate" id="warpButton"
+								>Calculate</button>
+						</div>
+						<div class="result-grid" style="margin-top: 1rem;">
+							<div class="result-item">
+								<div class="result-item-label">Time displacement</div>
+								<div class="result-item-value" id="resultWarpDisplacement">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Simultaneity shift</div>
+								<div class="result-item-value" id="resultWarpSimultaneity">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Lorentz factor (boost)</div>
+								<div class="result-item-value" id="resultWarpEarthTime">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Traveler proper time</div>
+								<div class="result-item-value" id="resultWarpTravelerTime">-</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+				<!-- Spacetime Tab -->
+				<div class="tab-pane fade" id="spacetime" role="tabpanel">
+					<div class="calc-section">
+						<div class="calc-label">
+							Spacetime Interval Calculator
+							<button class="help-btn" data-help-target="spacetime-help">?</button>
+							<a href="https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb" target="_blank" rel="noopener noreferrer" class="notebook-link">Learn more</a>
+						</div>
+						<div class="input-group-custom">
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Time (sec)</div>
+								<input type="number" id="spacetimeTime2" placeholder="e.g., 2" value="2"
+									class="form-control" step="0.001" min="0.001" max="1000000">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Distance (km)</div>
+								<input type="number" id="spacetimeX2" placeholder="e.g., 299792.458" value="299792.458"
+									class="form-control" step="1" min="1" max="10000000000">
+							</div>
+							<div style="flex: 1; min-width: 150px;">
+								<div class="input-label">Relative Velocity (c)</div>
+								<input type="number" id="spacetimeVelocity" placeholder="e.g., 0.99" value="0.99"
+									class="form-control" step="0.01" min="-0.999" max="0.999">
+							</div>
+							<button type="button" class="btn-calculate" id="spacetimeButton"
+								>Calculate</button>
+						</div>
+						<div style="margin-top: 1rem;">
+							<div class="result-item-label">Interval Squared (km²)</div>
+							<div class="result-box" id="resultSpacetimeSquared">-</div>
+						</div>
+						<div style="margin-top: 0.5rem;">
+							<div class="result-item-label">Interpretation</div>
+							<div class="result-box" id="resultSpacetimeType">-</div>
+						</div>
+						<div class="result-grid" style="margin-top: 1rem;">
+							<div class="result-item">
+								<div class="result-item-label">Δt' (transformed)</div>
+								<div class="result-item-value" id="resultSpacetimeDeltaT">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Δx' (transformed)</div>
+								<div class="result-item-value" id="resultSpacetimeDeltaX">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Min Separation</div>
+								<div class="result-item-value" id="resultSpacetimeMinSep">-</div>
+							</div>
+							<div class="result-item">
+								<div class="result-item-label">Required Velocity</div>
+								<div class="result-item-value" id="resultSpacetimeVelocity">-</div>
+							</div>
+						</div>
+
+						<!-- Minkowski Diagram -->
+						<div style="margin-top: 1.5rem;">
+							<div class="input-label" style="margin-bottom: 0.5rem;">
+								Minkowski Diagram - Dual Reference Frames
+							</div>
+							<div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border: 1px solid rgba(0, 217, 255, 0.2); width: 100%; max-width: 900px;">
+								<div id="minkowskiContainer" style="position: relative; width: 100%; max-width: 900px;"></div>
+
+								<!-- Legend below the diagram -->
+								<div style="margin-top: 1rem; padding: 1rem; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 217, 255, 0.2);">
+									<div style="font-family: 'IBM Plex Mono', monospace; font-weight: bold; font-size: 12px; color: #e8f1f5; margin-bottom: 0.5rem;">LEGEND</div>
+									<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-family: 'IBM Plex Mono', monospace; font-size: 11px;">
+										<div style="display: flex; align-items: center; gap: 0.5rem;">
+											<div style="width: 35px; height: 3px; background: #00d9ff;"></div>
+											<span style="color: #00d9ff;">Original frame (ct, x)</span>
+										</div>
+										<div style="display: flex; align-items: center; gap: 0.5rem;">
+											<div style="width: 35px; height: 3px; background: #00ff9f;"></div>
+											<span style="color: #00ff9f;">Moving frame (ct', x')</span>
+										</div>
+										<div style="display: flex; align-items: center; gap: 0.5rem;">
+											<div style="width: 35px; height: 2px; background: rgba(255, 170, 0, 0.8); background-image: repeating-linear-gradient(90deg, rgba(255, 170, 0, 0.8) 0px, rgba(255, 170, 0, 0.8) 5px, transparent 5px, transparent 10px);"></div>
+											<span style="color: #ffaa00;">Light cones (c)</span>
+										</div>
+										<div style="display: flex; align-items: center; gap: 0.5rem;">
+											<div style="width: 35px; height: 3px; background: #e8f1f5;"></div>
+											<span style="color: #e8f1f5;">Spacetime interval</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Lorentz factor from velocity</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="lorentzInput" placeholder="m/s"
-					value="299792457" class="form-control"></div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="lorentzButton">OK</button>
-			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultLorentz"></div>
-		</div>
+	<!-- Help Modals -->
+	<div class="modal fade" id="const-accel-help" tabindex="-1" aria-labelledby="const-accel-help-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content help-modal">
+				<div class="modal-header">
+					<h5 class="modal-title" id="const-accel-help-title">Constant Acceleration</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3>What is it?</h3>
+					<p>Models a spacecraft that maintains constant acceleration (like 1g - the same as Earth's gravity) as felt by the crew. This is the most comfortable way to travel through space - maintaining 1g provides artificial gravity throughout the journey, allowing crew to live normally whilst building up to speeds close to light speed.</p>
 
-		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Fraction of light speed</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="number" id="velocityInput" placeholder="m/s"
-					value="299792457" class="form-control">
-			</div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="velocityButton">OK</button>
-			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultVelocity"></div>
-		</div>
+					<h3>How it works</h3>
+					<p>The calculator works out velocity, time effects, and distance covered under constant acceleration. As the ship approaches light speed, several remarkable effects occur: <strong>time dilation</strong> becomes extreme (time passes more slowly on the ship - crew ages slowly compared to Earth), distances ahead appear compressed, and fuel requirements grow rapidly. The antimatter fuel calculations show how much fuel you would need, accounting for how efficiently the rocket converts mass to energy.</p>
 
-		<div class="row mb-2 align-items-center">
-			<div class="col-sm-12 col-md-2 col-lg-3 fw-bold text-wrap">Acceleration / tau</div>
-			<div class="col-sm-6 col-md-3 col-lg-3"><input type="text" id="aInput"
-					placeholder="metres per second^2 / seconds" value="g/31557600" class="form-control">
-			</div>
-			<div class="col-sm-6 col-md-1"><button type="button" class="btn btn-primary" id="aButton">OK</button>
-			</div>
-			<div class="col-sm-12 col-md-6 col-lg-5 text-wrap" id="resultA"></div>
-		</div>
+					<h3>Practical applications</h3>
+					<p>This calculator models realistic journeys to other stars. At 1g acceleration, you could reach the nearest stars in just a few years as experienced by the crew, though decades would pass on Earth. It answers questions such as: How long to reach Alpha Centauri? How much antimatter fuel is needed? How fast would you be travelling? The galactic range calculations show how much of the Milky Way becomes reachable - at high accelerations and long durations, vast portions of the galaxy come within reach of a single human lifetime (from the crew's perspective).</p>
 
-		<div class="row mb-2">
-			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Relativistic velocity</div>
-				<div class="text-box" id="resultA1" title="-">-</div>
-				<div class="text-box" id="resultA1b" title="-">-</div>
+					<h3>Understanding the results</h3>
+					<p><strong>Proper time</strong> is the time experienced by the crew on the ship - what their clocks and bodies measure. <strong>Coordinate time</strong> is the time measured by observers on Earth - always longer due to time dilation. <strong>Velocity</strong> shows how close to light speed (c) you get. <strong>Distance</strong> is how far you travel as measured from Earth. <strong>Antimatter fuel</strong> shows the total mass needed (half matter, half antimatter that annihilate for energy). <strong>Fuel fraction</strong> indicates what percentage of your starting mass must be fuel - values above 0.9 mean extremely challenging missions. <strong>Stars in range</strong> estimates how many star systems you could reach.</p>
+
+					<h3>Key insights</h3>
+					<ul>
+						<li><strong>Time passes differently:</strong> The crew ages less than people on Earth - this is not mutual because the ship is accelerating whilst Earth is not.</li>
+						<li><strong>Fuel needs grow rapidly:</strong> Doubling your travel time requires considerably more than double the fuel.</li>
+						<li><strong>Cannot reach light speed:</strong> You can get very close to light speed but never actually reach it - energy needs become infinite.</li>
+						<li><strong>Earth time passes faster:</strong> Long journeys might take only years for crew but centuries for Earth.</li>
+					</ul>
+
+					<p style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(0, 217, 255, 0.2);">
+						<strong>Further reading:</strong> <a href="https://en.wikipedia.org/wiki/Space_travel_using_constant_acceleration" target="_blank" rel="noopener noreferrer" style="color: var(--electric-cyan); text-decoration: none;">Space travel using constant acceleration (Wikipedia)</a>
+					</p>
+				</div>
 			</div>
-			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Relativistic distance</div>
-				<div class="text-box" id="resultA2" title="-">-</div>
-				<div class="text-box" id="resultA2b" title="-">-</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="flip-burn-help" tabindex="-1" aria-labelledby="flip-burn-help-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content help-modal">
+				<div class="modal-header">
+					<h5 class="modal-title" id="flip-burn-help-title">Flip-and-Burn Maneuver</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3>What is it?</h3>
+					<p>The flip-and-burn is the fastest way to travel from point A to point B. You accelerate continuously for the first half of the journey, flip the ship 180 degrees at the halfway point, then fire your engines backward (decelerating) for the second half. This provides continuous artificial gravity throughout the trip and gets you there as quickly as possible. Fans of <em>The Expanse</em> will recognise this as the standard method of interplanetary travel in that scientifically-grounded series.</p>
+
+					<h3>How it works</h3>
+					<p>The calculator works out the trip time experienced by crew (<strong>proper time</strong>), the time measured by stationary observers (<strong>coordinate time</strong>), and peak velocity needed to reach your destination. The maths accounts for relativistic effects - as you approach light speed, time dilation becomes significant (time passes more slowly on the ship) and distances appear compressed from the crew's perspective. The fuel calculations show total antimatter requirements for the complete journey. At very high speeds, you flip when you have covered half the distance as measured by outside observers.</p>
+
+					<h3>Practical applications</h3>
+					<p>This is how ships in <em>The Expanse</em> travel between planets - constant thrust provides artificial gravity as a bonus, eliminating health problems from weightlessness. The calculator answers mission planning questions: How long to reach Mars at 0.3g? What about Proxima Centauri at 1g? What is your maximum speed? For journeys to other stars, even modest accelerations can reach significant fractions of light speed. The fuel calculations show whether a mission is practical - fuel fractions above 0.95 mean you would need to be almost entirely fuel, which is extremely challenging.</p>
+
+					<h3>Understanding the results</h3>
+					<p><strong>Proper time</strong> is the trip duration experienced by the crew - what their clocks measure and what matters for human endurance. <strong>Coordinate time</strong> is the duration measured by people at your starting point and destination. <strong>Peak velocity</strong> occurs at the flip point (halfway) and shows your maximum speed. <strong>Peak Lorentz factor</strong> indicates maximum time dilation - values above 2 mean time passes twice as quickly for outside observers compared to the crew. The <strong>fuel calculations</strong> show total antimatter fuel needed and what fraction of your starting mass must be fuel.</p>
+
+					<h3>Key insights</h3>
+					<ul>
+						<li><strong>Artificial gravity is free:</strong> The constant acceleration needed for efficient travel provides 1g throughout the journey - no spinning habitats needed.</li>
+						<li><strong>Perfect symmetry:</strong> The trip is perfectly balanced - acceleration and deceleration phases are mirror images.</li>
+						<li><strong>Time dilation at high speeds:</strong> For long journeys to other stars, crew time can be significantly less than what passes back home.</li>
+						<li><strong>The Expanse gets it right:</strong> This is realistic physics for a powerful rocket with ample fuel.</li>
+					</ul>
+
+					<p style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(0, 217, 255, 0.2);">
+						<strong>Further reading:</strong> <a href="https://en.wikipedia.org/wiki/Space_travel_using_constant_acceleration" target="_blank" rel="noopener noreferrer" style="color: var(--electric-cyan); text-decoration: none;">Space travel using constant acceleration (Wikipedia)</a>
+					</p>
+				</div>
 			</div>
-			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Simple velocity</div>
-				<div class="text-box" id="resultA3" title="-">-</div>
-				<div class="text-box" id="resultA3b" title="-">-</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="twin-paradox-help" tabindex="-1" aria-labelledby="twin-paradox-help-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content help-modal">
+				<div class="modal-header">
+					<h5 class="modal-title" id="twin-paradox-help-title">Twin Paradox</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3>What is it?</h3>
+					<p>The twin paradox is one of the most famous examples in relativity. One twin travels to a distant star at high speed and returns, whilst the other stays on Earth. When they reunite, the travelling twin has aged less - this is an actual physical effect, not an illusion. It demonstrates that time really does pass at different rates depending on your motion.</p>
+
+					<h3>How it works</h3>
+					<p>The travelling twin experiences less time because they change reference frames during the journey. The key is that the twins' situations are <em>not</em> equal: the travelling twin switches from an outbound frame to an inbound frame at the turnaround, whilst the Earth twin stays in a single frame the whole time. This calculator assumes instant velocity changes for simplicity - at the turnaround, the traveller instantly switches from moving away to moving back. This frame shift is what breaks the symmetry and causes the age difference. The diagram shows this difference clearly - you can see how the two twins experience time differently through their journeys.</p>
+
+					<h3>Practical applications</h3>
+					<p>This is not just theory - it has been proven with atomic clocks on aircraft and satellites. The calculator lets you explore how significant the effect is: at 80% of light speed for 4 years as experienced on the ship, nearly 7 years pass on Earth - a 3-year age difference. At higher speeds, the difference becomes even more dramatic. This matters for any high-speed space travel: astronauts on long missions would return younger than their friends who stayed home. It even affects GPS satellites (though only by microseconds since they move relatively slowly).</p>
+
+					<h3>Understanding the results</h3>
+					<p><strong>Travelling twin's age</strong> is the time experienced during the journey (proper time - what their clock measures). <strong>Earth twin's age</strong> is the time that passes on Earth (coordinate time). <strong>Age difference</strong> shows how much younger the traveller is when they return. <strong>Lorentz factor</strong> quantifies the time dilation at cruising speed - higher numbers mean greater time differences. <strong>One-way distance</strong> is how far the traveller goes before turning around, as measured from Earth. The diagram shows both perspectives and why they are different - watch how what counts as "now" tilts differently for each twin.</p>
+
+					<h3>Key insights</h3>
+					<ul>
+						<li><strong>Not really a paradox:</strong> The travelling twin changes reference frames; the Earth twin does not. This difference in their journeys causes the age difference.</li>
+						<li><strong>Time dilation is real:</strong> Both twins agree on who aged less when they meet again - there is no disagreement about the outcome.</li>
+						<li><strong>The turnaround matters:</strong> Switching from the outbound frame to the inbound frame is what makes the travelling twin age less.</li>
+						<li><strong>It has been proven:</strong> This is not philosophy - it is measured reality with atomic clocks.</li>
+					</ul>
+
+					<p style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(0, 217, 255, 0.2);">
+						<strong>Further reading:</strong> <a href="https://en.wikipedia.org/wiki/Twin_paradox" target="_blank" rel="noopener noreferrer" style="color: var(--electric-cyan); text-decoration: none;">Twin paradox (Wikipedia)</a>
+					</p>
+				</div>
 			</div>
-			<div class="col-sm-6 col-lg-3">
-				<div class="fw-bold">Simple distance</div>
-				<div class="text-box" id="resultA4" title="-">-</div>
-				<div class="text-box" id="resultA4b" title="-">-</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="simultaneity-help" tabindex="-1" aria-labelledby="simultaneity-help-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content help-modal">
+				<div class="modal-header">
+					<h5 class="modal-title" id="simultaneity-help-title">Relativity of Simultaneity</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3>What is it?</h3>
+					<p>The relativity of simultaneity means that events happening "at the same time" in one perspective are <em>not</em> at the same time from another perspective if you are moving. There is no absolute "now" across space - what counts as simultaneous depends on your motion. This is Einstein's insight from the train thought experiment: lightning strikes that happen simultaneously for someone on the platform may not be simultaneous for someone on a moving train.</p>
+
+					<h3>How it works</h3>
+					<p>When you change your velocity, the way you measure time and space changes. Events separated in space that happen at the same time from one perspective will happen at different times from a moving perspective. The effect becomes more significant with distance and speed. For events at the same location, they still happen at the same time for everyone. But for events far apart in space, different observers disagree about which happened first (if the events cannot affect each other). The interactive diagram shows this visually: lines of "what's happening now" in the moving perspective are tilted compared to the stationary perspective.</p>
+
+					<h3>Practical applications</h3>
+					<p>Click to place up to 4 events on the diagram. The calculator shows each event's coordinates from both perspectives: stationary and moving. Watch how events simultaneous from one perspective become non-simultaneous from the other - and vice versa. The pre-loaded Einstein train scenario demonstrates the classic thought experiment. The temporal order display shows whether events can influence each other (<strong>timelike</strong> - one can cause the other) or are independent (<strong>spacelike</strong> - too far apart for light to connect them). This helps build intuition for how time and space work together.</p>
+
+					<h3>Understanding the results</h3>
+					<p><strong>Rest frame (ct, x)</strong> coordinates are measured from the stationary perspective. <strong>Moving frame (ct', x')</strong> coordinates show the same events as measured by someone moving at the specified speed. <strong>Temporal order</strong> indicates whether events can affect each other: "timelike" means one can cause the other (close enough in space and time), "spacelike" means they are too far apart to interact (no signal, even light, can connect them), "lightlike" means they are connected by light. The animated "now" line sweeps through the diagram, showing how what counts as "happening now" differs between perspectives.</p>
+
+					<h3>Key insights</h3>
+					<ul>
+						<li><strong>No universal "now":</strong> What counts as "now" at distant locations depends on how you are moving - there is no single present moment everyone agrees on.</li>
+						<li><strong>Cause and effect still work:</strong> Whilst simultaneity is relative, cause-effect relationships are preserved - no perspective reverses which event caused which.</li>
+						<li><strong>Distance matters:</strong> The farther apart events are in space, the greater the disagreement about their timing between different perspectives.</li>
+						<li><strong>Einstein's train is real:</strong> The classic thought experiment accurately describes reality - the moving observer really does measure different times.</li>
+					</ul>
+
+					<p style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(0, 217, 255, 0.2);">
+						<strong>Further reading:</strong> <a href="https://en.wikipedia.org/wiki/Relativity_of_simultaneity" target="_blank" rel="noopener noreferrer" style="color: var(--electric-cyan); text-decoration: none;">Relativity of simultaneity (Wikipedia)</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="spacetime-help" tabindex="-1" aria-labelledby="spacetime-help-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content help-modal">
+				<div class="modal-header">
+					<h5 class="modal-title" id="spacetime-help-title">Spacetime Interval</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3>What is it?</h3>
+					<p>The spacetime interval is a special kind of "distance" between two events that everyone agrees on, regardless of how they are moving. Unlike regular distance or time duration (which change depending on your motion), the spacetime interval stays the same for all observers. It is like how the length of a stick does not change when you rotate it - everyone measures the same length. The formula is Δs² = (cΔt)² - Δx², combining time and space with opposite signs.</p>
+
+					<h3>How it works</h3>
+					<p>The calculator works out the spacetime interval between two events, then shows how the time and distance measurements change when you switch to a moving perspective - but the interval itself stays the same. The sign of the interval (positive, negative, or zero) tells you about the relationship between the events: <strong>positive (timelike)</strong> means the events can affect each other, <strong>negative (spacelike)</strong> means they are too far apart to interact, and <strong>zero (lightlike)</strong> means they are connected by light. This shows how time and space mix together when you change perspectives, but the interval never changes.</p>
+
+					<h3>Practical applications</h3>
+					<p>Understanding spacetime intervals helps you grasp how relativity works. The calculator shows the interval value, what it means for the relationship between events, and how measurements change in a moving perspective. For events that can affect each other (timelike), the minimum separation is the <strong>proper time</strong> - the time measured by a clock travelling between them. For events too far apart to interact (spacelike), the minimum separation is the <strong>proper distance</strong> - the distance measured when the events happen simultaneously. The diagram shows both perspectives, illustrating how the interval connects the events no matter how you measure.</p>
+
+					<h3>Understanding the results</h3>
+					<p><strong>Interval squared</strong> is the quantity everyone agrees on: Δs² = (cΔt)² - Δx². Positive means timelike, negative means spacelike, zero means lightlike. <strong>Interpretation</strong> explains how the events can (or cannot) affect each other. <strong>Δt' and Δx' (transformed)</strong> show time and distance from a moving perspective - notice the interval stays the same even though these change. <strong>Minimum separation</strong> is the proper time (for timelike events - what a travelling clock would measure) or proper distance (for spacelike events - the distance when they are simultaneous). <strong>Required velocity</strong> is how fast you would need to move to make the events happen at the same time (for spacelike) or same place (for timelike).</p>
+
+					<h3>Key insights</h3>
+					<ul>
+						<li><strong>Time and space mix together:</strong> When you change your motion, time and space measurements change, but the spacetime interval stays the same - it is the real underlying geometry.</li>
+						<li><strong>Light cones define what can affect what:</strong> Events inside your light cone can affect you, events outside cannot - the interval tells you which is which.</li>
+						<li><strong>Everyone agrees on the interval:</strong> Whilst observers disagree on time and distance separately, they all measure the same interval.</li>
+						<li><strong>Explains the twin paradox:</strong> The travelling twin ages less because their path through spacetime has a shorter interval.</li>
+					</ul>
+
+					<p style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(0, 217, 255, 0.2);">
+						<strong>Further reading:</strong> <a href="https://en.wikipedia.org/wiki/Spacetime" target="_blank" rel="noopener noreferrer" style="color: var(--electric-cyan); text-decoration: none;">Spacetime (Wikipedia)</a>
+					</p>
+				</div>
 			</div>
 		</div>
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-	
 </body>
 
 </html>
