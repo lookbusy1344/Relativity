@@ -41,6 +41,11 @@ body::before {
 	z-index: 1000;
 }
 
+/* Hide scanline effect on simultaneity tab to avoid confusion with the diagram's own "now" line */
+body.simultaneity-active::before {
+	display: none;
+}
+
 .main-container {
 	padding: 2rem 1rem;
 	max-width: 1400px;
