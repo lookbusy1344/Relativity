@@ -493,6 +493,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	// Handle simultaneity tab - initialize diagram when opened
 	const simultaneityTab = document.getElementById("simultaneity-tab");
 	const simultaneityTabHandler = () => {
+		// Add body class to hide the scanline effect (prevents confusion with diagram's "now" line)
+		document.body.classList.add("simultaneity-active");
+
 		if (!simultaneityState.controller) {
 			const container = document.getElementById("simultaneityContainer");
 			if (container) {
@@ -509,6 +512,16 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	};
 	addEventListener(simultaneityTab, "shown.bs.tab", simultaneityTabHandler);
+
+	// Remove simultaneity-active class when switching away from simultaneity tab
+	const allTabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+	allTabs.forEach(tab => {
+		if (tab.id !== "simultaneity-tab") {
+			addEventListener(tab, "shown.bs.tab", () => {
+				document.body.classList.remove("simultaneity-active");
+			});
+		}
+	});
 
 	// Simultaneity controls
 	const simVelocityInput = document.getElementById("simVelocityInput") as HTMLInputElement;
