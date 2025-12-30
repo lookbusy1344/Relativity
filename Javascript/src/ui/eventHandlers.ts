@@ -316,7 +316,7 @@ export function createAccelHandler(
 					setElement(resultAFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
 
 				// Estimate stars in range - use distance in light years
-				const distanceLightYears = parseFloat(relDistC.toString());
+				const distanceLightYears = relDistC.toNumber();
 				if (distanceLightYears >= 100000) {
 					// At or above 100k ly, show "Entire galaxy"
 					if (resultAStars) setElement(resultAStars, "Entire galaxy", "");
@@ -654,9 +654,9 @@ export function createTwinParadoxHandler(
 				const minkowskiData: TwinParadoxMinkowskiData = {
 					velocityC: velocityCNum,
 					properTimeYears: properTimeYearsNum,
-					earthTimeYears: parseFloat(earthAge.toString()),
-					distanceLY: parseFloat(oneWayLy.toString()),
-					gamma: parseFloat(lorentz.toString()),
+					earthTimeYears: earthAge.toNumber(),
+					distanceLY: oneWayLy.toNumber(),
+					gamma: lorentz.toNumber(),
 					// Decimal versions for display
 					velocityCDecimal: rl.ensure(velocityCNum),
 					properTimeYearsDecimal: rl.ensure(properTimeYearsNum),

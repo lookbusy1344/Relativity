@@ -439,13 +439,14 @@ export function generateVisualizationChartData(
 		const tau = (i / numPoints) * durationSeconds;
 		const timeDays = tau / (60 * 60 * 24);
 
-		const velocity = rl.relativisticVelocity(accel, tau);
-		const velocityCValue = parseFloat(velocity.div(rl.c).toString());
-		const distance = rl.relativisticDistance(accel, tau);
-		const distanceLyValue = parseFloat(distance.div(rl.lightYear).toString());
-		const rapidityValue = parseFloat(rl.rapidityFromVelocity(velocity).toString());
+		const tauDecimal = rl.ensure(tau);
+		const velocity = rl.relativisticVelocity(accel, tauDecimal);
+		const velocityCValue = velocity.div(rl.c).toNumber();
+		const distance = rl.relativisticDistance(accel, tauDecimal);
+		const distanceLyValue = distance.div(rl.lightYear).toNumber();
+		const rapidityValue = rl.rapidityFromVelocity(velocity).toNumber();
 		const lorentz = rl.lorentzFactor(velocity);
-		const timeDilationValue = parseFloat(rl.one.div(lorentz).toString());
+		const timeDilationValue = rl.one.div(lorentz).toNumber();
 
 		timePoints.push(timeDays);
 		velocityC.push(velocityCValue);
