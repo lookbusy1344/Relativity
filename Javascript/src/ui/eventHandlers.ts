@@ -233,7 +233,7 @@ export function createAccelHandler(
 			timeInput.value = "365";
 		}
 
-		let dryMassStr = dryMassInput.value ?? "500";
+		let dryMassStr = dryMassInput.value ?? "78000";
 		try {
 			const dryMassDec = rl.ensure(dryMassStr);
 			if (dryMassDec.lt(1)) {
@@ -244,8 +244,8 @@ export function createAccelHandler(
 				dryMassInput.value = "100000000";
 			}
 		} catch {
-			dryMassStr = "500";
-			dryMassInput.value = "500";
+			dryMassStr = "78000";
+			dryMassInput.value = "78000";
 		}
 
 		let efficiencyStr = efficiencyInput.value ?? "0.85";
@@ -420,7 +420,7 @@ export function createFlipBurnHandler(
 			distanceInput.value = "4";
 		}
 
-		let dryMassStr = dryMassInput.value ?? "500";
+		let dryMassStr = dryMassInput.value ?? "78000";
 		try {
 			const dryMassDec = rl.ensure(dryMassStr);
 			if (dryMassDec.lt(1)) {
@@ -431,8 +431,8 @@ export function createFlipBurnHandler(
 				dryMassInput.value = "100000000";
 			}
 		} catch {
-			dryMassStr = "500";
-			dryMassInput.value = "500";
+			dryMassStr = "78000";
+			dryMassInput.value = "78000";
 		}
 
 		let efficiencyStr = efficiencyInput.value ?? "0.85";
