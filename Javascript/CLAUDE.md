@@ -246,55 +246,19 @@ To maintain calculation accuracy throughout the application:
 
 **Rationale**: JavaScript's `Number` type uses 64-bit IEEE 754 floats, which lose precision for values requiring more than ~15-17 significant digits. Relativistic calculations often require higher precision, especially for velocities near the speed of light.
 
-## Recent Major Features
+### TypeScript Coding Standards
 
-### Chart Scaling and Time Mode Controls (Dec 2025)
+**IMPORTANT**: Never use `as any` type casts in production or test code.
 
-Enhanced chart functionality for better data visualization:
+- Type assertions bypass TypeScript's type safety and mask potential errors
+- Use proper type guards, type narrowing, or unknown types instead
+- If a type seems unavoidable, the underlying design likely needs refactoring
+- Exception: Legitimate uses are extremely rare and require explicit justification
 
-- X-axis time scale sliders for mass charts (proper time and coordinate time)
-- Per-chart time mode toggles (coordinate vs proper time)
-- Unified slider styling across all range inputs
-- Improved chart scaling for velocity and time dilation charts
-- Eliminated spline interpolation artifacts on initial render
-- Better proper time visibility through dynamic x-axis scaling
+**Alternatives to `as any`:**
 
-### Mass Scale and Astronomical Features (Dec 2025)
-
-Advanced mass calculations and astronomical context:
-
-- Smart mass unit formatting (Mount Everest, Moon, Supercluster, Observable Universe)
-- Milky Way star estimation using Monte Carlo integration
-- Three-component galactic density model (disk, bulge, halo)
-- Calibrated to ~200 billion total stars in the galaxy
-- Dry mass and nozzle efficiency inputs for Constant Acceleration tab
-
-### Relativity of Simultaneity (Nov 2025)
-
-Interactive visualization demonstrating how simultaneity changes between reference frames:
-
-- Click-to-place event system (max 4 events)
-- Pre-loaded with Einstein's train thought experiment
-- Animated "now" line sweeping through diagram with event flashing
-- Real-time temporal and spatial separation displays
-- Smooth D3 transitions when changing reference frames
-- URL persistence for sharing specific event configurations
-- Mobile-responsive with controls repositioned below diagram on small screens
-
-### Twin Paradox Enhancements (Nov 2025)
-
-- Interactive velocity slider embedded in diagram
-- Animated worldline with play/pause controls
-- Light cones visualization at origin and turnaround
-- Reference frame animation showing perspective switches
-- Mobile-optimized layout with stacked controls
-
-### CSS Architecture Refactoring (Nov 2025)
-
-Extracted 830+ lines of inline CSS into modular files:
-
-- Improved maintainability through separation of concerns
-- Theme variables in dedicated file
-- Centralized animation definitions
-- Responsive breakpoints consolidated
-- Better organization for future styling changes
+- Type guards: `if (typeof x === 'string')`
+- Type narrowing: `if ('property' in obj)`
+- Generic constraints: `<T extends BaseType>`
+- Unknown type: `value as unknown as TargetType` (two-step assertion when necessary)
+- Proper interface definitions for external libraries
