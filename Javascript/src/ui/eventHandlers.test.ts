@@ -14,6 +14,7 @@ import {
 	distanceToSlider,
 } from "./eventHandlers";
 import { clearBody } from "../test-utils/dom-helpers";
+import type { ChartRegistry } from "../charts/charts";
 
 describe("Event Handler Factories", () => {
 	beforeEach(() => {
@@ -713,7 +714,9 @@ describe("Event Handler Factories", () => {
 
 			const getSlider = vi.fn(() => slider);
 			const getValueDisplay = vi.fn(() => valueDisplay);
-			const chartRegistry = { current: new Map([["testChart", mockChart as any]]) };
+			const chartRegistry = { current: new Map([["testChart", mockChart]]) } as unknown as {
+				current: ChartRegistry;
+			};
 
 			const handler = createPositionVelocitySliderHandler(
 				"testChart",
@@ -753,7 +756,9 @@ describe("Event Handler Factories", () => {
 
 			const getSlider = vi.fn(() => slider);
 			const getValueDisplay = vi.fn(() => valueDisplay);
-			const chartRegistry = { current: new Map([["testChart", mockChart as any]]) };
+			const chartRegistry = { current: new Map([["testChart", mockChart]]) } as unknown as {
+				current: ChartRegistry;
+			};
 
 			const handler = createPositionVelocitySliderHandler(
 				"testChart",
@@ -782,7 +787,9 @@ describe("Event Handler Factories", () => {
 
 			const getSlider = vi.fn(() => null);
 			const getValueDisplay = vi.fn(() => document.createElement("span"));
-			const chartRegistry = { current: new Map([["testChart", mockChart as any]]) };
+			const chartRegistry = { current: new Map([["testChart", mockChart]]) } as unknown as {
+				current: ChartRegistry;
+			};
 
 			const handler = createPositionVelocitySliderHandler(
 				"testChart",
@@ -812,7 +819,9 @@ describe("Event Handler Factories", () => {
 			slider.value = "5.0";
 			const getSlider = vi.fn(() => slider);
 			const getValueDisplay = vi.fn(() => null);
-			const chartRegistry = { current: new Map([["testChart", mockChart as any]]) };
+			const chartRegistry = { current: new Map([["testChart", mockChart]]) } as unknown as {
+				current: ChartRegistry;
+			};
 
 			const handler = createPositionVelocitySliderHandler(
 				"testChart",
@@ -844,7 +853,9 @@ describe("Event Handler Factories", () => {
 				},
 			};
 
-			const chartRegistry = { current: new Map([["testChart", mockChart as any]]) };
+			const chartRegistry = { current: new Map([["testChart", mockChart]]) } as unknown as {
+				current: ChartRegistry;
+			};
 
 			// Create slider and value display in DOM
 			const slider = document.createElement("input");
@@ -885,7 +896,9 @@ describe("Event Handler Factories", () => {
 				},
 			};
 
-			const chartRegistry = { current: new Map([["testChart", mockChart as any]]) };
+			const chartRegistry = { current: new Map([["testChart", mockChart]]) } as unknown as {
+				current: ChartRegistry;
+			};
 
 			const slider = document.createElement("input");
 			slider.id = "testSlider2";
@@ -919,7 +932,9 @@ describe("Event Handler Factories", () => {
 				},
 			};
 
-			const chartRegistry = { current: new Map([["testChart", mockChart as any]]) };
+			const chartRegistry = { current: new Map([["testChart", mockChart]]) } as {
+				current: ChartRegistry;
+			};
 
 			const slider = document.createElement("input");
 			slider.id = "testSlider4";
