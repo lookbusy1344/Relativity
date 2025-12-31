@@ -42,43 +42,6 @@ yarn set version stable
 yarn upgrade-interactive
 ```
 
-## Project Structure
-
-```
-src/
-├── main.ts                     # Application entry point and initialization
-├── relativity_lib.ts           # Core physics calculations (Decimal.js)
-├── extra_lib.ts                # Galactic star estimation (Monte Carlo integration)
-├── urlState.ts                 # URL parameter management for deep linking
-├── ui/
-│   ├── domUtils.ts             # DOM element access utilities
-│   └── eventHandlers.ts        # Event handler factory functions
-├── charts/
-│   ├── charts.ts               # Chart.js chart management
-│   ├── dataGeneration.ts       # Physics data generation for charts
-│   ├── minkowski.ts            # D3-based Minkowski diagram (spacetime)
-│   ├── minkowski-twins.ts      # D3-based twin paradox diagram with animation
-│   ├── simultaneity.ts         # D3-based simultaneity visualization
-│   ├── simultaneityState.ts    # State management for simultaneity events
-│   ├── minkowski-core.ts       # Shared D3 utilities
-│   ├── minkowski-types.ts      # TypeScript interfaces
-│   └── minkowski-colors.ts     # Color palette constants
-├── test-utils/
-│   └── dom-helpers.ts          # Testing utilities for DOM manipulation
-└── styles/
-    ├── variables.css           # CSS custom properties for theming
-    ├── animations.css          # Keyframe animations
-    ├── layout.css              # Base layout and global styles
-    ├── header.css              # Header and navigation components
-    ├── calculator.css          # Calculator UI components
-    └── responsive.css          # Media queries for all breakpoints
-```
-
-- `index.html` - Web interface with Bootstrap tabs
-- `package.json` - Dependencies and scripts
-- `tsconfig.json` - TypeScript configuration
-- `vite.config.ts` - Vite build configuration
-
 ## Architecture
 
 ### Core Library (`relativity_lib.ts`)
@@ -93,47 +56,22 @@ src/
 
 - Milky Way star estimation using Monte Carlo integration
 - Three-component density model: exponential thin disk, Gaussian bulge, power-law halo
-- Shell-based integration ensuring monotonicity (larger spheres contain more stars)
-- Used for smart mass scale formatting (displays fuel mass in astronomical units)
-- Calibrated to produce ~200 billion total stars in the galaxy
+- Calibrated to ~200 billion total stars in the galaxy
 
-### UI Layer (`ui/`)
+### UI Layer
 
-- `domUtils.ts` - Type-safe DOM element access helpers
-- `eventHandlers.ts` - Factory functions creating event handlers for each calculator section
+- Type-safe DOM element access utilities
+- Event handler factory functions for each calculator section
 
-### Charts (`charts/`)
+### Charts
 
-- `charts.ts` - Chart.js chart lifecycle management and configuration
-- `dataGeneration.ts` - Converts physics calculations to chart-ready data
-- Minkowski spacetime diagrams (D3.js-based):
-  - `minkowski.ts` - Standard two-event Minkowski diagram (public API)
-  - `minkowski-twins.ts` - Twin paradox diagram with dual reference frames, animation, and play/pause controls
-  - `simultaneity.ts` - Interactive simultaneity visualization with event placement, animated timeline, and temporal ordering
-  - `simultaneityState.ts` - State management module for simultaneity events (replaces global window pollution)
-  - `minkowski-core.ts` - Shared utilities and rendering functions for all diagrams
-  - `minkowski-types.ts` - TypeScript interfaces (imported via public APIs)
-  - `minkowski-colors.ts` - Color palette constants
+- Chart.js for velocity, distance, and time visualization
+- D3.js-based Minkowski spacetime diagrams with interactive animations
+- Physics data generation from Decimal.js calculations
 
-### Styles (`styles/`)
+### Styles
 
-- Modular CSS architecture extracted from inline styles (830+ lines refactored)
-- `variables.css` - CSS custom properties for theming
-- `animations.css` - All keyframe animations for UI elements
-- `layout.css` - Base layout and global styles
-- `header.css` - Header and navigation component styles
-- `calculator.css` - Calculator UI component styles
-- `responsive.css` - Mobile-first responsive design with breakpoints for all visualizations
-
-### Testing Utilities (`test-utils/`)
-
-- `dom-helpers.ts` - DOM manipulation utilities for unit tests
-- Provides helpers for creating test DOM environments in Vitest
-
-### URL State (`urlState.ts`)
-
-- Bidirectional sync between URL parameters and calculator inputs
-- Deep linking support for sharing calculations
+- Modular CSS architecture with separate files for variables, animations, layout, components, and responsive design
 
 ## Key Dependencies
 
@@ -147,33 +85,13 @@ src/
 
 ## Development Notes
 
-- The project uses ES2015 modules with strict TypeScript configuration
-- All physics calculations use Decimal.js to avoid floating-point precision errors
-- Input validation ensures velocities don't exceed the speed of light
-- Charts use Chart.js; Minkowski diagrams use D3.js for interactivity and smooth animations
-- URL state sync enables deep linking for sharing specific calculations (including simultaneity events)
-- Modular CSS architecture with clear separation of concerns
-- Fully responsive design with mobile-optimized layouts for all visualizations
-- The web interface is hosted at: https://lookbusy1344.github.io/Relativity/
-
 ### Testing Requirements
 
 **IMPORTANT**: After making ANY changes to the codebase, always run the test suite to ensure correctness: `yarn test:run`
 
-- All core physics functions in `relativity_lib.ts` have comprehensive unit tests
+- All core physics functions have comprehensive unit tests
 - Tests verify precision handling, edge cases, and mathematical correctness
 - Tests must pass before committing changes or considering work complete
-- For development with auto-reload: `yarn test`
-- Tests are located in `src/relativity_lib.test.ts` and other `*.test.ts` files
-
-**Test Coverage Includes**:
-
-- Lorentz factor calculations
-- Rapidity conversions (velocity ↔ rapidity)
-- Relativistic velocity addition
-- Charged-pion rocket fuel calculations
-- Round-trip conversions and precision validation
-- Edge cases (zero velocity, velocities near c, negative velocities)
 
 ### Build and Type Checking
 
@@ -200,18 +118,6 @@ src/
 2. `yarn type-check` - Verify TypeScript compilation succeeds
 3. `yarn format:check` - Verify code formatting is consistent
 4. `yarn build` - Verify production build completes
-
-### Troubleshooting
-
-#### Yarn Commands Not Finding Binaries
-
-**Symptom**: `yarn test`, `yarn build`, or other yarn scripts fail with `command not found: vitest` (or `vite`, etc.), even though the packages are installed.
-
-**Cause**: Yarn 4's bin symlinks in `node_modules/.bin/` are out of sync.
-
-**Fix**: Run `yarn install` to re-establish the bin links. This refreshes the symlinks and resolves the issue.
-
-**Workaround**: If you need to run commands immediately, use the full path: `node_modules/.bin/vitest run`
 
 ### Precision Handling Policy
 

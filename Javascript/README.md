@@ -298,23 +298,3 @@ Example: `?tab=simultaneity&vel=0.6&events=500000,0;600000,100000`
 ### Backward Compatibility
 
 URLs from older versions of the calculator remain functional. Parameters that are no longer used (such as slider positions or time modes) are silently ignored.
-
-## Recent Updates
-
-### December 2025
-
-- Added x-axis time scale sliders for mass charts (proper time and coordinate time)
-- Implemented per-chart time mode toggles (coordinate vs proper time)
-- Unified slider styling across all range inputs
-- Added smart mass unit formatting (Mount Everest, Moon, Supercluster, Observable Universe)
-- Implemented Milky Way star estimation using Monte Carlo integration
-- Added dry mass and nozzle efficiency inputs for Constant Acceleration tab
-- Improved chart scaling for velocity and time dilation charts
-- Eliminated spline interpolation artifacts on initial render
-
-### November 2025
-
-- Implemented Relativity of Simultaneity interactive visualization
-- Enhanced Twin Paradox diagram with interactive velocity slider
-- Extracted 830+ lines of inline CSS into modular architecture
-- Added mobile-responsive layouts for all visualizations
