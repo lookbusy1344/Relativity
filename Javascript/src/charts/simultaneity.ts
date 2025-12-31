@@ -853,7 +853,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 	render();
 
 	// Create animation controls container (bottom-center of diagram)
-	const controlContainer = select(container as any)
+	const controlContainer = select<HTMLElement, unknown>(container)
 		.append("div")
 		.attr("class", "simultaneity-controls")
 		.style("position", "absolute")
@@ -1055,7 +1055,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		});
 
 	// Create time separation display container (bottom-right of diagram)
-	const timeSeparationContainer = select(container as any)
+	const timeSeparationContainer = select<HTMLElement, unknown>(container)
 		.append("div")
 		.attr("class", "simultaneity-time-display")
 		.style("position", "absolute")
@@ -1073,7 +1073,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.style("min-width", "180px");
 
 	// Create spatial separation display container (bottom-left of diagram)
-	const spatialSeparationContainer = select(container as any)
+	const spatialSeparationContainer = select<HTMLElement, unknown>(container)
 		.append("div")
 		.attr("class", "simultaneity-space-display")
 		.style("position", "absolute")

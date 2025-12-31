@@ -1,5 +1,6 @@
 import { Chart, registerables } from "chart.js";
 import { getInputElement, getButtonElement, getResultElement } from "./ui/domUtils";
+import "./bootstrap-types";
 import {
 	createLorentzHandler,
 	createRapidityFromVelocityHandler,
@@ -90,13 +91,9 @@ document.addEventListener("DOMContentLoaded", () => {
 			const targetId = btn.getAttribute("data-help-target");
 			if (targetId) {
 				const modalElement = document.getElementById(targetId);
-				if (modalElement) {
-					// Bootstrap 5 Modal API - requires bootstrap global
-					const Modal = (window as any).bootstrap.Modal;
-					if (Modal) {
-						const modal = new Modal(modalElement);
-						modal.show();
-					}
+				if (modalElement && window.bootstrap) {
+					const modal = new window.bootstrap.Modal(modalElement);
+					modal.show();
 				}
 			}
 		});

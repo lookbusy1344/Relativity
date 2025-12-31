@@ -3,6 +3,7 @@
  * Handles bidirectional synchronization between URL parameters and calculator inputs
  */
 
+import "./bootstrap-types";
 import * as simultaneityState from "./charts/simultaneityState";
 import * as rl from "./relativity_lib";
 import Decimal from "decimal.js";
@@ -167,8 +168,8 @@ export function initializeFromURL(): void {
 
 	// Activate the specified tab
 	const tabButton = document.getElementById(tabConfig.tabId);
-	if (tabButton) {
-		const tab = new (window as any).bootstrap.Tab(tabButton);
+	if (tabButton && window.bootstrap) {
+		const tab = new window.bootstrap.Tab(tabButton);
 		tab.show();
 	}
 
