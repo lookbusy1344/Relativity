@@ -190,8 +190,8 @@ describe("Minkowski Core Utilities", () => {
 		});
 
 		it("passes arguments correctly", async () => {
-			let receivedArgs: any[] = [];
-			const fn = debounce((...args: any[]) => {
+			let receivedArgs: unknown[] = [];
+			const fn = debounce((...args: unknown[]) => {
 				receivedArgs = args;
 			}, 50);
 

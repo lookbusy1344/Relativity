@@ -917,9 +917,9 @@ function setupTooltips(
 	attachLightConeTooltips();
 
 	// Touch support for mobile
-	let touchedElement: any = null;
+	let touchedElement: SVGElement | null = null;
 
-	svg.on("touchstart", function (event) {
+	svg.on("touchstart", function (event: TouchEvent) {
 		const touch = event.touches[0];
 		const targetElement = event.target as SVGElement;
 

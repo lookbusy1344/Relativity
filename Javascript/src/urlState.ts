@@ -5,9 +5,11 @@
 
 import "./bootstrap-types";
 import * as simultaneityState from "./charts/simultaneityState";
+import type { SimultaneityEventData } from "./charts/simultaneityState";
 import * as rl from "./relativity_lib";
 import Decimal from "decimal.js";
 import { distanceToSlider } from "./ui/eventHandlers";
+import type { Chart } from "chart.js";
 
 // Store pending slider values to apply after chart initialization
 // Note: No longer populated for motion/flip tabs, but kept for backward compatibility
@@ -463,7 +465,7 @@ function updateSimultaneityURL(params: URLSearchParams, tabConfig: TabConfig): v
 		if (!isDefaultTrainExample) {
 			// Encode events as: ct1,x1;ct2,x2;...
 			// Use toString() to preserve full precision instead of toFixed
-			const encoded = events.map((e: any) => `${e.ct},${e.x}`).join(";");
+			const encoded = events.map((e: SimultaneityEventData) => `${e.ct},${e.x}`).join(";");
 			params.set("events", encoded);
 		}
 	}
@@ -478,7 +480,7 @@ export function applyPendingSliderValue(
 	valueDisplayId: string,
 	unit: "days" | "years",
 	chartId: string,
-	chartRegistry: { current: Map<string, any> }
+	chartRegistry: { current: Map<string, Chart> }
 ): void {
 	const pendingValue = pendingSliderValues[sliderId];
 	if (pendingValue !== undefined) {
@@ -521,7 +523,7 @@ export function applyPendingDistanceSliderValue(
 	sliderId: string,
 	valueDisplayId: string,
 	chartId: string,
-	chartRegistry: { current: Map<string, any> }
+	chartRegistry: { current: Map<string, Chart> }
 ): void {
 	const pendingDistance = pendingSliderValues[sliderId];
 	if (pendingDistance !== undefined) {

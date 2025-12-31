@@ -597,7 +597,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 	function renderEvents(): void {
 		layers.events
 			.selectAll("g.event")
-			.data(state.events, (d: any) => d.id)
+			.data(state.events, (d: SimultaneityEvent) => d.id)
 			.join(
 				enter => {
 					const g = enter
