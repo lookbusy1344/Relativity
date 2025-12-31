@@ -938,13 +938,13 @@ function setupTooltips(
 
 		event.preventDefault();
 
-		if (touchedElement === event.target) {
+		if (touchedElement === targetElement) {
 			// Second tap - hide tooltip
 			tooltip.style("opacity", "0");
 			touchedElement = null;
 		} else {
 			// First tap - show tooltip
-			touchedElement = event.target;
+			touchedElement = targetElement;
 
 			let content = "";
 			if (
