@@ -1250,7 +1250,7 @@ export function drawMinkowskiDiagramD3(
 		.style("width", "200px")
 		.style("cursor", "pointer")
 		.on("input", function () {
-			const value = parseFloat((this).value) / 50;
+			const value = parseFloat(this.value) / 50;
 			animation.setPosition(value);
 		});
 
