@@ -65,9 +65,9 @@
     }
   ],
   "default": {
-    "type": "msedge",
+    "type": "chrome",
     "request": "launch",
-    "name": "Launch Edge with Vite",
+    "name": "Launch Chrome",
     "url": "http://localhost:5173",
     "webRoot": "${workspaceFolder}"
   }
