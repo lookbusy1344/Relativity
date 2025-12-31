@@ -783,7 +783,7 @@ export function drawTwinParadoxMinkowski(
 		.style("width", "200px")
 		.style("cursor", "pointer")
 		.on("input", function () {
-			const value = parseFloat((this as HTMLInputElement).value) / 50;
+			const value = parseFloat((this).value) / 50;
 			animation.setPosition(value);
 		});
 
@@ -858,7 +858,7 @@ export function drawTwinParadoxMinkowski(
 		.style("width", "200px")
 		.style("cursor", "pointer")
 		.on("input", function () {
-			const newVelocityC = parseFloat((this as HTMLInputElement).value);
+			const newVelocityC = parseFloat((this).value);
 			// Update display immediately for responsive feedback
 			velocityValueDisplay.text(`v = ${rl.formatSignificant(rl.ensure(newVelocityC), "9", 3)}c`);
 

@@ -112,12 +112,22 @@ yarn upgrade-interactive
 - Configuration is in `.prettierrc.json` (tabs, semicolons, 100-char line width)
 - Files excluded via `.prettierignore` (node_modules, dist, build artifacts)
 
+### Linting
+
+**IMPORTANT**: Run ESLint to catch type safety issues and enforce coding standards.
+
+- Run `yarn lint` to check for linting errors
+- Run `yarn lint --fix` to automatically fix auto-fixable issues
+- All linting errors must be resolved before committing changes
+- ESLint enforces the `no-explicit-any` rule, aligning with the project's TypeScript coding standards
+
 **Pre-commit checklist**:
 
 1. `yarn test:run` - Verify all tests pass
 2. `yarn type-check` - Verify TypeScript compilation succeeds
 3. `yarn format:check` - Verify code formatting is consistent
-4. `yarn build` - Verify production build completes
+4. `yarn lint` - Verify no linting errors
+5. `yarn build` - Verify production build completes
 
 ### Precision Handling Policy
 

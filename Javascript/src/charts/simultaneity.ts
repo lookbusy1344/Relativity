@@ -900,7 +900,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.style("width", "200px")
 		.style("cursor", "pointer")
 		.on("input", function () {
-			const velocity = parseFloat((this as HTMLInputElement).value);
+			const velocity = parseFloat((this).value);
 			updateVelocity(velocity);
 
 			// Update text input if it exists
@@ -958,7 +958,7 @@ export function createSimultaneityDiagram(container: HTMLElement): SimultaneityC
 		.style("width", "200px")
 		.style("cursor", "pointer")
 		.on("input", function () {
-			const progress = parseFloat((this as HTMLInputElement).value);
+			const progress = parseFloat((this).value);
 			state.animationProgress = progress;
 			positionLabel.text(`${Math.round(progress * 100)}%`);
 			renderNowLine();
