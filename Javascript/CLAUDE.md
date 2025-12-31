@@ -120,6 +120,7 @@ yarn upgrade-interactive
 - Run `yarn lint --fix` to automatically fix auto-fixable issues
 - All linting errors must be resolved before committing changes
 - ESLint enforces the `no-explicit-any` rule, aligning with the project's TypeScript coding standards
+- ESLint uses caching (`.eslintcache`) to speed up subsequent runs by skipping unchanged files
 
 **Pre-commit checklist**:
 

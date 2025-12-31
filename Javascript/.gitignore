@@ -11,3 +11,4 @@
 .yarn/unplugged/
 node_modules/
 .chrome-debug-profile/
+.eslintcache
