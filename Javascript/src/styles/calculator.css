@@ -249,11 +249,17 @@
 }
 
 .result-item-value {
-	color: var(--soft-white);
+	color: var(--amber-alert);
 	font-weight: 600;
 	font-size: 1.1rem;
 	word-wrap: break-word;
 	font-family: "IBM Plex Mono", monospace;
+	border: 1px solid var(--amber-alert);
+	padding: 0.75rem 1rem;
+	border-radius: 0;
+	box-shadow:
+		0 0 15px rgba(255, 170, 0, 0.3),
+		inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .notebook-link {
