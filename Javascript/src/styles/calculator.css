@@ -228,14 +228,6 @@
 	border-radius: 0;
 	border: 1px solid rgba(0, 217, 255, 0.4);
 	box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-	transition: all 0.2s ease;
-}
-
-.result-item:hover {
-	border-color: var(--electric-cyan);
-	box-shadow:
-		0 0 15px var(--glow-cyan),
-		inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .result-item-label {
@@ -251,7 +243,7 @@
 .result-item-value {
 	color: var(--amber-alert);
 	font-weight: 600;
-	font-size: 1.1rem;
+	font-size: 1rem;
 	word-wrap: break-word;
 	font-family: "IBM Plex Mono", monospace;
 	border: 1px solid var(--amber-alert);
