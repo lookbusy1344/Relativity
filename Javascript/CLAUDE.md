@@ -85,6 +85,44 @@ yarn upgrade-interactive
 
 ## Development Notes
 
+### UI Debugging with Playwright MCP
+
+**IMPORTANT**: The Playwright MCP server is available for debugging web UI issues.
+
+The Playwright MCP server provides browser automation capabilities for investigating UI bugs, testing interactions, and inspecting page state. It uses accessibility tree snapshots rather than screenshots, providing deterministic and structured debugging.
+
+**Common debugging workflows:**
+
+1. **Investigate UI behavior issues:**
+   - Navigate to the page: Ask to browse to `http://localhost:5173` (or specific route)
+   - Capture page snapshot to see all interactive elements
+   - Test interactions (click, type, select) to reproduce issues
+   - Inspect DOM state and JavaScript execution
+
+2. **Debug event handler problems:**
+   - Take snapshot to identify element selectors
+   - Test user interactions to verify event listeners fire
+   - Evaluate JavaScript to check element state
+   - Monitor network requests to verify API calls
+
+3. **Test responsive behavior:**
+   - Resize viewport to different dimensions
+   - Capture snapshots at each size
+   - Verify layout and functionality
+
+4. **Analyze network issues:**
+   - Inspect all network requests/responses
+   - Check timing and payload data
+   - Identify failed requests or slow resources
+
+**Usage pattern:**
+- Always request page snapshots first to get current state and selectors
+- Use accessibility-based selectors (ARIA roles, labels) when possible
+- Check network activity when debugging data-related issues
+- Evaluate JavaScript directly for complex state inspection
+
+See `docs/MCP_UI_DEBUGGING.md` for comprehensive documentation on available tools and workflows.
+
 ### Testing Requirements
 
 **IMPORTANT**: After making ANY changes to the codebase, always run the test suite to ensure correctness: `yarn test:run`
