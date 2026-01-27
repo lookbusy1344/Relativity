@@ -1,4 +1,5 @@
-# 16 Jan 2026
+# 27 Jan 2026
+# Customised to exclude Jupyter notebooks linguist-detectable=false
 # Others, leave as-is (dont treat them as text)
 * -text
 
@@ -74,6 +75,7 @@ go.sum text eol=lf
 *.pyx text eol=lf
 *.pxd text eol=lf
 *.ipynb text eol=lf
+*.ipynb linguist-detectable=false
 Pipfile text eol=lf
 Pipfile.lock text eol=lf
 poetry.lock text eol=lf
