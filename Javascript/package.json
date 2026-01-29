@@ -34,17 +34,17 @@
 		"@types/d3-timer": "^3.0.2",
 		"@types/d3-transition": "^3.0.9",
 		"@types/seedrandom": "^3.0.8",
-		"@typescript-eslint/eslint-plugin": "^8.53.1",
-		"@typescript-eslint/parser": "^8.53.1",
-		"@vitest/ui": "^4.0.17",
+		"@typescript-eslint/eslint-plugin": "^8.54.0",
+		"@typescript-eslint/parser": "^8.54.0",
+		"@vitest/ui": "^4.0.18",
 		"esbuild": "^0.27.2",
 		"eslint": "^9.39.2",
-		"globals": "^17.0.0",
-		"happy-dom": "^20.3.4",
+		"globals": "^17.2.0",
+		"happy-dom": "^20.4.0",
 		"prettier": "^3.8.1",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1",
-		"vitest": "^4.0.17"
+		"vitest": "^4.0.18"
 	},
 	"resolutions": {
 		"glob": "^11.1.0"
