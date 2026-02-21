@@ -918,66 +918,6 @@ export function formatDistanceAutoUnit(
 
 /**
  * Format a time duration in seconds with automatic unit selection.
- * - Seconds (2 dp) if < 120 s
- * - Minutes (1 dp) if < 7200 s (2 hours)
- * - Hours (1 dp) if < 86400 s (1 day)
- * - Days (1 dp) if < 365 days
- * - Years (1 dp) otherwise
- *
- * @param timeInSeconds - Duration in seconds (Decimal)
- * @returns Object with formatted value and units
- */
-export function formatTimeDiffWithUnit(timeInSeconds: Decimal): { value: string; units: string } {
-	const absTime = timeInSeconds.abs();
-
-	if (absTime.lt(120)) {
-		return {
-			value: formatSignificant(timeInSeconds, "", 2),
-			units: "secs",
-		};
-	}
-
-	const timeInMinutes = timeInSeconds.div(60);
-	if (absTime.lt(7200)) {
-		return {
-			value: formatSignificant(timeInMinutes, "", 1, true),
-			units: "mins",
-		};
-	}
-
-	const timeInHours = timeInSeconds.div(3600);
-	if (absTime.lt(86400)) {
-		return {
-			value: formatSignificant(timeInHours, "", 1, true),
-			units: "hrs",
-		};
-	}
-
-	const timeInDays = timeInSeconds.div(86400);
-	if (absTime.lt(14 * 86400)) {
-		return {
-			value: formatSignificant(timeInDays, "", 1, true),
-			units: "days",
-		};
-	}
-
-	const timeInWeeks = timeInDays.div(7);
-	if (absTime.lt(365 * 86400)) {
-		return {
-			value: formatSignificant(timeInWeeks, "", 1, true),
-			units: "weeks",
-		};
-	}
-
-	const timeInYears = timeInDays.div(365);
-	return {
-		value: formatSignificant(timeInYears, "", 1, true),
-		units: "years",
-	};
-}
-
-/**
- * Format a time duration in seconds with automatic unit selection.
  * Canonical formatting used for both total durations and differences.
  * All arithmetic uses Decimal; JS numbers are never used mid-calculation.
  *
