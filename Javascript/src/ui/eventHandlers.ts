@@ -489,8 +489,13 @@ export function createFlipBurnHandler(
 				}
 				if (resultFlip2) setElement(resultFlip2, rl.formatSignificant(peak, "9", 2), "c");
 				if (resultFlip4) {
-					const f = rl.formatDurationAutoUnit(res.coordTime);
-					setElement(resultFlip4, f.value, f.units);
+					const coordFormatted = rl.formatDurationAutoUnit(res.coordTime);
+					const diffFormatted = rl.formatDurationAutoUnit(res.coordTime.minus(res.properTime));
+					setElement(
+						resultFlip4,
+						`${coordFormatted.value} ${coordFormatted.units} (+${diffFormatted.value} ${diffFormatted.units})`,
+						""
+					);
 				}
 				if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
 				if (resultFlip5) setElement(resultFlip5, `1m becomes ${metre}m`, "");
