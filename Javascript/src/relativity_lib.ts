@@ -977,6 +977,50 @@ export function formatTimeDiffWithUnit(timeInSeconds: Decimal): { value: string;
 }
 
 /**
+ * Format a time duration in seconds with automatic unit selection.
+ * Canonical formatting used for both total durations and differences.
+ * All arithmetic uses Decimal; JS numbers are never used mid-calculation.
+ *
+ * Tiers (applied to the absolute value):
+ * - Seconds (2 dp) if < 120 s
+ * - Minutes (1 dp) if < 7200 s (2 hours)
+ * - Hours   (1 dp) if < 86400 s (1 day)
+ * - Days    (1 dp) if < 14 days (1,209,600 s)
+ * - Weeks   (1 dp) if < 1 year (365.25 days, per secondsPerYear)
+ * - "yrs"   (1 dp) otherwise
+ *
+ * @param timeInSeconds - Duration in seconds (Decimal)
+ * @returns Object with formatted value and units string
+ */
+export function formatDurationAutoUnit(timeInSeconds: Decimal): { value: string; units: string } {
+	const absTime = timeInSeconds.abs();
+
+	if (absTime.lt("120")) {
+		return { value: formatSignificant(timeInSeconds, "", 2), units: "secs" };
+	}
+	if (absTime.lt("7200")) {
+		return { value: formatSignificant(timeInSeconds.div("60"), "", 1, true), units: "mins" };
+	}
+	if (absTime.lt("86400")) {
+		return { value: formatSignificant(timeInSeconds.div("3600"), "", 1, true), units: "hrs" };
+	}
+	if (absTime.lt("1209600")) {
+		// 14 days = 14 * 86400
+		return { value: formatSignificant(timeInSeconds.div("86400"), "", 1, true), units: "days" };
+	}
+	if (absTime.lt(secondsPerYear)) {
+		return {
+			value: formatSignificant(timeInSeconds.div("86400").div("7"), "", 1, true),
+			units: "weeks",
+		};
+	}
+	return {
+		value: formatSignificant(timeInSeconds.div(secondsPerYear), "", 1, true),
+		units: "yrs",
+	};
+}
+
+/**
  * Format time with automatic unit selection based on magnitude
  * - Minutes if < 120 minutes (2 hours)
  * - Hours (1 dp) if < 1 day (1440 minutes)

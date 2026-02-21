@@ -1899,6 +1899,70 @@ describe("formatMassWithUnit", () => {
 		});
 	});
 
+	describe("formatDurationAutoUnit", () => {
+		it("formats sub-120s durations in secs (2 dp)", () => {
+			const result = rl.formatDurationAutoUnit(new Decimal("45"));
+			expect(result.value).toBe("45");
+			expect(result.units).toBe("secs");
+		});
+
+		it("switches to mins at 120 s", () => {
+			const result = rl.formatDurationAutoUnit(new Decimal("120"));
+			expect(result.value).toBe("2.0");
+			expect(result.units).toBe("mins");
+		});
+
+		it("switches to hrs at 7200 s", () => {
+			const result = rl.formatDurationAutoUnit(new Decimal("7200"));
+			expect(result.value).toBe("2.0");
+			expect(result.units).toBe("hrs");
+		});
+
+		it("switches to days at 86400 s", () => {
+			const result = rl.formatDurationAutoUnit(new Decimal("86400"));
+			expect(result.value).toBe("1.0");
+			expect(result.units).toBe("days");
+		});
+
+		it("switches to weeks at 14 days (1209600 s)", () => {
+			const result = rl.formatDurationAutoUnit(new Decimal("1209600"));
+			expect(result.value).toBe("2.0");
+			expect(result.units).toBe("weeks");
+		});
+
+		it("switches to yrs at 1 year (365.25 days)", () => {
+			const result = rl.formatDurationAutoUnit(new Decimal(rl.secondsPerYear.toString()));
+			expect(result.value).toBe("1.0");
+			expect(result.units).toBe("yrs");
+		});
+
+		it("formats multi-year durations in yrs", () => {
+			const result = rl.formatDurationAutoUnit(rl.secondsPerYear.mul("10"));
+			expect(result.value).toBe("10.0");
+			expect(result.units).toBe("yrs");
+		});
+
+		it("uses 'yrs' not 'years'", () => {
+			const result = rl.formatDurationAutoUnit(rl.secondsPerYear.mul("4.6"));
+			expect(result.units).toBe("yrs");
+			expect(result.units).not.toBe("years");
+		});
+
+		it("preserves trailing zeros in non-seconds tiers", () => {
+			// 2 minutes exactly — should show "2.0" not "2"
+			const result = rl.formatDurationAutoUnit(new Decimal("120"));
+			expect(result.value).toBe("2.0");
+		});
+
+		it("uses 365.25 days/year, not 365", () => {
+			// 365 days * 86400 s/day — should still be weeks with 365-day year but yrs with 365.25
+			const secondsIn365Days = new Decimal("365").mul("86400");
+			const result = rl.formatDurationAutoUnit(secondsIn365Days);
+			// 365 days < 365.25 days (secondsPerYear), so should be weeks
+			expect(result.units).toBe("weeks");
+		});
+	});
+
 	describe("formatTimeWithUnit", () => {
 		it("should format time in minutes when < 120 minutes", () => {
 			const timeMinutes = new Decimal("60");
