@@ -1825,6 +1825,68 @@ describe("formatMassWithUnit", () => {
 		});
 	});
 
+	describe("formatTimeDiffWithUnit", () => {
+		it("should format small durations in seconds", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal("45"));
+			expect(result.value).toBe("45");
+			expect(result.units).toBe("seconds");
+		});
+
+		it("should use seconds at the boundary of 119 s", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal("119"));
+			expect(result.value).toBe("119");
+			expect(result.units).toBe("seconds");
+		});
+
+		it("should switch to minutes at 120 s", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal("120"));
+			expect(result.value).toBe("2.0");
+			expect(result.units).toBe("minutes");
+		});
+
+		it("should format durations in minutes when < 7200 s", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal("3600")); // 1 hour
+			expect(result.value).toBe("60.0");
+			expect(result.units).toBe("minutes");
+		});
+
+		it("should switch to hours at 7200 s", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal("7200"));
+			expect(result.value).toBe("2.0");
+			expect(result.units).toBe("hours");
+		});
+
+		it("should format durations in hours when < 86400 s", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal("43200")); // 12 hours
+			expect(result.value).toBe("12.0");
+			expect(result.units).toBe("hours");
+		});
+
+		it("should switch to days at 86400 s", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal("86400"));
+			expect(result.value).toBe("1.0");
+			expect(result.units).toBe("days");
+		});
+
+		it("should format durations in days when < 365 days", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal("864000")); // 10 days
+			expect(result.value).toBe("10.0");
+			expect(result.units).toBe("days");
+		});
+
+		it("should switch to years at 365 days", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal(365 * 86400));
+			expect(result.value).toBe("1.0");
+			expect(result.units).toBe("years");
+		});
+
+		it("should format large durations in years", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal(10 * 365 * 86400));
+			expect(result.value).toBe("10.0");
+			expect(result.units).toBe("years");
+		});
+	});
+
 	describe("formatTimeWithUnit", () => {
 		it("should format time in minutes when < 120 minutes", () => {
 			const timeMinutes = new Decimal("60");

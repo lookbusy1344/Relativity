@@ -189,6 +189,7 @@ export function createAccelHandler(
 			resultAFuelFraction,
 			resultAStars,
 			resultAGalaxyFraction,
+			resultATimeDiff,
 		] = getResults();
 		if (!accelInput || !timeInput || !dryMassInput || !efficiencyInput) return;
 
@@ -272,6 +273,7 @@ export function createAccelHandler(
 		if (resultAFuelFraction) resultAFuelFraction.textContent = "";
 		if (resultAStars) resultAStars.textContent = "";
 		if (resultAGalaxyFraction) resultAGalaxyFraction.textContent = "";
+		if (resultATimeDiff) resultATimeDiff.textContent = "";
 
 		// Allow UI to update before heavy calculation
 		pendingRAF = requestAnimationFrame(() => {
@@ -306,6 +308,11 @@ export function createAccelHandler(
 					} else {
 						setElement(resultA2, rl.formatSignificant(coordTimeDays, "", 1), "days");
 					}
+				}
+				if (resultATimeDiff) {
+					const timeDiffSec = coordTimeSec.minus(secs);
+					const diffFormatted = rl.formatTimeDiffWithUnit(timeDiffSec);
+					setElement(resultATimeDiff, diffFormatted.value, diffFormatted.units);
 				}
 				if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
 				if (resultA2b) {

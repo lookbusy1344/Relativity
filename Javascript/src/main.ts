@@ -144,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			getResultElement("resultAFuelFraction"),
 			getResultElement("resultAStars"),
 			getResultElement("resultAGalaxyFraction"),
+			getResultElement("resultATimeDiff"),
 		],
 		chartRegistry
 	);
