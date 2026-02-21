@@ -1868,10 +1868,22 @@ describe("formatMassWithUnit", () => {
 			expect(result.units).toBe("days");
 		});
 
-		it("should format durations in days when < 365 days", () => {
+		it("should format durations in days when < 14 days", () => {
 			const result = rl.formatTimeDiffWithUnit(new Decimal("864000")); // 10 days
 			expect(result.value).toBe("10.0");
 			expect(result.units).toBe("days");
+		});
+
+		it("should switch to weeks at 14 days", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal(14 * 86400));
+			expect(result.value).toBe("2.0");
+			expect(result.units).toBe("weeks");
+		});
+
+		it("should format durations in weeks when >= 14 days and < 365 days", () => {
+			const result = rl.formatTimeDiffWithUnit(new Decimal(35 * 86400)); // 5 weeks
+			expect(result.value).toBe("5.0");
+			expect(result.units).toBe("weeks");
 		});
 
 		it("should switch to years at 365 days", () => {

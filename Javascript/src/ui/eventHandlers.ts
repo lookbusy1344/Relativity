@@ -301,15 +301,18 @@ export function createAccelHandler(
 				if (resultA2) {
 					const timeDiffSec = coordTimeSec.minus(secs);
 					const diffFormatted = rl.formatTimeDiffWithUnit(timeDiffSec);
-					// Auto-switch between days and years for coordinate time
-					if (coordTimeDays.gte(1000)) {
+					// Auto-switch between days, weeks, and years for coordinate time
+					let coordTimeStr: string;
+					if (coordTimeDays.gte(365)) {
 						const coordTimeYears = coordTimeDays.div(365.25);
-						const coordStr = `${rl.formatSignificant(coordTimeYears, "", 1)} yrs (+${diffFormatted.value} ${diffFormatted.units})`;
-						setElement(resultA2, coordStr, "");
+						coordTimeStr = `${rl.formatSignificant(coordTimeYears, "", 1)} yrs`;
+					} else if (coordTimeDays.gte(14)) {
+						const coordTimeWeeks = coordTimeDays.div(7);
+						coordTimeStr = `${rl.formatSignificant(coordTimeWeeks, "", 1, true)} weeks`;
 					} else {
-						const coordStr = `${rl.formatSignificant(coordTimeDays, "", 1)} days (+${diffFormatted.value} ${diffFormatted.units})`;
-						setElement(resultA2, coordStr, "");
+						coordTimeStr = `${rl.formatSignificant(coordTimeDays, "", 1, true)} days`;
 					}
+					setElement(resultA2, `${coordTimeStr} (+${diffFormatted.value} ${diffFormatted.units})`, "");
 				}
 				if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
 				if (resultA2b) {

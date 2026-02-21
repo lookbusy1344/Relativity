@@ -954,10 +954,18 @@ export function formatTimeDiffWithUnit(timeInSeconds: Decimal): { value: string;
 	}
 
 	const timeInDays = timeInSeconds.div(86400);
-	if (absTime.lt(365 * 86400)) {
+	if (absTime.lt(14 * 86400)) {
 		return {
 			value: formatSignificant(timeInDays, "", 1, true),
 			units: "days",
+		};
+	}
+
+	const timeInWeeks = timeInDays.div(7);
+	if (absTime.lt(365 * 86400)) {
+		return {
+			value: formatSignificant(timeInWeeks, "", 1, true),
+			units: "weeks",
 		};
 	}
 
