@@ -286,6 +286,7 @@ export function createAccelHandler(
 				const relVelC = relVel.div(rl.c);
 				const relDistC = relDist.div(rl.lightYear);
 				const relDistKm = relDist.div(1000);
+				const relDistAU = relDist.div(rl.au);
 				const coordTimeSec = rl.coordinateTime(accel, secs);
 				const coordTimeDays = coordTimeSec.div(86400);
 
@@ -308,7 +309,7 @@ export function createAccelHandler(
 				}
 				if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
 				if (resultA2b) {
-					const distanceFormatted = rl.formatDistanceAutoUnit(relDistC, relDistKm);
+					const distanceFormatted = rl.formatDistanceAutoUnit(relDistC, relDistKm, relDistAU);
 					setElement(resultA2b, distanceFormatted.value, distanceFormatted.units);
 				}
 				if (resultAFuel) setElement(resultAFuel, rl.formatMassWithUnit(fuelMass), "");

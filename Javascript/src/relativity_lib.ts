@@ -881,22 +881,32 @@ export function formatMassWithUnit(fuelMass: Decimal): string {
 
 /**
  * Format distance with automatic unit selection based on magnitude
- * Uses light years for distances >= 0.1 ly, kilometers for smaller distances
+ * - Light years for distances >= 0.1 ly
+ * - Astronomical units for distances >= 1 AU (and < 0.1 ly)
+ * - Kilometers for smaller distances
  *
  * @param distanceInLightYears - Distance in light years (Decimal)
  * @param distanceInKm - Distance in kilometers (Decimal)
+ * @param distanceInAU - Distance in astronomical units (Decimal)
  * @returns Object with formatted value and units
  */
 export function formatDistanceAutoUnit(
 	distanceInLightYears: Decimal,
-	distanceInKm: Decimal
+	distanceInKm: Decimal,
+	distanceInAU: Decimal
 ): { value: string; units: string } {
-	const threshold = new Decimal("0.1");
+	const lyThreshold = new Decimal("0.1");
+	const auThreshold = new Decimal("1");
 
-	if (distanceInLightYears.gte(threshold)) {
+	if (distanceInLightYears.gte(lyThreshold)) {
 		return {
 			value: formatSignificant(distanceInLightYears, "0", 3, true),
 			units: "ly",
+		};
+	} else if (distanceInAU.gte(auThreshold)) {
+		return {
+			value: formatSignificant(distanceInAU, "", 1, true),
+			units: "AU",
 		};
 	} else {
 		return {

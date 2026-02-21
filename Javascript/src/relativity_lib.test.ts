@@ -1782,31 +1782,44 @@ describe("formatMassWithUnit", () => {
 		it("should format distance in light years when >= 0.1 ly", () => {
 			const distanceLy = new Decimal("0.5");
 			const distanceKm = new Decimal("4730400000000"); // 0.5 ly in km
-			const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm);
+			const distanceAU = new Decimal("31620"); // 0.5 ly in AU (approx)
+			const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm, distanceAU);
 			expect(result.value).toBe("0.500");
 			expect(result.units).toBe("ly");
-		});
-
-		it("should format distance in km when < 0.1 ly", () => {
-			const distanceLy = new Decimal("0.05");
-			const distanceKm = new Decimal("473040000000"); // 0.05 ly in km
-			const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm);
-			expect(result.value).toBe("473,040,000,000");
-			expect(result.units).toBe("km");
 		});
 
 		it("should use light years at the boundary of 0.1 ly", () => {
 			const distanceLy = new Decimal("0.1");
 			const distanceKm = new Decimal("946080000000"); // 0.1 ly in km
-			const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm);
+			const distanceAU = new Decimal("6324"); // 0.1 ly in AU (approx)
+			const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm, distanceAU);
 			expect(result.value).toBe("0.100");
 			expect(result.units).toBe("ly");
 		});
 
-		it("should format very small distances in km", () => {
+		it("should format distance in AU when >= 1 AU and < 0.1 ly", () => {
+			const distanceLy = new Decimal("0.05"); // ~3162 AU, below 0.1 ly threshold
+			const distanceKm = new Decimal("473040000000");
+			const distanceAU = new Decimal("3162.3");
+			const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm, distanceAU);
+			expect(result.value).toBe("3,162.3");
+			expect(result.units).toBe("AU");
+		});
+
+		it("should use AU at the 1 AU boundary", () => {
+			const distanceLy = new Decimal("0.0000158"); // 1 AU in ly (approx)
+			const distanceKm = new Decimal("149597870.7"); // 1 AU in km
+			const distanceAU = new Decimal("1");
+			const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm, distanceAU);
+			expect(result.value).toBe("1.0");
+			expect(result.units).toBe("AU");
+		});
+
+		it("should format very small distances in km when < 1 AU", () => {
 			const distanceLy = new Decimal("0.00001");
-			const distanceKm = new Decimal("94608000"); // 0.00001 ly in km
-			const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm);
+			const distanceKm = new Decimal("94608000"); // 0.00001 ly in km (~0.63 AU)
+			const distanceAU = new Decimal("0.632");
+			const result = rl.formatDistanceAutoUnit(distanceLy, distanceKm, distanceAU);
 			expect(result.value).toBe("94,608,000");
 			expect(result.units).toBe("km");
 		});
