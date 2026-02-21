@@ -300,19 +300,26 @@ export function createAccelHandler(
 				if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 2), "m/s");
 				if (resultA2) {
 					const timeDiffSec = coordTimeSec.minus(secs);
-					const diffFormatted = rl.formatTimeDiffWithUnit(timeDiffSec);
-					// Auto-switch between days, weeks, and years for coordinate time
+					// Auto-switch between days, weeks, and years for coordinate time;
+					// keep diff units consistent with the main display unit.
 					let coordTimeStr: string;
+					let diffStr: string;
 					if (coordTimeDays.gte(365)) {
 						const coordTimeYears = coordTimeDays.div(365.25);
+						const diffYears = timeDiffSec.div(365.25 * 86400);
 						coordTimeStr = `${rl.formatSignificant(coordTimeYears, "", 1)} yrs`;
+						diffStr = `${rl.formatSignificant(diffYears, "", 1, true)} yrs`;
 					} else if (coordTimeDays.gte(14)) {
 						const coordTimeWeeks = coordTimeDays.div(7);
+						const diffFormatted = rl.formatTimeDiffWithUnit(timeDiffSec);
 						coordTimeStr = `${rl.formatSignificant(coordTimeWeeks, "", 1, true)} weeks`;
+						diffStr = `${diffFormatted.value} ${diffFormatted.units}`;
 					} else {
+						const diffFormatted = rl.formatTimeDiffWithUnit(timeDiffSec);
 						coordTimeStr = `${rl.formatSignificant(coordTimeDays, "", 1, true)} days`;
+						diffStr = `${diffFormatted.value} ${diffFormatted.units}`;
 					}
-					setElement(resultA2, `${coordTimeStr} (+${diffFormatted.value} ${diffFormatted.units})`, "");
+					setElement(resultA2, `${coordTimeStr} (+${diffStr})`, "");
 				}
 				if (resultA1b) setElement(resultA1b, rl.formatSignificant(relVelC, "9", 3), "c");
 				if (resultA2b) {

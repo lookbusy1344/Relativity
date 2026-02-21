@@ -4,6 +4,7 @@ import {
 	createRapidityFromVelocityHandler,
 	createVelocityFromRapidityHandler,
 	createAddVelocitiesHandler,
+	createAccelHandler,
 	createPionAccelTimeHandler,
 	createPionFuelFractionHandler,
 	createFlipBurnHandler,
@@ -344,6 +345,67 @@ describe("Event Handler Factories", () => {
 			// Should show error message
 			expect(resultFraction.textContent).toContain("Acceleration must be between");
 			expect(resultMass.textContent).toBe("-");
+		});
+	});
+
+	describe("createAccelHandler", () => {
+		function makeAccelHandler(timeDays: string) {
+			const accelInput = document.createElement("input");
+			accelInput.value = "1"; // 1g
+			const timeInput = document.createElement("input");
+			timeInput.value = timeDays;
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "78000";
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+
+			const resultA2 = document.createElement("span");
+			document.body.appendChild(resultA2);
+
+			const chartRegistry: { current: ChartRegistry } = { current: new Map() };
+			const handler = createAccelHandler(
+				() => accelInput,
+				() => timeInput,
+				() => dryMassInput,
+				() => efficiencyInput,
+				() => [null, resultA2, null, null, null, null, null, null],
+				chartRegistry
+			);
+			return { handler, resultA2 };
+		}
+
+		it("uses 'yrs' for both coordinate time and diff when proper time >= 365 days", async () => {
+			const { handler, resultA2 } = makeAccelHandler("800");
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			const text = resultA2.textContent ?? "";
+			// Both the main value and the diff should use "yrs", not "years"
+			expect(text).toMatch(/yrs/);
+			expect(text).not.toMatch(/years/);
+			// Should contain both a coord time in yrs and a positive diff in yrs
+			expect(text).toMatch(/\d+\.?\d* yrs \(\+\d+\.?\d* yrs\)/);
+		});
+
+		it("uses 'weeks' for coordinate time when proper time is between 14 and 365 days", async () => {
+			const { handler, resultA2 } = makeAccelHandler("30");
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			const text = resultA2.textContent ?? "";
+			expect(text).toMatch(/weeks/);
+		});
+
+		it("uses 'days' for coordinate time when proper time is below 14 days", async () => {
+			const { handler, resultA2 } = makeAccelHandler("5");
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			const text = resultA2.textContent ?? "";
+			expect(text).toMatch(/days/);
 		});
 	});
 
