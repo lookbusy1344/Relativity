@@ -471,8 +471,6 @@ export function createFlipBurnHandler(
 				const accel = rl.g.mul(accelGStr);
 				const m = rl.ensure(distanceLightYearsStr).mul(rl.lightYear);
 				const res = rl.flipAndBurn(accel, m);
-				const properTime = res.properTime.div(rl.secondsPerYear);
-				const coordTime = res.coordTime.div(rl.secondsPerYear);
 				const peak = res.peakVelocity.div(rl.c);
 				const lorentz = res.lorentzFactor;
 				const metre = rl.formatSignificant(rl.one.div(lorentz), "0", 2);
@@ -485,9 +483,15 @@ export function createFlipBurnHandler(
 				const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
 				const fuelPercent = fuelFraction.mul(100);
 
-				if (resultFlip1) setElement(resultFlip1, rl.formatSignificant(properTime, "0", 2), "yrs");
+				if (resultFlip1) {
+					const f = rl.formatDurationAutoUnit(res.properTime);
+					setElement(resultFlip1, f.value, f.units);
+				}
 				if (resultFlip2) setElement(resultFlip2, rl.formatSignificant(peak, "9", 2), "c");
-				if (resultFlip4) setElement(resultFlip4, rl.formatSignificant(coordTime, "", 1), "yrs");
+				if (resultFlip4) {
+					const f = rl.formatDurationAutoUnit(res.coordTime);
+					setElement(resultFlip4, f.value, f.units);
+				}
 				if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
 				if (resultFlip5) setElement(resultFlip5, `1m becomes ${metre}m`, "");
 				if (resultFlip6) setElement(resultFlip6, `1s becomes ${sec}s`, "");
