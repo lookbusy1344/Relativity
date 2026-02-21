@@ -1826,40 +1826,40 @@ describe("formatMassWithUnit", () => {
 	});
 
 	describe("formatTimeDiffWithUnit", () => {
-		it("should format small durations in seconds", () => {
+		it("should format small durations in secs", () => {
 			const result = rl.formatTimeDiffWithUnit(new Decimal("45"));
 			expect(result.value).toBe("45");
-			expect(result.units).toBe("seconds");
+			expect(result.units).toBe("secs");
 		});
 
-		it("should use seconds at the boundary of 119 s", () => {
+		it("should use secs at the boundary of 119 s", () => {
 			const result = rl.formatTimeDiffWithUnit(new Decimal("119"));
 			expect(result.value).toBe("119");
-			expect(result.units).toBe("seconds");
+			expect(result.units).toBe("secs");
 		});
 
-		it("should switch to minutes at 120 s", () => {
+		it("should switch to mins at 120 s", () => {
 			const result = rl.formatTimeDiffWithUnit(new Decimal("120"));
 			expect(result.value).toBe("2.0");
-			expect(result.units).toBe("minutes");
+			expect(result.units).toBe("mins");
 		});
 
-		it("should format durations in minutes when < 7200 s", () => {
+		it("should format durations in mins when < 7200 s", () => {
 			const result = rl.formatTimeDiffWithUnit(new Decimal("3600")); // 1 hour
 			expect(result.value).toBe("60.0");
-			expect(result.units).toBe("minutes");
+			expect(result.units).toBe("mins");
 		});
 
-		it("should switch to hours at 7200 s", () => {
+		it("should switch to hrs at 7200 s", () => {
 			const result = rl.formatTimeDiffWithUnit(new Decimal("7200"));
 			expect(result.value).toBe("2.0");
-			expect(result.units).toBe("hours");
+			expect(result.units).toBe("hrs");
 		});
 
-		it("should format durations in hours when < 86400 s", () => {
+		it("should format durations in hrs when < 86400 s", () => {
 			const result = rl.formatTimeDiffWithUnit(new Decimal("43200")); // 12 hours
 			expect(result.value).toBe("12.0");
-			expect(result.units).toBe("hours");
+			expect(result.units).toBe("hrs");
 		});
 
 		it("should switch to days at 86400 s", () => {

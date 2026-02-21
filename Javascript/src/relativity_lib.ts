@@ -933,7 +933,7 @@ export function formatTimeDiffWithUnit(timeInSeconds: Decimal): { value: string;
 	if (absTime.lt(120)) {
 		return {
 			value: formatSignificant(timeInSeconds, "", 2),
-			units: "seconds",
+			units: "secs",
 		};
 	}
 
@@ -941,7 +941,7 @@ export function formatTimeDiffWithUnit(timeInSeconds: Decimal): { value: string;
 	if (absTime.lt(7200)) {
 		return {
 			value: formatSignificant(timeInMinutes, "", 1, true),
-			units: "minutes",
+			units: "mins",
 		};
 	}
 
@@ -949,7 +949,7 @@ export function formatTimeDiffWithUnit(timeInSeconds: Decimal): { value: string;
 	if (absTime.lt(86400)) {
 		return {
 			value: formatSignificant(timeInHours, "", 1, true),
-			units: "hours",
+			units: "hrs",
 		};
 	}
 
