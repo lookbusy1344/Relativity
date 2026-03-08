@@ -38,9 +38,9 @@
 		"@typescript-eslint/parser": "^8.56.1",
 		"@vitest/ui": "^4.0.18",
 		"esbuild": "^0.27.3",
-		"eslint": "^10.0.2",
-		"globals": "^17.3.0",
-		"happy-dom": "^20.7.0",
+		"eslint": "^10.0.3",
+		"globals": "^17.4.0",
+		"happy-dom": "^20.8.3",
 		"prettier": "^3.8.1",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1",
@@ -49,5 +49,5 @@
 	"resolutions": {
 		"glob": "^11.1.0"
 	},
-	"packageManager": "yarn@4.12.0"
+	"packageManager": "yarn@4.13.0"
 }
