@@ -16,6 +16,8 @@ The maths needed for special relativity is not difficult, there's nothing more c
 
 [Relativistic mass and constant acceleration](https://github.com/lookbusy1344/Relativity/blob/main/Python/Relativistic%20mass.ipynb)
 
+[Dropping buoys at 0.5c](https://github.com/lookbusy1344/Relativity/blob/main/Python/Dropping_buoys.ipynb)
+
 [Notes on rapidity](https://github.com/lookbusy1344/Relativity/blob/main/Python/Rapidity.ipynb)
 
 [Spacetime intervals, invariant intervals between events](https://github.com/lookbusy1344/Relativity/blob/main/Python/Spacetime%20interval.ipynb)
