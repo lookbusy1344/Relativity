@@ -526,7 +526,7 @@ export function createFlipBurnHandler(
 				);
 			}
 			if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
-			if (resultFlip5) setElement(resultFlip5, `1m becomes ${contractedStr}`, "");
+			if (resultFlip5) setElement(resultFlip5, `1m shrinks to ${contractedStr}`, "");
 			if (resultFlip7)
 				setElement(
 					resultFlip7,
