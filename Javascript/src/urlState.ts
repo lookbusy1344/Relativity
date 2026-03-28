@@ -23,6 +23,7 @@ interface TabConfig {
 	params: ParamMap;
 	buttonId: string;
 	tabId: string; // Bootstrap tab button ID
+	pendingResultId?: string; // Result element to show "Working..." immediately on URL auto-calc
 }
 
 // Tab configurations mapping URL params to input IDs
@@ -37,6 +38,7 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
 		},
 		buttonId: "aButton",
 		tabId: "motion-tab",
+		pendingResultId: "resultA2",
 	},
 	flip: {
 		name: "flip",
@@ -48,6 +50,7 @@ const TAB_CONFIGS: Record<string, TabConfig> = {
 		},
 		buttonId: "flipButton",
 		tabId: "travel-tab",
+		pendingResultId: "resultFlip1",
 	},
 	twins: {
 		name: "twins",
@@ -216,6 +219,11 @@ export function initializeFromURL(): void {
 
 	// Trigger calculation if we had valid parameters
 	if (hasValidParams && tabConfig.buttonId) {
+		// Immediately show Working... to avoid flash of "Press calculate" during the delay
+		if (tabConfig.pendingResultId) {
+			const pending = document.getElementById(tabConfig.pendingResultId);
+			if (pending) pending.textContent = "Working...";
+		}
 		// Wait for tab transition and rendering to complete
 		setTimeout(() => {
 			const calcButton = document.getElementById(tabConfig.buttonId);
