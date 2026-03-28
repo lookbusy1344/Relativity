@@ -368,7 +368,7 @@ describe("Event Handler Factories", () => {
 				() => timeInput,
 				() => dryMassInput,
 				() => efficiencyInput,
-				() => [null, resultA2, null, null, null, null, null, null],
+				() => [null, resultA2, null, null, null, null, null, null, null, null],
 				chartRegistry
 			);
 			return { handler, resultA2 };

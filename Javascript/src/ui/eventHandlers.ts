@@ -189,6 +189,8 @@ export function createAccelHandler(
 			resultAFuelFraction,
 			resultAStars,
 			resultAGalaxyFraction,
+			resultAPeakLorentz,
+			resultAPeakLorentzSub,
 		] = getResults();
 		if (!accelInput || !timeInput || !dryMassInput || !efficiencyInput) return;
 
@@ -272,6 +274,8 @@ export function createAccelHandler(
 		if (resultAFuelFraction) resultAFuelFraction.textContent = "";
 		if (resultAStars) resultAStars.textContent = "";
 		if (resultAGalaxyFraction) resultAGalaxyFraction.textContent = "";
+		if (resultAPeakLorentz) resultAPeakLorentz.textContent = "";
+		if (resultAPeakLorentzSub) resultAPeakLorentzSub.textContent = "";
 
 		// Allow UI to update before heavy calculation
 		pendingRAF = requestAnimationFrame(() => {
@@ -284,6 +288,8 @@ export function createAccelHandler(
 				const relVel = rl.relativisticVelocity(accel, secs);
 				const relDist = rl.relativisticDistance(accel, secs);
 				const relVelC = relVel.div(rl.c);
+				const lorentz = rl.lorentzFactor(relVel);
+				const lorentzSec = rl.formatSignificant(lorentz, "0", 2);
 				const relDistC = relDist.div(rl.lightYear);
 				const relDistKm = relDist.div(1000);
 				const relDistAU = relDist.div(rl.au);
@@ -316,12 +322,15 @@ export function createAccelHandler(
 				if (resultAFuelFraction)
 					setElement(resultAFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
 
+				if (resultAPeakLorentz) setElement(resultAPeakLorentz, rl.formatSignificant(lorentz, "0", 2), "");
+				if (resultAPeakLorentzSub) setElement(resultAPeakLorentzSub, `1s becomes ${lorentzSec}s`, "");
+
 				// Estimate stars in range - use distance in light years
 				const distanceLightYears = relDistC.toNumber();
 				if (distanceLightYears >= 100000) {
 					// At or above 100k ly, show "Entire galaxy"
 					if (resultAStars) setElement(resultAStars, "Entire galaxy", "");
-					if (resultAGalaxyFraction) setElement(resultAGalaxyFraction, "100", "%");
+					if (resultAGalaxyFraction) setElement(resultAGalaxyFraction, "100% of galaxy", "");
 				} else {
 					const starEstimate = extra.estimateStarsInSphere(distanceLightYears);
 					const starsFormatted = extra.formatStarCount(starEstimate.stars);
@@ -331,7 +340,7 @@ export function createAccelHandler(
 						1
 					);
 					if (resultAStars) setElement(resultAStars, starsFormatted, "");
-					if (resultAGalaxyFraction) setElement(resultAGalaxyFraction, fractionPercent, "%");
+					if (resultAGalaxyFraction) setElement(resultAGalaxyFraction, `${fractionPercent}% of galaxy`, "");
 				}
 
 				// Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
