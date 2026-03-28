@@ -440,7 +440,6 @@ describe("Event Handler Factories", () => {
 				null,
 				null,
 				null,
-				null,
 				resultFlipStars,
 				resultFlipGalaxyFraction,
 			]);
@@ -492,7 +491,6 @@ describe("Event Handler Factories", () => {
 			const getDryMass = vi.fn(() => dryMassInput);
 			const getEfficiency = vi.fn(() => efficiencyInput);
 			const getResults = vi.fn(() => [
-				null,
 				null,
 				null,
 				null,

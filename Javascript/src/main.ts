@@ -200,7 +200,6 @@ document.addEventListener("DOMContentLoaded", () => {
 			getResultElement("resultFlip3"),
 			getResultElement("resultFlip4"),
 			getResultElement("resultFlip5"),
-			getResultElement("resultFlip6"),
 			getResultElement("resultFlip7"),
 			getResultElement("resultFlipFuel"),
 			getResultElement("resultFlipFuelFraction"),

@@ -390,7 +390,6 @@ export function createFlipBurnHandler(
 			resultFlip3,
 			resultFlip4,
 			resultFlip5,
-			resultFlip6,
 			resultFlip7,
 			resultFlipFuel,
 			resultFlipFuelFraction,
@@ -476,7 +475,6 @@ export function createFlipBurnHandler(
 		if (resultFlip3) resultFlip3.textContent = "";
 		if (resultFlip4) resultFlip4.textContent = "";
 		if (resultFlip5) resultFlip5.textContent = "";
-		if (resultFlip6) resultFlip6.textContent = "";
 		if (resultFlip7) resultFlip7.textContent = "";
 		if (resultFlipFuel) resultFlipFuel.textContent = "";
 		if (resultFlipFuelFraction) resultFlipFuelFraction.textContent = "";
@@ -493,7 +491,6 @@ export function createFlipBurnHandler(
 			const res = rl.flipAndBurn(accel, m);
 			const peak = res.peakVelocity.div(rl.c);
 			const lorentz = res.lorentzFactor;
-			const metre = rl.formatSignificant(rl.one.div(lorentz), "0", 2);
 			const contractedM = rl.one.div(lorentz);
 			const contractedNum = contractedM.toNumber();
 			let contractedStr: string;
@@ -529,8 +526,7 @@ export function createFlipBurnHandler(
 				);
 			}
 			if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
-			if (resultFlip5) setElement(resultFlip5, `1m becomes ${metre}m`, "");
-			if (resultFlip6) setElement(resultFlip6, `1m shrinks to ${contractedStr}`, "");
+			if (resultFlip5) setElement(resultFlip5, `1m becomes ${contractedStr}`, "");
 			if (resultFlip7)
 				setElement(
 					resultFlip7,
