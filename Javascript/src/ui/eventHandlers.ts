@@ -289,7 +289,16 @@ export function createAccelHandler(
 				const relDist = rl.relativisticDistance(accel, secs);
 				const relVelC = relVel.div(rl.c);
 				const lorentz = rl.lorentzFactor(relVel);
-				const lorentzSec = rl.formatSignificant(lorentz, "0", 2);
+				const contractedM = rl.one.div(lorentz);
+				const contractedNum = contractedM.toNumber();
+				let contractedStr: string;
+				if (contractedNum >= 0.01) {
+					contractedStr = `${rl.formatSignificant(contractedM.mul(100), "0", 2)}cm`;
+				} else if (contractedNum >= 0.00001) {
+					contractedStr = `${rl.formatSignificant(contractedM.mul(1000), "0", 2)}mm`;
+				} else {
+					contractedStr = `${rl.formatSignificant(contractedM.mul(1000000), "0", 2)}μm`;
+				}
 				const relDistC = relDist.div(rl.lightYear);
 				const relDistKm = relDist.div(1000);
 				const relDistAU = relDist.div(rl.au);
@@ -323,7 +332,7 @@ export function createAccelHandler(
 					setElement(resultAFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
 
 				if (resultAPeakLorentz) setElement(resultAPeakLorentz, rl.formatSignificant(lorentz, "0", 2), "");
-				if (resultAPeakLorentzSub) setElement(resultAPeakLorentzSub, `1s becomes ${lorentzSec}s`, "");
+				if (resultAPeakLorentzSub) setElement(resultAPeakLorentzSub, `1m shrinks to ${contractedStr}`, "");
 
 				// Estimate stars in range - use distance in light years
 				const distanceLightYears = relDistC.toNumber();
