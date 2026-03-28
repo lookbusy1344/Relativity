@@ -376,6 +376,7 @@ export function createFlipBurnHandler(
 	getResults: () => (HTMLElement | null)[],
 	chartRegistry: { current: ChartRegistry }
 ): () => void {
+	let pendingRAF: number | null = null;
 	let pendingCalculation: number | null = null;
 
 	return () => {
@@ -390,6 +391,7 @@ export function createFlipBurnHandler(
 			resultFlip4,
 			resultFlip5,
 			resultFlip6,
+			resultFlip7,
 			resultFlipFuel,
 			resultFlipFuelFraction,
 			resultFlipStars,
@@ -398,6 +400,10 @@ export function createFlipBurnHandler(
 		if (!accelInput || !distanceInput || !dryMassInput || !efficiencyInput) return;
 
 		// Cancel pending calculation to prevent race condition
+		if (pendingRAF !== null) {
+			cancelAnimationFrame(pendingRAF);
+			pendingRAF = null;
+		}
 		if (pendingCalculation !== null) {
 			clearTimeout(pendingCalculation);
 			pendingCalculation = null;
@@ -471,13 +477,16 @@ export function createFlipBurnHandler(
 		if (resultFlip4) resultFlip4.textContent = "";
 		if (resultFlip5) resultFlip5.textContent = "";
 		if (resultFlip6) resultFlip6.textContent = "";
+		if (resultFlip7) resultFlip7.textContent = "";
 		if (resultFlipFuel) resultFlipFuel.textContent = "";
 		if (resultFlipFuelFraction) resultFlipFuelFraction.textContent = "";
 		if (resultFlipStars) resultFlipStars.textContent = "";
 		if (resultFlipGalaxyFraction) resultFlipGalaxyFraction.textContent = "";
 
 		// Yield to the event loop before heavy calculation so "Working..." renders
-		pendingCalculation = window.setTimeout(() => {
+		pendingRAF = requestAnimationFrame(() => {
+			pendingRAF = null;
+			pendingCalculation = window.setTimeout(() => {
 			// Use validated values from above
 			const accel = rl.g.mul(accelGStr);
 			const m = rl.ensure(distanceLightYearsStr).mul(rl.lightYear);
@@ -485,7 +494,18 @@ export function createFlipBurnHandler(
 			const peak = res.peakVelocity.div(rl.c);
 			const lorentz = res.lorentzFactor;
 			const metre = rl.formatSignificant(rl.one.div(lorentz), "0", 2);
-			const sec = rl.formatSignificant(rl.one.mul(lorentz), "0", 2);
+			const contractedM = rl.one.div(lorentz);
+			const contractedNum = contractedM.toNumber();
+			let contractedStr: string;
+			if (contractedNum >= 0.01) {
+				contractedStr = `${rl.formatSignificant(contractedM.mul(100), "0", 2)}cm`;
+			} else if (contractedNum >= 0.00001) {
+				contractedStr = `${rl.formatSignificant(contractedM.mul(1000), "0", 2)}mm`;
+			} else {
+				contractedStr = `${rl.formatSignificant(contractedM.mul(1000000), "0", 2)}μm`;
+			}
+			const distanceLY = rl.ensure(distanceLightYearsStr);
+			const contractedLY = distanceLY.div(lorentz);
 
 			// Calculate fuel mass
 			const dryMass = rl.ensure(dryMassStr);
@@ -510,7 +530,13 @@ export function createFlipBurnHandler(
 			}
 			if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
 			if (resultFlip5) setElement(resultFlip5, `1m becomes ${metre}m`, "");
-			if (resultFlip6) setElement(resultFlip6, `1s becomes ${sec}s`, "");
+			if (resultFlip6) setElement(resultFlip6, `1m shrinks to ${contractedStr}`, "");
+			if (resultFlip7)
+				setElement(
+					resultFlip7,
+					`${rl.formatSignificant(distanceLY, "0", 2)}ly shrinks to ${rl.formatSignificant(contractedLY, "0", 2)}ly`,
+					""
+				);
 			if (resultFlipFuel) setElement(resultFlipFuel, rl.formatMassWithUnit(fuelMass), "");
 			if (resultFlipFuelFraction)
 				setElement(resultFlipFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
@@ -543,7 +569,8 @@ export function createFlipBurnHandler(
 				rapidity: chartTimeModes.flipRapidity,
 			});
 			pendingCalculation = null;
-		}, 0);
+			}, 0);
+		});
 	};
 }
 
