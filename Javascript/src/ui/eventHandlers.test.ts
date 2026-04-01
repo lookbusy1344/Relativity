@@ -232,13 +232,13 @@ describe("Event Handler Factories", () => {
 			expect(result.textContent).toMatch(/\d+/);
 		});
 
-		it("handles invalid efficiency", () => {
+		it("clamps out-of-range efficiency", () => {
 			const fuelMassInput = document.createElement("input");
 			fuelMassInput.value = "1000";
 			const dryMassInput = document.createElement("input");
 			dryMassInput.value = "500";
 			const efficiencyInput = document.createElement("input");
-			efficiencyInput.value = "1.5"; // Invalid: > 1.0
+			efficiencyInput.value = "1.5"; // Above max: will be clamped to 0.99
 			const result = document.createElement("span");
 			document.body.appendChild(result);
 
@@ -250,8 +250,9 @@ describe("Event Handler Factories", () => {
 
 			handler();
 
-			// Should show error message
-			expect(result.textContent).toContain("Efficiency must be between");
+			// Should clamp to 0.99 and return a valid result
+			expect(efficiencyInput.value).toBe("0.99");
+			expect(result.textContent).toMatch(/\d+/);
 		});
 	});
 

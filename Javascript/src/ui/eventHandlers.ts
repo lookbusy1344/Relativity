@@ -433,9 +433,9 @@ export function createFlipBurnHandler(
 			if (distanceLYDec.lt(0.0001)) {
 				distanceLightYearsStr = "0.0001";
 				distanceInput.value = "0.0001";
-			} else if (distanceLYDec.gt(50000000000)) {
-				distanceLightYearsStr = "50000000000";
-				distanceInput.value = "50000000000";
+			} else if (distanceLYDec.gt(100000000000)) {
+				distanceLightYearsStr = "100000000000";
+				distanceInput.value = "100000000000";
 			}
 		} catch {
 			distanceLightYearsStr = "4";
@@ -793,13 +793,21 @@ export function createPionAccelTimeHandler(
 
 		const fuelMass = rl.ensure(fuelMassInput.value ?? 0);
 		const dryMass = rl.ensure(dryMassInput.value ?? 0);
-		const efficiency = rl.ensure(efficiencyInput.value ?? 0.85);
-
-		// Validate efficiency range
-		if (efficiency.lt(0.01) || efficiency.gt(1.0)) {
-			setElement(result, "Efficiency must be between 0.01 and 1.0", "");
-			return;
+		let efficiencyStr = efficiencyInput.value ?? "0.85";
+		try {
+			const efficiencyDec = rl.ensure(efficiencyStr);
+			if (efficiencyDec.lt(0.01)) {
+				efficiencyStr = "0.01";
+				efficiencyInput.value = "0.01";
+			} else if (efficiencyDec.gt(0.99)) {
+				efficiencyStr = "0.99";
+				efficiencyInput.value = "0.99";
+			}
+		} catch {
+			efficiencyStr = "0.85";
+			efficiencyInput.value = "0.85";
 		}
+		const efficiency = rl.ensure(efficiencyStr);
 
 		const accelTimeSeconds = rl.pionRocketAccelTime(fuelMass, dryMass, efficiency);
 		const accelTimeDays = accelTimeSeconds.div(60 * 60 * 24);
@@ -850,22 +858,33 @@ export function createPionFuelFractionHandler(
 		const accelG = rl.ensure(accelGStr);
 		const thrustTimeDays = rl.ensure(thrustTimeInput.value ?? 365);
 		const thrustTimeSeconds = thrustTimeDays.mul(60 * 60 * 24);
-		const efficiency = rl.ensure(efficiencyInput.value ?? 0.85);
-		const dryMass = rl.ensure(dryMassInput.value ?? 1000);
-
-		// Validate efficiency range
-		if (efficiency.lt(0.01) || efficiency.gt(1.0)) {
-			setElement(resultFraction, "Efficiency must be between 0.01 and 1.0", "");
-			setElement(resultMass, "-", "");
-			return;
+		let efficiencyStr = efficiencyInput.value ?? "0.85";
+		try {
+			const efficiencyDec = rl.ensure(efficiencyStr);
+			if (efficiencyDec.lt(0.01)) {
+				efficiencyStr = "0.01";
+				efficiencyInput.value = "0.01";
+			} else if (efficiencyDec.gt(0.99)) {
+				efficiencyStr = "0.99";
+				efficiencyInput.value = "0.99";
+			}
+		} catch {
+			efficiencyStr = "0.85";
+			efficiencyInput.value = "0.85";
 		}
-
-		// Validate dry mass
-		if (dryMass.lte(0)) {
-			setElement(resultFraction, "Dry mass must be positive", "");
-			setElement(resultMass, "-", "");
-			return;
+		const efficiency = rl.ensure(efficiencyStr);
+		let dryMassStr = dryMassInput.value ?? "1000";
+		try {
+			const dryMassDec = rl.ensure(dryMassStr);
+			if (dryMassDec.lt(1)) {
+				dryMassStr = "1";
+				dryMassInput.value = "1";
+			}
+		} catch {
+			dryMassStr = "1000";
+			dryMassInput.value = "1000";
 		}
+		const dryMass = rl.ensure(dryMassStr);
 
 		const accel = rl.g.mul(accelG);
 		const fuelFraction = rl.pionRocketFuelFraction(thrustTimeSeconds, accel, efficiency);
