@@ -511,7 +511,12 @@ export function createFlipBurnHandler(
 				const dryMass = rl.ensure(dryMassStr);
 				const efficiency = rl.ensure(efficiencyStr);
 				const fuelFraction = rl.pionRocketFuelFraction(res.properTime, accel, efficiency);
-				const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
+				const epsilon = new Decimal("1e-6");
+				const oneMinusFuel = rl.one.minus(fuelFraction);
+				const nearSingularity = oneMinusFuel.abs().lte(epsilon);
+				const effectiveFraction = nearSingularity ? rl.one.minus(epsilon) : fuelFraction;
+				const denominator = nearSingularity ? epsilon : oneMinusFuel;
+				const fuelMass = effectiveFraction.mul(dryMass).div(denominator);
 				const fuelPercent = fuelFraction.mul(100);
 
 				if (resultFlip1) {
