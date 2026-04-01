@@ -208,12 +208,12 @@ export function createAccelHandler(
 		let accelGStr = accelInput.value ?? "1";
 		try {
 			const accelGDec = rl.ensure(accelGStr);
-			if (accelGDec.lt(0.1)) {
-				accelGStr = "0.1";
-				accelInput.value = "0.1";
-			} else if (accelGDec.gt(100)) {
-				accelGStr = "100";
-				accelInput.value = "100";
+			if (accelGDec.lt(0.01)) {
+				accelGStr = "0.01";
+				accelInput.value = "0.01";
+			} else if (accelGDec.gt(10000)) {
+				accelGStr = "10000";
+				accelInput.value = "10000";
 			}
 		} catch {
 			accelGStr = "1";
@@ -331,8 +331,10 @@ export function createAccelHandler(
 				if (resultAFuelFraction)
 					setElement(resultAFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
 
-				if (resultAPeakLorentz) setElement(resultAPeakLorentz, rl.formatSignificant(lorentz, "0", 2), "");
-				if (resultAPeakLorentzSub) setElement(resultAPeakLorentzSub, `1m shrinks to ${contractedStr}`, "");
+				if (resultAPeakLorentz)
+					setElement(resultAPeakLorentz, rl.formatSignificant(lorentz, "0", 2), "");
+				if (resultAPeakLorentzSub)
+					setElement(resultAPeakLorentzSub, `1m shrinks to ${contractedStr}`, "");
 
 				// Estimate stars in range - use distance in light years
 				const distanceLightYears = relDistC.toNumber();
@@ -349,7 +351,8 @@ export function createAccelHandler(
 						1
 					);
 					if (resultAStars) setElement(resultAStars, starsFormatted, "");
-					if (resultAGalaxyFraction) setElement(resultAGalaxyFraction, `${fractionPercent}% of galaxy`, "");
+					if (resultAGalaxyFraction)
+						setElement(resultAGalaxyFraction, `${fractionPercent}% of galaxy`, "");
 				}
 
 				// Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
@@ -412,12 +415,12 @@ export function createFlipBurnHandler(
 		let accelGStr = accelInput.value ?? "1";
 		try {
 			const accelGDec = rl.ensure(accelGStr);
-			if (accelGDec.lt(0.1)) {
-				accelGStr = "0.1";
-				accelInput.value = "0.1";
-			} else if (accelGDec.gt(100)) {
-				accelGStr = "100";
-				accelInput.value = "100";
+			if (accelGDec.lt(0.01)) {
+				accelGStr = "0.01";
+				accelInput.value = "0.01";
+			} else if (accelGDec.gt(10000)) {
+				accelGStr = "10000";
+				accelInput.value = "10000";
 			}
 		} catch {
 			accelGStr = "1";
@@ -485,86 +488,86 @@ export function createFlipBurnHandler(
 		pendingRAF = requestAnimationFrame(() => {
 			pendingRAF = null;
 			pendingCalculation = window.setTimeout(() => {
-			// Use validated values from above
-			const accel = rl.g.mul(accelGStr);
-			const m = rl.ensure(distanceLightYearsStr).mul(rl.lightYear);
-			const res = rl.flipAndBurn(accel, m);
-			const peak = res.peakVelocity.div(rl.c);
-			const lorentz = res.lorentzFactor;
-			const contractedM = rl.one.div(lorentz);
-			const contractedNum = contractedM.toNumber();
-			let contractedStr: string;
-			if (contractedNum >= 0.01) {
-				contractedStr = `${rl.formatSignificant(contractedM.mul(100), "0", 2)}cm`;
-			} else if (contractedNum >= 0.00001) {
-				contractedStr = `${rl.formatSignificant(contractedM.mul(1000), "0", 2)}mm`;
-			} else {
-				contractedStr = `${rl.formatSignificant(contractedM.mul(1000000), "0", 2)}μm`;
-			}
-			const distanceLY = rl.ensure(distanceLightYearsStr);
-			const contractedLY = distanceLY.div(lorentz);
+				// Use validated values from above
+				const accel = rl.g.mul(accelGStr);
+				const m = rl.ensure(distanceLightYearsStr).mul(rl.lightYear);
+				const res = rl.flipAndBurn(accel, m);
+				const peak = res.peakVelocity.div(rl.c);
+				const lorentz = res.lorentzFactor;
+				const contractedM = rl.one.div(lorentz);
+				const contractedNum = contractedM.toNumber();
+				let contractedStr: string;
+				if (contractedNum >= 0.01) {
+					contractedStr = `${rl.formatSignificant(contractedM.mul(100), "0", 2)}cm`;
+				} else if (contractedNum >= 0.00001) {
+					contractedStr = `${rl.formatSignificant(contractedM.mul(1000), "0", 2)}mm`;
+				} else {
+					contractedStr = `${rl.formatSignificant(contractedM.mul(1000000), "0", 2)}μm`;
+				}
+				const distanceLY = rl.ensure(distanceLightYearsStr);
+				const contractedLY = distanceLY.div(lorentz);
 
-			// Calculate fuel mass
-			const dryMass = rl.ensure(dryMassStr);
-			const efficiency = rl.ensure(efficiencyStr);
-			const fuelFraction = rl.pionRocketFuelFraction(res.properTime, accel, efficiency);
-			const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
-			const fuelPercent = fuelFraction.mul(100);
+				// Calculate fuel mass
+				const dryMass = rl.ensure(dryMassStr);
+				const efficiency = rl.ensure(efficiencyStr);
+				const fuelFraction = rl.pionRocketFuelFraction(res.properTime, accel, efficiency);
+				const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
+				const fuelPercent = fuelFraction.mul(100);
 
-			if (resultFlip1) {
-				const f = rl.formatDurationAutoUnit(res.properTime);
-				setElement(resultFlip1, f.value, f.units);
-			}
-			if (resultFlip2) setElement(resultFlip2, rl.formatSignificant(peak, "9", 2), "c");
-			if (resultFlip4) {
-				const coordFormatted = rl.formatDurationAutoUnit(res.coordTime);
-				const diffFormatted = rl.formatDurationAutoUnit(res.coordTime.minus(res.properTime));
-				setElement(
-					resultFlip4,
-					`${coordFormatted.value} ${coordFormatted.units} (+${diffFormatted.value} ${diffFormatted.units})`,
-					""
-				);
-			}
-			if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
-			if (resultFlip5) setElement(resultFlip5, `1m shrinks to ${contractedStr}`, "");
-			if (resultFlip7)
-				setElement(
-					resultFlip7,
-					`${rl.formatSignificant(distanceLY, "0", 2)}ly shrinks to ${rl.formatSignificant(contractedLY, "0", 2)}ly`,
-					""
-				);
-			if (resultFlipFuel) setElement(resultFlipFuel, rl.formatMassWithUnit(fuelMass), "");
-			if (resultFlipFuelFraction)
-				setElement(resultFlipFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
+				if (resultFlip1) {
+					const f = rl.formatDurationAutoUnit(res.properTime);
+					setElement(resultFlip1, f.value, f.units);
+				}
+				if (resultFlip2) setElement(resultFlip2, rl.formatSignificant(peak, "9", 2), "c");
+				if (resultFlip4) {
+					const coordFormatted = rl.formatDurationAutoUnit(res.coordTime);
+					const diffFormatted = rl.formatDurationAutoUnit(res.coordTime.minus(res.properTime));
+					setElement(
+						resultFlip4,
+						`${coordFormatted.value} ${coordFormatted.units} (+${diffFormatted.value} ${diffFormatted.units})`,
+						""
+					);
+				}
+				if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
+				if (resultFlip5) setElement(resultFlip5, `1m shrinks to ${contractedStr}`, "");
+				if (resultFlip7)
+					setElement(
+						resultFlip7,
+						`${rl.formatSignificant(distanceLY, "0", 2)}ly shrinks to ${rl.formatSignificant(contractedLY, "0", 2)}ly`,
+						""
+					);
+				if (resultFlipFuel) setElement(resultFlipFuel, rl.formatMassWithUnit(fuelMass), "");
+				if (resultFlipFuelFraction)
+					setElement(resultFlipFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
 
-			// Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
-			const accelG = parseFloat(accelGStr);
-			const distanceLightYears = parseFloat(distanceLightYearsStr);
+				// Update charts - parseFloat is OK here as Chart.js only needs limited precision for display
+				const accelG = parseFloat(accelGStr);
+				const distanceLightYears = parseFloat(distanceLightYearsStr);
 
-			// Estimate stars in range
-			if (distanceLightYears >= 100000) {
-				// At or above 100k ly, show "Entire galaxy"
-				if (resultFlipStars) setElement(resultFlipStars, "Entire galaxy", "");
-				if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, "100", "%");
-			} else {
-				const starEstimate = extra.estimateStarsInSphere(distanceLightYears);
-				const starsFormatted = extra.formatStarCount(starEstimate.stars);
-				const fractionPercent = rl.formatSignificant(
-					new Decimal(starEstimate.fraction * 100),
-					"0",
-					1
-				);
-				if (resultFlipStars) setElement(resultFlipStars, starsFormatted, "");
-				if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, fractionPercent, "%");
-			}
-			const efficiencyNum = parseFloat(efficiencyStr);
-			const data = generateFlipBurnChartData(accelG, distanceLightYears, efficiencyNum);
-			chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data, efficiencyNum, {
-				velocity: chartTimeModes.flipVelocity,
-				lorentz: chartTimeModes.flipLorentz,
-				rapidity: chartTimeModes.flipRapidity,
-			});
-			pendingCalculation = null;
+				// Estimate stars in range
+				if (distanceLightYears >= 100000) {
+					// At or above 100k ly, show "Entire galaxy"
+					if (resultFlipStars) setElement(resultFlipStars, "Entire galaxy", "");
+					if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, "100", "%");
+				} else {
+					const starEstimate = extra.estimateStarsInSphere(distanceLightYears);
+					const starsFormatted = extra.formatStarCount(starEstimate.stars);
+					const fractionPercent = rl.formatSignificant(
+						new Decimal(starEstimate.fraction * 100),
+						"0",
+						1
+					);
+					if (resultFlipStars) setElement(resultFlipStars, starsFormatted, "");
+					if (resultFlipGalaxyFraction) setElement(resultFlipGalaxyFraction, fractionPercent, "%");
+				}
+				const efficiencyNum = parseFloat(efficiencyStr);
+				const data = generateFlipBurnChartData(accelG, distanceLightYears, efficiencyNum);
+				chartRegistry.current = updateFlipBurnCharts(chartRegistry.current, data, efficiencyNum, {
+					velocity: chartTimeModes.flipVelocity,
+					lorentz: chartTimeModes.flipLorentz,
+					rapidity: chartTimeModes.flipRapidity,
+				});
+				pendingCalculation = null;
 			}, 0);
 		});
 	};
@@ -830,18 +833,25 @@ export function createPionFuelFractionHandler(
 		)
 			return;
 
-		const accelG = rl.ensure(accelInput.value ?? 1);
+		let accelGStr = accelInput.value ?? "1";
+		try {
+			const accelGDec = rl.ensure(accelGStr);
+			if (accelGDec.lt(0.01)) {
+				accelGStr = "0.01";
+				accelInput.value = "0.01";
+			} else if (accelGDec.gt(10000)) {
+				accelGStr = "10000";
+				accelInput.value = "10000";
+			}
+		} catch {
+			accelGStr = "1";
+			accelInput.value = "1";
+		}
+		const accelG = rl.ensure(accelGStr);
 		const thrustTimeDays = rl.ensure(thrustTimeInput.value ?? 365);
 		const thrustTimeSeconds = thrustTimeDays.mul(60 * 60 * 24);
 		const efficiency = rl.ensure(efficiencyInput.value ?? 0.85);
 		const dryMass = rl.ensure(dryMassInput.value ?? 1000);
-
-		// Validate acceleration range
-		if (accelG.lt(0.01) || accelG.gt(100)) {
-			setElement(resultFraction, "Acceleration must be between 0.01 and 100 g", "");
-			setElement(resultMass, "-", "");
-			return;
-		}
 
 		// Validate efficiency range
 		if (efficiency.lt(0.01) || efficiency.gt(1.0)) {

@@ -311,9 +311,9 @@ describe("Event Handler Factories", () => {
 			expect(resultMass.textContent).toMatch(/\d+/);
 		});
 
-		it("handles invalid acceleration", () => {
+		it("clamps out-of-range acceleration", () => {
 			const accelInput = document.createElement("input");
-			accelInput.value = "150"; // Invalid: > 100
+			accelInput.value = "20000"; // Above max: will be clamped to 10000
 			const thrustTimeInput = document.createElement("input");
 			thrustTimeInput.value = "365";
 			const efficiencyInput = document.createElement("input");
@@ -342,9 +342,9 @@ describe("Event Handler Factories", () => {
 
 			handler();
 
-			// Should show error message
-			expect(resultFraction.textContent).toContain("Acceleration must be between");
-			expect(resultMass.textContent).toBe("-");
+			// Should clamp to 10000 and return a valid result
+			expect(accelInput.value).toBe("10000");
+			expect(resultFraction.textContent).toContain("%");
 		});
 	});
 
