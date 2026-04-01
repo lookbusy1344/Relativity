@@ -896,7 +896,13 @@ export function createPionFuelFractionHandler(
 		const fuelFractionPercent = fuelFraction.mul(100);
 
 		// Calculate fuel mass: fuel_mass = (fuel_fraction × dry_mass) / (1 - fuel_fraction)
-		const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
+		// Guard against fuelFraction rounding to 1.0 at high acceleration/long thrust times
+		const epsilon = new Decimal("1e-6");
+		const oneMinusFuel = rl.one.minus(fuelFraction);
+		const nearSingularity = oneMinusFuel.abs().lte(epsilon);
+		const effectiveFraction = nearSingularity ? rl.one.minus(epsilon) : fuelFraction;
+		const denominator = nearSingularity ? epsilon : oneMinusFuel;
+		const fuelMass = effectiveFraction.mul(dryMass).div(denominator);
 
 		setElement(resultFraction, rl.formatSignificant(fuelFractionPercent, "9", 2), "%");
 		setElement(resultMass, rl.formatMassWithUnit(fuelMass), "");

@@ -316,7 +316,7 @@ describe("Event Handler Factories", () => {
 			const accelInput = document.createElement("input");
 			accelInput.value = "20000"; // Above max: will be clamped to 10000
 			const thrustTimeInput = document.createElement("input");
-			thrustTimeInput.value = "365";
+			thrustTimeInput.value = "1"; // 1 day keeps fuelFraction well below 1
 			const efficiencyInput = document.createElement("input");
 			efficiencyInput.value = "0.85";
 			const dryMassInput = document.createElement("input");
@@ -343,9 +343,10 @@ describe("Event Handler Factories", () => {
 
 			handler();
 
-			// Should clamp to 10000 and return a valid result
+			// Should clamp to 10000 and return valid results
 			expect(accelInput.value).toBe("10000");
 			expect(resultFraction.textContent).toContain("%");
+			expect(resultMass.textContent).toMatch(/\d+/);
 		});
 	});
 
