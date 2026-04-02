@@ -351,9 +351,9 @@ describe("Event Handler Factories", () => {
 	});
 
 	describe("createAccelHandler", () => {
-		function makeAccelHandler(timeDays: string) {
+		function makeAccelHandler(timeDays: string, accelG = "1") {
 			const accelInput = document.createElement("input");
-			accelInput.value = "1"; // 1g
+			accelInput.value = accelG;
 			const timeInput = document.createElement("input");
 			timeInput.value = timeDays;
 			const dryMassInput = document.createElement("input");
@@ -373,7 +373,7 @@ describe("Event Handler Factories", () => {
 				() => [null, resultA2, null, null, null, null, null, null, null, null],
 				chartRegistry
 			);
-			return { handler, resultA2 };
+			return { handler, resultA2, accelInput };
 		}
 
 		it("uses 'yrs' for both coordinate time and diff when proper time >= 365 days", async () => {
@@ -408,6 +408,15 @@ describe("Event Handler Factories", () => {
 
 			const text = resultA2.textContent ?? "";
 			expect(text).toMatch(/days/);
+		});
+
+		it("clamps acceleration above 10000g to 10000g", async () => {
+			const { handler, accelInput } = makeAccelHandler("1", "20000");
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			expect(accelInput.value).toBe("10000");
 		});
 	});
 

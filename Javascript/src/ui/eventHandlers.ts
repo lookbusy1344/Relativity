@@ -211,9 +211,9 @@ export function createAccelHandler(
 			if (accelGDec.lt(0.01)) {
 				accelGStr = "0.01";
 				accelInput.value = "0.01";
-			} else if (accelGDec.gt(1000)) {
-				accelGStr = "1000";
-				accelInput.value = "1000";
+			} else if (accelGDec.gt(10000)) {
+				accelGStr = "10000";
+				accelInput.value = "10000";
 			}
 		} catch {
 			accelGStr = "1";
