@@ -418,6 +418,15 @@ describe("Event Handler Factories", () => {
 
 			expect(accelInput.value).toBe("10000");
 		});
+
+		it("shows precision error for 1000g over 100 days", async () => {
+			const { handler, resultA2 } = makeAccelHandler("100", "1000");
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			expect(resultA2.textContent).toContain("Precision limit exceeded");
+		});
 	});
 
 	describe("createFlipBurnHandler", () => {

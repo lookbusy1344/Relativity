@@ -289,6 +289,14 @@ export function createAccelHandler(
 				const relDist = rl.relativisticDistance(accel, secs);
 				const relVelC = relVel.div(rl.c);
 				const lorentz = rl.lorentzFactor(relVel);
+
+				if (!lorentz.isFinite() || relVel.gte(rl.c)) {
+					if (resultA2)
+						setElement(resultA2, "Precision limit exceeded — reduce acceleration or time", "");
+					pendingCalculation = null;
+					return;
+				}
+
 				const contractedM = rl.one.div(lorentz);
 				const contractedNum = contractedM.toNumber();
 				let contractedStr: string;
@@ -494,6 +502,18 @@ export function createFlipBurnHandler(
 				const res = rl.flipAndBurn(accel, m);
 				const peak = res.peakVelocity.div(rl.c);
 				const lorentz = res.lorentzFactor;
+
+				if (!lorentz.isFinite() || res.peakVelocity.gte(rl.c)) {
+					if (resultFlip1)
+						setElement(
+							resultFlip1,
+							"Precision limit exceeded — reduce acceleration or distance",
+							""
+						);
+					pendingCalculation = null;
+					return;
+				}
+
 				const contractedM = rl.one.div(lorentz);
 				const contractedNum = contractedM.toNumber();
 				let contractedStr: string;
