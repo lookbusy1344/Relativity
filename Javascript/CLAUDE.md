@@ -116,6 +116,7 @@ The Playwright MCP server provides browser automation capabilities for investiga
    - Identify failed requests or slow resources
 
 **Usage pattern:**
+
 - Always request page snapshots first to get current state and selectors
 - Use accessibility-based selectors (ARIA roles, labels) when possible
 - Check network activity when debugging data-related issues

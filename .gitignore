@@ -3,3 +3,4 @@ target/
 .DS_Store
 copilotDiffState.xml
 copilot.data.*.xml
+Javascript/package-lock.json
