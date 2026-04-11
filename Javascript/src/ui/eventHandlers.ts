@@ -531,12 +531,9 @@ export function createFlipBurnHandler(
 				const dryMass = rl.ensure(dryMassStr);
 				const efficiency = rl.ensure(efficiencyStr);
 				const fuelFraction = rl.pionRocketFuelFraction(res.properTime, accel, efficiency);
-				const epsilon = new Decimal("1e-6");
-				const oneMinusFuel = rl.one.minus(fuelFraction);
-				const nearSingularity = oneMinusFuel.abs().lte(epsilon);
-				const effectiveFraction = nearSingularity ? rl.one.minus(epsilon) : fuelFraction;
-				const denominator = nearSingularity ? epsilon : oneMinusFuel;
-				const fuelMass = effectiveFraction.mul(dryMass).div(denominator);
+				// Decimal.js at 150dp retains full precision even when fuelFraction is very close to 1
+				// (e.g. 1 - 2e-23 for 4000 ly), so no epsilon guard is needed here.
+				const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
 				const fuelPercent = fuelFraction.mul(100);
 
 				if (resultFlip1) {
