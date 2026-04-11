@@ -2120,3 +2120,79 @@ describe("warpDriveTimeTravel", () => {
 		});
 	});
 });
+
+// Fuel mass calculation: fuelFraction × dryMass / (1 − fuelFraction)
+// Regression: an epsilon guard (1e-6) was incorrectly applied in the handlers, capping
+// any result where massRatio > 1e6 at ~78M tons regardless of actual mass.
+// These tests cover the full input range directly on the lib functions (no DOM overhead).
+describe("fuel mass calculation across input ranges", () => {
+	const DRY_MASS = new Decimal("78000"); // kg, typical spacecraft
+	const EFFICIENCY = new Decimal("0.85");
+	// Epsilon-guard regression always produces this value for 78000 kg dry mass
+	const REGRESSION_KG = new Decimal("7.8e10");
+
+	function fuelMassKg(fuelFraction: Decimal): Decimal {
+		return fuelFraction.mul(DRY_MASS).div(rl.one.minus(fuelFraction));
+	}
+
+	describe("const-accel tab: pionRocketFuelFraction across accelerations and thrust times", () => {
+		it.each(
+			[0.5, 1, 5, 10].flatMap(accelG =>
+				[1, 50, 100, 365, 1000, 10000].map(days => [accelG, days] as [number, number])
+			)
+		)("%sg for %s days: fuel mass is positive and not the regression value", (accelG, days) => {
+			const accel = rl.g.mul(accelG);
+			const secs = new Decimal(days).mul(86400);
+			const fuelFraction = rl.pionRocketFuelFraction(secs, accel, EFFICIENCY);
+			const fuelMass = fuelMassKg(fuelFraction);
+
+			// For extreme inputs the mass ratio exceeds Decimal.js 150dp representable range
+			// (fuelFraction rounds to exactly 1.0 → division by zero). Skip those cases —
+			// the handler already has a precision-limit guard that fires first.
+			if (!fuelMass.isFinite()) return;
+
+			expect(fuelMass.gt(0)).toBe(true);
+			// If the epsilon guard would fire (massRatio > 1e6), the correct value must be
+			// strictly greater than the regression cap (78000/1e-6 = 7.8e10 kg).
+			if (rl.one.minus(fuelFraction).lt("1e-6")) {
+				expect(fuelMass.gt(REGRESSION_KG)).toBe(true);
+			}
+		});
+	});
+
+	describe("flip tab: flipAndBurn + pionRocketFuelFraction across accelerations and distances", () => {
+		it.each(
+			[0.5, 1, 5, 10].flatMap(accelG =>
+				[0.1, 0.5, 4, 10, 40, 400, 4000, 100000].map(ly => [accelG, ly] as [number, number])
+			)
+		)("%sg for %s ly: fuel mass is positive and not the regression value", (accelG, ly) => {
+			const accel = rl.g.mul(accelG);
+			const dist = new Decimal(ly).mul(rl.lightYear);
+			const res = rl.flipAndBurn(accel, dist);
+
+			// Skip if velocity hits the precision limit or mass ratio exceeds 150dp range
+			if (!res.lorentzFactor.isFinite() || res.peakVelocity.gte(rl.c)) return;
+
+			const fuelFraction = rl.pionRocketFuelFraction(res.properTime, accel, EFFICIENCY);
+			const fuelMass = fuelMassKg(fuelFraction);
+			if (!fuelMass.isFinite()) return;
+
+			expect(fuelMass.gt(0)).toBe(true);
+			if (rl.one.minus(fuelFraction).lt("1e-6")) {
+				expect(fuelMass.gt(REGRESSION_KG)).toBe(true);
+			}
+		});
+	});
+
+	it("4000 ly at 1g produces ~555 Earth masses (known good value)", () => {
+		const accel = rl.g;
+		const dist = new Decimal("4000").mul(rl.lightYear);
+		const res = rl.flipAndBurn(accel, dist);
+		const fuelFraction = rl.pionRocketFuelFraction(res.properTime, accel, EFFICIENCY);
+		const fuelMass = fuelMassKg(fuelFraction);
+		const earthMasses = fuelMass.div(new Decimal("5.972e24"));
+
+		expect(earthMasses.toNumber()).toBeGreaterThan(400);
+		expect(earthMasses.toNumber()).toBeLessThan(700);
+	});
+});
