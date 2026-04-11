@@ -167,6 +167,13 @@ See `docs/MCP_UI_DEBUGGING.md` for comprehensive documentation on available tool
 
 **Pre-commit checklist**:
 
+Always run format and lint to fix issues before committing, then verify:
+
+```bash
+yarn format        # auto-format all source files
+yarn lint --fix    # auto-fix linting issues
+```
+
 1. `yarn test:run` - Verify all tests pass
 2. `yarn type-check` - Verify TypeScript compilation succeeds
 3. `yarn format:check` - Verify code formatting is consistent
