@@ -467,6 +467,86 @@ describe("Event Handler Factories", () => {
 
 			expect(resultA2.textContent).toContain("Precision limit exceeded");
 		});
+
+		// Cross-product sweep: [accelG, days]
+		// All combinations should produce a valid, non-regressed fuel mass.
+		// Regression fingerprint: epsilon guard with 78000 kg dry mass always produces "77,999,922 tons".
+		it.each(
+			[0.5, 1, 5, 10].flatMap(accelG =>
+				[1, 50, 100, 365, 1000, 10000]
+					.filter(days => !(accelG === 10 && days === 10000)) // precision limit
+					.map(days => [accelG, days] as [number, number])
+			)
+		)("produces a valid fuel mass for %sg and %s proper days", async (accelG, days) => {
+			const accelInput = document.createElement("input");
+			accelInput.value = String(accelG);
+			const timeInput = document.createElement("input");
+			timeInput.value = String(days);
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "78000";
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+			const resultAFuel = document.createElement("span");
+			document.body.appendChild(resultAFuel);
+
+			const chartRegistry: { current: ChartRegistry } = { current: new Map() };
+			const handler = createAccelHandler(
+				() => accelInput,
+				() => timeInput,
+				() => dryMassInput,
+				() => efficiencyInput,
+				() => [null, null, null, null, resultAFuel, null, null, null, null, null],
+				chartRegistry
+			);
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			const fuelText = resultAFuel.textContent ?? "";
+			expect(fuelText).toMatch(/\d/);
+			expect(fuelText).not.toContain("77,999,922");
+		});
+
+		// For combinations where the correct fuel mass is in planetary-mass territory,
+		// assert the unit name explicitly.
+		// (0.5g/10000d, 1g/10000d, 5g/1000d, 5g/10000d, 10g/365d, 10g/1000d, 10g/10000d)
+		it.each<[number, number]>([
+			[0.5, 10000],
+			[1, 10000],
+			[5, 1000],
+			[5, 10000],
+			[10, 365],
+			[10, 1000],
+			// [10, 10000] omitted — hits precision limit, handler returns early
+		])("reports fuel mass in masses (not tons) for %sg and %s proper days", async (accelG, days) => {
+			const accelInput = document.createElement("input");
+			accelInput.value = String(accelG);
+			const timeInput = document.createElement("input");
+			timeInput.value = String(days);
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "78000";
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+			const resultAFuel = document.createElement("span");
+			document.body.appendChild(resultAFuel);
+
+			const chartRegistry: { current: ChartRegistry } = { current: new Map() };
+			const handler = createAccelHandler(
+				() => accelInput,
+				() => timeInput,
+				() => dryMassInput,
+				() => efficiencyInput,
+				() => [null, null, null, null, resultAFuel, null, null, null, null, null],
+				chartRegistry
+			);
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			const fuelText = resultAFuel.textContent ?? "";
+			expect(fuelText).toMatch(/masses/i);
+			expect(fuelText).not.toMatch(/^\d[\d,]* tons/i);
+		});
 	});
 
 	describe("createFlipBurnHandler", () => {
@@ -717,6 +797,98 @@ describe("Event Handler Factories", () => {
 			expect(fuelText).toMatch(/masses/i);
 			expect(fuelText).not.toMatch(/^\d[\d,]* tons/i);
 		});
+
+		// Cross-product sweep: [accelG, ly]
+		// All combinations should produce a valid, non-regressed fuel mass.
+		// Regression fingerprint: epsilon guard with 78000 kg dry mass always produces "77,999,922 tons".
+		it.each(
+			[0.5, 1, 5, 10].flatMap(accelG =>
+				[0.1, 0.5, 4, 10, 40, 400, 4000, 100000].map(
+					ly => [accelG, ly] as [number, number]
+				)
+			)
+		)("produces a valid fuel mass for %sg and %s light years", async (accelG, ly) => {
+			const accelInput = document.createElement("input");
+			accelInput.value = String(accelG);
+			const distanceInput = document.createElement("input");
+			distanceInput.value = String(ly);
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "78000";
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+			const resultFlipFuel = document.createElement("span");
+			document.body.appendChild(resultFlipFuel);
+
+			const handler = createFlipBurnHandler(
+				() => accelInput,
+				() => distanceInput,
+				() => dryMassInput,
+				() => efficiencyInput,
+				() => [null, null, null, null, null, null, resultFlipFuel, null, null, null],
+				{ current: new Map() }
+			);
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			const fuelText = resultFlipFuel.textContent ?? "";
+			expect(fuelText).toMatch(/\d/);
+			// Regression fingerprint for 78000 kg dry mass with epsilon guard
+			expect(fuelText).not.toContain("77,999,922");
+		});
+
+		// For combinations where the correct fuel mass is in planetary-mass territory,
+		// assert the unit name explicitly.
+		it.each<[number, number]>([
+			[0.5, 400],
+			[0.5, 4000],
+			[0.5, 100000],
+			[1, 40],
+			[1, 400],
+			[1, 4000],
+			[1, 100000],
+			[5, 10],
+			[5, 40],
+			[5, 400],
+			[5, 4000],
+			[5, 100000],
+			[10, 4],
+			[10, 10],
+			[10, 40],
+			[10, 400],
+			[10, 4000],
+			[10, 100000],
+		])(
+			"reports fuel mass in masses (not tons) for %sg and %s light years",
+			async (accelG, ly) => {
+				const accelInput = document.createElement("input");
+				accelInput.value = String(accelG);
+				const distanceInput = document.createElement("input");
+				distanceInput.value = String(ly);
+				const dryMassInput = document.createElement("input");
+				dryMassInput.value = "78000";
+				const efficiencyInput = document.createElement("input");
+				efficiencyInput.value = "0.85";
+				const resultFlipFuel = document.createElement("span");
+				document.body.appendChild(resultFlipFuel);
+
+				const handler = createFlipBurnHandler(
+					() => accelInput,
+					() => distanceInput,
+					() => dryMassInput,
+					() => efficiencyInput,
+					() => [null, null, null, null, null, null, resultFlipFuel, null, null, null],
+					{ current: new Map() }
+				);
+
+				handler();
+				await new Promise(resolve => setTimeout(resolve, 10));
+
+				const fuelText = resultFlipFuel.textContent ?? "";
+				expect(fuelText).toMatch(/masses/i);
+				expect(fuelText).not.toMatch(/^\d[\d,]* tons/i);
+			}
+		);
 	});
 
 	describe("createTwinParadoxHandler", () => {

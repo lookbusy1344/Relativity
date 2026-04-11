@@ -35,6 +35,10 @@ yarn test:ui
 # Run tests once (for CI)
 yarn test:run
 
+# Run a targeted subset of tests by name pattern (much faster than full suite)
+yarn vitest run -t "pattern"
+yarn vitest run src/ui/eventHandlers.test.ts -t "pattern"
+
 # Update Yarn
 yarn set version stable
 
