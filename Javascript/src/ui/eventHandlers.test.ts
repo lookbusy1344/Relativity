@@ -312,6 +312,46 @@ describe("Event Handler Factories", () => {
 			expect(resultMass.textContent).toMatch(/\d+/);
 		});
 
+		it("reports fuel mass in Earth masses (not tons) for long thrust time", () => {
+			// Regression: epsilon guard incorrectly capped fuel at ~78M tons when
+			// fuelFraction approaches 1 - 2e-23 (e.g. 16 years thrust at 1g).
+			const accelInput = document.createElement("input");
+			accelInput.value = "1"; // 1g
+			const thrustTimeInput = document.createElement("input");
+			thrustTimeInput.value = "5840"; // ~16 years in days
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "78000"; // kg
+			const resultFraction = document.createElement("span");
+			const resultMass = document.createElement("span");
+			document.body.appendChild(resultFraction);
+			document.body.appendChild(resultMass);
+
+			const getAccel = vi.fn(() => accelInput);
+			const getThrustTime = vi.fn(() => thrustTimeInput);
+			const getEfficiency = vi.fn(() => efficiencyInput);
+			const getDryMass = vi.fn(() => dryMassInput);
+			const getResultFraction = vi.fn(() => resultFraction);
+			const getResultMass = vi.fn(() => resultMass);
+			const handler = createPionFuelFractionHandler(
+				getAccel,
+				getThrustTime,
+				getEfficiency,
+				getDryMass,
+				getResultFraction,
+				getResultMass
+			);
+
+			handler();
+
+			const massText = resultMass.textContent ?? "";
+			// Should be in Earth/Moon/Solar masses range — NOT a bare "kg" or "tons" primary unit.
+			// formatMassWithUnit always appends "(…kg)" parenthetically, so we check the primary unit.
+			expect(massText).toMatch(/masses/i);
+			expect(massText).not.toMatch(/^\d[\d,]* tons/i);
+		});
+
 		it("clamps out-of-range acceleration", () => {
 			const accelInput = document.createElement("input");
 			accelInput.value = "20000"; // Above max: will be clamped to 10000
@@ -624,6 +664,58 @@ describe("Event Handler Factories", () => {
 
 			// Verify that the distance input was clamped to minimum
 			expect(distanceInput.value).toBe("0.0001");
+		});
+
+		it("reports fuel mass in Earth masses (not tons) for a long journey", async () => {
+			// Regression: epsilon guard incorrectly capped fuel at ~78M tons for distances
+			// where fuelFraction approaches 1 - 2e-23. Decimal.js at 150dp handles this correctly.
+			const accelInput = document.createElement("input");
+			accelInput.value = "1"; // 1g
+			const distanceInput = document.createElement("input");
+			distanceInput.value = "4000"; // 4000 light years
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "78000"; // kg
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+
+			const resultFlipFuel = document.createElement("span");
+			document.body.appendChild(resultFlipFuel);
+
+			const getAccel = vi.fn(() => accelInput);
+			const getDistance = vi.fn(() => distanceInput);
+			const getDryMass = vi.fn(() => dryMassInput);
+			const getEfficiency = vi.fn(() => efficiencyInput);
+			const getResults = vi.fn(() => [
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				resultFlipFuel,
+				null,
+				null,
+				null,
+			]);
+			const chartRegistry = { current: new Map() };
+
+			const handler = createFlipBurnHandler(
+				getAccel,
+				getDistance,
+				getDryMass,
+				getEfficiency,
+				getResults,
+				chartRegistry
+			);
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			const fuelText = resultFlipFuel.textContent ?? "";
+			// Should be in Earth/Moon/Solar masses range — NOT a bare "kg" or "tons" primary unit.
+			// formatMassWithUnit always appends "(…kg)" parenthetically, so we check the primary unit.
+			expect(fuelText).toMatch(/masses/i);
+			expect(fuelText).not.toMatch(/^\d[\d,]* tons/i);
 		});
 	});
 
