@@ -518,35 +518,38 @@ describe("Event Handler Factories", () => {
 			[10, 365],
 			[10, 1000],
 			// [10, 10000] omitted — hits precision limit, handler returns early
-		])("reports fuel mass in masses (not tons) for %sg and %s proper days", async (accelG, days) => {
-			const accelInput = document.createElement("input");
-			accelInput.value = String(accelG);
-			const timeInput = document.createElement("input");
-			timeInput.value = String(days);
-			const dryMassInput = document.createElement("input");
-			dryMassInput.value = "78000";
-			const efficiencyInput = document.createElement("input");
-			efficiencyInput.value = "0.85";
-			const resultAFuel = document.createElement("span");
-			document.body.appendChild(resultAFuel);
+		])(
+			"reports fuel mass in masses (not tons) for %sg and %s proper days",
+			async (accelG, days) => {
+				const accelInput = document.createElement("input");
+				accelInput.value = String(accelG);
+				const timeInput = document.createElement("input");
+				timeInput.value = String(days);
+				const dryMassInput = document.createElement("input");
+				dryMassInput.value = "78000";
+				const efficiencyInput = document.createElement("input");
+				efficiencyInput.value = "0.85";
+				const resultAFuel = document.createElement("span");
+				document.body.appendChild(resultAFuel);
 
-			const chartRegistry: { current: ChartRegistry } = { current: new Map() };
-			const handler = createAccelHandler(
-				() => accelInput,
-				() => timeInput,
-				() => dryMassInput,
-				() => efficiencyInput,
-				() => [null, null, null, null, resultAFuel, null, null, null, null, null],
-				chartRegistry
-			);
+				const chartRegistry: { current: ChartRegistry } = { current: new Map() };
+				const handler = createAccelHandler(
+					() => accelInput,
+					() => timeInput,
+					() => dryMassInput,
+					() => efficiencyInput,
+					() => [null, null, null, null, resultAFuel, null, null, null, null, null],
+					chartRegistry
+				);
 
-			handler();
-			await new Promise(resolve => setTimeout(resolve, 10));
+				handler();
+				await new Promise(resolve => setTimeout(resolve, 10));
 
-			const fuelText = resultAFuel.textContent ?? "";
-			expect(fuelText).toMatch(/masses/i);
-			expect(fuelText).not.toMatch(/^\d[\d,]* tons/i);
-		});
+				const fuelText = resultAFuel.textContent ?? "";
+				expect(fuelText).toMatch(/masses/i);
+				expect(fuelText).not.toMatch(/^\d[\d,]* tons/i);
+			}
+		);
 	});
 
 	describe("createFlipBurnHandler", () => {
@@ -803,9 +806,7 @@ describe("Event Handler Factories", () => {
 		// Regression fingerprint: epsilon guard with 78000 kg dry mass always produces "77,999,922 tons".
 		it.each(
 			[0.5, 1, 5, 10].flatMap(accelG =>
-				[0.1, 0.5, 4, 10, 40, 400, 4000, 100000].map(
-					ly => [accelG, ly] as [number, number]
-				)
+				[0.1, 0.5, 4, 10, 40, 400, 4000, 100000].map(ly => [accelG, ly] as [number, number])
 			)
 		)("produces a valid fuel mass for %sg and %s light years", async (accelG, ly) => {
 			const accelInput = document.createElement("input");
@@ -858,37 +859,34 @@ describe("Event Handler Factories", () => {
 			[10, 400],
 			[10, 4000],
 			[10, 100000],
-		])(
-			"reports fuel mass in masses (not tons) for %sg and %s light years",
-			async (accelG, ly) => {
-				const accelInput = document.createElement("input");
-				accelInput.value = String(accelG);
-				const distanceInput = document.createElement("input");
-				distanceInput.value = String(ly);
-				const dryMassInput = document.createElement("input");
-				dryMassInput.value = "78000";
-				const efficiencyInput = document.createElement("input");
-				efficiencyInput.value = "0.85";
-				const resultFlipFuel = document.createElement("span");
-				document.body.appendChild(resultFlipFuel);
+		])("reports fuel mass in masses (not tons) for %sg and %s light years", async (accelG, ly) => {
+			const accelInput = document.createElement("input");
+			accelInput.value = String(accelG);
+			const distanceInput = document.createElement("input");
+			distanceInput.value = String(ly);
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "78000";
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+			const resultFlipFuel = document.createElement("span");
+			document.body.appendChild(resultFlipFuel);
 
-				const handler = createFlipBurnHandler(
-					() => accelInput,
-					() => distanceInput,
-					() => dryMassInput,
-					() => efficiencyInput,
-					() => [null, null, null, null, null, null, resultFlipFuel, null, null, null],
-					{ current: new Map() }
-				);
+			const handler = createFlipBurnHandler(
+				() => accelInput,
+				() => distanceInput,
+				() => dryMassInput,
+				() => efficiencyInput,
+				() => [null, null, null, null, null, null, resultFlipFuel, null, null, null],
+				{ current: new Map() }
+			);
 
-				handler();
-				await new Promise(resolve => setTimeout(resolve, 10));
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
 
-				const fuelText = resultFlipFuel.textContent ?? "";
-				expect(fuelText).toMatch(/masses/i);
-				expect(fuelText).not.toMatch(/^\d[\d,]* tons/i);
-			}
-		);
+			const fuelText = resultFlipFuel.textContent ?? "";
+			expect(fuelText).toMatch(/masses/i);
+			expect(fuelText).not.toMatch(/^\d[\d,]* tons/i);
+		});
 	});
 
 	describe("createTwinParadoxHandler", () => {
