@@ -698,6 +698,33 @@ describe("Event Handler Factories", () => {
 			expect(distanceInput.value).toBe("0.0001");
 		});
 
+		it("clamps light-day distance below 0.0001 ld to minimum 0.0001 ld", async () => {
+			const accelInput = document.createElement("input");
+			accelInput.value = "1";
+			const distanceInput = document.createElement("input");
+			distanceInput.value = "0.00005"; // Below 0.0001 ld
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "500";
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+
+			const handler = createFlipBurnHandler(
+				() => accelInput,
+				() => distanceInput,
+				() => dryMassInput,
+				() => efficiencyInput,
+				() => [null, null, null, null, null, null, null, null, null, null],
+				{ current: new Map() },
+				() => "ld"
+			);
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			// Should clamp to 0.0001 ld, not 0.0001 ly converted to ld (which would be ~0.036525)
+			expect(distanceInput.value).toBe("0.0001");
+		});
+
 		it("reports fuel mass in Earth masses (not tons) for a long journey", async () => {
 			// Regression: epsilon guard incorrectly capped fuel at ~78M tons for distances
 			// where fuelFraction approaches 1 - 2e-23. Decimal.js at 150dp handles this correctly.

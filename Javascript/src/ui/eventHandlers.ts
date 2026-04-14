@@ -443,9 +443,11 @@ export function createFlipBurnHandler(
 		try {
 			const rawDec = rl.ensure(distanceInput.value ?? "0");
 			const lyDec = isLightDays ? rawDec.div(daysPerYear) : rawDec;
-			if (lyDec.lt(0.0001)) {
-				distanceLightYearsStr = "0.0001";
-				distanceInput.value = isLightDays ? daysPerYear.mul("0.0001").toFixed() : "0.0001";
+			if (rawDec.lt(0.0001)) {
+				distanceInput.value = "0.0001";
+				distanceLightYearsStr = isLightDays
+					? new Decimal("0.0001").div(daysPerYear).toFixed()
+					: "0.0001";
 			} else if (lyDec.gt(100000000000)) {
 				distanceLightYearsStr = "100000000000";
 				distanceInput.value = isLightDays
