@@ -34,6 +34,7 @@ export const DecimalInfinity: Decimal = new Decimal(Infinity);
 export let c: Decimal;
 export let g: Decimal;
 export let lightYear: Decimal;
+export let lightDay: Decimal;
 export let au: Decimal;
 export let secondsPerYear: Decimal;
 export let everestMass: Decimal;
@@ -62,6 +63,7 @@ export function configure(precision: number): void {
 	c = new Decimal("299792458"); // speed of light in m/s
 	g = new Decimal("9.80665"); // acceleration due to standard gravity
 	lightYear = new Decimal("9460730472580800"); // meters in a light year
+	lightDay = c.mul("86400"); // meters in a light day (c * seconds per day)
 	au = new Decimal("149597870700"); // meters in an astronomical unit
 	secondsPerYear = new Decimal(60 * 60 * 24).mul("365.25"); // seconds in a year
 	everestMass = new Decimal("8.1e14"); // kg (approximate mass of Mount Everest)

@@ -2,7 +2,8 @@
  * Tests for URL state management
  */
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { updateURL, initializeFromURL } from "./urlState";
 
 /**
  * Helper function to check if sliders should skip encoding for motion/flip tabs
@@ -71,5 +72,60 @@ describe("URL encoding for simplified state", () => {
 		expect(shouldSkipTimeModeEncoding("accel")).toBe(false);
 		expect(shouldSkipTimeModeEncoding("time")).toBe(false);
 		expect(shouldSkipTimeModeEncoding("vel")).toBe(false);
+	});
+});
+
+describe("flip distance unit URL encoding", () => {
+	function buildFlipDom(): void {
+		// Static fixture — same pattern as existing beforeEach in this file
+		document.body.innerHTML =
+			'<div class="nav-link active" id="travel-tab"></div>' +
+			'<input type="radio" name="flipDistUnit" id="flipDistUnitLY" value="ly" checked>' +
+			'<input type="radio" name="flipDistUnit" id="flipDistUnitLD" value="ld">' +
+			'<input type="number" id="flipAccelInput" value="1">' +
+			'<input type="number" id="flipInput" value="4">' +
+			'<input type="number" id="flipDryMassInput" value="78000">' +
+			'<input type="number" id="flipEfficiencyInput" value="0.85">';
+	}
+
+	beforeEach(() => {
+		buildFlipDom();
+		vi.stubGlobal("bootstrap", undefined);
+	});
+
+	it("does not encode unit param when ly is selected (default)", () => {
+		(document.getElementById("flipDistUnitLY") as HTMLInputElement).checked = true;
+
+		updateURL();
+
+		const params = new URLSearchParams(window.location.search);
+		expect(params.has("unit")).toBe(false);
+	});
+
+	it("encodes unit=ld when ld radio is selected", () => {
+		(document.getElementById("flipDistUnitLD") as HTMLInputElement).checked = true;
+
+		updateURL();
+
+		const params = new URLSearchParams(window.location.search);
+		expect(params.get("unit")).toBe("ld");
+	});
+
+	it("restores ld radio from URL on initializeFromURL", () => {
+		window.history.replaceState({}, "", "?tab=flip&unit=ld&dist=1461");
+
+		initializeFromURL();
+
+		expect((document.getElementById("flipDistUnitLD") as HTMLInputElement).checked).toBe(true);
+		expect((document.getElementById("flipDistUnitLY") as HTMLInputElement).checked).toBe(false);
+	});
+
+	it("leaves ly radio checked when unit param is absent", () => {
+		window.history.replaceState({}, "", "?tab=flip&dist=4");
+
+		initializeFromURL();
+
+		expect((document.getElementById("flipDistUnitLD") as HTMLInputElement).checked).toBe(false);
+		expect((document.getElementById("flipDistUnitLY") as HTMLInputElement).checked).toBe(true);
 	});
 });

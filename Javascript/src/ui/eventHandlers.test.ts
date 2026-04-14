@@ -780,6 +780,44 @@ describe("Event Handler Factories", () => {
 			expect(fuelText).toMatch(/masses/i);
 			expect(fuelText).not.toMatch(/^\d[\d,]* tons/i);
 		});
+
+		it("interprets distance as light days when unit is ld", async () => {
+			// 1461 light days ≈ 4 light years — should produce the same result as 4 ly
+			const accelInput = document.createElement("input");
+			accelInput.value = "1";
+			const distanceInput = document.createElement("input");
+			distanceInput.value = "1461"; // light days
+			const dryMassInput = document.createElement("input");
+			dryMassInput.value = "78000";
+			const efficiencyInput = document.createElement("input");
+			efficiencyInput.value = "0.85";
+
+			const resultFlip1 = document.createElement("span");
+			const resultFlip7 = document.createElement("span");
+			document.body.appendChild(resultFlip1);
+			document.body.appendChild(resultFlip7);
+
+			const handler = createFlipBurnHandler(
+				() => accelInput,
+				() => distanceInput,
+				() => dryMassInput,
+				() => efficiencyInput,
+				() => [resultFlip1, null, null, null, null, resultFlip7, null, null, null, null],
+				{ current: new Map() },
+				() => "ld"
+			);
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			// Should produce a valid result
+			expect(resultFlip1.textContent).toBeTruthy();
+			expect(resultFlip1.textContent).not.toBe("-");
+
+			// Contracted distance label should use "ld" units
+			expect(resultFlip7.textContent).toMatch(/ld shrinks to.*ld/);
+			expect(resultFlip7.textContent).not.toMatch(/ly/);
+		});
 	});
 
 	describe("createTwinParadoxHandler", () => {

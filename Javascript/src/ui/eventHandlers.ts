@@ -385,7 +385,8 @@ export function createFlipBurnHandler(
 	getDryMassInput: () => HTMLInputElement | null,
 	getEfficiencyInput: () => HTMLInputElement | null,
 	getResults: () => (HTMLElement | null)[],
-	chartRegistry: { current: ChartRegistry }
+	chartRegistry: { current: ChartRegistry },
+	getDistUnit: () => "ly" | "ld" = () => "ly"
 ): () => void {
 	let pendingRAF: number | null = null;
 	let pendingCalculation: number | null = null;
@@ -435,19 +436,27 @@ export function createFlipBurnHandler(
 			accelInput.value = "1";
 		}
 
-		let distanceLightYearsStr = distanceInput.value ?? "0";
+		const isLightDays = getDistUnit() === "ld";
+		const daysPerYear = new Decimal("365.25");
+
+		let distanceLightYearsStr: string;
 		try {
-			const distanceLYDec = rl.ensure(distanceLightYearsStr);
-			if (distanceLYDec.lt(0.0001)) {
+			const rawDec = rl.ensure(distanceInput.value ?? "0");
+			const lyDec = isLightDays ? rawDec.div(daysPerYear) : rawDec;
+			if (lyDec.lt(0.0001)) {
 				distanceLightYearsStr = "0.0001";
-				distanceInput.value = "0.0001";
-			} else if (distanceLYDec.gt(100000000000)) {
+				distanceInput.value = isLightDays ? daysPerYear.mul("0.0001").toFixed() : "0.0001";
+			} else if (lyDec.gt(100000000000)) {
 				distanceLightYearsStr = "100000000000";
-				distanceInput.value = "100000000000";
+				distanceInput.value = isLightDays
+					? daysPerYear.mul("100000000000").toFixed()
+					: "100000000000";
+			} else {
+				distanceLightYearsStr = lyDec.toFixed();
 			}
 		} catch {
 			distanceLightYearsStr = "4";
-			distanceInput.value = "4";
+			distanceInput.value = isLightDays ? daysPerYear.mul("4").toFixed() : "4";
 		}
 
 		let dryMassStr = dryMassInput.value ?? "78000";
@@ -552,12 +561,16 @@ export function createFlipBurnHandler(
 				}
 				if (resultFlip3) setElement(resultFlip3, rl.formatSignificant(lorentz, "0", 2), "");
 				if (resultFlip5) setElement(resultFlip5, `1m shrinks to ${contractedStr}`, "");
-				if (resultFlip7)
+				if (resultFlip7) {
+					const distUnit = isLightDays ? "ld" : "ly";
+					const displayDist = isLightDays ? distanceLY.mul(daysPerYear) : distanceLY;
+					const displayContracted = isLightDays ? contractedLY.mul(daysPerYear) : contractedLY;
 					setElement(
 						resultFlip7,
-						`${rl.formatSignificant(distanceLY, "0", 2)}ly shrinks to ${rl.formatSignificant(contractedLY, "0", 2)}ly`,
+						`${rl.formatSignificant(displayDist, "0", 2)}${distUnit} shrinks to ${rl.formatSignificant(displayContracted, "0", 2)}${distUnit}`,
 						""
 					);
+				}
 				if (resultFlipFuel) setElement(resultFlipFuel, rl.formatMassWithUnit(fuelMass), "");
 				if (resultFlipFuelFraction)
 					setElement(resultFlipFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");

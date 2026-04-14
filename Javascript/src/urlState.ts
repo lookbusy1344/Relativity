@@ -217,6 +217,18 @@ export function initializeFromURL(): void {
 		}
 	}
 
+	// Restore flip distance unit radio
+	if (tabParam === "flip") {
+		const unitParam = urlParams.get("unit");
+		const ldRadio = document.getElementById("flipDistUnitLD") as HTMLInputElement | null;
+		const lyRadio = document.getElementById("flipDistUnitLY") as HTMLInputElement | null;
+		if (unitParam === "ld" && ldRadio) {
+			ldRadio.checked = true;
+			if (lyRadio) lyRadio.checked = false;
+			hasValidParams = true;
+		}
+	}
+
 	// Trigger calculation if we had valid parameters
 	if (hasValidParams && tabConfig.buttonId) {
 		// Immediately show Working... to avoid flash of "Press calculate" during the delay
@@ -375,6 +387,14 @@ export function updateURL(): void {
 			// Only include if different from default and valid
 			if (currentValue !== defaultValue && isValidNumber(currentValue)) {
 				params.set(paramName, currentValue);
+			}
+		}
+
+		// Encode flip distance unit (only when non-default ld is selected)
+		if (activeTab === "flip") {
+			const ldRadio = document.getElementById("flipDistUnitLD") as HTMLInputElement | null;
+			if (ldRadio?.checked) {
+				params.set("unit", "ld");
 			}
 		}
 	}
@@ -592,6 +612,18 @@ export function setupURLSync(): () => void {
 		}
 		handlers.get(element)!.set(event, handler);
 	};
+
+	// Update URL when radio buttons change (e.g. flip distance unit)
+	const radioInputs = document.querySelectorAll('input[type="radio"]');
+	radioInputs.forEach(input => {
+		const radioHandler = () => {
+			clearTimeout(debounceTimer);
+			debounceTimer = window.setTimeout(() => {
+				updateURL();
+			}, 150);
+		};
+		addHandler(input, "change", radioHandler);
+	});
 
 	// Update URL when inputs change (debounced to allow slider initialization)
 	const allInputs = document.querySelectorAll('input[type="number"], input[type="range"]');

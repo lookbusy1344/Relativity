@@ -228,7 +228,17 @@
 									class="form-control" step="0.1" min="0.1" max="100">
 							</div>
 							<div style="flex: 1; min-width: 150px;">
-								<div class="input-label">Light years</div>
+								<div class="input-label">
+									Distance
+									<span style="font-size: 0.75rem; font-weight: normal; margin-left: 0.4rem;">
+										<label style="cursor: pointer; margin-right: 0.4rem;">
+											<input type="radio" name="flipDistUnit" id="flipDistUnitLY" value="ly" checked style="margin-right: 0.2rem;">ly
+										</label>
+										<label style="cursor: pointer;">
+											<input type="radio" name="flipDistUnit" id="flipDistUnitLD" value="ld" style="margin-right: 0.2rem;">ld
+										</label>
+									</span>
+								</div>
 								<input type="number" id="flipInput" placeholder="Enter distance" value="4"
 									class="form-control" step="0.0001" min="0.0001" max="50000000000">
 							</div>

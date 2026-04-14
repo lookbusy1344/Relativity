@@ -206,7 +206,11 @@ document.addEventListener("DOMContentLoaded", () => {
 			getResultElement("resultFlipStars"),
 			getResultElement("resultFlipGalaxyFraction"),
 		],
-		chartRegistry
+		chartRegistry,
+		() => {
+			const lyRadio = getInputElement("flipDistUnitLY");
+			return lyRadio?.checked ? "ly" : "ld";
+		}
 	);
 
 	// Wrap handler to initialize sliders after chart update
