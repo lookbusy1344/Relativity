@@ -565,11 +565,10 @@ export function createFlipBurnHandler(
 					const distUnit = isLightDays ? "ld" : "ly";
 					const displayDist = isLightDays ? distanceLY.mul(daysPerYear) : distanceLY;
 					const displayContracted = isLightDays ? contractedLY.mul(daysPerYear) : contractedLY;
-					setElement(
-						resultFlip7,
-						`${rl.formatSignificant(displayDist, "0", 2)}${distUnit} shrinks to ${rl.formatSignificant(displayContracted, "0", 2)}${distUnit}`,
-						""
-					);
+					const contractedLabel = isLightDays
+						? `Distance shrinks to ${rl.formatSignificant(displayContracted, "0", 2)}${distUnit}`
+						: `${rl.formatSignificant(displayDist, "0", 2)}${distUnit} shrinks to ${rl.formatSignificant(displayContracted, "0", 2)}${distUnit}`;
+					setElement(resultFlip7, contractedLabel, "");
 				}
 				if (resultFlipFuel) setElement(resultFlipFuel, rl.formatMassWithUnit(fuelMass), "");
 				if (resultFlipFuelFraction)

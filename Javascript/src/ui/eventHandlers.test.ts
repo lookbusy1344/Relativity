@@ -814,8 +814,8 @@ describe("Event Handler Factories", () => {
 			expect(resultFlip1.textContent).toBeTruthy();
 			expect(resultFlip1.textContent).not.toBe("-");
 
-			// Contracted distance label should use "ld" units
-			expect(resultFlip7.textContent).toMatch(/ld shrinks to.*ld/);
+			// Contracted distance label should use "ld" units (no source distance to avoid precision errors)
+			expect(resultFlip7.textContent).toMatch(/Distance shrinks to.*ld/);
 			expect(resultFlip7.textContent).not.toMatch(/ly/);
 		});
 	});
