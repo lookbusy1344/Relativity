@@ -582,6 +582,14 @@ document.addEventListener("DOMContentLoaded", () => {
 	};
 	addEventListener(simClearButton, "click", simClearHandler);
 
+	// Initialize Bootstrap tooltips
+	const bs = window.bootstrap;
+	if (bs) {
+		document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+			new bs.Tooltip(el);
+		});
+	}
+
 	// Initialize from URL parameters and set up bidirectional sync
 	initializeFromURL();
 	const cleanupURLSync = setupURLSync();
