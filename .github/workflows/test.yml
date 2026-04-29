@@ -28,7 +28,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./Javascript
-        run: yarn install
+        run: yarn install --immutable
 
       - name: Run linting
         working-directory: ./Javascript
