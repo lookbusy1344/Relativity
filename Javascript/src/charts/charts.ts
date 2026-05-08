@@ -395,7 +395,7 @@ export function updateVisualizationCharts(
 function createPositionVelocityChart(
 	canvas: HTMLCanvasElement,
 	data: { x: number; y: number }[]
-): Chart {
+): Chart<"line", { x: number; y: number }[], unknown> {
 	const ctx = canvas.getContext("2d");
 	if (!ctx) throw new Error("Could not get canvas context");
 
@@ -472,7 +472,7 @@ function createPositionVelocityFlipBurnChart(
 	canvas: HTMLCanvasElement,
 	accelData: { x: number; y: number }[],
 	decelData: { x: number; y: number }[]
-): Chart {
+): Chart<"line", { x: number; y: number }[], unknown> {
 	const ctx = canvas.getContext("2d");
 	if (!ctx) throw new Error("Could not get canvas context");
 
@@ -582,7 +582,7 @@ function createPositionVelocityFlipBurnChart(
 function createSpacetimeChart(
 	canvas: HTMLCanvasElement,
 	data: { x: number; y: number; velocity?: number }[]
-): Chart {
+): Chart<"line", { x: number; y: number }[], unknown> {
 	const ctx = canvas.getContext("2d");
 	if (!ctx) throw new Error("Could not get canvas context");
 
