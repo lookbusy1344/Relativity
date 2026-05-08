@@ -3,4 +3,7 @@ export * from "./basicRelativityHandlers";
 export * from "./chartSliderHandlers";
 export * from "./chartTimeMode";
 export * from "./flipBurnHandlers";
+export * from "./pionHandlers";
+export * from "./twinParadoxHandlers";
+export * from "./spacetimeHandlers";
 export * from "./warpDriveHandlers";
