@@ -4,6 +4,7 @@ import { initializeFromURL, setupURLSync } from "../urlState";
 import { createAppState, createTrackedEventListenerRegistry } from "./state";
 import { wireHelpModals } from "./helpModals";
 import { wireCalculatorHandlers } from "./calculatorWiring";
+import { wireResizeHandling } from "./resizeWiring";
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -29,6 +30,14 @@ export function bootstrapApp(): void {
 			minkowskiState,
 			twinsMinkowskiState,
 			simultaneityState,
+		},
+		addEventListener,
+	});
+	wireResizeHandling({
+		chartRegistry,
+		state: {
+			minkowskiState,
+			twinsMinkowskiState,
 		},
 		addEventListener,
 	});

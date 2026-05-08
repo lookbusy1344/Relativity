@@ -396,31 +396,6 @@ export function wireCalculatorHandlers(deps: CalculatorWiringDeps): void {
 		)
 	);
 
-	let resizeTimeout: number | undefined;
-	let lastInnerWidth = window.innerWidth;
-	const handleResize = () => {
-		if (window.innerWidth === lastInnerWidth) return;
-		lastInnerWidth = window.innerWidth;
-
-		clearTimeout(resizeTimeout);
-		resizeTimeout = window.setTimeout(() => {
-			chartRegistry.current.forEach(chart => {
-				chart.resize();
-			});
-
-			if (state.minkowskiState.controller && state.minkowskiState.lastData) {
-				state.minkowskiState.controller.update(state.minkowskiState.lastData);
-			}
-
-			if (state.twinsMinkowskiState.controller && state.twinsMinkowskiState.lastData) {
-				state.twinsMinkowskiState.controller.update(state.twinsMinkowskiState.lastData);
-			}
-		}, 700);
-	};
-
-	addEventListener(window, "resize", handleResize);
-	addEventListener(window, "orientationchange", handleResize);
-
 	const spacetimeTab = document.getElementById("spacetime-tab");
 	addEventListener(spacetimeTab, "shown.bs.tab", () => {
 		if (!state.minkowskiState.controller) {
