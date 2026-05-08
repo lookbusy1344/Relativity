@@ -25,147 +25,21 @@ import { drawTwinParadoxMinkowski, type TwinParadoxMinkowskiData } from "../char
 import { chartTimeModes } from "./handlers";
 
 export {
+	createAddVelocitiesHandler,
 	createChartTimeModeHandler,
+	createLorentzHandler,
 	createMassChartSliderHandler,
+	createRapidityFromVelocityHandler,
 	createPositionVelocitySliderHandler,
+	createVelocityFromRapidityHandler,
 	distanceToSlider,
 	getChartTimeModes,
 	initializeMassChartSlider,
 	initializePositionVelocitySlider,
 	setChartTimeMode,
 	sliderToDistance,
+	createWarpDriveHandler,
 } from "./handlers";
-
-export function createLorentzHandler(
-	getInput: () => HTMLInputElement | null,
-	getResult: () => HTMLElement | null
-): () => void {
-	return () => {
-		const input = getInput();
-		const result = getResult();
-		if (!input || !result) return;
-
-		const vel = rl.checkVelocity(input.value ?? 0);
-		const lorentz = rl.lorentzFactor(vel);
-		setElement(result, rl.formatSignificant(lorentz, "0", 3), "");
-	};
-}
-
-export function createRapidityFromVelocityHandler(
-	getInput: () => HTMLInputElement | null,
-	getResult: () => HTMLElement | null
-): () => void {
-	return () => {
-		const input = getInput();
-		const result = getResult();
-		if (!input || !result) return;
-
-		const rapidity = rl.rapidityFromVelocity(input.value ?? 0);
-		setElement(result, rl.formatSignificant(rapidity, "0", 3), "");
-	};
-}
-
-export function createVelocityFromRapidityHandler(
-	getInput: () => HTMLInputElement | null,
-	getResult: () => HTMLElement | null
-): () => void {
-	return () => {
-		const input = getInput();
-		const result = getResult();
-		if (!input || !result) return;
-
-		const velocity = rl.velocityFromRapidity(input.value ?? 0);
-		setElement(result, rl.formatSignificant(velocity, "9", 3), "m/s");
-	};
-}
-
-export function createAddVelocitiesHandler(
-	getV1Input: () => HTMLInputElement | null,
-	getV2Input: () => HTMLInputElement | null,
-	getResult: () => HTMLElement | null
-): () => void {
-	return () => {
-		const v1Input = getV1Input();
-		const v2Input = getV2Input();
-		const result = getResult();
-		if (!v1Input || !v2Input || !result) return;
-
-		const v1 = rl.ensure(v1Input.value ?? 0);
-		const v2 = rl.ensure(v2Input.value ?? 0);
-		const added = rl.addVelocitiesC(v1, v2);
-
-		setElement(result, rl.formatSignificant(added, "9", 3), "c");
-	};
-}
-
-export function createWarpDriveHandler(
-	getDistanceInput: () => HTMLInputElement | null,
-	getBoostInput: () => HTMLInputElement | null,
-	getTransitInput: () => HTMLInputElement | null,
-	getBoostDurationInput: () => HTMLInputElement | null,
-	getResults: () => (HTMLElement | null)[]
-): () => void {
-	return () => {
-		const distanceInput = getDistanceInput();
-		const boostInput = getBoostInput();
-		const transitInput = getTransitInput();
-		const boostDurationInput = getBoostDurationInput();
-		const results = getResults();
-		if (!distanceInput || !boostInput || !transitInput || !boostDurationInput) return;
-		if (results.length < 4 || results.some(r => r === null)) return;
-
-		// Convert inputs from user units to SI units
-		// Distance: light-minutes -> metres (multiply by c * 60)
-		const distanceLightMinutes = rl.ensure(distanceInput.value ?? 30);
-		const distanceMetres = distanceLightMinutes.mul(rl.c).mul(60);
-
-		// Boost velocity: already fraction of c
-		const boostVelocityC = rl.ensure(boostInput.value ?? 0.9);
-
-		// Transit time: minutes -> seconds
-		const transitMinutes = rl.ensure(transitInput.value ?? 0);
-		const transitSeconds = transitMinutes.mul(60);
-
-		// Boost duration: minutes -> seconds
-		const boostDurationMinutes = rl.ensure(boostDurationInput.value ?? 0);
-		const boostDurationSeconds = boostDurationMinutes.mul(60);
-
-		// Calculate
-		const result = rl.warpDriveTimeTravel(
-			distanceMetres,
-			boostVelocityC,
-			transitSeconds,
-			boostDurationSeconds
-		);
-
-		// Calculate Lorentz factor for the boost velocity
-		const boostVelocityMs = boostVelocityC.mul(rl.c);
-		const lorentzFactor = rl.lorentzFactor(boostVelocityMs);
-
-		// Convert results back to user-friendly units (seconds -> minutes)
-		const displacementMinutes = result.timeDisplacement.div(60);
-		const simultaneityMinutes = result.simultaneityShift.div(60);
-		const travelerTimeMinutes = result.travelerTime.div(60);
-
-		// Format and display
-		const [dispResult, simResult, lorentzResult, travelerResult] = results;
-
-		// Time displacement with descriptive text and auto-scaled units
-		const dispFormatted = rl.formatTimeWithUnit(displacementMinutes.abs());
-		const direction = displacementMinutes.isNegative() ? "into the past" : "into the future";
-		setElement(dispResult!, `${dispFormatted.value} ${dispFormatted.units} ${direction}`, "");
-
-		// Other results with auto-scaled units
-		const simFormatted = rl.formatTimeWithUnit(simultaneityMinutes);
-		setElement(simResult!, simFormatted.value, simFormatted.units);
-
-		// Lorentz factor (dimensionless, show 3 significant figures)
-		setElement(lorentzResult!, rl.formatSignificant(lorentzFactor, "", 3), "");
-
-		const travelerFormatted = rl.formatTimeWithUnit(travelerTimeMinutes);
-		setElement(travelerResult!, travelerFormatted.value, travelerFormatted.units);
-	};
-}
 
 export function createAccelHandler(
 	getAccelInput: () => HTMLInputElement | null,
