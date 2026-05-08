@@ -18,15 +18,20 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: Install dependencies
         working-directory: ./Javascript
-        run: yarn install
+        run: pnpm install --frozen-lockfile
 
       - name: Build
         working-directory: ./Javascript
-        run: yarn build
+        run: pnpm build
 
       - name: Save built files
         run: |
