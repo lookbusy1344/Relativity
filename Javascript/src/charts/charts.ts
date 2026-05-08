@@ -3,265 +3,22 @@
  * Provides configuration factories and lifecycle management
  */
 
-import { Chart, ChartOptions } from "chart.js";
+import { Chart } from "chart.js";
+import {
+	createArrowIndicators,
+	createDualTimeDatasets,
+	createMassRemainingDatasets,
+	createVelocityGradient,
+	updateChart,
+	type ChartRegistry,
+} from "./chartjs";
 import type {
 	generateAccelChartData,
 	generateFlipBurnChartData,
 	generateVisualizationChartData,
 } from "./dataGeneration";
-
-export type ChartRegistry = Map<string, Chart>;
-
-export type ChartStyleConfig = {
-	primaryColor: string;
-	secondaryColor: string;
-	xAxisLabel: string;
-	yAxisLabel: string;
-	xMax?: number;
-	yMax?: number;
-	yMin?: number;
-	y1AxisLabel?: string;
-	y1Max?: number;
-};
-
-type GradientColors = {
-	high: string;
-	mid: string;
-	low: string;
-};
-
-type ChartDataset = {
-	label: string;
-	data: { x: number; y: number }[];
-	borderColor: string | CanvasGradient;
-	backgroundColor: string;
-	borderWidth: number;
-	fill: boolean;
-	tension: number;
-	pointRadius?: number | number[];
-	pointStyle?: "circle" | "triangle" | ("circle" | "triangle")[];
-	pointRotation?: number | number[];
-	pointBackgroundColor?: string | CanvasGradient | (string | CanvasGradient)[];
-	borderDash?: number[];
-	yAxisID?: string;
-};
-
-/**
- * Create a vertical velocity-based gradient for charts
- */
-function createVelocityGradient(
-	ctx: CanvasRenderingContext2D,
-	height: number,
-	colors: GradientColors
-): CanvasGradient {
-	const gradient = ctx.createLinearGradient(0, 0, 0, height);
-	gradient.addColorStop(0, colors.high);
-	gradient.addColorStop(0.5, colors.mid);
-	gradient.addColorStop(1, colors.low);
-	return gradient;
-}
-
-/**
- * Calculate arrow indicator properties for trajectory visualization
- */
-function createArrowIndicators(
-	data: { x: number; y: number }[],
-	arrowIndices: number[]
-): {
-	pointRadii: number[];
-	pointStyles: ("triangle" | "circle")[];
-	pointRotations: number[];
-} {
-	const arrowSet = new Set(arrowIndices);
-	const indexMap = new Map(arrowIndices.map((idx, pos) => [idx, pos]));
-
-	const pointRadii = data.map((_, i) => (arrowSet.has(i) ? 4 : 0));
-	const pointStyles = data.map((_, i) =>
-		arrowSet.has(i) ? ("triangle" as const) : ("circle" as const)
-	);
-	const pointRotations = data.map((_, i) => {
-		if (!arrowSet.has(i)) return 0;
-		const pos = indexMap.get(i)!;
-		if (pos === arrowIndices.length - 1) return 0;
-		const nextArrowIdx = arrowIndices[pos + 1];
-		const dx = data[nextArrowIdx].x - data[i].x;
-		const dy = data[nextArrowIdx].y - data[i].y;
-		return Math.atan2(dy, dx) + Math.PI / 2;
-	});
-	return { pointRadii, pointStyles, pointRotations };
-}
-
-/**
- * Create standard mass remaining dataset configuration for fuel charts
- */
-function createMassRemainingDatasets(
-	data: { x: number; y: number }[],
-	nozzleEfficiency: number
-): ChartDataset[] {
-	const efficiencyPercent = Math.round(nozzleEfficiency * 100);
-	return [
-		{
-			label: `${efficiencyPercent}% Nozzle Efficiency`,
-			data: data,
-			borderColor: "#ffaa00",
-			backgroundColor: "rgba(255, 170, 0, 0.1)",
-			borderWidth: 2,
-			fill: false,
-			tension: 0.4,
-			pointRadius: 0,
-		},
-	];
-}
-
-/**
- * Create dual-time dataset configuration (proper time vs coordinate time)
- */
-function createDualTimeDatasets(
-	properTimeData: { x: number; y: number }[],
-	coordTimeData: { x: number; y: number }[],
-	properLabel: string,
-	coordLabel: string
-): ChartDataset[] {
-	return [
-		{
-			label: properLabel,
-			data: properTimeData,
-			borderColor: "#00d9ff",
-			backgroundColor: "rgba(0, 217, 255, 0.1)",
-			borderWidth: 2,
-			fill: true,
-			tension: 0.4,
-			pointRadius: 0,
-			clip: true,
-		} as ChartDataset,
-		{
-			label: coordLabel,
-			data: coordTimeData,
-			borderColor: "#00ff9f",
-			backgroundColor: "rgba(0, 255, 159, 0.1)",
-			borderWidth: 2,
-			fill: true,
-			tension: 0.4,
-			pointRadius: 0,
-			clip: true,
-		} as ChartDataset,
-	];
-}
-
-function createChartOptions(config: ChartStyleConfig): ChartOptions {
-	const baseOptions: ChartOptions = {
-		responsive: true,
-		plugins: {
-			legend: {
-				display: true,
-				labels: {
-					color: "#e8f1f5",
-					font: { family: "IBM Plex Mono", size: 12 },
-				},
-			},
-			title: { display: false },
-		},
-		scales: {
-			x: {
-				type: "linear",
-				title: {
-					display: true,
-					text: config.xAxisLabel,
-					color: "#00d9ff",
-					font: { family: "IBM Plex Mono", size: 11, weight: 600 },
-				},
-				max: config.xMax,
-				ticks: {
-					maxTicksLimit: 10,
-					color: "#e8f1f5",
-					font: { family: "IBM Plex Mono" },
-				},
-				grid: {
-					color: "rgba(0, 217, 255, 0.15)",
-				},
-			},
-			y: {
-				title: {
-					display: true,
-					text: config.yAxisLabel,
-					color: "#00d9ff",
-					font: { family: "IBM Plex Mono", size: 11, weight: 600 },
-				},
-				beginAtZero: config.yMin === undefined,
-				max: config.yMax,
-				min: config.yMin,
-				ticks: {
-					color: "#e8f1f5",
-					font: { family: "IBM Plex Mono" },
-				},
-				grid: {
-					color: "rgba(0, 217, 255, 0.15)",
-				},
-			},
-		},
-	};
-
-	// Add second y-axis if configured
-	if (config.y1AxisLabel && baseOptions.scales) {
-		baseOptions.scales.y1 = {
-			type: "linear",
-			display: true,
-			position: "right",
-			title: {
-				display: true,
-				text: config.y1AxisLabel,
-				color: "#00d9ff",
-				font: { family: "IBM Plex Mono", size: 11, weight: 600 },
-			},
-			beginAtZero: true,
-			max: config.y1Max,
-			ticks: {
-				color: "#e8f1f5",
-				font: { family: "IBM Plex Mono" },
-			},
-			grid: {
-				drawOnChartArea: false,
-			},
-		};
-	}
-
-	return baseOptions;
-}
-
-export function updateChart(
-	registry: ChartRegistry,
-	canvasId: string,
-	datasets: ChartDataset[],
-	config: ChartStyleConfig
-): ChartRegistry {
-	const newRegistry = new Map(registry);
-
-	// Destroy old chart if exists
-	newRegistry.get(canvasId)?.destroy();
-
-	// Create new chart
-	const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-	const ctx = canvas?.getContext("2d");
-	if (ctx) {
-		const chart = new Chart(ctx, {
-			type: "line",
-			data: { datasets },
-			options: createChartOptions(config),
-		});
-		newRegistry.set(canvasId, chart);
-
-		// Trigger an immediate update to fix initial rendering artifacts
-		// This ensures the chart renders correctly with the same path as toggle updates
-		chart.update("none");
-	}
-
-	return newRegistry;
-}
-
-export function destroyAll(registry: ChartRegistry): ChartRegistry {
-	registry.forEach(chart => chart.destroy());
-	return new Map();
-}
+export type { ChartRegistry, ChartStyleConfig, ChartDataset } from "./chartjs";
+export { updateChart, destroyAll } from "./chartjs";
 
 export function updateAccelCharts(
 	registry: ChartRegistry,
@@ -708,7 +465,7 @@ function createPositionVelocityChart(
 				},
 			},
 		},
-	}) as Chart;
+	});
 }
 
 function createPositionVelocityFlipBurnChart(
@@ -819,7 +576,7 @@ function createPositionVelocityFlipBurnChart(
 				},
 			},
 		},
-	}) as Chart;
+	});
 }
 
 function createSpacetimeChart(
@@ -902,7 +659,7 @@ function createSpacetimeChart(
 				},
 			},
 		},
-	}) as Chart;
+	});
 }
 
 export function updateTwinParadoxCharts(
