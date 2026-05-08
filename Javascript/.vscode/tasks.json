@@ -4,7 +4,7 @@
         {
             "label": "lint",
             "type": "shell",
-            "command": "yarn lint",
+            "command": "pnpm lint",
             "group": "build",
             "presentation": {
                 "reveal": "always"
@@ -14,7 +14,7 @@
         {
             "label": "start-vite",
             "type": "shell",
-            "command": "yarn dev",
+            "command": "pnpm dev",
             "isBackground": true,
             "problemMatcher": [
                 {
@@ -47,7 +47,7 @@
         {
             "label": "build-prod",
             "type": "shell",
-            "command": "yarn build",
+            "command": "pnpm build",
             "group": {
                 "kind": "build",
                 "isDefault": true

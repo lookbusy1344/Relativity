@@ -6,44 +6,44 @@ This is a TypeScript-based special relativity calculator with a web interface. T
 
 ```bash
 # Install dependencies
-yarn
+pnpm install
 
 # Start development server
-yarn dev
+pnpm dev
 
 # Build for production
-yarn build
+pnpm build
 
 # Type checking only
-yarn type-check
+pnpm type-check
 
 # Lint code
-yarn lint
+pnpm lint
 
 # Format code
-yarn format
+pnpm format
 
 # Check code formatting
-yarn format:check
+pnpm format:check
 
 # Run tests (watch mode)
-yarn test
+pnpm test
 
 # Run tests with UI
-yarn test:ui
+pnpm test:ui
 
 # Run tests once (for CI)
-yarn test:run
+pnpm test:run
 
 # Run a targeted subset of tests by name pattern (much faster than full suite)
-yarn vitest run -t "pattern"
-yarn vitest run src/ui/eventHandlers.test.ts -t "pattern"
+pnpm vitest run -t "pattern"
+pnpm vitest run src/ui/eventHandlers.test.ts -t "pattern"
 
-# Update Yarn
-yarn set version stable
+# Update pnpm
+corepack prepare pnpm@latest --activate
 
 # Update dependencies interactively
-yarn upgrade-interactive
+pnpm update --interactive --latest
 ```
 
 ## Architecture
@@ -130,7 +130,7 @@ See `docs/MCP_UI_DEBUGGING.md` for comprehensive documentation on available tool
 
 ### Testing Requirements
 
-**IMPORTANT**: After making ANY changes to the codebase, always run the test suite to ensure correctness: `yarn test:run`
+**IMPORTANT**: After making ANY changes to the codebase, always run the test suite to ensure correctness: `pnpm test:run`
 
 - All core physics functions have comprehensive unit tests
 - Tests verify precision handling, edge cases, and mathematical correctness
@@ -140,8 +140,8 @@ See `docs/MCP_UI_DEBUGGING.md` for comprehensive documentation on available tool
 
 **IMPORTANT**: Always verify the project builds and type-checks successfully before committing changes.
 
-- Run `yarn type-check` to ensure TypeScript compilation succeeds
-- Run `yarn build` to verify the production build completes without errors
+- Run `pnpm type-check` to ensure TypeScript compilation succeeds
+- Run `pnpm build` to verify the production build completes without errors
 - Both commands must pass before considering work complete
 - These checks catch issues early and ensure the codebase remains buildable
 
@@ -149,8 +149,8 @@ See `docs/MCP_UI_DEBUGGING.md` for comprehensive documentation on available tool
 
 **IMPORTANT**: Maintain consistent code formatting across the codebase using Prettier.
 
-- Run `yarn format:check` to verify all files conform to the formatting rules
-- Run `yarn format` to automatically format all source files
+- Run `pnpm format:check` to verify all files conform to the formatting rules
+- Run `pnpm format` to automatically format all source files
 - Format checking should be performed alongside type checking and testing before committing changes
 - Configuration is in `.prettierrc.json` (tabs, semicolons, 100-char line width)
 - Files excluded via `.prettierignore` (node_modules, dist, build artifacts)
@@ -159,8 +159,8 @@ See `docs/MCP_UI_DEBUGGING.md` for comprehensive documentation on available tool
 
 **IMPORTANT**: Run ESLint to catch type safety issues and enforce coding standards.
 
-- Run `yarn lint` to check for linting errors
-- Run `yarn lint --fix` to automatically fix auto-fixable issues
+- Run `pnpm lint` to check for linting errors
+- Run `pnpm lint --fix` to automatically fix auto-fixable issues
 - All linting errors must be resolved before committing changes
 - ESLint enforces the `no-explicit-any` rule, aligning with the project's TypeScript coding standards
 - ESLint uses caching (`.eslintcache`) to speed up subsequent runs by skipping unchanged files
@@ -170,15 +170,15 @@ See `docs/MCP_UI_DEBUGGING.md` for comprehensive documentation on available tool
 Always run format and lint to fix issues before committing, then verify:
 
 ```bash
-yarn format        # auto-format all source files
-yarn lint --fix    # auto-fix linting issues
+pnpm format        # auto-format all source files
+pnpm lint --fix    # auto-fix linting issues
 ```
 
-1. `yarn test:run` - Verify all tests pass
-2. `yarn type-check` - Verify TypeScript compilation succeeds
-3. `yarn format:check` - Verify code formatting is consistent
-4. `yarn lint` - Verify no linting errors
-5. `yarn build` - Verify production build completes
+1. `pnpm test:run` - Verify all tests pass
+2. `pnpm type-check` - Verify TypeScript compilation succeeds
+3. `pnpm format:check` - Verify code formatting is consistent
+4. `pnpm lint` - Verify no linting errors
+5. `pnpm build` - Verify production build completes
 
 ### Precision Handling Policy
 
