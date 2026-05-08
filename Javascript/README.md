@@ -123,39 +123,40 @@ Milky Way star estimation for astronomical mass context:
 ## Installation
 
 ```bash
-# Install dependencies
-yarn
+# Install pnpm via corepack (one-time)
+corepack enable
+corepack prepare pnpm@latest --activate
 
-# Update Yarn (if needed)
-yarn set version stable
+# Install dependencies
+pnpm install
 ```
 
 ## Development
 
 ```bash
 # Start development server (http://localhost:5173)
-yarn dev
+pnpm dev
 
 # Build for production
-yarn build
+pnpm build
 
 # Type checking only
-yarn type-check
+pnpm type-check
 
 # Lint code
-yarn lint
+pnpm lint
 
 # Run tests (watch mode)
-yarn test
+pnpm test
 
 # Run tests with UI
-yarn test:ui
+pnpm test:ui
 
 # Run tests once (for CI)
-yarn test:run
+pnpm test:run
 
 # Update dependencies interactively
-yarn upgrade-interactive
+pnpm update --interactive --latest
 ```
 
 ## Debugging in WebStorm
@@ -220,7 +221,7 @@ Comprehensive test coverage for physics calculations and UI components:
 - **Unit Tests:** Core physics functions in `relativity_lib.ts` and galactic calculations in `extra_lib.ts`
 - **Test Framework:** Vitest with watch mode and UI
 - **Coverage:** Lorentz factors, velocity addition, rapidity conversions, precision handling, galactic star estimation
-- **Run Tests:** `yarn test` (watch mode), `yarn test:ui` (with UI), `yarn test:run` (CI mode)
+- **Run Tests:** `pnpm test` (watch mode), `pnpm test:ui` (with UI), `pnpm test:run` (CI mode)
 
 ## Development Notes
 

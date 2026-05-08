@@ -266,7 +266,7 @@ export function formatCoordinate(value: Decimal): string {
 | I-2   | `simultaneity.ts:63`       | Extract magic number to named constant |
 | M-1   | `minkowski-types.ts:41-42` | Remove deprecated alias                |
 
-**Verification:** `yarn test:run && yarn type-check`
+**Verification:** `pnpm test:run && pnpm type-check`
 
 ---
 
@@ -279,7 +279,7 @@ export function formatCoordinate(value: Decimal): string {
 | ~~I-4~~ | `dataGeneration.ts`, `eventHandlers.ts` | Standardize on `.toNumber()`        | ✅ Done |
 | I-1     | `minkowski.ts:1026`                     | Remove unused `_onUpdate` parameter | Pending |
 
-**Verification:** `yarn test:run && yarn type-check && yarn build`
+**Verification:** `pnpm test:run && pnpm type-check && pnpm build`
 
 ---
 
@@ -327,7 +327,7 @@ export function formatCoordinate(value: Decimal): string {
 - [ ] Fix redundant conditional in formatCoordinate
 - [ ] Extract SCALE_PADDING_FACTOR constant
 - [ ] Remove deprecated MinkowskiController alias
-- [ ] Run verification: `yarn test:run && yarn type-check`
+- [ ] Run verification: `pnpm test:run && pnpm type-check`
 
 ### Stage 2: Code Consistency
 
@@ -335,7 +335,7 @@ export function formatCoordinate(value: Decimal): string {
 - [x] Replace with .toNumber() consistently (2025-12-30)
 - [x] Document precision policy in CLAUDE.md (2025-12-30)
 - [ ] Remove unused \_onUpdate parameter
-- [ ] Run verification: `yarn test:run && yarn type-check && yarn build`
+- [ ] Run verification: `pnpm test:run && pnpm type-check && pnpm build`
 
 ### Stage 3: Type Safety
 

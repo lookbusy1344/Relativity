@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "yarn type-check && vite build",
+		"build": "tsc --noEmit && vite build",
 		"preview": "vite preview",
 		"type-check": "tsc --noEmit",
 		"lint": "eslint --cache . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -46,8 +46,13 @@
 		"vite": "^8.0.10",
 		"vitest": "^4.1.5"
 	},
-	"resolutions": {
-		"glob": "^11.1.0"
+	"pnpm": {
+		"overrides": {
+			"glob": "^11.1.0"
+		},
+		"onlyBuiltDependencies": [
+			"esbuild"
+		]
 	},
-	"packageManager": "yarn@4.14.1"
+	"packageManager": "pnpm@11.0.8"
 }

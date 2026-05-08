@@ -465,7 +465,7 @@ Timeline of discoveries:
 
 ### Security & Reliability
 - Content Security Policy
-- Dependency audits: `yarn audit`
+- Dependency audits: `pnpm audit`
 - Input sanitization
 - Vendor dependencies: reduce CDN reliance
 
