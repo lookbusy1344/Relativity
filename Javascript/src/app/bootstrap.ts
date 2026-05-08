@@ -1,5 +1,4 @@
 import { Chart, registerables } from "chart.js";
-import { getInputElement, getButtonElement, getResultElement } from "../ui/domUtils";
 import "../bootstrap-types";
 import {
 	createLorentzHandler,
@@ -19,18 +18,9 @@ import {
 	createPositionVelocitySliderHandler,
 	initializePositionVelocitySlider,
 } from "../ui/eventHandlers";
-import { type ChartRegistry } from "../charts/charts";
-import {
-	drawMinkowskiDiagramD3,
-	type MinkowskiData,
-	type MinkowskiDiagramController,
-} from "../charts/minkowski";
-import {
-	drawTwinParadoxMinkowski,
-	type TwinParadoxMinkowskiData,
-	type TwinParadoxController,
-} from "../charts/minkowski-twins";
-import { createSimultaneityDiagram, type SimultaneityController } from "../charts/simultaneity";
+import { drawMinkowskiDiagramD3 } from "../charts/minkowski";
+import { drawTwinParadoxMinkowski } from "../charts/minkowski-twins";
+import { createSimultaneityDiagram } from "../charts/simultaneity";
 import {
 	initializeFromURL,
 	setupURLSync,
@@ -38,51 +28,24 @@ import {
 	applyPendingSliderValue,
 	applyPendingDistanceSliderValue,
 } from "../urlState";
+import { getButtonElement, getInputElement, getResultElement } from "./domAccessors";
+import { createAppState, createTrackedEventListenerRegistry } from "./state";
 
 // Register Chart.js components
 Chart.register(...registerables);
 
 export function bootstrapApp(): void {
-	const chartRegistry: { current: ChartRegistry } = { current: new Map() };
+	const { chartRegistry, minkowskiState, twinsMinkowskiState, simultaneityState } =
+		createAppState();
+	const eventListenerRegistry = createTrackedEventListenerRegistry();
+	const { entries: eventHandlers } = eventListenerRegistry;
 
-	// Store Minkowski diagram controller and data for updates
-	const minkowskiState: {
-		lastData: MinkowskiData | null;
-		controller: MinkowskiDiagramController | null;
-	} = {
-		lastData: null,
-		controller: null,
-	};
-
-	// Store Twin Paradox Minkowski diagram controller and data for updates
-	const twinsMinkowskiState: {
-		lastData: TwinParadoxMinkowskiData | null;
-		controller: TwinParadoxController | null;
-	} = {
-		lastData: null,
-		controller: null,
-	};
-
-	// Store Simultaneity diagram controller
-	const simultaneityState: {
-		controller: SimultaneityController | null;
-	} = {
-		controller: null,
-	};
-
-	// Store event handlers for cleanup
-	type EventHandler = EventListener | EventListenerObject;
-	const eventHandlers: Array<{ element: Element | Window; event: string; handler: EventHandler }> =
-		[];
 	const addEventListener = (
 		element: Element | Window | null,
 		event: string,
-		handler: EventHandler
+		handler: EventListener | EventListenerObject
 	) => {
-		if (element) {
-			element.addEventListener(event, handler);
-			eventHandlers.push({ element, event, handler });
-		}
+		eventListenerRegistry.addEventListener(element, event, handler);
 	};
 
 	// Help button handlers - initialize Bootstrap modals
