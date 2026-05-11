@@ -39,8 +39,8 @@ pnpm test:run
 pnpm vitest run -t "pattern"
 pnpm vitest run src/ui/eventHandlers.test.ts -t "pattern"
 
-# Update pnpm
-corepack prepare pnpm@latest --activate
+# Update pnpm (installed via Homebrew)
+brew upgrade pnpm
 
 # Update dependencies interactively
 pnpm update --interactive --latest
