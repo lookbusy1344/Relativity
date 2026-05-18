@@ -78,3 +78,5 @@ Both paths implement the same relativistic formulas but with different precision
 - Immutable record structs for value types like `FractionOfC` and `LorentzFactor`
 - Extension methods in static classes for utility functions
 - Defensive programming with velocity validation (must be < c)
+
+- **IMPORTANT (all dotnet projects)** Every `dotnet` Bash call (build, test, format, run, restore) must use `dangerouslyDisableSandbox: true`. The Claude Code sandbox blocks `dotnet` even when it appears in `excludedCommands`. Root cause: dotnet + MSBuild use Unix-domain sockets for diagnostic IPC and worker-node communication (`/var/folders/.../dotnet-diagnostic-<pid>-*-socket`, `/private/tmp/MSBuild<pid>`). Sandbox profiles that deny `network-inbound` also block Unix-socket binds, and MSBuild swallows the EPERM into a silent generic build failure with no diagnostic. The same root cause affects opencode Seatbelt profiles — the fix there is to scope `network-inbound` deny to `(remote ip)` only and explicitly allow `(local unix-socket)`.
