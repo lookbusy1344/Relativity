@@ -46,13 +46,5 @@
 		"vite": "^8.0.11",
 		"vitest": "^4.1.5"
 	},
-	"pnpm": {
-		"overrides": {
-			"glob": "^11.1.0"
-		},
-		"onlyBuiltDependencies": [
-			"esbuild"
-		]
-	},
 	"packageManager": "pnpm@11.0.8"
 }
