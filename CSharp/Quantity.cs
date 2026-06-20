@@ -1,6 +1,6 @@
-using PeterO.Numbers;
-
 namespace Relativity.Quantity;
+
+using PeterO.Numbers;
 
 // This is not for full-features units of measure. Its just a way to prevent accidental assignment of quantities
 // of different types. It doesn't do any conversions, just stores the value in an EFloat
@@ -12,7 +12,7 @@ namespace Relativity.Quantity;
 #pragma warning disable CA1812, CA1852
 
 /// <summary>
-/// Typed quantity with a EFloat value
+///     Typed quantity with a EFloat value
 /// </summary>
 /// <typeparam name="T">Marker type for length, velocity, time etc. This prevents unintented assignments but doesn't do any conversions</typeparam>
 /// <param name="Value">EFloat for storing the quantity</param>
@@ -25,7 +25,7 @@ internal readonly record struct Quantity<T>(EFloat Value) where T : BaseQuantity
 	public Quantity(string value) : this(EFloat.FromString(value)) { }
 
 	/// <summary>
-	/// Get the contained EFloat. Its possible it will be null, so throw if it is
+	///     Get the contained EFloat. Its possible it will be null, so throw if it is
 	/// </summary>
 	public EFloat Get() => Value ?? throw new ArgumentNullException(nameof(Value));
 
@@ -38,41 +38,41 @@ internal readonly record struct Quantity<T>(EFloat Value) where T : BaseQuantity
 }
 
 /// <summary>
-/// Abstract class for quantity types
+///     Abstract class for quantity types
 /// </summary>
 internal abstract class BaseQuantity;
 
 /// <summary>
-/// Metres
+///     Metres
 /// </summary>
 internal class Length : BaseQuantity;
 
 /// <summary>
-/// Seconds
+///     Seconds
 /// </summary>
 internal class Time : BaseQuantity;
 
 /// <summary>
-/// Kilograms
+///     Kilograms
 /// </summary>
 internal class Mass : BaseQuantity;
 
 /// <summary>
-/// Metres per second
+///     Metres per second
 /// </summary>
 internal class Velocity : BaseQuantity;
 
 /// <summary>
-/// Metres per second squared
+///     Metres per second squared
 /// </summary>
 internal class Acceleration : BaseQuantity;
 
 /// <summary>
-/// Rapidity
+///     Rapidity
 /// </summary>
 internal class Rapidity : BaseQuantity;
 
 /// <summary>
-/// Lorentz factor
+///     Lorentz factor
 /// </summary>
 internal class LorentzFactor : BaseQuantity;

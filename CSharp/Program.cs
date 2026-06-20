@@ -2,7 +2,11 @@ namespace Relativity;
 
 using System.Runtime.CompilerServices;
 using PeterO.Numbers;
+using Quantity;
 using UnitsNet;
+using Acceleration = UnitsNet.Acceleration;
+using Length = Quantity.Length;
+using Mass = Quantity.Mass;
 
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
 
@@ -12,13 +16,13 @@ internal static class Program
 
 	private static void Main()
 	{
-		var metre = new Quantity.Quantity<Quantity.Length>(1);
-		var second = new Quantity.Quantity<Quantity.Time>("0.5");
-		var mass = new Quantity.Quantity<Quantity.Mass>(1.0);
+		var metre = new Quantity<Length>(1);
+		var second = new Quantity<Time>("0.5");
+		var mass = new Quantity<Mass>(1.0);
 
 		// implicit conversions
 		EFloat conversion1 = metre;
-		Quantity.Quantity<Quantity.Length> conversion2 = conversion1;
+		Quantity<Length> conversion2 = conversion1;
 		//metre = second;
 
 		Uom();
@@ -36,13 +40,13 @@ internal static class Program
 		var asFraction = new FractionOfC(finalVelocity);
 		var naiveAsFraction = new FractionOfC(naively, false);
 
-		var height = Length.FromMeters(1000);
+		var height = UnitsNet.Length.FromMeters(1000);
 		var (time, vel) = Tools.FallTimeAndVelocity(Tools.EarthMass, Tools.EarthRadius, height);
 		Console.WriteLine($"From {height.Meters}m, time: {time.Seconds}, vel: {vel.MetersPerSecond}");
-		height = Length.FromMeters(100);
+		height = UnitsNet.Length.FromMeters(100);
 		(time, vel) = Tools.FallTimeAndVelocity(Tools.EarthMass, Tools.EarthRadius, height);
 		Console.WriteLine($"From {height.Meters}m, time: {time.Seconds}, vel: {vel.MetersPerSecond}");
-		height = Length.FromMeters(20);
+		height = UnitsNet.Length.FromMeters(20);
 		(time, vel) = Tools.FallTimeAndVelocity(Tools.EarthMass, Tools.EarthRadius, height);
 		Console.WriteLine($"From {height.Meters}m, time: {time.Seconds}, vel: {vel.MetersPerSecond}");
 

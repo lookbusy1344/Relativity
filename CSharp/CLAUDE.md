@@ -10,22 +10,26 @@ The project demonstrates relativistic physics calculations including time dilati
 ## Development Commands
 
 ### Build
+
 ```bash
 dotnet build
 dotnet build --configuration Release
 ```
 
 ### Run
+
 ```bash
 dotnet run
 ```
 
 ### Clean
+
 ```bash
 dotnet clean
 ```
 
 ### Format
+
 ```bash
 dotnet format Relativity.sln
 ```
@@ -33,6 +37,7 @@ dotnet format Relativity.sln
 ## Workflow
 
 After making code changes, always run:
+
 ```bash
 dotnet format Relativity.sln
 ```
@@ -65,10 +70,12 @@ dotnet format Relativity.sln
 ### Architecture Patterns
 
 The codebase uses two parallel approaches:
+
 1. **Double-precision path**: Fast calculations using UnitsNet for typical use cases
 2. **Arbitrary precision path**: EFloat-based calculations for extreme precision requirements
 
-Both paths implement the same relativistic formulas but with different precision characteristics. The BigFloat wrapper simplifies EFloat usage by automatically handling context propagation.
+Both paths implement the same relativistic formulas but with different precision characteristics. The BigFloat wrapper simplifies EFloat usage by
+automatically handling context propagation.
 
 ## Code Conventions
 
@@ -79,4 +86,6 @@ Both paths implement the same relativistic formulas but with different precision
 - Extension methods in static classes for utility functions
 - Defensive programming with velocity validation (must be < c)
 
-- **IMPORTANT** Every `dotnet` Bash call must set `dangerouslyDisableSandbox: true` (build, test, format, run, restore, publish, and any `gtimeout`-wrapped variants). The Claude Code sandbox blocks `dotnet` even when listed in `excludedCommands`: MSBuild's Unix-domain sockets for diagnostic IPC and worker-node communication fail under `network-inbound` deny, and the EPERM surfaces as a silent generic build failure.
+- **IMPORTANT** Every `dotnet` Bash call must set `dangerouslyDisableSandbox: true` (build, test, format, run, restore, publish, and any `gtimeout`
+  -wrapped variants). The Claude Code sandbox blocks `dotnet` even when listed in `excludedCommands`: MSBuild's Unix-domain sockets for diagnostic IPC
+  and worker-node communication fail under `network-inbound` deny, and the EPERM surfaces as a silent generic build failure.

@@ -3,14 +3,14 @@ namespace Relativity;
 using PeterO.Numbers;
 
 /// <summary>
-/// EFloat hyperbolic trigonometry functions
+///     EFloat hyperbolic trigonometry functions
 /// </summary>
 internal static class HyperbolicTrig
 {
 	private static readonly EFloat Two = EFloat.FromInt32(2);
 
 	/// <summary>
-	/// Calculates the hyperbolic cosine of an EFloat value.
+	///     Calculates the hyperbolic cosine of an EFloat value.
 	/// </summary>
 	public static EFloat Cosh(this EFloat value, EContext ctx)
 	{
@@ -21,7 +21,7 @@ internal static class HyperbolicTrig
 	}
 
 	/// <summary>
-	/// Calculates the hyperbolic sine of an EFloat value.
+	///     Calculates the hyperbolic sine of an EFloat value.
 	/// </summary>
 	public static EFloat Sinh(this EFloat value, EContext ctx)
 	{
@@ -32,7 +32,7 @@ internal static class HyperbolicTrig
 	}
 
 	/// <summary>
-	/// Calculates the hyperbolic tangent of an EFloat value.
+	///     Calculates the hyperbolic tangent of an EFloat value.
 	/// </summary>
 	public static EFloat Tanh(this EFloat value, EContext ctx)
 	{
@@ -45,7 +45,7 @@ internal static class HyperbolicTrig
 	}
 
 	/// <summary>
-	/// Calculates the inverse hyperbolic cosine of an EFloat value.
+	///     Calculates the inverse hyperbolic cosine of an EFloat value.
 	/// </summary>
 	public static EFloat Acosh(this EFloat value, EContext ctx)
 	{
@@ -61,7 +61,7 @@ internal static class HyperbolicTrig
 	}
 
 	/// <summary>
-	/// Calculates the inverse hyperbolic sine of an EFloat value.
+	///     Calculates the inverse hyperbolic sine of an EFloat value.
 	/// </summary>
 	public static EFloat Asinh(this EFloat value, EContext ctx)
 	{
@@ -73,7 +73,7 @@ internal static class HyperbolicTrig
 	}
 
 	/// <summary>
-	/// Calculates the inverse hyperbolic tangent of an EFloat value.
+	///     Calculates the inverse hyperbolic tangent of an EFloat value.
 	/// </summary>
 	public static EFloat Atanh(this EFloat value, EContext ctx)
 	{

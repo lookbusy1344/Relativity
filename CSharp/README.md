@@ -1,6 +1,7 @@
 # Special Relativity with C#
 
-This project contains both a strongly typed units of measure library (equivalent to the `rust_uom` library) and a library for arbitrary precision calculations (equivalent to the Python library or `rust_astrofloat`).
+This project contains both a strongly typed units of measure library (equivalent to the `rust_uom` library) and a library for arbitrary precision
+calculations (equivalent to the Python library or `rust_astrofloat`).
 
 The units of measure library is here:
 
@@ -85,7 +86,8 @@ private static BigFloat B(EFloat f) => BigFloat.FromEFloat(f);
 
 ## BigFloat helper (EFloat + EContext)
 
-`BigFloat` is a wrapper around `EFloat` that simplifies context handling and lets us write more attractive code. Normally you need to supply a context to every operation, but BigFloat does this for you.
+`BigFloat` is a wrapper around `EFloat` that simplifies context handling and lets us write more attractive code. Normally you need to supply a context
+to every operation, but BigFloat does this for you.
 
 ```csharp
 // Setup

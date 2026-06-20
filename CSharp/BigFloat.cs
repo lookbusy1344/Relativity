@@ -1,6 +1,6 @@
 namespace Relativity;
 
-using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using PeterO.Numbers;
 
@@ -19,31 +19,32 @@ using PeterO.Numbers;
 // BigFloat here represents a single value, is immutable and is 2 references (16 bytes on 64 bit systems)
 #pragma warning disable CA2225 // Operator overloads have named alternates
 
-[System.Diagnostics.DebuggerDisplay("{ToDebugString(),nq}")]
+[DebuggerDisplay("{ToDebugString(),nq}")]
 public readonly struct BigFloat(EFloat value, EContext? context)
 	: IEquatable<BigFloat>, IComparable<BigFloat>, IComparable
 {
 	/// <summary>
-	/// The EFloat value of this instance.
-	/// Implemented this way, there is a backing field so the null check only happens once. This is what we want, in case BigFloat is zero-initialised (eg an BigFloat[])
+	///     The EFloat value of this instance.
+	///     Implemented this way, there is a backing field so the null check only happens once. This is what we want, in case BigFloat is zero-initialised
+	///     (eg an BigFloat[])
 	/// </summary>
 	public readonly EFloat Value { get; } = value ?? throw new ArgumentNullException(nameof(value));
 
 	/// <summary>
-	/// Context for this BigFloat instance, if null, use the default context.
-	/// Implemented this way, there is no backing field so any changes to DefaultContext are immediately reflected
+	///     Context for this BigFloat instance, if null, use the default context.
+	///     Implemented this way, there is no backing field so any changes to DefaultContext are immediately reflected
 	/// </summary>
 	public readonly EContext Context => context ?? DefaultContext;
 
 	/// <summary>
-	/// Changing this immediately affects all instances without an explicit context.
+	///     Changing this immediately affects all instances without an explicit context.
 	/// </summary>
 	public static EContext DefaultContext { get; set; } = EContext.UnlimitedHalfEven;
 
 	public override readonly string ToString() => Value.ToString();
 
 	/// <summary>
-	/// Debug string, highlighting any use of the default context, which may be unexpected.
+	///     Debug string, highlighting any use of the default context, which may be unexpected.
 	/// </summary>
 	public readonly string ToDebugString() => Context == null ? $"default-{Value}" : Value.ToString();
 
@@ -78,7 +79,7 @@ public readonly struct BigFloat(EFloat value, EContext? context)
 	//public static BigFloat FromEFloat(EFloat value) => new(value, null);
 
 	/// <summary>
-	/// Factory method from EFloat and explicit context
+	///     Factory method from EFloat and explicit context
 	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static BigFloat Build(EFloat value, EContext context) => new(value, context);
@@ -140,50 +141,50 @@ public readonly struct BigFloat(EFloat value, EContext? context)
 	);
 
 	/// <summary>
-	/// Negate an BigFloat instance.
+	///     Negate an BigFloat instance.
 	/// </summary>
 	public static BigFloat operator -(BigFloat item) => Negate(item);
 
 	/// <summary>
-	/// Modulus of two BigFloat instances using the context of the left operand.
+	///     Modulus of two BigFloat instances using the context of the left operand.
 	/// </summary>
 	public static BigFloat operator %(BigFloat left, BigFloat right) => Mod(left, right.Value);
 
 	/// <summary>
-	/// Modulus of BigFloat and EFloat using the context of the left operand.
+	///     Modulus of BigFloat and EFloat using the context of the left operand.
 	/// </summary>
 	public static BigFloat operator %(BigFloat left, EFloat right) => Mod(left, right);
 
 	/// <summary>
-	/// Raise this BigFloat instance to the power of another BigFloat instance.
+	///     Raise this BigFloat instance to the power of another BigFloat instance.
 	/// </summary>
 	public readonly BigFloat Pow(int power) => new(Value.Pow(power, Context), Context);
 
 	/// <summary>
-	/// Raise this BigFloat instance to the power of another BigFloat instance.
+	///     Raise this BigFloat instance to the power of another BigFloat instance.
 	/// </summary>
 	public readonly BigFloat Pow(EFloat power) => new(Value.Pow(power, Context), Context);
 
 	/// <summary>
-	/// Square root of this BigFloat instance.
+	///     Square root of this BigFloat instance.
 	/// </summary>
 	/// <returns></returns>
 	public readonly BigFloat Sqrt() => new(Value.Sqrt(Context), Context);
 
 	/// <summary>
-	/// Absolute value of this BigFloat instance.
+	///     Absolute value of this BigFloat instance.
 	/// </summary>
 	/// <returns></returns>
 	public readonly BigFloat Abs() => new(Value.Abs(Context), Context);
 
 	/// <summary>
-	/// Negate an BigFloat instance
+	///     Negate an BigFloat instance
 	/// </summary>
 	public static BigFloat Negate(BigFloat item) =>
 		new(item.Value.Negate(item.Context), item.Context);
 
 	/// <summary>
-	/// Modulus of two BigFloat instances using the context of the left operand
+	///     Modulus of two BigFloat instances using the context of the left operand
 	/// </summary>
 	public static BigFloat Mod(BigFloat left, EFloat right) =>
 		new(left.Value.Remainder(right, left.Context), left.Context);
