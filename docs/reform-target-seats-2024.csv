@@ -1,0 +1,545 @@
+rank,constituency,nation,reform_position,winning_party,winner_minus_reform_votes,winner_minus_reform_pct,reform_vote_share_pct
+1,Sittingbourne and Sheppey,England,3,Labour,1407,3.43,25.64
+2,Basildon and Billericay,England,3,Conservative,1551,3.68,26.95
+3,Llanelli,Wales,2,Labour,1504,3.69,27.60
+4,Hornchurch and Upminster,England,2,Conservative,1943,4.14,28.39
+5,South West Norfolk,England,3,Labour,1889,4.26,22.46
+6,Havant,England,3,Conservative,3027,7.18,23.61
+7,Dudley,England,3,Labour,2773,7.75,26.38
+8,Castle Point,England,2,Conservative,3251,8.00,30.11
+9,Amber Valley,England,2,Labour,3554,8.36,28.67
+10,Bridgwater,England,3,Conservative,3368,8.39,22.21
+11,Montgomeryshire and Glyndŵr,Wales,2,Labour,3815,8.82,20.56
+12,Chatham and Aylesford,England,3,Labour,3700,9.06,24.46
+13,Cannock Chase,England,3,Labour,4101,9.55,26.94
+14,Isle of Wight East,England,2,Conservative,3323,9.75,20.85
+15,North Warwickshire and Bedworth,England,3,Labour,4026,9.83,26.14
+16,Lowestoft,England,3,Labour,4136,9.89,24.69
+17,Tamworth,England,3,Labour,4334,9.90,25.13
+18,Folkestone and Hythe,England,3,Labour,4335,10.02,24.71
+19,Maidstone and Malling,England,3,Conservative,4830,10.41,20.08
+20,Bridlington and The Wolds,England,3,Conservative,4496,10.47,24.11
+21,Faversham and Mid Kent,England,3,Conservative,4932,10.59,21.21
+22,Wyre Forest,England,3,Conservative,4807,10.64,21.44
+23,Ashford,England,3,Labour,5121,10.90,21.59
+24,Bognor Regis and Littlehampton,England,3,Conservative,5416,11.32,21.46
+25,Rayleigh and Wickford,England,2,Conservative,5621,11.72,25.29
+26,Tipton and Wednesbury,England,3,Labour,3736,11.73,25.18
+27,Louth and Horncastle,England,2,Conservative,5506,11.85,25.68
+28,Staffordshire Moorlands,England,3,Conservative,5245,12.11,23.24
+29,Burnley,England,4,Labour,4843,12.19,19.52
+30,Birmingham Hodge Hill and Solihull North,England,3,Labour,4199,12.30,18.91
+31,Brentwood and Ongar,England,2,Conservative,5980,12.37,24.31
+32,Braintree,England,3,Conservative,6068,12.38,23.14
+33,Spelthorne,England,4,Conservative,5754,12.46,17.94
+34,Brigg and Immingham,England,3,Conservative,5311,12.49,24.92
+35,Rochester and Strood,England,3,Labour,5437,12.76,23.40
+36,Hyndburn,England,3,Labour,4645,12.77,20.73
+37,The Wrekin,England,3,Conservative,6400,12.79,19.83
+38,South East Cornwall,England,3,Labour,6359,12.90,18.89
+39,Romford,England,3,Conservative,5715,12.97,21.85
+40,Stoke-on-Trent South,England,3,Labour,5370,13.12,21.62
+41,Great Grimsby and Cleethorpes,England,2,Labour,4803,13.12,28.76
+42,Kingston upon Hull East,England,2,Labour,3920,13.15,30.61
+43,Dartford,England,3,Labour,5869,13.19,21.41
+44,Bradford South,England,2,Labour,4392,13.29,22.52
+45,Makerfield,England,2,Labour,5399,13.41,31.80
+46,West Suffolk,England,3,Conservative,6191,13.41,20.85
+47,Bexleyheath and Crayford,England,3,Labour,5856,13.47,22.69
+48,Barnsley South,England,2,Labour,4748,13.53,33.21
+49,Torridge and Tavistock,England,4,Conservative,6897,13.57,18.01
+50,Herne Bay and Sandwich,England,3,Conservative,6641,13.60,21.71
+51,North West Cambridgeshire,England,3,Labour,6044,13.61,19.68
+52,Daventry,England,3,Conservative,7236,13.63,20.04
+53,Central Suffolk and North Ipswich,England,3,Conservative,6338,13.65,18.97
+54,Bromsgrove,England,3,Conservative,6949,13.79,19.01
+55,Maldon,England,2,Conservative,6906,13.86,25.02
+56,Newton Abbot,England,3,Liberal Democrat,6707,13.98,17.70
+57,Harwich and North Essex,England,3,Conservative,6716,13.98,20.41
+58,South Suffolk,England,3,Conservative,6830,14.00,18.96
+59,Walsall and Bloxwich,England,3,Labour,5221,14.04,19.61
+60,North Durham,England,2,Labour,5873,14.13,25.72
+61,Sleaford and North Hykeham,England,3,Conservative,6864,14.13,21.59
+62,Hereford and South Herefordshire,England,3,Conservative,6476,14.21,18.42
+63,Gainsborough,England,3,Conservative,6720,14.39,21.24
+64,Portsmouth North,England,3,Labour,5994,14.41,20.44
+65,St Austell and Newquay,England,3,Labour,6746,14.44,19.71
+66,Burton and Uttoxeter,England,3,Labour,6611,14.49,21.06
+67,Blackburn,England,4,,5674,14.59,12.46
+68,Aldridge-Brownhills,England,3,Conservative,5998,14.66,24.21
+69,North West Leicestershire,England,3,Labour,7193,14.81,19.93
+70,Redditch,England,3,Labour,6294,14.85,20.10
+71,Rotherham,England,2,Labour,5490,14.87,30.27
+72,Exmouth and Exeter East,England,4,Conservative,7643,14.89,13.81
+73,South Holland and The Deepings,England,2,Conservative,6856,14.93,23.09
+74,Nuneaton,England,3,Labour,6157,14.94,21.98
+75,Dunstable and Leighton Buzzard,England,3,Labour,6905,15.00,17.53
+76,Spen Valley,England,2,Labour,6188,15.07,24.08
+77,Broadland and Fakenham,England,3,Conservative,7463,15.07,17.89
+78,Poole,England,3,Labour,6739,15.15,16.70
+79,Sunderland Central,England,2,Labour,6073,15.20,26.98
+80,Lichfield,England,3,Labour,7498,15.27,19.82
+81,South Dorset,England,3,Labour,7491,15.28,16.66
+82,"Brecon, Radnor and Cwm Tawe",Wales,4,Liberal Democrat,7169,15.40,14.11
+83,Sherwood Forest,England,3,Labour,7521,15.46,23.26
+84,Bolton North East,England,3,Labour,6738,15.54,21.74
+85,South Leicestershire,England,3,Conservative,8029,15.63,19.93
+86,Halifax,England,3,Labour,6324,15.73,19.42
+87,Rochdale,England,3,Labour,6254,15.76,17.07
+88,Old Bexley and Sidcup,England,3,Conservative,7526,15.80,21.80
+89,Harlow,England,3,Labour,6852,15.80,21.82
+90,Suffolk Coastal,England,3,Labour,7822,15.82,15.87
+91,Oldham East and Saddleworth,England,2,Labour,6357,15.87,19.30
+92,Dover and Deal,England,2,Labour,7585,15.88,23.77
+93,Fylde,England,3,Conservative,7622,15.89,17.30
+94,Stoke-on-Trent North,England,3,Labour,5755,15.92,24.41
+95,Sussex Weald,England,3,Conservative,7838,15.94,18.14
+96,Grantham and Bourne,England,3,Conservative,7377,15.99,20.36
+97,Mid Norfolk,England,3,Conservative,7343,16.00,20.54
+98,Bury St Edmunds and Stowmarket,England,3,Labour,8150,16.01,16.89
+99,Derby South,England,2,Labour,6002,16.05,22.73
+100,Mansfield,England,3,Labour,6663,16.22,22.84
+101,Beverley and Holderness,England,3,Conservative,7303,16.27,18.26
+102,Blackpool North and Fleetwood,England,3,Labour,6831,16.34,23.71
+103,Broxbourne,England,3,Conservative,7028,16.36,20.45
+104,South Shropshire,England,3,Conservative,8457,16.37,17.76
+105,South West Devon,England,3,Conservative,8555,16.38,17.92
+106,Heywood and Middleton North,England,2,Labour,6082,16.38,24.20
+107,Gillingham and Rainham,England,3,Labour,6770,16.46,21.37
+108,Neath and Swansea East,Wales,2,Labour,6627,16.51,25.34
+109,Bromley and Biggin Hill,England,3,Conservative,7726,16.51,17.53
+110,"Oldham West, Chadderton and Royton",England,3,Labour,6384,16.55,17.75
+111,North West Norfolk,England,3,Conservative,7400,16.60,19.51
+112,Aylesbury,England,4,Labour,8335,16.69,13.51
+113,Bracknell,England,3,Labour,7338,16.74,16.98
+114,Mid Bedfordshire,England,3,Conservative,8318,16.76,17.32
+115,South West Wiltshire,England,3,Conservative,7777,16.85,16.98
+116,Christchurch,England,3,Conservative,7980,16.86,18.93
+117,Fareham and Waterlooville,England,4,Conservative,8477,16.91,18.12
+118,Central Devon,England,4,Conservative,9047,16.93,14.57
+119,Halesowen,England,3,Labour,6539,16.95,21.99
+120,Doncaster East and the Isle of Axholme,England,3,Labour,6635,16.96,21.69
+121,Forest of Dean,England,3,Labour,8179,17.01,17.04
+122,Pendle and Clitheroe,England,3,Labour,7958,17.02,17.48
+123,Hinckley and Bosworth,England,3,Conservative,8215,17.19,18.45
+124,Birmingham Yardley,England,3,Labour,6214,17.19,14.00
+125,Thurrock,England,2,Labour,6474,17.24,25.50
+126,Bexhill and Battle,England,3,Conservative,8257,17.29,16.61
+127,Witham,England,3,Conservative,8957,17.70,19.50
+128,Caerphilly,Wales,3,Labour,6784,17.74,20.28
+129,Gravesham,England,3,Labour,7713,17.84,20.61
+130,Houghton and Sunderland South,England,2,Labour,7169,17.91,29.15
+131,Newcastle-under-Lyme,England,3,Labour,7127,17.99,22.38
+132,Sevenoaks,England,3,Conservative,8987,18.01,18.72
+133,Southend West and Leigh,England,3,Labour,8466,18.03,17.61
+134,South Shields,England,2,Labour,6653,18.07,23.00
+135,Stoke-on-Trent Central,England,2,Labour,6409,18.16,24.20
+136,Ossett and Denby Dale,England,3,Labour,8008,18.25,21.02
+137,Meriden and Solihull East,England,3,Conservative,8039,18.26,19.88
+138,Bolton South and Walkden,England,2,Labour,6743,18.26,22.61
+139,Kingswinford and South Staffordshire,England,3,Conservative,8271,18.31,21.97
+140,Scarborough and Whitby,England,3,Labour,8101,18.32,21.84
+141,Normanton and Hemsworth,England,2,Labour,6662,18.33,29.20
+142,Mid Leicestershire,England,3,Conservative,8812,18.34,18.57
+143,North East Cambridgeshire,England,2,Conservative,7189,18.35,23.12
+144,"Pontefract, Castleford and Knottingley",England,2,Labour,6630,18.44,29.09
+145,Dagenham and Rainham,England,2,Labour,7173,18.46,24.18
+146,East Surrey,England,4,Conservative,9122,18.54,17.03
+147,Ribble Valley,England,3,Labour,9653,18.56,16.39
+148,Mid and South Pembrokeshire,Wales,3,Labour,8677,18.61,16.79
+149,Plymouth Moor View,England,3,Labour,7995,18.66,22.56
+150,Melton and Syston,England,3,Conservative,8581,18.66,19.45
+151,Washington and Gateshead South,England,2,Labour,6913,18.67,29.09
+152,Birmingham Northfield,England,3,Labour,7034,18.68,20.97
+153,Orpington,England,3,Conservative,8608,18.68,19.31
+154,Clwyd North,Wales,3,Labour,7794,18.72,16.82
+155,Bishop Auckland,England,3,Labour,7570,18.73,23.42
+156,Stourbridge,England,3,Labour,7469,18.73,19.73
+157,Erewash,England,3,Labour,8062,18.75,21.30
+158,Scunthorpe,England,3,Labour,7321,18.75,20.90
+159,Caerfyrddin,Wales,4,Plaid Cymru,8576,18.81,15.23
+160,Wellingborough and Rushden,England,3,Labour,8278,18.82,21.50
+161,North East Hertfordshire,England,3,Labour,9896,18.84,16.11
+162,Mid Derbyshire,England,3,Labour,8990,18.91,17.58
+163,Kettering,England,3,Labour,9541,18.99,16.86
+164,East Wiltshire,England,4,Conservative,8964,18.99,16.71
+165,Bangor Aberconwy,Wales,4,Labour,7917,19.00,14.62
+166,Bolsover,England,3,Labour,8066,19.01,21.52
+167,South Northamptonshire,England,3,Conservative,10229,19.05,16.69
+168,Easington,England,2,Labour,6542,19.06,29.81
+169,New Forest West,England,4,Conservative,8835,19.07,16.35
+170,South Derbyshire,England,3,Labour,8755,19.14,19.63
+171,Ashton-under-Lyne,England,2,Labour,6791,19.15,24.77
+172,Rossendale and Darwen,England,3,Labour,8552,19.17,21.73
+173,Peterborough,England,3,Labour,8039,19.20,12.85
+174,Carlisle,England,3,Labour,8834,19.21,20.22
+175,Skipton and Ripon,England,3,Conservative,10317,19.30,15.93
+176,Bassetlaw,England,3,Labour,8725,19.44,21.73
+177,Blackpool South,England,2,Labour,6848,19.47,28.62
+178,Solihull West and Shirley,England,4,Conservative,9135,19.49,15.25
+179,Derbyshire Dales,England,3,Labour,10031,19.56,15.07
+180,Bournemouth West,England,3,Labour,7718,19.58,16.86
+181,Huntingdon,England,3,Conservative,10218,19.63,15.45
+182,South Norfolk,England,3,Labour,9770,19.71,15.29
+183,Weald of Kent,England,3,Conservative,9994,19.71,20.13
+184,Wolverhampton North East,England,3,Labour,6561,19.71,23.19
+185,Crawley,England,3,Labour,9006,19.73,18.51
+186,North West Hampshire,England,3,Conservative,10036,19.75,15.22
+187,Northampton South,England,3,Labour,8680,19.77,18.70
+188,East Thanet,England,3,Labour,8463,19.81,20.11
+189,Bolton West,England,3,Labour,8846,19.83,19.10
+190,Telford,England,2,Labour,8102,19.89,24.82
+191,Goole and Pocklington,England,3,Conservative,9927,19.96,18.20
+192,South West Hertfordshire,England,4,Conservative,9668,20.04,14.07
+193,Rother Valley,England,3,Labour,8344,20.05,18.46
+194,Gloucester,England,3,Labour,9165,20.06,15.99
+195,Dumfries and Galloway,Scotland,4,Conservative,9214,20.13,9.42
+196,Weston-super-Mare,England,3,Labour,8575,20.23,18.25
+197,Alyn and Deeside,Wales,2,Labour,8794,20.27,22.13
+198,Rawmarsh and Conisbrough,England,2,Labour,6908,20.38,28.62
+199,Ely and East Cambridgeshire,England,4,Liberal Democrat,10684,20.40,12.30
+200,Torfaen,Wales,2,Labour,7322,20.51,22.00
+201,Birmingham Erdington,England,2,Labour,7019,20.56,22.72
+202,Southend East and Rochford,England,3,Labour,8181,20.63,18.19
+203,Aberdeenshire North and Moray East,Scotland,3,Scottish National Party,7893,20.67,14.56
+204,Preston,England,3,Labour,8268,20.67,14.35
+205,Hemel Hempstead,England,3,Labour,9155,20.76,17.43
+206,North Dorset,England,3,Conservative,10314,20.76,15.89
+207,Bridgend,Wales,2,Labour,8595,20.77,19.14
+208,North Northumberland,England,3,Labour,10167,20.82,15.74
+209,North East Derbyshire,England,3,Labour,9692,21.13,17.22
+210,Newport West and Islwyn,Wales,2,Labour,8868,21.14,20.36
+211,Merthyr Tydfil and Aberdare,Wales,2,Labour,7447,21.15,23.69
+212,Eastleigh,England,4,Liberal Democrat,9819,21.15,13.25
+213,Barnsley North,England,2,Labour,7811,21.17,29.27
+214,Droitwich and Evesham,England,3,Conservative,10519,21.20,19.06
+215,Congleton,England,3,Labour,10630,21.21,16.45
+216,Hamble Valley,England,4,Conservative,11455,21.21,15.21
+217,Stockton North,England,2,Labour,7939,21.23,24.57
+218,Thirsk and Malton,England,3,Conservative,10581,21.25,18.00
+219,Buckingham and Bletchley,England,3,Labour,10134,21.27,15.68
+220,Sutton Coldfield,England,3,Conservative,10289,21.29,16.99
+221,Pontypridd,Wales,2,Labour,8402,21.34,19.87
+222,North West Essex,England,3,Conservative,11692,21.50,14.10
+223,Reading West and Mid Berkshire,England,3,Labour,10013,21.51,13.45
+224,Stafford,England,3,Labour,9919,21.56,18.72
+225,Leigh and Atherton,England,2,Labour,8881,21.57,26.94
+226,New Forest East,England,3,Conservative,9766,21.59,16.90
+227,Isle of Wight West,England,3,Labour,7406,21.60,17.01
+228,Hartlepool,England,2,Labour,7698,21.68,24.54
+229,Frome and East Somerset,England,3,Liberal Democrat,10139,21.70,13.79
+230,West Worcestershire,England,4,Conservative,11881,21.73,14.45
+231,North Cotswolds,England,4,Conservative,10924,21.75,12.94
+232,Uxbridge and South Ruislip,England,3,Labour,9989,21.76,14.40
+233,Rhondda and Ogmore,Wales,2,Labour,7790,21.76,26.05
+234,Camborne and Redruth,England,3,Labour,10408,21.78,18.73
+235,Reigate,England,3,Conservative,11582,21.79,13.62
+236,Southport,England,3,Labour,9857,21.88,16.41
+237,Penistone and Stocksbridge,England,3,Labour,9713,22.09,21.51
+238,Wrexham,Wales,3,Labour,8921,22.10,17.13
+239,Redcar,England,3,Labour,8447,22.11,18.89
+240,Huddersfield,England,4,Labour,8905,22.17,15.43
+241,Newton Aycliffe and Spennymoor,England,2,Labour,8839,22.18,23.98
+242,Tiverton and Minehead,England,3,Liberal Democrat,10539,22.19,16.40
+243,Gosport,England,3,Conservative,9847,22.24,18.03
+244,Torbay,England,3,Liberal Democrat,10277,22.29,18.78
+245,North Bedfordshire,England,3,Conservative,11548,22.40,16.36
+246,Hazel Grove,England,4,Liberal Democrat,10373,22.55,15.12
+247,Ynys Môn,Wales,4,Plaid Cymru,7367,22.58,9.88
+248,Blyth and Ashington,England,2,Labour,9173,22.70,26.87
+249,Clwyd East,Wales,3,Labour,10858,22.71,15.95
+250,Stalybridge and Hyde,England,2,Labour,8539,22.93,20.89
+251,Warrington North,England,2,Labour,9190,22.95,23.83
+252,Wakefield and Rothwell,England,2,Labour,9346,22.99,20.73
+253,Luton South and South Bedfordshire,England,4,Labour,8834,23.02,12.40
+254,Darlington,England,3,Labour,9769,23.05,16.17
+255,Rugby,England,3,Labour,11308,23.08,16.78
+256,Hertford and Stortford,England,3,Labour,12483,23.11,15.41
+257,South Ribble,England,3,Labour,10845,23.21,19.25
+258,Broxtowe,England,3,Labour,11159,23.33,17.56
+259,Wigan,England,2,Labour,9549,23.35,24.09
+260,Newport East,Wales,2,Labour,9009,23.38,19.10
+261,Kenilworth and Southam,England,4,Conservative,12475,23.40,12.98
+262,Southampton Itchen,England,3,Labour,8929,23.46,18.01
+263,Stevenage,England,3,Labour,10031,23.48,17.95
+264,Swindon North,England,3,Labour,10373,23.49,17.11
+265,Vale of Glamorgan,Wales,3,Labour,10767,23.50,15.22
+266,Kingston upon Hull West and Haltemprice,England,2,Labour,8979,23.52,23.30
+267,Leeds South West and Morley,England,3,Labour,9494,23.61,20.36
+268,Salisbury,England,4,Conservative,11875,23.67,10.43
+269,Newark,England,3,Conservative,12688,23.73,15.49
+270,Loughborough,England,3,Labour,10045,23.77,17.05
+271,Aldershot,England,3,Labour,11554,23.80,16.91
+272,Crewe and Nantwich,England,3,Labour,11235,23.80,20.34
+273,Swansea West,Wales,2,Labour,8515,23.88,17.52
+274,Gateshead Central and Whickham,England,2,Labour,9644,23.98,21.39
+275,Farnham and Bordon,England,4,Conservative,12734,24.02,11.73
+276,East Hampshire,England,3,Conservative,12033,24.06,12.95
+277,Cardiff West,Wales,4,Labour,10816,24.17,12.57
+278,Watford,England,4,Labour,10778,24.24,11.09
+279,"Harborough, Oadby and Wigston",England,3,Conservative,12282,24.38,12.57
+280,Jarrow and Gateshead East,England,2,Labour,8964,24.41,26.93
+281,Mid Buckinghamshire,England,4,Conservative,13224,24.51,12.84
+282,Morecambe and Lunesdale,England,3,Labour,11793,24.54,16.25
+283,Bradford East,England,3,Labour,9146,24.58,13.31
+284,Corby and East Northamptonshire,England,3,Labour,12260,24.72,17.67
+285,Sutton and Cheam,England,4,Liberal Democrat,11789,24.76,12.16
+286,Thornbury and Yate,England,3,Liberal Democrat,13286,24.90,14.11
+287,Runnymede and Weybridge,England,4,Conservative,12023,24.92,13.30
+288,Dewsbury and Batley,England,3,,9489,24.93,16.16
+289,Penrith and Solway,England,3,Labour,12362,25.08,15.47
+290,North Somerset,England,4,Labour,13536,25.18,10.42
+291,Wycombe,England,3,Labour,11266,25.24,10.68
+292,Colne Valley,England,3,Labour,11672,25.25,15.79
+293,Mid Cheshire,England,3,Labour,10490,25.27,19.19
+294,"Dumfriesshire, Clydesdale and Tweeddale",Scotland,4,Conservative,11177,25.28,8.64
+295,Banbury,England,3,Labour,12184,25.29,13.04
+296,Gower,Wales,3,Labour,11950,25.30,18.06
+297,Doncaster Central,England,3,Labour,9629,25.38,20.78
+298,Worthing West,England,3,Labour,12957,25.41,14.83
+299,Wetherby and Easingwold,England,3,Conservative,13309,25.47,13.95
+300,Hastings and Rye,England,3,Labour,11733,25.51,16.09
+301,Aberdeen North,Scotland,4,Scottish National Party,10752,25.54,8.98
+302,Ilford North,England,4,Labour,12026,25.65,7.72
+303,Chester South and Eddisbury,England,3,Conservative,13491,25.70,12.22
+304,Tonbridge,England,4,Conservative,12969,25.77,15.00
+305,Lincoln,England,3,Labour,10868,25.78,18.03
+306,Luton North,England,3,Labour,10011,25.84,12.04
+307,Worcester,England,3,Labour,11899,25.85,14.60
+308,Waveney Valley,England,3,Green Party,12688,25.86,15.85
+309,Aberdeen South,Scotland,4,Scottish National Party,12014,25.92,6.90
+310,Melksham and Devizes,England,3,Liberal Democrat,13305,25.98,13.14
+311,North East Somerset and Hanham,England,3,Labour,13315,26.04,14.52
+312,Beaconsfield,England,4,Conservative,12439,26.06,12.69
+313,Worsley and Eccles,England,2,Labour,11091,26.07,21.59
+314,North East Hampshire,England,3,Liberal Democrat,14505,26.11,12.01
+315,Windsor,England,4,Conservative,11823,26.13,10.30
+316,Slough,England,4,Labour,11314,26.14,7.75
+317,St Neots and Mid Cambridgeshire,England,4,Liberal Democrat,13844,26.18,10.73
+318,Blaydon and Consett,England,2,Labour,11153,26.42,23.70
+319,Chelmsford,England,3,Liberal Democrat,13460,26.54,13.32
+320,North Devon,England,3,Liberal Democrat,13683,26.61,15.83
+321,Glastonbury and Somerton,England,3,Liberal Democrat,12686,26.63,16.12
+322,Arundel and South Downs,England,4,Conservative,14610,26.69,13.50
+323,Arbroath and Broughty Ferry,Scotland,4,Scottish National Party,11781,26.70,8.61
+324,Middlesbrough and Thornaby East,England,2,Labour,9192,26.72,20.48
+325,Newcastle upon Tyne Central and West,England,2,Labour,11060,26.74,18.90
+326,Northampton North,England,3,Labour,11199,26.78,16.77
+327,West Bromwich,England,3,Labour,9771,26.78,19.46
+328,Bournemouth East,England,3,Labour,12048,26.83,13.96
+329,Selby,England,3,Labour,13223,26.86,19.43
+330,Bury North,England,3,Labour,12240,26.89,16.22
+331,Nottingham North and Kimberley,England,2,Labour,9427,26.93,20.15
+332,Canterbury,England,3,Labour,12726,26.94,14.41
+333,Tatton,England,3,Conservative,14008,26.99,11.46
+334,Colchester,England,3,Labour,12140,27.04,14.84
+335,North Herefordshire,England,3,Green Party,13688,27.18,15.98
+336,Derby North,England,3,Labour,11131,27.20,18.30
+337,Barrow and Furness,England,3,Labour,11502,27.24,16.66
+338,Epsom and Ewell,England,4,Liberal Democrat,14879,27.29,10.63
+339,Ipswich,England,3,Labour,12072,27.39,15.94
+340,Norwich North,England,3,Labour,12565,27.46,17.98
+341,Chesterfield,England,3,Labour,11419,27.48,19.00
+342,Wolverhampton South East,England,2,Labour,9188,27.52,22.80
+343,Stirling and Strathallan,Scotland,4,Labour,13711,27.54,6.32
+344,Cardiff East,Wales,3,Labour,10853,27.74,12.73
+345,Eltham and Chislehurst,England,3,Labour,12641,27.74,16.30
+346,"Ayr, Carrick and Cumnock",Scotland,4,Labour,11386,27.81,8.66
+347,Welwyn Hatfield,England,3,Labour,13480,27.82,13.20
+348,Stockton West,England,3,Conservative,13539,27.84,14.05
+349,North Norfolk,England,3,Liberal Democrat,13120,27.89,13.54
+350,Bicester and Woodstock,England,4,Liberal Democrat,14011,27.90,10.77
+351,Kingston upon Hull North and Cottingham,England,2,Labour,10679,27.94,20.41
+352,Coventry North West,England,3,Labour,11746,27.95,18.92
+353,Horsham,England,3,Liberal Democrat,15516,27.96,11.02
+354,Dorking and Horley,England,3,Liberal Democrat,14023,28.07,13.81
+355,Chingford and Woodford Green,England,4,Conservative,13628,28.09,7.53
+356,Didcot and Wantage,England,4,Liberal Democrat,15393,28.12,11.69
+357,Cramlington and Killingworth,England,2,Labour,12820,28.24,20.83
+358,Feltham and Heston,England,3,Labour,11009,28.31,13.19
+359,Romsey and Southampton North,England,3,Conservative,14177,28.34,11.43
+360,Bristol South,England,3,Labour,12326,28.40,14.27
+361,Mid Sussex,England,4,Liberal Democrat,15215,28.53,11.10
+362,Leeds East,England,2,Labour,11265,28.60,18.65
+363,Milton Keynes North,England,3,Labour,13154,28.61,13.41
+364,Leicester West,England,3,Labour,10132,28.62,16.01
+365,Witney,England,3,Liberal Democrat,14525,28.71,12.47
+366,City of Durham,England,2,Labour,11757,28.94,18.15
+367,Lancaster and Wyre,England,3,Labour,12449,28.95,15.96
+368,Aberafan Maesteg,Wales,2,Labour,10354,28.96,20.93
+369,Croydon East,England,3,Labour,12679,28.96,13.39
+370,Birmingham Perry Barr,England,4,,10857,28.97,6.53
+371,Calder Valley,England,3,Labour,14402,29.03,15.41
+372,Truro and Falmouth,England,4,Labour,14620,29.09,12.26
+373,Newbury,England,3,Liberal Democrat,14288,29.20,10.95
+374,Milton Keynes Central,England,3,Labour,13964,29.26,13.08
+375,Rutland and Stamford,England,3,Conservative,14240,29.31,14.43
+376,Bury South,England,3,Labour,12382,29.33,16.26
+377,Stratford-on-Avon,England,3,Liberal Democrat,15697,29.64,14.64
+378,Basingstoke,England,3,Labour,14608,29.82,12.89
+379,Southampton Test,England,3,Labour,10684,29.84,14.69
+380,Shrewsbury,England,3,Labour,15408,29.88,14.59
+381,Keighley and Ilkley,England,3,Conservative,13807,29.89,10.35
+382,Shipley,England,3,Labour,14500,30.02,14.98
+383,St Helens North,England,2,Labour,12169,30.07,22.52
+384,Newcastle upon Tyne East and Wallsend,England,2,Labour,12817,30.29,19.81
+385,Birmingham Selly Oak,England,3,Labour,11639,30.29,14.92
+386,Barking,England,2,Labour,11054,30.30,14.18
+387,Tewkesbury,England,3,Liberal Democrat,14730,30.35,12.36
+388,Wolverhampton West,England,3,Labour,13253,30.36,13.92
+389,Carshalton and Wallington,England,4,Liberal Democrat,14185,30.39,12.73
+390,East Worthing and Shoreham,England,3,Labour,14951,30.46,14.61
+391,North Cornwall,England,3,Liberal Democrat,15650,30.54,16.48
+392,Monmouthshire,Wales,3,Labour,15572,30.63,10.70
+393,Warrington South,England,3,Labour,15288,30.78,15.93
+394,Altrincham and Sale West,England,3,Labour,15837,30.78,9.64
+395,Gedling,England,3,Labour,15067,30.92,16.85
+396,Hertsmere,England,3,Conservative,14867,30.97,13.71
+397,Hitchin,England,3,Labour,16307,31.06,12.87
+398,Hendon,England,3,Labour,12817,31.07,7.36
+399,Cardiff North,Wales,3,Labour,14864,31.31,12.61
+400,Coventry East,England,2,Labour,11623,31.40,18.06
+401,St Helens South and Whiston,England,2,Labour,11945,31.41,18.34
+402,Croydon South,England,4,Conservative,15608,31.61,8.40
+403,High Peak,England,3,Labour,15574,31.65,14.14
+404,Plymouth Sutton and Devonport,England,2,Labour,13328,31.66,17.74
+405,Tunbridge Wells,England,3,Liberal Democrat,17177,31.66,11.95
+406,Surrey Heath,England,3,Liberal Democrat,15135,31.67,13.08
+407,"Inverness, Skye and West Ross-shire",Scotland,4,Liberal Democrat,15225,31.68,6.11
+408,North Ayrshire and Arran,Scotland,4,Labour,13406,31.72,8.08
+409,Whitehaven and Workington,England,2,Labour,13286,31.75,21.24
+410,Smethwick,England,2,Labour,11188,31.86,16.15
+411,Filton and Bradley Stoke,England,3,Labour,16086,31.94,13.54
+412,Livingston,Scotland,3,Labour,14347,32.00,8.87
+413,Bristol North East,England,4,Labour,13586,32.36,12.90
+414,Taunton and Wellington,England,3,Liberal Democrat,16278,32.37,16.01
+415,Nottingham South,England,3,Labour,10643,32.37,15.01
+416,West Lancashire,England,3,Labour,14396,32.57,17.89
+417,Birmingham Edgbaston,England,3,Labour,12236,32.69,11.66
+418,Blackley and Middleton South,England,2,Labour,10250,32.71,21.10
+419,Chelsea and Fulham,England,4,Labour,15412,32.71,6.67
+420,Rushcliffe,England,3,Labour,18938,32.80,11.00
+421,Richmond and Northallerton,England,3,Conservative,15917,32.80,14.72
+422,Yeovil,England,3,Liberal Democrat,16088,32.86,15.68
+423,Leeds West and Pudsey,England,3,Labour,12695,32.98,16.32
+424,Honiton and Sidmouth,England,3,Liberal Democrat,16718,33.00,12.42
+425,South Devon,England,3,Liberal Democrat,16177,33.01,12.98
+426,Cardiff South and Penarth,Wales,4,Labour,12935,33.02,11.47
+427,Exeter,England,4,Labour,13311,33.12,12.23
+428,Chippenham,England,3,Liberal Democrat,16425,33.17,12.37
+429,Wirral West,England,3,Labour,16734,33.50,12.86
+430,Angus and Perthshire Glens,Scotland,4,Scottish National Party,15896,33.57,6.86
+431,York Outer,England,3,Labour,17249,33.75,11.57
+432,Wells and Mendip Hills,England,3,Liberal Democrat,17011,33.77,13.13
+433,Godalming and Ash,England,3,Conservative,18478,33.78,8.80
+434,Portsmouth South,England,2,Labour,13155,33.79,14.65
+435,Bedford,England,3,Labour,13794,33.93,11.19
+436,Dundee Central,Scotland,4,Scottish National Party,13181,33.93,6.08
+437,Chichester,England,3,Liberal Democrat,17681,34.04,15.13
+438,Leeds North West,England,3,Labour,16947,34.05,11.92
+439,South Cotswolds,England,3,Liberal Democrat,17815,34.07,9.84
+440,Macclesfield,England,3,Labour,18080,34.25,12.49
+441,Coventry South,England,3,Labour,14650,34.28,13.37
+442,Glenrothes and Mid Fife,Scotland,3,Labour,12466,34.49,9.76
+443,Alloa and Grangemouth,Scotland,3,Labour,14235,34.55,9.23
+444,Swindon South,England,3,Labour,15482,34.56,13.83
+445,Chipping Barnet,England,3,Labour,17599,34.60,7.84
+446,Runcorn and Helsby,England,2,Labour,14696,34.80,18.14
+447,Stroud,England,3,Labour,19278,34.91,11.46
+448,Stockport,England,2,Labour,15270,34.96,14.92
+449,Chesham and Amersham,England,3,Liberal Democrat,19112,35.10,9.75
+450,Falkirk,Scotland,4,Labour,14968,35.12,7.92
+451,Harrogate and Knaresborough,England,3,Liberal Democrat,18297,35.14,10.91
+452,Henley and Thame,England,3,Liberal Democrat,18691,35.16,9.81
+453,Tynemouth,England,3,Labour,17099,35.32,15.27
+454,Ceredigion Preseli,Wales,4,Plaid Cymru,16364,35.34,11.61
+455,Central Ayrshire,Scotland,4,Labour,14671,35.42,8.26
+456,"Ruislip, Northwood and Pinner",England,3,Conservative,16695,35.45,9.92
+457,Brentford and Isleworth,England,4,Labour,16067,35.50,8.71
+458,Bermondsey and Old Southwark,England,4,Labour,13460,35.80,9.03
+459,Norwich South,England,4,Labour,16257,36.05,11.59
+460,Cheadle,England,4,Liberal Democrat,18532,36.53,10.15
+461,Chester North and Neston,England,3,Labour,16388,36.67,13.13
+462,Kilmarnock and Loudoun,Scotland,4,Labour,15583,36.68,8.17
+463,Gorton and Denton,England,2,Labour,13413,36.69,14.06
+464,Glasgow East,Scotland,4,Labour,13172,37.16,6.69
+465,Stretford and Urmston,England,3,Labour,17157,37.30,11.92
+466,Enfield North,England,3,Labour,16222,37.30,11.83
+467,Glasgow South West,Scotland,4,Labour,13316,37.33,6.27
+468,Wythenshawe and Sale East,England,2,Labour,14610,37.34,15.30
+469,North Shropshire,England,3,Liberal Democrat,18527,37.36,15.50
+470,Glasgow North,Scotland,4,Labour,13000,37.42,4.76
+471,Cumbernauld and Kirkintilloch,Scotland,3,Labour,15346,37.45,7.73
+472,Glasgow South,Scotland,4,Labour,15960,37.66,4.10
+473,Birkenhead,England,3,Labour,16326,37.85,14.24
+474,Wokingham,England,3,Liberal Democrat,20469,37.91,9.77
+475,South Cambridgeshire,England,4,Liberal Democrat,20807,37.91,8.92
+476,Harrow West,England,4,Labour,17194,38.01,5.83
+477,Salford,England,2,Labour,15101,38.03,15.19
+478,Cowdenbeath and Kirkcaldy,Scotland,4,Labour,15534,38.06,7.66
+479,Newcastle upon Tyne North,England,4,Labour,18507,38.07,12.20
+480,Warwick and Leamington,England,3,Labour,18821,38.26,10.48
+481,Guildford,England,3,Liberal Democrat,18542,38.39,9.10
+482,St Ives,England,3,Liberal Democrat,18541,38.54,13.50
+483,Bathgate and Linlithgow,Scotland,3,Labour,16250,38.63,8.38
+484,Ealing North,England,4,Labour,16715,38.66,9.13
+485,Lewes,England,3,Liberal Democrat,20560,38.67,11.91
+486,Eastbourne,England,3,Liberal Democrat,17681,38.77,13.29
+487,Manchester Central,England,3,Labour,15424,38.83,11.98
+488,East Renfrewshire,Scotland,4,Labour,19575,38.97,4.70
+489,Beckenham and Penge,England,3,Labour,20398,39.06,10.25
+490,Glasgow North East,Scotland,4,Labour,13367,39.21,6.66
+491,Wimbledon,England,4,Liberal Democrat,21569,39.23,5.86
+492,Paisley and Renfrewshire North,Scotland,3,Labour,16333,39.34,7.77
+493,Bristol North West,England,4,Labour,19195,39.61,10.03
+494,Woking,England,3,Liberal Democrat,19131,39.74,10.15
+495,Paisley and Renfrewshire South,Scotland,3,Labour,16627,40.28,7.16
+496,Ellesmere Port and Bromborough,England,2,Labour,16908,40.29,17.34
+497,Erith and Thamesmead,England,2,Labour,16302,40.37,14.72
+498,Inverclyde and Renfrewshire West,Scotland,4,Labour,16455,40.78,6.14
+499,Midlothian,Scotland,3,Labour,18204,41.22,7.42
+500,East Kilbride and Strathaven,Scotland,4,Labour,19305,41.33,7.23
+501,Glasgow West,Scotland,4,Labour,16523,41.41,5.26
+502,"Motherwell, Wishaw and Carluke",Scotland,3,Labour,16164,41.42,7.70
+503,Edmonton and Winchmore Hill,England,4,Labour,17019,41.46,8.53
+504,Kingston and Surbiton,England,4,Liberal Democrat,21083,41.61,9.45
+505,West Dunbartonshire,Scotland,3,Labour,16542,41.79,7.00
+506,Oxford West and Abingdon,England,4,Liberal Democrat,19250,41.85,9.05
+507,Dwyfor Meirionnydd,Wales,3,Plaid Cymru,16931,41.91,12.02
+508,"Caithness, Sutherland and Easter Ross",Scotland,4,Liberal Democrat,19376,42.08,7.30
+509,Wallasey,England,2,Labour,17996,42.10,15.62
+510,Hamilton and Clyde Valley,Scotland,4,Labour,17721,42.11,7.84
+511,Harpenden and Berkhamsted,England,3,Liberal Democrat,23037,42.40,7.81
+512,Hayes and Harlington,England,3,Labour,16291,42.52,10.74
+513,Leeds Central and Headingley,England,4,Labour,13454,42.58,7.59
+514,Lothian East,Scotland,4,Labour,20516,42.65,6.32
+515,Coatbridge and Bellshill,Scotland,3,Labour,16690,43.09,6.72
+516,Widnes and Halewood,England,2,Labour,16425,43.09,18.52
+517,Airdrie and Shotts,Scotland,3,Labour,15900,43.36,8.10
+518,Hove and Portslade,England,4,Labour,22651,43.64,8.78
+519,Esher and Walton,England,3,Liberal Democrat,23538,43.69,8.87
+520,Nottingham East,England,4,Labour,15916,43.72,9.83
+521,Leeds North East,England,4,Labour,19834,43.91,7.59
+522,Winchester,England,3,Liberal Democrat,25142,44.05,8.40
+523,Rutherglen,Scotland,3,Labour,18775,44.19,6.32
+524,Sefton Central,England,3,Labour,21005,44.27,12.15
+525,Na h-Eileanan an Iar,Scotland,4,Labour,5995,44.32,5.15
+526,York Central,England,4,Labour,19816,45.74,10.90
+527,Mitcham and Morden,England,4,Labour,20950,46.29,9.14
+528,Orkney and Shetland,Scotland,4,Liberal Democrat,9806,47.40,7.67
+529,Liverpool Garston,England,2,Labour,20104,47.87,10.49
+530,St Albans,England,4,Liberal Democrat,24886,48.22,8.40
+531,Twickenham,England,4,Liberal Democrat,26093,48.65,7.63
+532,Harrow East,England,3,Conservative,23278,48.72,4.58
+533,Liverpool Wavertree,England,3,Labour,19623,49.29,8.68
+534,Brighton Pavilion,England,4,Green Party,25973,49.60,5.42
+535,Lewisham East,England,4,Labour,20177,49.65,8.54
+536,North East Fife,Scotland,4,Liberal Democrat,21290,49.83,4.90
+537,Knowsley,England,2,Labour,18319,50.82,16.43
+538,Liverpool Riverside,England,3,Labour,16767,51.78,10.10
+539,Westmorland and Lonsdale,England,3,Liberal Democrat,26219,52.93,9.78
+540,Bristol Central,England,4,Green Party,23201,53.50,3.09
+541,Liverpool West Derby,England,2,Labour,20423,53.74,12.84
+542,Liverpool Walton,England,2,Labour,20245,54.89,15.69
+543,Walthamstow,England,4,Labour,25336,55.48,4.02
+544,Bootle,England,2,Labour,21983,56.54,12.21
