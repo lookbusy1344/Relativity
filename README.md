@@ -4,6 +4,8 @@ This repository contains libraries for working with special relativity, implemen
 
 MIT License, have fun space travellers!
 
+This repo is managed with Jujutsu rather then Git. Try it out! https://docs.jj-vcs.dev/latest/
+
 ## Web-based calculator
 
 A web-based calculator with visualizations is available here https://lookbusy1344.github.io/Relativity/
