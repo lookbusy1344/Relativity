@@ -28,6 +28,8 @@ TypeScript-based special relativity calculator with a web interface. Implements 
 - Fully responsive mobile interface
 - Interactive web interface with real-time results
 
+![Time dilation image](../images/time_dilation.jpg)
+
 ## Project Structure
 
 ```
