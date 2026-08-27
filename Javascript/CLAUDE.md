@@ -19,6 +19,11 @@ permission for that command. Read-only `git log`/`git status` are fine, but pref
 
 **Plain Git (`jj st` fails):** use normal `git` commands.
 
+A `jj pmain` alias is configured: it sets the `main` bookmark to the parent of
+the working copy and pushes it to GitHub. Use it instead of manually moving
+the bookmark and running `jj git push` — but only with explicit permission,
+same as any other push.
+
 Confirm `jj --version` matches the version the book documents in
 `src/hello-world/how-to-install.md` (currently 0.44.0). Flag any mismatch —
 behaviour and prose may diverge.
