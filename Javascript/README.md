@@ -1,3 +1,5 @@
+![Relativity banner](../banner.jpg)
+
 # Special Relativity Calculator
 
 TypeScript-based special relativity calculator with a web interface. Implements precise relativistic physics calculations using high-precision decimal arithmetic.
