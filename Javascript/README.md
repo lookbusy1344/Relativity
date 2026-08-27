@@ -1,4 +1,4 @@
-![Relativity banner](../banner.jpg)
+![Relativity banner](../images/banner.jpg)
 
 # Special Relativity Calculator
 
