@@ -257,6 +257,13 @@ keep it alive. Find it by its description/change ID in `jj log`, then use `jj ed
 state. It becomes hidden only through an explicit history-changing action such as `jj abandon` or
 being superseded by a rewrite.
 
+A visible head is never garbage-collected. GC's preserved set is every commit reachable from a
+visible head (see *jj util gc*), and a head is reachable from itself, so it stays until you hide it.
+This is the sharp break from Git, where an unreferenced commit is unreachable and the reflog only
+delays its collection. In jj the heads set is the reachability root: no bookmark, tag, or reflog
+entry is needed. Only *hidden* commits — abandoned changes, rewritten predecessors — depend on the
+op log to survive, and only those are subject to GC.
+
 Create bookmarks at the boundary where names matter: publishing to Git, opening PRs, sharing a
 stable handle, or marking a long-lived landmark. Do not create and advance a bookmark after every
 local commit merely to imitate Git's current-branch model.
@@ -788,6 +795,23 @@ Always dry-run a broad revset first: upload may rewrite commits to add missing t
 push them. Subsequent rewrites of the same jj changes produce new Gerrit patch sets because the
 stable trailer continues to identify the Gerrit review.
 
+## Merging
+
+There is no `jj merge` command (removed in 0.14). A merge is a commit with more than one parent, so
+you create one by passing several parents to `jj new`:
+
+```bash
+jj new featureA featureB              # @ becomes an empty merge of both, editable in the working copy
+jj new main featureA featureB         # octopus: any number of parents, no special command
+jj new featureA featureB --no-edit    # create the merge but leave @ where it is
+```
+
+The merge commit starts empty; its tree is the merge of the parents' trees. Conflicting parents
+produce a conflicted merge that still succeeds — resolve it afterwards (see below). To fold work
+together linearly instead of recording a merge, rebase onto a new parent (`jj rebase -r <rev> -o
+<dest>`, or `-s`/`-b` for a revision-plus-descendants or whole-branch move) rather than `jj new`ing
+a merge.
+
 ## Conflicts
 
 Conflicts never block a command. After a rebase/merge that conflicts:
@@ -835,14 +859,72 @@ jj picks one side as the snapshot and renders the rest as diffs, so a diff secti
 the snapshot section, as above.
 
 Resolve manually by replacing the entire marked region with the intended final content and
-removing every marker, then run `jj st` or `jj resolve --list` to snapshot and verify. Alternative
-styles are `"snapshot"` (base plus each side) and `"git"` (Git diff3, limited to two-sided
-conflicts):
+removing every marker, then run `jj st` or `jj resolve --list` to snapshot and verify.
 
 ```toml
 [ui]
 conflict-marker-style = "diff" # or "snapshot", "git"
 ```
+
+**`"snapshot"`** materializes every side in full, base included, with no diff to reconstruct. The
+first side uses `+++++++`, the base uses `-------`, each further side uses `+++++++` again:
+
+```text
+<<<<<<< conflict 1 of 1
++++++++ mrsvuzly 01ab8030 "sideA"
+grapefruit
+------- xysurrto d0094fc3 "base"
+banana
++++++++ npnwxqqt b3376c01 "sideB"
+lemon
+>>>>>>> conflict 1 of 1 ends
+```
+
+**`"git"`** is Git's diff3 format, two-sided only. `<<<<<<<` carries the first side up to
+`|||||||` (the base), `=======` splits base from the second side, `>>>>>>>` ends it — the marker
+lines still name the revision as `change_id commit_id "description"`:
+
+```text
+<<<<<<< mrsvuzly 01ab8030 "sideA"
+grapefruit
+||||||| xysurrto d0094fc3 "base"
+banana
+=======
+lemon
+>>>>>>> npnwxqqt b3376c01 "sideB"
+```
+
+A file materialized under one style is only rewritten in another when jj next updates the working
+copy for that path; a plain config change leaves already-checked-out conflicts untouched.
+
+### Many-sided conflicts
+
+An N-parent merge whose parents all touch the same lines yields an N-sided conflict — `jj st` and
+`jj resolve --list` label it `N-sided conflict`. Structurally it holds N added terms and N−1 base
+terms (an N-way merge is N−1 pairwise merges against the base). In `"diff"` style jj materializes
+one side as the `+++++++` snapshot and renders the rest as `%%%%%%%` diffs from base, so a 3-sided
+conflict shows two diff sections plus one snapshot:
+
+```text
+<<<<<<< conflict 1 of 1
+%%%%%%% diff from: pmtrousv 057f0b88 "base"
+\\\\\\\        to: owlylqsy f25bb0a8 "sideA"
+-banana
++fruit_A
+%%%%%%% diff from: pmtrousv 057f0b88 "base"
+\\\\\\\        to: unukksnk bb524e09 "sideB"
+-banana
++fruit_B
++++++++ uulovtlt 73cf8d8f "sideC"
+fruit_C
+>>>>>>> conflict 1 of 1 ends
+```
+
+`"snapshot"` style lists each side in full with the base repeated between them (`+++++++` sideA,
+`-------` base, `+++++++` sideB, `-------` base, `+++++++` sideC). `"git"` style **cannot** represent
+this — diff3 is two-sided only — so for a >2-sided file jj silently falls back to `"snapshot"` for
+that file, even with `conflict-marker-style = "git"` set. Independent conflict regions in one file
+are numbered `conflict 1 of n`, `2 of n`, … each region counted regardless of its sidedness.
 
 Resolving an earlier conflicted change triggers the normal descendant rebase. Descendants that
 only inherited that conflict may become clean automatically; genuine additional conflicts remain
@@ -1030,8 +1112,8 @@ jj util backend name      # prints the commit backend: "git" (or a native backen
                           # A clean check before a script assumes Git interop.
 jj util config-schema     # emits the JSON schema (draft-04) for jj's TOML config —
                           # feed it to a validator or editor for config linting/completion.
-jj util exec -- <cmd> ... # run an external command via jj (portable shim, e.g. for aliases
-                          # that must call a binary without a shell).
+jj util exec -- <cmd> ... # run an external command via jj — the basis for multi-command
+                          # aliases (wrap in `sh -c` to chain jj commands; see [aliases] config).
 jj util completion <shell>   # shell-completion script
 jj util install-man-pages <dir>
 jj util markdown-help     # full CLI help as Markdown
@@ -1155,6 +1237,75 @@ Worked combinations:
 stack around the working copy — both ancestors and descendants — where `::@`/`@::` each give only
 one direction.
 
+### Worked queries — spans, depth limits, and derived roots
+
+These are the `-r` expressions you reach for day to day. Each is a set; read `::` as the connected
+span with both ends included.
+
+| Revset | Yields |
+|--------|--------|
+| `trunk()::bookmarks()` | span from trunk down to every local bookmark tip — the shape of all named work above trunk |
+| `trunk()::@` | span from trunk to the working copy — your current line, landed context included |
+| `trunk()::my-bookmark` | span from trunk to one named bookmark |
+| `bookmarks()` | every local bookmark target (accepts a pattern: `bookmarks(glob:'feat/*')`) |
+| `remote_bookmarks()` | every remote-tracking bookmark tip across all remotes (`@git` excluded by default) |
+| `remote_bookmarks()..bookmarks()` | local commits behind no remote bookmark — your unpushed work across every branch |
+| `fork_point(bookmarks() \| remote_bookmarks())::(bookmarks() \| remote_bookmarks())` | common root down to both local and remote tips — the divergence between local and pushed state |
+| `::@ & bookmarks()` | the nearest bookmarks behind you — ancestors that carry a local ref |
+| `ancestors(@, 5)` | `@` plus five generations of ancestors — a depth-limited `::@` |
+| `ancestors(@, 5) & mine()` | same window, only your commits |
+| `roots(ancestors(conflicts()))::conflicts()` | earliest conflicted ancestors down to the conflicts — the sub-DAG to start resolving |
+| `heads(all())` / `visible_heads()` | every visible tip, named or anonymous |
+| `mine() & mutable()` | your rewritable commits |
+| `conflicts()` | every visible conflicted change |
+| `latest(bookmarks(), 5)` | the five most recently committed bookmark tips |
+
+**`ancestors(x, depth)` is the depth-limited `::x`.** `ancestors(x)` with no depth equals `::x`
+(x and all its ancestors); the second argument caps the walk and **counts x itself**. `ancestors(@, 1)`
+is just `@`; `ancestors(@, 5)` is `@` and four generations behind it (five commits). Use it to bound
+`jj log` output on a long history without naming an explicit lower endpoint. `descendants(x, depth)`
+is the symmetric forward-limited `x::`.
+
+**Local versus remote bookmarks.** `bookmarks()` returns local bookmark targets;
+`remote_bookmarks()` returns the remote-tracking tips (with `@git` filtered out — pass
+`remote="git"` or `remote="*"` to include it). They coincide until you push a bookmark and then
+advance it locally: the local `bookmarks()` sits at the new tip, `remote_bookmarks()` stays at the
+pushed commit (shown `feature@origin`, and `jj log` marks the local side `feature*`). Three queries
+follow from that split:
+
+```bash
+jj log -r 'remote_bookmarks()..bookmarks()'   # local commits behind no remote bookmark — a push would send these
+jj log -r 'fork_point(bookmarks() | remote_bookmarks())'   # the shared base commit
+jj log -r 'fork_point(bookmarks() | remote_bookmarks())::(bookmarks() | remote_bookmarks())'
+# ^ span from that base down to both tips — the full picture of how local and remote diverge
+```
+
+`fork_point(x)` is the last commit every member of `x` shares. Feeding it the union of local and
+remote tips gives the common root; spanning from there (`::`) to the same union draws the smallest
+sub-DAG holding both the local tip and its pushed counterpart. Anchor the same span at trunk instead
+— `trunk()::(bookmarks() | remote_bookmarks())` — when you want all named work above trunk rather
+than just the diverging portion.
+
+**Deriving a span's lower bound from a predicate.** `roots(ancestors(conflicts()))::conflicts()`
+composes three sets: `ancestors(conflicts())` is everything feeding any conflicted commit;
+`roots(...)` keeps only the commits in that set with no ancestor also in it — the earliest points
+where the conflicted lineage begins; the outer `::conflicts()` then spans from those roots down to
+the conflicts themselves. The result is the minimal connected sub-DAG containing both the origin and
+the conflicts, which is where resolution starts. The same shape — `roots(ancestors(P))::P` — gives
+the introducing-to-current span for any predicate `P`.
+
+**Three forms that read naturally but are not valid revsets in v0.44:**
+
+- `local_bookmarks()` — no such function. `bookmarks()` already returns *local* bookmark targets;
+  the remote counterparts are `remote_bookmarks()`, `tracked_remote_bookmarks()`, and
+  `untracked_remote_bookmarks()`. All fail-fast: an unknown function is a parse error, not a silent
+  empty set.
+- `conflict()` — the predicate is plural, `conflicts()`. (Likewise `merges()`, `tags()`.)
+- `obslog(@)` — there is no `obslog` (or `evolog`) revset function. A change's evolution, including
+  its hidden earlier commit versions, is the **`jj evolog -r @`** command. It cannot be a `jj log`
+  revset because those range only over *visible* commits, and superseded versions are hidden — see
+  *Three different logs* above. `jj obslog` remains a command alias for `jj evolog` in v0.44.
+
 ## Config
 
 Precedence (later wins): built-in → user → repo → workspace → CLI (`--config`).
@@ -1194,6 +1345,30 @@ l = ["log", "-r", "trunk()..@"]
 [revset-aliases]
 "immutable_heads()" = "builtin_immutable_heads()"
 ```
+
+### Multi-command aliases
+
+An `[aliases]` entry expands to a single `jj` subcommand invocation — the array is one
+argv, so `&&`, `;`, and pipes have no meaning in it. To run several commands from one alias,
+shell out through `jj util exec` and let a shell do the sequencing:
+
+```toml
+[aliases]
+# move the `main` bookmark to the parent of the working copy, then push it
+pmain = ["util", "exec", "--", "sh", "-c",
+         "jj bookmark set main -r @- && jj git push --bookmark main"]
+```
+
+`jj util exec -- <cmd>` runs `<cmd>` as an external process; wrapping it in `sh -c '…'` gives
+you the shell operators. Points to watch:
+
+- **`-r @-`, not `-r @`.** After a normal edit-then-`new` flow the working copy `@` is an
+  empty commit on top; the finished work is its parent `@-`. Pin the bookmark there.
+- **Quoting.** The whole pipeline is one string argument to `sh -c`. Positional args after it
+  land in `$0`, `$1`, … of that shell, so `jj pmain extra` does not append `extra` to the
+  push — write the command to take no arguments, or handle `"$@"` explicitly.
+- **Exit status.** `&&` short-circuits, so a failed `bookmark set` aborts before the push and
+  the alias exits non-zero — safe to chain in scripts.
 
 ## Fsmonitor (watchman)
 
