@@ -1,6 +1,6 @@
 # Jujutsu (jj) — Reference for Agents and Humans
 
-**Validated:** 2026-08-23 · **jj version:** v0.44.0 · docs: `jj-vcs.dev/latest`
+**Validated:** 2026-09-06 · **jj version:** v0.45.1 · docs: `jj-vcs.dev/latest`
 
 A guide to driving `jj` non-interactively. Written for agents; useful to anyone scripting or
 learning jj. Assumes git familiarity.
@@ -12,14 +12,14 @@ other Git-aware tools see the repository.
 
 1. **Colocated Git repo (default)** — `.jj` and a real `.git` live side by side over one working
    tree. jj imports/exports git state on every command, so `git`, `gh`, IDEs, and CI all see a
-   normal git repo. As of v0.44 this is what `jj git init` and `jj git clone` produce with no
+   normal git repo. As of v0.45 this is what `jj git init` and `jj git clone` produce with no
    flags.
 2. **Non-colocated Git repo** — only `.jj` at the root; the git store is hidden inside
    `.jj/repo/store/git`. Same Git backend (push/fetch work identically), but external git tools
    can't see it without being pointed at it. Opt in with `--no-colocate`, or set
    `git.colocate = false` in config.
 
-jj also has internal/experimental non-Git commit backends, but v0.44 has no general-purpose
+jj also has internal/experimental non-Git commit backends, but v0.45 has no general-purpose
 `jj init` command for creating a native repository. `jj git init` is the supported initializer;
 native storage is not a third practical setup choice for normal CLI workflows.
 
@@ -228,6 +228,30 @@ than applying this cleanup mechanically. Abandoning a change and creating a repl
 produces a new change ID; stability applies to the rewrite lineage of the original change, not to
 equivalent content recreated later.
 
+### `jj converge` — automated divergence resolution (v0.45)
+
+`jj converge` replaces the divergent commits of a change with one new commit, rebases their
+descendants onto it, and repoints local bookmarks. It groups the revisions matched by `--revision`
+(default: the `revsets.converge` alias, `mutable() & divergent()`) by change ID and works on those
+with more than one visible commit.
+
+```bash
+jj converge                       # converge every mutable divergent change (default revset)
+jj converge -r 'divergent()'      # restrict to a chosen revset
+jj converge --no-interactive      # warn and abort instead of prompting when heuristics fail
+```
+
+Heuristics pick the tree, description, parents, and author. When they are inconclusive — differing
+descriptions is the common trigger — jj prompts; `--no-interactive` prints a warning and exits
+non-zero instead, so it is the form for scripts. Give the sides a matching description first if you
+want an unattended run to succeed. The solution may itself carry file conflicts. Review with
+`jj op show -p`, inspect lineage with `jj evolog`, and `jj undo` if unsatisfied.
+
+`converge` only touches revisions inside the revset: if other visible commits share the change ID
+outside it, they remain and divergence is merely reduced. It replaces the manual `abandon`-a-range
+cleanup above for the common case — reach for the manual steps when you specifically want to keep
+one side's commits rather than synthesize a new one.
+
 Change IDs survive cloning, not just within jj. jj writes each change ID into a header on the
 underlying Git commit, so it travels with the commit through a plain `git clone`, not only
 `jj git clone`, and through repeated clones. Only rewriting the commit loses it — `git rebase`, a
@@ -271,7 +295,7 @@ local commit merely to imitate Git's current-branch model.
 ## Setup
 
 ```bash
-jj git init                 # new repo in cwd — COLOCATED by default (v0.44): .jj + real .git
+jj git init                 # new repo in cwd — COLOCATED by default (v0.45): .jj + real .git
 jj git init --no-colocate   # jj-only: git store hidden in .jj, no top-level .git
 jj git clone <url> [dir]    # clone a git remote — also colocated by default
 jj git clone --no-colocate <url>
@@ -280,12 +304,12 @@ jj config set --user user.name "Name"
 jj config set --user user.email "me@example.com"
 ```
 
-`--colocate` is a no-op in v0.44 (the help says "This is the default"). Flip it globally with
+`--colocate` is a no-op in v0.45 (the help says "This is the default"). Flip it globally with
 `git.colocate = false`.
 
-### Git reftable incompatibility (v0.44)
+### Git reftable incompatibility (v0.45)
 
-jj v0.44 does not import refs from an existing Git repository whose ref storage is `reftable`.
+jj v0.45 does not import refs from an existing Git repository whose ref storage is `reftable`.
 Confirmed failure signature: `jj git init --colocate` reports success, but imports no bookmarks;
 `@` is based on `root()` and `jj st` reports every checked-out file as added. The Git commits and
 refs remain in `.git`, but jj cannot see the reftable refs.
@@ -372,7 +396,7 @@ jj has three log commands answering three different questions:
   `<change>/2`, … (steps back), most are `(hidden)`, and each names the operation that produced it —
   the bridge back to `jj op log`.
 
-`jj obslog` is the former name of `jj evolog`, still aliased in v0.44.
+`jj obslog` is the former name of `jj evolog`, still aliased in v0.45.
 
 ## Making changes
 
@@ -511,7 +535,7 @@ right ancestor commit automatically. It only moves hunks it can attribute to a s
 is left in `@` for a manual `jj squash --into`.
 
 `--onto`/`-o` is the current spelling for a new parent. The older `--destination`/`-d` spelling
-remains an accepted alias in v0.44. `--insert-after`/`-A` and `--insert-before`/`-B` express graph
+remains an accepted alias in v0.45. `--insert-after`/`-A` and `--insert-before`/`-B` express graph
 placement and are available on `new`, `rebase`, `duplicate`, and `split` (and experimentally on
 `squash`).
 
@@ -598,7 +622,7 @@ jj rebase -s 'roots(trunk()..integration)' -o trunk()
 ```
 
 Here `integration` is a bookmark or change ID naming the integration tip. Old tutorials may show
-`all:roots(...)`; the `all:` prefix is invalid in v0.44.
+`all:roots(...)`; the `all:` prefix is invalid in v0.45.
 
 ## Bookmarks (jj's named branches)
 
@@ -643,7 +667,7 @@ remote ref should disappear; use `forget` when only local bookkeeping should dis
 
 ## Tags
 
-jj v0.44 can create and move lightweight Git-compatible tags. Tags make their ancestors immutable
+jj v0.45 can create and move lightweight Git-compatible tags. Tags make their ancestors immutable
 by default; moving an existing tag itself requires `--allow-move`.
 
 ```bash
@@ -946,7 +970,7 @@ jj op diff --from <a> --to <b>  # difference between any two operations
 This is the safety net. Almost anything is reversible. Prefer `jj undo` over trying to manually
 reconstruct state.
 
-`jj undo` has no operation-ID argument in v0.44. Repeated `undo`/`redo` behaves like an editor's
+`jj undo` has no operation-ID argument in v0.45. Repeated `undo`/`redo` behaves like an editor's
 undo stack. Use `jj op revert <op-id>` to apply the inverse of a particular earlier operation
 while retaining later work. `jj op restore <op-id>` creates a new operation whose repository
 state matches the selected point; it does **not** delete the intervening operation history.
@@ -1056,7 +1080,7 @@ understands operation-graph symbols — op-ID hex prefixes, `@`, `@-`, `..` rang
 date predicates. `before("1 day ago")` is **not** valid here; it belongs to the commit-revset
 language, and passing it to `op abandon` fails with `Error: Operation ID "before(...)" is not a
 valid hexadecimal prefix`. `jj util gc --expire` itself only accepts the literal string `"now"` in
-0.44 — arbitrary timestamps aren't supported yet.
+0.45 — arbitrary timestamps aren't supported yet.
 
 ### Wiping the operation log — the reflog-expire equivalent
 
@@ -1294,7 +1318,7 @@ the conflicts themselves. The result is the minimal connected sub-DAG containing
 the conflicts, which is where resolution starts. The same shape — `roots(ancestors(P))::P` — gives
 the introducing-to-current span for any predicate `P`.
 
-**Three forms that read naturally but are not valid revsets in v0.44:**
+**Three forms that read naturally but are not valid revsets in v0.45:**
 
 - `local_bookmarks()` — no such function. `bookmarks()` already returns *local* bookmark targets;
   the remote counterparts are `remote_bookmarks()`, `tracked_remote_bookmarks()`, and
@@ -1304,7 +1328,7 @@ the introducing-to-current span for any predicate `P`.
 - `obslog(@)` — there is no `obslog` (or `evolog`) revset function. A change's evolution, including
   its hidden earlier commit versions, is the **`jj evolog -r @`** command. It cannot be a `jj log`
   revset because those range only over *visible* commits, and superseded versions are hidden — see
-  *Three different logs* above. `jj obslog` remains a command alias for `jj evolog` in v0.44.
+  *Three different logs* above. `jj obslog` remains a command alias for `jj evolog` in v0.45.
 
 ## Config
 
@@ -1318,7 +1342,14 @@ jj config set --user ui.editor nvim
 jj config set --repo user.email "x@y"   # repo-local override
 jj config edit --user
 jj config path --user
+jj config set --file ~/.config/jj/conf.d/aliases.toml ui.editor nvim  # target one exact file
 ```
+
+`config {set,edit,unset}` require a target: `--user`, `--repo`, `--workspace`, or `--file <PATH>`
+(v0.45). `--user` writes the *first* loaded user file — `~/.config/jj/config.toml`, or the first
+entry in a `conf.d/` directory — without prompting. When several user files exist and you need a
+specific one (a `conf.d/` fragment, a file loaded via `--config-file`), name it with `--file`
+instead; the path must be a location jj already recognizes.
 
 Common keys:
 ```toml
@@ -1542,7 +1573,11 @@ Rules that matter for agents:
 - **Completed changes made by raw `git`** can be imported by the next jj command. Mutating Git
   often requires first attaching Git's detached `HEAD` to a branch, and may produce bookmark
   conflicts or divergent changes. If interleaved state looks stale, inspect it before forcing
-  `jj git import`.
+  `jj git import`. In a **non-colocated** repo, `jj git import` no longer imports the commit at a
+  detached Git `HEAD` (v0.45); attach `HEAD` to a branch first if that commit must come across.
+  Colocated repos are unaffected — they track Git `HEAD` continuously.
+- **Git HEAD is tracked per workspace** internally (v0.45), so each jj workspace in a colocated repo
+  can hold its own Git `HEAD`. Existing repos migrate on first use with no action needed.
 - **Don't run `git` and `jj` concurrently** against the same repo — imports/exports race.
   Sequence them.
 - **`gh` works directly** in a colocated repo (it reads `.git`). In a *non*-colocated repo:
@@ -1598,7 +1633,7 @@ There is no per-commit lock. Immutability is a **revset**: every commit in `::im
 prevents them. Building on top is always allowed — `jj new <immutable>` works; only rewriting the
 commit itself is blocked.
 
-You control it by redefining the alias. The v0.44 default:
+You control it by redefining the alias. The v0.45 default:
 
 ```toml
 [revset-aliases]
@@ -1777,7 +1812,9 @@ jj bisect run --range '<known-good>..<known-bad>' -- ./repro.sh
 
 Each candidate becomes the working-copy revision while the command runs, and its commit ID is also
 available as `JJ_BISECT_TARGET`. The bad/good monotonicity assumption must hold; flaky tests or a
-bug that disappears and reappears invalidate binary-search results.
+bug that disappears and reappears invalidate binary-search results. When skipped revisions (exit
+`125`) leave the true first-bad revision ambiguous, jj (v0.45) says so rather than reporting a
+single commit with false confidence.
 
 ## Workspaces (multiple working copies)
 
@@ -1867,8 +1904,9 @@ jj unsign -r <revset>   # remove signatures by rewriting the commits
 - **Divergent change** (a change ID resolves to two visible commits, shown `(divergent)`): a change
   was rewritten in two places. Inspect it with `jj log -r 'divergent()'` and select a side with its
   change offset (`abc/0`, `abc/1`) or its commit ID; the bare change ID is rejected as ambiguous.
-  For a stale rewritten stack, follow the range checks and cleanup in
-  *Change IDs versus commit IDs*; abandoning only its tip leaves the rest divergent.
+  Resolve it automatically with `jj converge`, or for a stale rewritten stack follow the range
+  checks and cleanup in *Change IDs versus commit IDs*; abandoning only its tip leaves the rest
+  divergent.
 - **Hidden commits**: obsolete pre-rewrite versions, including every auto working-copy snapshot.
   They're not gone — find them with `jj evolog` and revive by commit ID (`jj new <commit-id>` /
   `jj edit`), or pull back single files with `jj restore --from <commit-id>`. See
