@@ -1,27 +1,9 @@
 # CLAUDE.md
 
-## Version control
+## Version control (read first)
 
-Run `jj st` at the start of each session — this may be a jj repo on one machine
-and plain Git on another.
+Before the first VCS command, run `jj --ignore-working-copy root`. This may be a jj repo on one machine and plain Git on another.
 
-**IMPORTANT:** if this is a jj repo, manage it with jj, not Git.
+**IMPORTANT:** if it succeeds, use `jj` for all VCS commands, including `log`, `show`, `status` and `diff`. Do not run `git` on jj repos. The `gitStatus` snapshot in the session context is not a reason to use git.
 
-**jj repo (`jj st` succeeds):** use jj commands only. Do not run state-modifying
-`git` commands (`commit`, `push`, `rebase`, `reset`, `branch`, …) without explicit
-permission for that command. Read-only `git log`/`git status` are fine, but prefer
-`jj log`/`jj st`. Push with `jj git push` — it forces with lease natively, so no
-`git push --force`.
-
-**Plain Git (`jj st` fails):** use normal `git` commands.
-
-A `jj pmain` alias is configured: it sets the `main` bookmark to the parent of
-the working copy and pushes it to GitHub. Use it instead of manually moving
-the bookmark and running `jj git push` — but only with explicit permission,
-same as any other push.
-
-Confirm `jj --version` matches the version the book documents in
-`src/hello-world/how-to-install.md` (currently 0.44.0). Flag any mismatch —
-behaviour and prose may diverge.
-
-See `jj-reference.md` in the repo root for details of Jujutsu usage
+jj has no commit hooks, so nothing enforces the pre-commit checks. Run them before `jj commit`, `jj describe` (when finalising a change) and `jj squash`.
