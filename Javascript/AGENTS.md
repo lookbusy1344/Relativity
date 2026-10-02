@@ -1,1 +1,259 @@
-CLAUDE.md
+# Project Overview
+
+## Summary
+
+This is a TypeScript-based special relativity calculator with a web interface. The project implements precise relativistic physics calculations using the Decimal.js library for high-precision arithmetic.
+
+## Version control
+
+Run `jj st` at the start of each session — this may be a jj repo on one machine
+and plain Git on another.
+
+**IMPORTANT:** if this is a jj repo, manage it with jj, not Git.
+
+**jj repo (`jj st` succeeds):** use jj commands only. Do not run state-modifying
+`git` commands (`commit`, `push`, `rebase`, `reset`, `branch`, …) without explicit
+permission for that command. Read-only `git log`/`git status` are fine, but prefer
+`jj log`/`jj st`. Push with `jj git push` — it forces with lease natively, so no
+`git push --force`.
+
+**Plain Git (`jj st` fails):** use normal `git` commands.
+
+A `jj pmain` alias is configured: it sets the `main` bookmark to the parent of
+the working copy and pushes it to GitHub. Use it instead of manually moving
+the bookmark and running `jj git push` — but only with explicit permission,
+same as any other push.
+
+Confirm `jj --version` matches the version the book documents in
+`src/hello-world/how-to-install.md` (currently 0.44.0). Flag any mismatch —
+behaviour and prose may diverge.
+
+See `jj-reference.md` in the repo root for details of Jujutsu usage
+
+## Commands
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Type checking only
+pnpm type-check
+
+# Lint code
+pnpm lint
+
+# Format code
+pnpm format
+
+# Check code formatting
+pnpm format:check
+
+# Run tests (watch mode)
+pnpm test
+
+# Run tests with UI
+pnpm test:ui
+
+# Run tests once (for CI)
+pnpm test:run
+
+# Run a targeted subset of tests by name pattern (much faster than full suite)
+pnpm vitest run -t "pattern"
+pnpm vitest run src/ui/eventHandlers.test.ts -t "pattern"
+
+# Update pnpm (installed via Homebrew)
+brew upgrade pnpm
+
+# Update dependencies interactively
+pnpm update --interactive --latest
+```
+
+## Architecture
+
+### Core Library (`relativity_lib.ts`)
+
+- Exports physics calculation functions using Decimal.js for precision
+- Configurable precision (default 150 decimal places)
+- Constants: speed of light (c), gravity (g), light year, etc.
+- Functions for: Lorentz factors, velocity addition, time dilation, length contraction, relativistic kinematics
+- Specialized calculations: flip-and-burn maneuvers, spacetime intervals, four-momentum, twin paradox
+
+### Galactic Library (`extra_lib.ts`)
+
+- Milky Way star estimation using Monte Carlo integration
+- Three-component density model: exponential thin disk, Gaussian bulge, power-law halo
+- Calibrated to ~200 billion total stars in the galaxy
+
+### UI Layer
+
+- Type-safe DOM element access utilities
+- Event handler factory functions for each calculator section
+
+### Charts
+
+- Chart.js for velocity, distance, and time visualization
+- D3.js-based Minkowski spacetime diagrams with interactive animations
+- Physics data generation from Decimal.js calculations
+
+### Styles
+
+- Modular CSS architecture with separate files for variables, animations, layout, components, and responsive design
+
+## Key Dependencies
+
+- `decimal.js` - High-precision decimal arithmetic for accurate physics calculations
+- `chart.js` - Data visualization for velocity, distance, and time charts
+- `d3-*` - D3.js modules for interactive Minkowski spacetime diagrams
+- `typescript` - Type safety with strict configuration
+- `vite` - Build tool and dev server
+- `vitest` - Fast unit testing framework with watch mode and UI
+- `esbuild` - Fast bundling
+
+## Development Notes
+
+### UI Debugging with Playwright MCP
+
+**IMPORTANT**: The Playwright MCP server is available for debugging web UI issues.
+
+The Playwright MCP server provides browser automation capabilities for investigating UI bugs, testing interactions, and inspecting page state. It uses accessibility tree snapshots rather than screenshots, providing deterministic and structured debugging.
+
+**Common debugging workflows:**
+
+1. **Investigate UI behavior issues:**
+   - Navigate to the page: Ask to browse to `http://localhost:5173` (or specific route)
+   - Capture page snapshot to see all interactive elements
+   - Test interactions (click, type, select) to reproduce issues
+   - Inspect DOM state and JavaScript execution
+
+2. **Debug event handler problems:**
+   - Take snapshot to identify element selectors
+   - Test user interactions to verify event listeners fire
+   - Evaluate JavaScript to check element state
+   - Monitor network requests to verify API calls
+
+3. **Test responsive behavior:**
+   - Resize viewport to different dimensions
+   - Capture snapshots at each size
+   - Verify layout and functionality
+
+4. **Analyze network issues:**
+   - Inspect all network requests/responses
+   - Check timing and payload data
+   - Identify failed requests or slow resources
+
+**Usage pattern:**
+
+- Always request page snapshots first to get current state and selectors
+- Use accessibility-based selectors (ARIA roles, labels) when possible
+- Check network activity when debugging data-related issues
+- Evaluate JavaScript directly for complex state inspection
+
+See `docs/MCP_UI_DEBUGGING.md` for comprehensive documentation on available tools and workflows.
+
+### Testing Requirements
+
+**IMPORTANT**: After making ANY changes to the codebase, always run the test suite to ensure correctness: `pnpm test:run`
+
+- All core physics functions have comprehensive unit tests
+- Tests verify precision handling, edge cases, and mathematical correctness
+- Tests must pass before committing changes or considering work complete
+
+### Build and Type Checking
+
+**IMPORTANT**: Always verify the project builds and type-checks successfully before committing changes.
+
+- Run `pnpm type-check` to ensure TypeScript compilation succeeds
+- Run `pnpm build` to verify the production build completes without errors
+- Both commands must pass before considering work complete
+- These checks catch issues early and ensure the codebase remains buildable
+
+### Code Formatting
+
+**IMPORTANT**: Maintain consistent code formatting across the codebase using Prettier.
+
+- Run `pnpm format:check` to verify all files conform to the formatting rules
+- Run `pnpm format` to automatically format all source files
+- Format checking should be performed alongside type checking and testing before committing changes
+- Configuration is in `.prettierrc.json` (tabs, semicolons, 100-char line width)
+- Files excluded via `.prettierignore` (node_modules, dist, build artifacts)
+
+### Linting
+
+**IMPORTANT**: Run ESLint to catch type safety issues and enforce coding standards.
+
+- Run `pnpm lint` to check for linting errors
+- Run `pnpm lint --fix` to automatically fix auto-fixable issues
+- All linting errors must be resolved before committing changes
+- ESLint enforces the `no-explicit-any` rule, aligning with the project's TypeScript coding standards
+- ESLint uses caching (`.eslintcache`) to speed up subsequent runs by skipping unchanged files
+
+**Pre-commit checklist**:
+
+Always run format and lint to fix issues before committing, then verify:
+
+```bash
+pnpm format        # auto-format all source files
+pnpm lint --fix    # auto-fix linting issues
+```
+
+1. `pnpm test:run` - Verify all tests pass
+2. `pnpm type-check` - Verify TypeScript compilation succeeds
+3. `pnpm format:check` - Verify code formatting is consistent
+4. `pnpm lint` - Verify no linting errors
+5. `pnpm build` - Verify production build completes
+
+### Precision Handling Policy
+
+To maintain calculation accuracy throughout the application:
+
+- **Input Processing**: All user inputs must be immediately converted to `Decimal`. Never use `parseFloat()` or `Number()` on inputs before Decimal conversion.
+  - If the value is known to be a string: use `new Decimal(str)` directly
+  - If the value could be various types: use `rl.ensure(value)`
+- **Calculations**: All physics calculations must be performed entirely in Decimal.js. String values should be passed directly to Decimal constructors to preserve precision.
+- **Display**: Result labels must be converted directly from `Decimal` to strings using `rl.formatSignificant()` or similar formatting functions.
+- **Visualization Exception**: Floats are acceptable **only** for Chart.js and D3.js rendering contexts.
+
+**Conversion Rules (No Exceptions):**
+
+| Source Type        | Target Type       | Correct Pattern                        | Wrong Pattern                    |
+| ------------------ | ----------------- | -------------------------------------- | -------------------------------- |
+| Decimal → number   | For charting/D3   | `decimal.toNumber()`                   | `parseFloat(decimal.toString())` |
+| String → Decimal   | For physics       | `new Decimal(str)` or `rl.ensure(str)` | `parseFloat(str)` then Decimal   |
+| DOM input → number | For charting only | `parseFloat(input.value)`              | N/A                              |
+| Decimal → string   | For display       | `rl.formatSignificant(decimal)`        | `decimal.toString()` then format |
+
+**When `parseFloat()` is Allowed:**
+
+- Reading HTML input element values: `parseFloat(input.value)`
+- Reading HTML attributes: `parseFloat(slider.min)`
+- Reading dataset values: `parseFloat(el.dataset.value)`
+
+**When `parseFloat()` is Prohibited:**
+
+- Converting Decimal objects: use `.toNumber()` instead
+- Processing user input for physics: use `rl.ensure()` instead
+
+**Rationale**: JavaScript's `Number` type uses 64-bit IEEE 754 floats, which lose precision for values requiring more than ~15-17 significant digits. Relativistic calculations often require higher precision, especially for velocities near the speed of light.
+
+### TypeScript Coding Standards
+
+**IMPORTANT**: Never use `as any` type casts in production or test code.
+
+- Type assertions bypass TypeScript's type safety and mask potential errors
+- Use proper type guards, type narrowing, or unknown types instead
+- If a type seems unavoidable, the underlying design likely needs refactoring
+- Exception: Legitimate uses are extremely rare and require explicit justification
+
+**Alternatives to `as any`:**
+
+- Type guards: `if (typeof x === 'string')`
+- Type narrowing: `if ('property' in obj)`
+- Generic constraints: `<T extends BaseType>`
+- Unknown type: `value as unknown as TargetType` (two-step assertion when necessary)
+- Proper interface definitions for external libraries
