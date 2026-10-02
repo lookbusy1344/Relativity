@@ -14,6 +14,7 @@ jj has no commit hooks. Run the pre-commit checks before `jj commit`, `jj descri
 If a change touches only non-code files (`*.md`), skip the cargo steps.
 
 ## Privacy & Security
+
 - No PII in commits — use placeholders (`your@email.com`, `YOUR_TEAM_ID`, etc.)
 - Test files use synthetic/mock data only
 
