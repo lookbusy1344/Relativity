@@ -2196,3 +2196,136 @@ describe("fuel mass calculation across input ranges", () => {
 		expect(earthMasses.toNumber()).toBeLessThan(700);
 	});
 });
+
+describe("Adaptive precision", () => {
+	const BASE_PRECISION = 150;
+	const GUARD_DIGITS = 50;
+
+	describe("precisionForRapidity", () => {
+		it("returns the configured precision for small rapidity", () => {
+			expect(rl.precisionForRapidity(1)).toBe(BASE_PRECISION);
+		});
+
+		it("returns ceil(2 * rapidity / ln 10) + guard digits for large rapidity", () => {
+			// 2 * 206 / 2.302585... = 178.93 -> 179, plus 50 guard digits
+			expect(rl.precisionForRapidity(206)).toBe(179 + GUARD_DIGITS);
+		});
+
+		it("is not capped, so callers can compare against MAX_PRECISION", () => {
+			// 2 * 1e6 / 2.302585... = 868588.96 -> 868589, plus 50 guard digits
+			expect(rl.precisionForRapidity(1e6)).toBe(868589 + GUARD_DIGITS);
+			expect(rl.precisionForRapidity(1e6)).toBeGreaterThan(rl.MAX_PRECISION);
+		});
+	});
+
+	describe("withPrecision", () => {
+		it("applies the precision inside the callback and restores it afterwards", () => {
+			const inside = rl.withPrecision(300, () => Decimal.precision);
+			expect(inside).toBe(300);
+			expect(Decimal.precision).toBe(BASE_PRECISION);
+		});
+
+		it("restores the precision when the callback throws", () => {
+			expect(() =>
+				rl.withPrecision(300, () => {
+					throw new Error("boom");
+				})
+			).toThrow("boom");
+			expect(Decimal.precision).toBe(BASE_PRECISION);
+		});
+
+		it("formatSignificant shows digits after a run of 9s longer than the configured precision", () => {
+			const nines = "9".repeat(178);
+			const value = new Decimal(`0.${nines}87654`);
+			expect(rl.formatSignificant(value, "9", 3)).toBe(`0.${nines}876`);
+		});
+
+		it("velocity as a fraction of c at 200g for 365 days keeps its leading 9s", () => {
+			const accel = rl.g.mul(200);
+			const secs = new Decimal(365).mul(86400);
+			const rapidity = accel.mul(secs).div(rl.c);
+			const vc = rl.withPrecision(rl.precisionForRapidity(rapidity), () =>
+				rl.relativisticVelocity(accel, secs).div(rl.c)
+			);
+			// 1 - tanh(r) ~ 2 * exp(-2r), so the run of 9s has floor(2r / ln10 - log10 2) digits
+			const nines = Math.floor((2 * rapidity.toNumber()) / Math.LN10 - Math.log10(2));
+			expect(rl.formatSignificant(vc, "9", 3)).toMatch(new RegExp(`^0\\.9{${nines}}\\d{3}$`));
+		});
+
+		it("keeps v < c at rapidity 206 (200g for 365 days), where base precision rounds to c", () => {
+			const accel = rl.g.mul(200);
+			const secs = new Decimal(365).mul(86400);
+			const rapidity = accel.mul(secs).div(rl.c);
+			expect(rl.relativisticVelocity(accel, secs).gte(rl.c)).toBe(true);
+
+			const precision = rl.precisionForRapidity(rapidity);
+			const { v, gamma } = rl.withPrecision(precision, () => {
+				const v = rl.relativisticVelocity(accel, secs);
+				return { v, gamma: rl.lorentzFactor(v) };
+			});
+			expect(v.lt(rl.c)).toBe(true);
+			// gamma = cosh(rapidity) ~ e^rapidity / 2 ; log10 = rapidity / ln10 - log10(2)
+			const expectedLog10 = rapidity.toNumber() / Math.LN10 - Math.log10(2);
+			expect(Math.log10(gamma.toNumber())).toBeCloseTo(expectedLog10, 6);
+		});
+	});
+});
+
+describe("Fuel at extreme mass ratios", () => {
+	const EFFICIENCY = 0.85;
+	const CHARGED_FRACTION = 0.4;
+	const PION_EXHAUST_FRACTION = 0.94;
+	const veEff = rl.c.mul(PION_EXHAUST_FRACTION).mul(EFFICIENCY).mul(CHARGED_FRACTION);
+
+	// thrust time that makes a * t / ve_eff equal to the given exponent
+	const timeForExponent = (exponent: Decimal.Value, accel: Decimal) =>
+		new Decimal(exponent).mul(veEff).div(accel);
+
+	describe("pionRocketMassRatio", () => {
+		it("is 2 when a * t / ve_eff = ln 2", () => {
+			const t = timeForExponent(Decimal.ln(2), rl.g);
+			const ratio = rl.pionRocketMassRatio(t, rl.g, EFFICIENCY);
+			expect(ratio.minus(2).abs().lt("1e-100")).toBe(true);
+		});
+	});
+
+	describe("pionRocketFuelMass", () => {
+		it("equals the dry mass at mass ratio 2", () => {
+			const t = timeForExponent(Decimal.ln(2), rl.g);
+			const fuel = rl.pionRocketFuelMass(t, rl.g, 1000, EFFICIENCY);
+			expect(fuel.minus(1000).abs().lt("1e-90")).toBe(true);
+		});
+
+		it("is finite where 1 - 1/ratio rounds to 1 (exponent 645, ratio ~1e280)", () => {
+			const exponent = 645;
+			const t = timeForExponent(exponent, rl.g);
+			const fuel = rl.pionRocketFuelMass(t, rl.g, 78000, EFFICIENCY);
+			expect(fuel.isFinite()).toBe(true);
+			// log10(78000 * (e^645 - 1)) = log10(78000) + 645 / ln 10
+			const expectedLog10 = Math.log10(78000) + exponent / Math.LN10;
+			expect(Decimal.log10(fuel).toNumber()).toBeCloseTo(expectedLog10, 6);
+		});
+	});
+
+	describe("formatFuelPercent", () => {
+		it("formats mass ratio 2 as 50", () => {
+			expect(rl.formatFuelPercent(new Decimal(2))).toBe("50");
+		});
+
+		it("keeps the run of 9s for ratio 3e300", () => {
+			// 100 * (1 - 1/(3e300)) = 99.(298 nines)6666...
+			const nines = "9".repeat(298);
+			expect(rl.formatFuelPercent(new Decimal("3e300"))).toBe(`99.${nines}66`);
+		});
+
+		it("falls back to the shortfall from 100 when the run of 9s needs more than MAX_PRECISION digits", () => {
+			// shortfall = 100 / 3e2500 = 3.33e-2499
+			expect(rl.formatFuelPercent(new Decimal("3e2500"))).toBe("100 − 3.33e-2499");
+		});
+
+		it("restores the global precision", () => {
+			rl.formatFuelPercent(new Decimal("3e300"));
+			expect(Decimal.precision).toBe(150);
+		});
+	});
+});

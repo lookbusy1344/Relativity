@@ -120,6 +120,41 @@ export function checkVelocity(velocity: NumberInput): Decimal {
 	return v;
 }
 
+/** Upper bound on decimal digits used for high-rapidity calculations */
+export const MAX_PRECISION = 2000;
+
+/** Digits kept beyond those lost to v = c * tanh(rapidity) rounding towards c */
+const PRECISION_GUARD_DIGITS = 50;
+
+/**
+ * Digits needed to resolve 1 - tanh(rapidity), which is about 2 * exp(-2 * rapidity).
+ * Never lower than the configured precision. Values above MAX_PRECISION are too slow to compute.
+ * @param rapidity The rapidity (a * tau / c)
+ * @returns The precision in significant digits
+ */
+export function precisionForRapidity(rapidity: NumberInput): number {
+	const needed =
+		Math.ceil(ensure(rapidity).abs().mul(2).div(Decimal.ln(10)).toNumber()) +
+		PRECISION_GUARD_DIGITS;
+	return Math.max(precisionConfigured, needed);
+}
+
+/**
+ * Run a synchronous calculation at a temporary Decimal precision, then restore the previous one
+ * @param precision The precision in significant digits
+ * @param fn The calculation
+ * @returns The result of fn
+ */
+export function withPrecision<T>(precision: number, fn: () => T): T {
+	const previous = Decimal.precision;
+	Decimal.set({ precision });
+	try {
+		return fn();
+	} finally {
+		Decimal.set({ precision: previous });
+	}
+}
+
 /**
  * Calculate proper time (sec) to reach a given velocity under constant proper acceleration
  * @param accel The acceleration in m/s^2
@@ -655,6 +690,25 @@ export function pionRocketFuelFraction(
 	nozzleEfficiency: NumberInput = 0.85,
 	chargedFraction: NumberInput = 0.4
 ): Decimal {
+	const massRatio = pionRocketMassRatio(thrustTime, accel, nozzleEfficiency, chargedFraction);
+	// Propellant fraction = 1 - (Mf/M0) = 1 - 1/mass_ratio
+	return one.minus(one.div(massRatio));
+}
+
+/**
+ * Initial-to-final mass ratio (M0/Mf) of a pion rocket under constant proper acceleration
+ * @param thrustTime Duration of thrust in seconds
+ * @param accel Constant proper acceleration (m/s²). Default = 1g
+ * @param nozzleEfficiency Magnetic nozzle effectiveness (0–1). Default = 0.85
+ * @param chargedFraction Fraction of annihilation energy in charged pions (0–1). Default = 0.4
+ * @returns The mass ratio, 1 when the effective exhaust velocity is zero
+ */
+export function pionRocketMassRatio(
+	thrustTime: NumberInput,
+	accel: NumberInput = g,
+	nozzleEfficiency: NumberInput = 0.85,
+	chargedFraction: NumberInput = 0.4
+): Decimal {
 	const timeD = check(thrustTime, "Invalid thrust time");
 	const accelD = check(accel, "Invalid acceleration");
 	const nozzleEffD = check(nozzleEfficiency, "Invalid nozzle efficiency");
@@ -669,14 +723,48 @@ export function pionRocketFuelFraction(
 	const veEffective = ve.mul(chargedFractionD);
 
 	if (veEffective.lte(0)) {
-		return new Decimal(0);
+		return one;
 	}
 
 	// Mass ratio M0/Mf = exp(a*t / v_e_effective)
-	const massRatio = accelD.mul(timeD).div(veEffective).exp();
+	return accelD.mul(timeD).div(veEffective).exp();
+}
 
-	// Propellant fraction = 1 - (Mf/M0) = 1 - 1/mass_ratio
-	return one.minus(one.div(massRatio));
+/**
+ * Propellant mass for a pion rocket. Computed as dry_mass * (ratio - 1), which stays
+ * finite at mass ratios where the fuel fraction 1 - 1/ratio rounds to 1.
+ * @param thrustTime Duration of thrust in seconds
+ * @param accel Constant proper acceleration (m/s²)
+ * @param dryMass Mass of the ship without propellant (kg)
+ * @param nozzleEfficiency Magnetic nozzle effectiveness (0–1)
+ * @param chargedFraction Fraction of annihilation energy in charged pions (0–1)
+ * @returns Propellant mass in kg
+ */
+export function pionRocketFuelMass(
+	thrustTime: NumberInput,
+	accel: NumberInput,
+	dryMass: NumberInput,
+	nozzleEfficiency: NumberInput = 0.85,
+	chargedFraction: NumberInput = 0.4
+): Decimal {
+	const massRatio = pionRocketMassRatio(thrustTime, accel, nozzleEfficiency, chargedFraction);
+	return ensure(dryMass).mul(massRatio.minus(one));
+}
+
+/**
+ * Format the propellant fraction 100 * (1 - 1/ratio) as a percentage, keeping the run of
+ * leading 9s. When that needs more than MAX_PRECISION digits, shows the shortfall from 100.
+ * @param massRatio The mass ratio M0/Mf
+ * @returns The percentage without a unit
+ */
+export function formatFuelPercent(massRatio: Decimal): string {
+	const percentShortfall = new Decimal(100).div(massRatio);
+	const precision = precisionConfigured + Math.max(0, Math.ceil(massRatio.log(10).toNumber()));
+	if (precision > MAX_PRECISION) {
+		return `100 − ${percentShortfall.toExponential(2)}`;
+	}
+	const percent = withPrecision(precision, () => new Decimal(100).minus(percentShortfall));
+	return formatSignificant(percent, "9", 2);
 }
 
 /**
@@ -749,7 +837,7 @@ export function formatSignificant(
 	// For normal case, we can use exact rounding
 	const needsFullPrecision = ignoreChar.length > 0;
 	const maxDecimalPlaces = needsFullPrecision
-		? Math.max(precisionConfigured, significantDecimalPlaces + 50)
+		? Math.max(precisionConfigured, significantDecimalPlaces + 50, value.decimalPlaces())
 		: significantDecimalPlaces;
 
 	const str = value.toFixed(maxDecimalPlaces);

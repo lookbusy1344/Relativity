@@ -459,13 +459,78 @@ describe("Event Handler Factories", () => {
 			expect(accelInput.value).toBe("10000");
 		});
 
-		it("shows precision error for 1000g over 100 days", async () => {
-			const { handler, resultA2 } = makeAccelHandler("100", "1000");
+		it("shows precision error when rapidity exceeds the maximum precision (10000g over 60000 days)", async () => {
+			const { handler, resultA2 } = makeAccelHandler("60000", "10000");
 
 			handler();
 			await new Promise(resolve => setTimeout(resolve, 10));
 
 			expect(resultA2.textContent).toContain("Precision limit exceeded");
+		});
+
+		it("calculates 200g over 365 days without a precision error", async () => {
+			const { handler, resultA2 } = makeAccelHandler("365", "200");
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 10));
+
+			expect(resultA2.textContent).not.toContain("Precision limit exceeded");
+			expect(resultA2.textContent).not.toContain("Working");
+		});
+
+		it("displays unrounded velocity, fuel mass and fuel fraction for 200g over 365 days", async () => {
+			const GRAVITY = 9.80665;
+			const SPEED_OF_LIGHT = 299792458;
+			const SECONDS_PER_DAY = 86400;
+			const EXHAUST_FACTOR = 0.94 * 0.85 * 0.4;
+			const accelG = 200;
+			const days = 365;
+
+			const inputs = ["200", "365", "78000", "0.85"].map(value => {
+				const input = document.createElement("input");
+				input.value = value;
+				return input;
+			});
+			const [resultA1, resultA2, resultA1b, resultA2b, resultAFuel, resultAFuelFraction] =
+				Array.from({ length: 6 }, () => document.createElement("span"));
+			const chartRegistry: { current: ChartRegistry } = { current: new Map() };
+			const handler = createAccelHandler(
+				() => inputs[0],
+				() => inputs[1],
+				() => inputs[2],
+				() => inputs[3],
+				() => [
+					resultA1,
+					resultA2,
+					resultA1b,
+					resultA2b,
+					resultAFuel,
+					resultAFuelFraction,
+					null,
+					null,
+					null,
+					null,
+				],
+				chartRegistry
+			);
+
+			handler();
+			await new Promise(resolve => setTimeout(resolve, 50));
+
+			// rapidity r = a * tau / c; 1 - tanh(r) ~ 2 exp(-2r) gives floor(2r / ln10 - log10 2) leading 9s
+			const rapidity = (accelG * GRAVITY * days * SECONDS_PER_DAY) / SPEED_OF_LIGHT;
+			const velocityNines = Math.floor((2 * rapidity) / Math.LN10 - Math.log10(2));
+			expect(resultA1b.textContent).toMatch(new RegExp(`^0\\.9{${velocityNines}}\\d{3} c$`));
+			expect(resultA1.textContent).toMatch(/^299,792,457\.9{100,}\d{2} m\/s$/);
+
+			// fuel fraction = 100 * (1 - exp(-x)), x = r / exhaust factor; shortfall = 10^(2 - x / ln10)
+			const exponent = rapidity / EXHAUST_FACTOR;
+			const fractionNines = Math.ceil(exponent / Math.LN10 - 2) - 1;
+			expect(resultAFuelFraction.textContent).toMatch(
+				new RegExp(`^99\\.9{${fractionNines}}\\d{2} %$`)
+			);
+			expect(resultAFuel.textContent).toMatch(/Observable Universe masses/);
+			expect(resultAFuel.textContent).not.toMatch(/Infinity|NaN/);
 		});
 
 		// Spot-check DOM wiring at high-g where the epsilon guard would fire.

@@ -127,10 +127,22 @@ export function createAccelHandler(
 				const accel = rl.g.mul(accelGStr);
 				const secs = rl.ensure(timeStr).mul(60 * 60 * 24);
 
-				const relVel = rl.relativisticVelocity(accel, secs);
-				const relDist = rl.relativisticDistance(accel, secs);
-				const relVelC = relVel.div(rl.c);
-				const lorentz = rl.lorentzFactor(relVel);
+				const precision = rl.precisionForRapidity(accel.mul(secs).div(rl.c));
+				if (precision > rl.MAX_PRECISION) {
+					if (resultA2)
+						setElement(resultA2, "Precision limit exceeded — reduce acceleration or time", "");
+					pendingCalculation = null;
+					return;
+				}
+				const { relVel, relVelC, relDist, lorentz } = rl.withPrecision(precision, () => {
+					const relVel = rl.relativisticVelocity(accel, secs);
+					return {
+						relVel,
+						relVelC: relVel.div(rl.c),
+						relDist: rl.relativisticDistance(accel, secs),
+						lorentz: rl.lorentzFactor(relVel),
+					};
+				});
 
 				if (!lorentz.isFinite() || relVel.gte(rl.c)) {
 					if (resultA2)
@@ -157,9 +169,8 @@ export function createAccelHandler(
 				// Calculate fuel fraction using user-provided efficiency
 				const dryMass = rl.ensure(dryMassStr);
 				const efficiency = rl.ensure(efficiencyStr);
-				const fuelFraction = rl.pionRocketFuelFraction(secs, accel, efficiency);
-				const fuelMass = fuelFraction.mul(dryMass).div(rl.one.minus(fuelFraction));
-				const fuelPercent = fuelFraction.mul(100);
+				const massRatio = rl.pionRocketMassRatio(secs, accel, efficiency);
+				const fuelMass = rl.pionRocketFuelMass(secs, accel, dryMass, efficiency);
 
 				if (resultA1) setElement(resultA1, rl.formatSignificant(relVel, "9", 2), "m/s");
 				if (resultA2) {
@@ -179,7 +190,7 @@ export function createAccelHandler(
 				}
 				if (resultAFuel) setElement(resultAFuel, rl.formatMassWithUnit(fuelMass), "");
 				if (resultAFuelFraction)
-					setElement(resultAFuelFraction, rl.formatSignificant(fuelPercent, "9", 2), "%");
+					setElement(resultAFuelFraction, rl.formatFuelPercent(massRatio), "%");
 
 				if (resultAPeakLorentz)
 					setElement(resultAPeakLorentz, rl.formatSignificant(lorentz, "0", 2), "");
