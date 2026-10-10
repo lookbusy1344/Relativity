@@ -52,9 +52,9 @@ export function createFlipBurnHandler(
 			if (accelGDec.lt(0.01)) {
 				accelGStr = "0.01";
 				accelInput.value = "0.01";
-			} else if (accelGDec.gt(10000)) {
-				accelGStr = "10000";
-				accelInput.value = "10000";
+			} else if (accelGDec.gt(10000000)) {
+				accelGStr = "10000000";
+				accelInput.value = "10000000";
 			}
 		} catch {
 			accelGStr = "1";
