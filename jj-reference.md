@@ -1,6 +1,6 @@
 # Jujutsu (jj) — Reference for Agents and Humans
 
-**Validated:** 2026-09-06 · **jj version:** v0.45.1 · docs: `jj-vcs.dev/latest`
+**Validated:** 2026-10-08 · **jj version:** v0.46.0 · docs: `jj-vcs.dev/latest`
 
 A guide to driving `jj` non-interactively. Written for agents; useful to anyone scripting or
 learning jj. Assumes git familiarity.
@@ -98,7 +98,7 @@ changes the working-copy revision. Capture the full change ID when a durable ide
 - Disable the pager with `--no-pager` or `[ui] paginate = "never"`.
 - Avoid editors: pass `-m "msg"` to `describe`/`commit`, and use paths or explicit revisions
   instead of interactive `split`/`squash -i`. Two non-interactive forms still open an editor:
-  `jj split <paths>` prompts for the first change's message (pass `-m`), and `jj squash` prompts
+  `jj split <paths>` opens one editor session for both descriptions (pass `-m`), and `jj squash` prompts
   to merge descriptions when source and destination both have one (pass `-m`, or `-u` to keep
   the destination's).
 - Name logical work by full change ID; commit hashes change after rewrites.
@@ -106,8 +106,17 @@ changes the working-copy revision. Capture the full change ID when a durable ide
   `jj rebase -r/-s/-b ... -o ...` over the implicit branch containing `@`.
 - Use `--no-graph -T <template>` for parseable output and predicates such as `conflicts()` or
   `empty()` instead of parsing rendered status text.
-- Use `--ignore-working-copy` for read-only inspection only when a possibly stale snapshot is
-  acceptable.
+- Mutating commands snapshot first on their own; do not run `jj st` before them. Run `jj st` when
+  you need the current state of `@`: once at the start of a task and once to review a batch of
+  edits, not every turn. Pass `--ignore-working-copy` to history and operation reads (`log`,
+  `show <committed-rev>`, `op log`, `evolog`, `bookmark list`); they then reflect the last
+  snapshot. Do not use it with `st` or `diff` of `@` (they hide unsaved edits) or with mutating
+  commands (the working copy goes stale).
+- Detect a jj repo with `jj --ignore-working-copy root`; it does not snapshot.
+- Never issue jj commands in parallel tool calls. Concurrent snapshots each rewrite `@` and leave a
+  divergent change. Subagents sharing the checkout use `--ignore-working-copy` only. Background
+  tools (watchman snapshot trigger, editor integrations, dashboards) race the same way unless they
+  pass `--ignore-working-copy`.
 - Immutable commits are protected. Do not routinely bypass the guard with `--ignore-immutable`.
 - When an operation goes wrong, inspect `jj op log` and prefer `jj undo` over manual graph repair.
 - `-R <path>` targets another repository; `--at-op <op>` inspects a past operation without
@@ -711,7 +720,9 @@ only if its current ref still matches the last fetched state. Fetch and resolve 
 of bypassing that protection when the remote moved independently.
 
 The push remote is selected by `--remote`, `git.push`, or jj's remote-name fallback; it is not
-inferred separately from each tracked bookmark. One push cannot target multiple remotes.
+inferred separately from each tracked bookmark. One push can target several remotes (v0.46):
+repeat `--remote` (it also takes string patterns), or set `git.push` to a pattern or an array of
+patterns. `revsets.git-push` sets the default revisions a bare `jj git push` considers.
 
 ## GitHub / PR workflow
 
@@ -970,8 +981,9 @@ jj op diff --from <a> --to <b>  # difference between any two operations
 This is the safety net. Almost anything is reversible. Prefer `jj undo` over trying to manually
 reconstruct state.
 
-`jj undo` has no operation-ID argument in v0.45. Repeated `undo`/`redo` behaves like an editor's
-undo stack. Use `jj op revert <op-id>` to apply the inverse of a particular earlier operation
+`jj undo` has no operation-ID argument. Repeated `undo`/`redo` behaves like an editor's
+undo stack. Since v0.46 `undo`/`redo` refuse an operation performed in another workspace; pass
+`--allow-cross-workspace`, or use `jj op revert <op-id>` on that operation. Use `jj op revert <op-id>` to apply the inverse of a particular earlier operation
 while retaining later work. `jj op restore <op-id>` creates a new operation whose repository
 state matches the selected point; it does **not** delete the intervening operation history.
 
@@ -1043,8 +1055,10 @@ Snapshot explicitly, or suppress snapshotting for a read-only command:
 ```bash
 jj st                           # snapshot, then display status
 jj util snapshot                # snapshot without another action
-jj --ignore-working-copy st     # suppress snapshot/update; repository state may be stale
+jj --ignore-working-copy log    # suppress snapshot/update; shows state as of the last snapshot
 ```
+
+`jj root` does not snapshot. `jj log` and `jj op log` do.
 
 For wholesale loss, prefer `jj undo` or `jj op restore <op-id>` over reviving individual commits.
 Snapshots are recovery aids, not backups: `jj util gc` can reclaim hidden commits and operations
@@ -1138,6 +1152,7 @@ jj util config-schema     # emits the JSON schema (draft-04) for jj's TOML confi
                           # feed it to a validator or editor for config linting/completion.
 jj util exec -- <cmd> ... # run an external command via jj — the basis for multi-command
                           # aliases (wrap in `sh -c` to chain jj commands; see [aliases] config).
+jj util diff <a> <b>      # diff two files on disk with jj's diff formats (v0.46)
 jj util completion <shell>   # shell-completion script
 jj util install-man-pages <dir>
 jj util markdown-help     # full CLI help as Markdown
@@ -1401,6 +1416,9 @@ you the shell operators. Points to watch:
 - **Exit status.** `&&` short-circuits, so a failed `bookmark set` aborts before the push and
   the alias exits non-zero — safe to chain in scripts.
 
+Disable an alias, built-in or from an earlier config layer, with `aliases.<name>.enabled = false`
+(v0.46).
+
 ## Fsmonitor (watchman)
 
 Watchman can replace jj's full tracked-file stat walk with an OS-backed changed-path query, which
@@ -1577,7 +1595,8 @@ Rules that matter for agents:
   detached Git `HEAD` (v0.45); attach `HEAD` to a branch first if that commit must come across.
   Colocated repos are unaffected — they track Git `HEAD` continuously.
 - **Git HEAD is tracked per workspace** internally (v0.45), so each jj workspace in a colocated repo
-  can hold its own Git `HEAD`. Existing repos migrate on first use with no action needed.
+  can hold its own Git `HEAD`. Existing repos migrate on first use with no action needed. Since
+  v0.46 each colocated workspace is also a Git worktree (see [Workspaces](#workspaces-multiple-working-copies)).
 - **Don't run `git` and `jj` concurrently** against the same repo — imports/exports race.
   Sequence them.
 - **`gh` works directly** in a colocated repo (it reads `.git`). In a *non*-colocated repo:
@@ -1685,7 +1704,14 @@ jj file search --pattern <pat>  # grep across tracked files, prefixed by path
 jj file annotate <path>         # blame: source change per line
 jj file chmod (normal|executable) <path>...  # set/clear exec bit — works cross-platform,
                                  # even on Windows and on conflicted files
+jj file edit -r <rev> <path>    # edit one file in any revision via ui.editor; descendants rebase
+jj file delete -r <rev> <fileset>...  # delete paths from a revision without touching @
 ```
+
+`file edit` and `file delete` (v0.46) rewrite the revision in place; `--restore-descendants` keeps
+descendants' content rather than their diff. `file edit` creates the file if absent and
+materializes conflict markers if it is conflicted. Agents drive it with a scripted editor that
+receives the temp path as `$1`: `jj --config "ui.editor=['./write.sh']" file edit -r <rev> <path>`.
 
 Config `[snapshot] auto-track = "none()"` disables auto-tracking if you want explicit control
 (pattern is a fileset, e.g. `"glob:**/*.rs"` to only auto-track Rust files).
@@ -1813,31 +1839,43 @@ jj bisect run --range '<known-good>..<known-bad>' -- ./repro.sh
 Each candidate becomes the working-copy revision while the command runs, and its commit ID is also
 available as `JJ_BISECT_TARGET`. The bad/good monotonicity assumption must hold; flaky tests or a
 bug that disappears and reappears invalidate binary-search results. When skipped revisions (exit
-`125`) leave the true first-bad revision ambiguous, jj (v0.45) says so rather than reporting a
+`125`) leave the true first-bad revision ambiguous, jj says so rather than reporting a
 single commit with false confidence.
+
+Before bisecting, `jj bisect run` (v0.46) checks that the command tells the endpoints apart and
+that the range goes from bad to good. `--trust-endpoints` skips these checks.
 
 ## Workspaces (multiple working copies)
 
-jj's answer to git worktrees: several working directories backed by one repo (`.jj` store).
+Several working directories backed by one repo (`.jj` store).
 Each workspace has its **own independent `@`** working-copy commit, so agents can work on
 different revisions in parallel without stashing or switching.
 
 ```bash
 jj workspace add ../feature-b            # new working copy in ../feature-b, its own @
 jj workspace add --name build ../wc2 -r <rev>  # named, starting at a revision
+jj workspace add --no-colocate ../wc3    # no Git worktree
 jj workspace list                        # all workspaces + their @
 jj workspace root                        # path of current workspace root
 jj workspace rename <new>
-jj workspace forget [<name>]             # unregister a workspace (leaves the dir on disk)
+jj workspace remove <name>...            # snapshot, unregister, delete dir and Git worktree
+jj workspace forget [<name>]             # unregister; leaves the dir, removes the Git worktree
 jj workspace update-stale                # resync a workspace whose @ was rewritten elsewhere
 ```
+
+**Colocated workspaces (v0.46).** In a colocated repo with `git.colocate = true` (the default),
+`workspace add` also creates a Git worktree: the new directory gets a `.git` file pointing at
+`<repo>/.git/worktrees/<name>`, so `git` and `gh` work there. This needs `git` ≥ 2.42.
+`jj git colocation status|enable|disable` works per workspace to toggle it later.
 
 Notes:
 - All workspaces share history, bookmarks, and the operation log. Rewriting a commit in one can
   leave another's `@` **stale** → `jj workspace update-stale` there.
-- Cleanup is two steps: `jj workspace forget <name>`, then delete the directory.
-- Unlike git worktrees there's no per-tree branch checkout to manage — each just points its `@`
-  at a revision. jj's operation log integrates concurrent jj operations. Avoid
+- Cleanup: `jj workspace remove <name>`. It snapshots the target first, so it fails on a stale
+  workspace; run `jj workspace update-stale` there first.
+- `jj undo`/`redo` refuse operations from another workspace (see
+  [Undo / operation log](#undo--operation-log)).
+- There's no per-tree branch checkout to manage — each just points its `@` at a revision. jj's operation log integrates concurrent jj operations. Avoid
   editing the same working-copy commit from multiple workspaces: one workspace will become stale.
   Colocated repositories still share a Git backend, so do not concurrently mix mutating Git and
   jj commands.

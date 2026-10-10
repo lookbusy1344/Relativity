@@ -6,19 +6,12 @@ This is a TypeScript-based special relativity calculator with a web interface. T
 
 ## Version control (read first)
 
-Before the first VCS command, run `jj --ignore-working-copy root`. This may be a jj repo on one machine and plain Git on another.
-
-**IMPORTANT:** if it succeeds, use `jj` for all VCS commands, including `log`, `show`, `status` and `diff`. Do not run `git` on jj repos. The `gitStatus` snapshot in the session context is not a reason to use git.
-
-jj has no commit hooks. Run the pre-commit checks before `jj commit`, `jj describe` (when finalising a change) and `jj squash`.
-If a change touches only non-code files (`*.md`), skip the cargo steps.
+Follow the version control, pre-commit and pre-push rules in the root `AGENTS.md`. `scripts/pre-commit.sh` and `scripts/pre-push.sh` run the gates listed under "Pre-commit checklist" below. See `jj-reference.md` in the repo root for details of Jujutsu usage.
 
 ## Privacy & Security
 
 - No PII in commits — use placeholders (`your@email.com`, `YOUR_TEAM_ID`, etc.)
 - Test files use synthetic/mock data only
-
-See `jj-reference.md` in the repo root for details of Jujutsu usage
 
 ## Commands
 
@@ -183,9 +176,9 @@ See `docs/MCP_UI_DEBUGGING.md` for comprehensive documentation on available tool
 - ESLint enforces the `no-explicit-any` rule, aligning with the project's TypeScript coding standards
 - ESLint uses caching (`.eslintcache`) to speed up subsequent runs by skipping unchanged files
 
-**Pre-commit checklist**:
+**Pre-commit checklist** (`scripts/checks.sh js` runs all of these):
 
-Always run format and lint to fix issues before committing, then verify:
+Run format and lint to fix issues first, then verify:
 
 ```bash
 pnpm format        # auto-format all source files
